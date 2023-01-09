@@ -1,6 +1,12 @@
 name: Web-lint
 
-on: [push, pull_request]
+on:
+  push:
+    paths: ["web/**"]
+    branches: ["master", "dev"]
+  pull_request:
+    paths: ["web/**"]
+    branches: ["master", "dev"]
 
 defaults:
   run:
