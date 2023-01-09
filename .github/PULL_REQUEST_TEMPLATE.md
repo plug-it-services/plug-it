@@ -10,6 +10,8 @@ Precise the issue that you are resolving.
 - [ ] New feature (change that adds functionality)
 - [ ] Breaking change (change that is not backwards-compatible and/or changes current functionality)
 
+# Changes Type
+
 - [ ] backend update
 - [ ] mobile update
 - [ ] web update
