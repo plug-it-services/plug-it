@@ -1,4 +1,4 @@
-name: Web-cd
+name: Web-ci
 
 on:
   push:
