@@ -1,4 +1,4 @@
-name: Web-lint
+name: Web-cd
 
 on:
   push:
@@ -36,3 +36,15 @@ jobs:
         run: yarn install
       - name: Run cypress
         run: yarn cypress:run
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - name: Install dev dependencies
+        run: yarn install
+      - name: Build app
+        run: yarn build
