@@ -1,0 +1,86 @@
+name: Mobile-ci
+
+on:
+  pull_request:
+    paths: ["mobile/**"]
+    branches: ["master", "dev"]
+
+defaults:
+  run:
+    working-directory: mobile
+
+jobs:
+  build-ios:
+    strategy:
+      matrix:
+        device:
+          - "iPhone 14 Simulator (16.0)"
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: "List all simulators"
+        run: "xcrun xctrace list devices"
+      - name: "Start Simulator"
+        run: |
+          UDID=$(xcrun xctrace list devices | grep "^${{ matrix.device }} (" | awk '{gsub(/[()]/,""); print $NF}')
+          echo $UDID
+          xcrun simctl boot "${UDID:?No Simulator with this name found}"
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          architecture: x64
+          cache: true
+      - run: flutter pub get
+      - run: flutter build ios --release --no-codesign
+      - run: |
+          UDID=$(xcrun xctrace list devices | grep "^${{ matrix.device }} (" | awk '{gsub(/[()]/,""); print $NF}')
+          flutter test integration_test -d ${UDID}
+
+  build-android:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        api-level:
+          - 29
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
+          java-version: '11'
+      - uses: subosito/flutter-action@v2
+        with:
+          cache: true
+      - name: Run integration tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          working-directory: mobile
+          api-level: ${{ matrix.api-level }}
+          script: flutter test integration_test
+      - run: flutter pub get
+      - run: flutter build apk
+      - run: flutter build appbundle
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          architecture: x64
+          cache: true
+      - run: flutter pub get
+      - run: flutter analyze
+
+  fmt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          architecture: x64
+          cache: true
+      - run: flutter pub get
+      - run: flutter format --set-exit-if-changed --dry-run lib test
