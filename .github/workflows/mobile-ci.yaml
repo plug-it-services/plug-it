@@ -18,6 +18,7 @@ jobs:
       with:
         channel: 'stable'
         architecture: x64
+        cache: true
     - run: flutter pub get
     - run: flutter test
     - run: flutter build ios --release --no-codesign
@@ -31,6 +32,8 @@ jobs:
           distribution: 'zulu'
           java-version: '11'
       - uses: subosito/flutter-action@v2
+        with:
+          cache: true
       - run: flutter pub get
       - run: flutter test
       - run: flutter build apk
@@ -44,6 +47,7 @@ jobs:
         with:
           channel: 'stable'
           architecture: x64
+          cache: true
       - run: flutter pub get
       - run: flutter analyze
 
@@ -55,5 +59,6 @@ jobs:
         with:
           channel: 'stable'
           architecture: x64
+          cache: true
       - run: flutter pub get
       - run: flutter format --set-exit-if-changed --dry-run lib test
