@@ -11,28 +11,33 @@ defaults:
 
 jobs:
   build-ios:
+    strategy:
+      matrix:
+        device:
+          - "iPhone 14 Simulator (16.0)"
     runs-on: macos-latest
     steps:
+      - uses: actions/checkout@v3
       - name: "List all simulators"
         run: "xcrun xctrace list devices"
       - name: "Start Simulator"
         run: |
-          UDID=$(xcrun xctrace list devices | grep "^${{ matrix.device }}" | awk '{gsub(/[()]/,""); print $NF}')
+          UDID=$(xcrun xctrace list devices | grep "^${{ matrix.device }} (" | awk '{gsub(/[()]/,""); print $NF}')
           echo $UDID
           xcrun simctl boot "${UDID:?No Simulator with this name found}"
-      - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
           architecture: x64
           cache: true
       - run: flutter pub get
-      - run: flutter test
       - run: flutter build ios --release --no-codesign
-      - run: flutter test integration_test -d ios --verbose
+      - run: |
+          UDID=$(xcrun xctrace list devices | grep "^${{ matrix.device }} (" | awk '{gsub(/[()]/,""); print $NF}')
+          flutter test integration_test -d ${UDID}
 
   build-android:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     strategy:
       matrix:
         api-level:
@@ -46,17 +51,15 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           cache: true
-      - run: flutter pub get
-      - run: flutter test
-      - run: flutter build apk
-      - run: flutter build appbundle
       - name: Run integration tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
+          working-directory: mobile
           api-level: ${{ matrix.api-level }}
-          arch: x86_64
-          profile: Nexus 6
-          script: flutter test integration_test -d android --verbose
+          script: flutter test integration_test
+      - run: flutter pub get
+      - run: flutter build apk
+      - run: flutter build appbundle
 
   lint:
     runs-on: ubuntu-latest
