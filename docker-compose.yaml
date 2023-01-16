@@ -45,6 +45,7 @@ services:
     command:
       - --api.insecure=true
       - --providers.docker
+      - --providers.docker.exposedbydefault=false
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
@@ -56,6 +57,7 @@ services:
   #     - rabbit_network
   #   labels:
   #     - traefik.http.routers.users.rule=Path(/users)
+  #     - traefik.enable=true
   #   depends_on:
   #     - rabbitmq
   #     - elk
