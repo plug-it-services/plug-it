@@ -4,38 +4,67 @@ services:
   rabbitmq:
     image: rabbitmq:3-management-alpine
     ports:
-        - 5672:5672
-        - 15672:15672
+      - ${RABBITMQ_UI_PORT}:15672
     volumes:
         - rabbit_data:/var/lib/rabbitmq/
         - rabbit_logs:/var/log/rabbitmq
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBIT_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBIT_PASSWORD}
+    networks:
+      - rabbit_network
+
+  elk:
+    image: sebp/elk
+    ports:
+      - ${KIBANA_UI_PORT}:5601
+    networks:
+      - elk_network
 
   client_mobile:
-    build: "./mobile"
+    build: ./mobile
     depends_on:
       - client_web
     volumes:
       - client_data:/app
 
   client_web:
-    build: "./web"
-    # depends_on:
-    #   - server
+    build: ./web
+    depends_on:
+      - server
     ports:
       - ${CLIENT_PORT}:80
     volumes:
       - client_data:/usr/share/nginx/html
 
-  # server:
-  #   ports:
-  #     - ${SERVER_PORT}:8080
+  server:
+    image: traefik:latest
+    ports:
+      - ${SERVER_PORT}:80
+      - ${TRAEFIK_UI_PORT}:8080
+    command:
+      - --api.insecure=true
+      - --providers.docker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  ###################   MICROSERVICES  #######################
+
+  # users:
+  #   build: ./api/services/users
+  #   networks:
+  #     - rabbit_network
+  #   labels:
+  #     - traefik.http.routers.users.rule=Path(/users)
   #   depends_on:
   #     - rabbitmq
+  #     - elk
 
 volumes:
   rabbit_data:
   rabbit_logs:
   client_data:
+
+networks:
+  rabbit_network:
+  elk_network:
