@@ -62,6 +62,19 @@ services:
   #     - rabbitmq
   #     - elk
 
+  user-postgres:
+    image: 'postgres:latest'
+    ports:
+      - 5432:5432
+    env_file:
+      - ./api/services/user/.env
+  
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+
 volumes:
   rabbit_data:
   rabbit_logs:
