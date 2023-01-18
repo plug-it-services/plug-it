@@ -11,7 +11,8 @@ import {
 import { AuthService } from './auth/auth.service';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { LocalAuthGuard } from './auth/local-auth.guard';
-import { UserDto } from './users/user.dto';
+import { UserSignupDto } from './users/dto/userSignup.dto';
+import { UserLoginDto } from './users/dto/userLogin.dto';
 
 @Controller()
 export class AppController {
@@ -19,7 +20,7 @@ export class AppController {
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Body() userDto: UserDto, @Response() res) {
+  async login(@Body() userDto: UserLoginDto, @Response() res) {
     const result = await this.authService.login(userDto.email);
     res.cookie('access_token', result.access_token, {
       httpOnly: true,
@@ -30,7 +31,7 @@ export class AppController {
 
   @Post('signup')
   @UsePipes(new ValidationPipe())
-  async signup(@Body() userDto: UserDto) {
+  async signup(@Body() userDto: UserSignupDto) {
     return this.authService.signup(userDto.email, userDto.password);
   }
 
