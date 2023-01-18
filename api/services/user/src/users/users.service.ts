@@ -26,8 +26,13 @@ export class UsersService {
     await this.usersRepository.delete(id);
   }
 
-  async create(email: string, password: string): Promise<User> {
-    return this.usersRepository.save({ email, password });
+  async create(
+    email: string,
+    password: string,
+    firstname: string,
+    lastname: string,
+  ): Promise<User> {
+    return this.usersRepository.save({ email, password, firstname, lastname });
   }
 
   async update(id: string, email: string, password: string): Promise<void> {

@@ -1,11 +1,11 @@
 import {
   Controller,
   Response,
+  Request,
   Post,
   UseGuards,
   Get,
   Body,
-  UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { AuthService } from './auth/auth.service';
@@ -13,10 +13,14 @@ import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { LocalAuthGuard } from './auth/local-auth.guard';
 import { UserSignupDto } from './users/dto/userSignup.dto';
 import { UserLoginDto } from './users/dto/userLogin.dto';
+import { UsersService } from './users/users.service';
 
 @Controller()
 export class AppController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private userService: UsersService,
+  ) {}
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
@@ -26,18 +30,27 @@ export class AppController {
       httpOnly: true,
       sameSite: 'strict',
     });
-    return res.send({ message: 'success' });
+    res.status(200).send({ message: 'success' });
   }
 
   @Post('signup')
-  @UsePipes(new ValidationPipe())
-  async signup(@Body() userDto: UserSignupDto) {
-    return this.authService.signup(userDto.email, userDto.password);
+  async signup(@Body(new ValidationPipe()) userDto: UserSignupDto) {
+    await this.authService.signup(
+      userDto.email,
+      userDto.password,
+      userDto.firstname,
+      userDto.lastname,
+    );
+    return { message: 'success' };
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('verify')
-  verify() {
-    return { message: 'success' };
+  async verify(@Request() req, @Response() res) {
+    const user = await this.userService.findOneById(req.user.id);
+    const { password, ...result } = user; // eslint-disable-line @typescript-eslint/no-unused-vars
+
+    res.setHeader('user', JSON.stringify(result));
+    res.send({ message: 'success' });
   }
 }
