@@ -113,7 +113,6 @@ export class AppController {
       throw new UnauthorizedException();
     }
 
-
     const provider = this.ssoProvidersMappingService.mapping.get(service);
     if (!provider) {
       throw new NotFoundException('Provider not found');

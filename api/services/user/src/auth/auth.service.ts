@@ -60,10 +60,9 @@ export class AuthService {
     }
 
     return {
-        ...user,
-        access_token: this.jwtService.sign({ sub: user.id }),
+      ...user,
+      access_token: this.jwtService.sign({ sub: user.id }),
     };
-
   }
 
   private async userExists(email: string): Promise<boolean> {

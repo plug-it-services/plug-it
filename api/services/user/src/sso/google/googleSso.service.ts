@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { OAuth2Client, TokenPayload } from 'google-auth-library';
+import { OAuth2Client } from 'google-auth-library';
 import { ConfigService } from '@nestjs/config';
 import { SsoService, Profile } from '../sso.service';
 
