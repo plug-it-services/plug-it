@@ -18,6 +18,10 @@ export class UsersService {
     return this.usersRepository.findOneBy({ id });
   }
 
+  async setCrsfToken(id: string, crsfToken: string): Promise<void> {
+    await this.usersRepository.update(id, { crsfToken });
+  }
+
   findOneByEmail(email: string): Promise<User | null> {
     return this.usersRepository.findOneBy({ email: email });
   }

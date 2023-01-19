@@ -8,8 +8,8 @@ import {
   UseGuards,
   Get,
   Body,
-  ValidationPipe,
-} from '@nestjs/common';
+  ValidationPipe, UnauthorizedException
+} from "@nestjs/common";
 import { AuthService } from './auth/auth.service';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { LocalAuthGuard } from './auth/local-auth.guard';
@@ -26,7 +26,14 @@ export class AppController {
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Body() userDto: UserLoginDto, @Response() res) {
+  async login(@Body() userDto: UserLoginDto, @Response() res, @Request() req) {
+    const csrfToken = req.get('crsf_token');
+    if (!csrfToken) {
+      throw new UnauthorizedException();
+    }
+    await this.userService.setCrsfToken(req.user.id, csrfToken);
+
+
     const result = await this.authService.login(userDto.email);
     res.cookie('access_token', result.access_token, {
       httpOnly: true,
@@ -46,12 +53,13 @@ export class AppController {
     return { message: 'success' };
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post('logout')
-  async logout(@Response() res) {
+  async logout(@Request() req, @Response() res) {
     res.clearCookie('access_token');
-    res.status(200).send({ message: 'success' });
+    await this.userService.setCrsfToken(req.user.id, null);
 
-    // TODO - delete the crsf token
+    res.status(200).send({ message: 'success' });
   }
 
   @UseGuards(JwtAuthGuard)
@@ -78,7 +86,11 @@ export class AppController {
   @Get('verify')
   async verify(@Request() req, @Response() res) {
     const user = await this.userService.findOneById(req.user.id);
-    const { password, ...result } = user; // eslint-disable-line @typescript-eslint/no-unused-vars
+    const { password, crsfToken, ...result } = user; // eslint-disable-line @typescript-eslint/no-unused-vars
+
+    if (!req.get('crsf_token') || crsfToken !== req.get('crsf_token')) {
+      throw new UnauthorizedException();
+    }
 
     res.setHeader('user', JSON.stringify(result));
     res.send({ message: 'success' });
