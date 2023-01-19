@@ -8,20 +8,26 @@ import {
   UseGuards,
   Get,
   Body,
-  ValidationPipe, UnauthorizedException
-} from "@nestjs/common";
+  ValidationPipe,
+  UnauthorizedException,
+  Param,
+  NotFoundException,
+} from '@nestjs/common';
 import { AuthService } from './auth/auth.service';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { LocalAuthGuard } from './auth/local-auth.guard';
 import { UserSignupDto } from './users/dto/userSignup.dto';
 import { UserLoginDto } from './users/dto/userLogin.dto';
 import { UsersService } from './users/users.service';
+import { SsoLoginDto } from './sso/dto/ssoLogin.dto';
+import SsoProvidersMappingService from './sso/ssoProvider.service';
 
 @Controller()
 export class AppController {
   constructor(
     private authService: AuthService,
     private userService: UsersService,
+    private ssoProvidersMappingService: SsoProvidersMappingService,
   ) {}
 
   @UseGuards(LocalAuthGuard)
@@ -33,7 +39,6 @@ export class AppController {
     }
     await this.userService.setCrsfToken(req.user.id, csrfToken);
 
-
     const result = await this.authService.login(userDto.email);
     res.cookie('access_token', result.access_token, {
       httpOnly: true,
@@ -44,7 +49,7 @@ export class AppController {
 
   @Post('signup')
   async signup(@Body(new ValidationPipe()) userDto: UserSignupDto) {
-    await this.authService.signup(
+    await this.authService.basicSignup(
       userDto.email,
       userDto.password,
       userDto.firstname,
@@ -94,5 +99,35 @@ export class AppController {
 
     res.setHeader('user', JSON.stringify(result));
     res.send({ message: 'success' });
+  }
+
+  @Post(':service/login')
+  async socialLogin(
+    @Body() ssoLoginDto: SsoLoginDto,
+    @Param('service') service,
+    @Request() req,
+    @Response() res,
+  ) {
+    const csrfToken = req.get('crsf_token');
+    if (!csrfToken) {
+      throw new UnauthorizedException();
+    }
+    await this.userService.setCrsfToken(req.user.id, csrfToken);
+
+    const provider = this.ssoProvidersMappingService.mapping.get(service);
+    if (!provider) {
+      throw new NotFoundException('Provider not found');
+    }
+    const profile = await provider.getUserProfile(ssoLoginDto.token);
+    const result = await this.authService.ssoSignup(
+      profile.email,
+      profile.firstName,
+      profile.lastName,
+    );
+    res.cookie('access_token', result.access_token, {
+      httpOnly: true,
+      sameSite: 'strict',
+    });
+    res.status(200).send({ message: 'success' });
   }
 }

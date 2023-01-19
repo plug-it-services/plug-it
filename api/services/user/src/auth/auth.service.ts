@@ -22,7 +22,7 @@ export class AuthService {
     return null;
   }
 
-  async login(email: string): Promise<any> {
+  async login(email: string): Promise<{ access_token: string }> {
     const user = await this.usersService.findOneByEmail(email);
     const payload = { sub: user.id };
     return {
@@ -30,17 +30,43 @@ export class AuthService {
     };
   }
 
-  async signup(
+  async basicSignup(
     email: string,
     password: string,
-    firstname: string,
-    lastname: string,
+    firstName: string,
+    lastName: string,
   ): Promise<void> {
-    const user = await this.usersService.findOneByEmail(email);
-    if (user) {
+    if (await this.userExists(email))
       throw new HttpException('User already exists', 422);
-    }
     const hashPassword = await hash(password, 10);
-    await this.usersService.create(email, hashPassword, firstname, lastname);
+    await this.usersService.create(
+      email,
+      firstName,
+      lastName,
+      'basic',
+      hashPassword,
+    );
+  }
+
+  async ssoSignup(
+    email: string,
+    firstName: string,
+    lastName: string,
+  ): Promise<{ access_token: string}> {
+    if (await this.userExists(email))
+      throw new HttpException('User already exists', 422);
+    const user = await this.usersService.create(
+      email,
+      firstName,
+      lastName,
+      'sso',
+    );
+    return {
+      access_token: this.jwtService.sign({ sub: user.id }),
+    };
+  }
+
+  private async userExists(email: string): Promise<boolean> {
+    return (await this.usersService.findOneByEmail(email)) !== null;
   }
 }
