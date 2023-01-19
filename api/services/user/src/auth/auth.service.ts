@@ -54,14 +54,16 @@ export class AuthService {
     lastName: string,
   ): Promise<any> {
     let user = await this.usersService.findOneByEmail(email);
+
     if (!user) {
       user = await this.usersService.create(email, firstName, lastName, 'sso');
-    } else {
-      return {
+    }
+
+    return {
         ...user,
         access_token: this.jwtService.sign({ sub: user.id }),
-      };
-    }
+    };
+
   }
 
   private async userExists(email: string): Promise<boolean> {
