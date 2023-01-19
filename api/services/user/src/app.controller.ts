@@ -2,6 +2,8 @@ import {
   Controller,
   Response,
   Request,
+  Delete,
+  Put,
   Post,
   UseGuards,
   Get,
@@ -36,6 +38,34 @@ export class AppController {
   @Post('signup')
   async signup(@Body(new ValidationPipe()) userDto: UserSignupDto) {
     await this.authService.signup(
+      userDto.email,
+      userDto.password,
+      userDto.firstname,
+      userDto.lastname,
+    );
+    return { message: 'success' };
+  }
+
+  @Post('logout')
+  async logout(@Response() res) {
+    res.clearCookie('access_token');
+    res.status(200).send({ message: 'success' });
+
+    // TODO - delete the crsf token
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete()
+  async delete(@Request() req) {
+    await this.userService.remove(req.user.id);
+    return { message: 'success' };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Put()
+  async update(@Request() req, @Body() userDto: UserSignupDto) {
+    await this.userService.update(
+      req.user.id,
       userDto.email,
       userDto.password,
       userDto.firstname,

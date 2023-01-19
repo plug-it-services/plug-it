@@ -35,7 +35,18 @@ export class UsersService {
     return this.usersRepository.save({ email, password, firstname, lastname });
   }
 
-  async update(id: string, email: string, password: string): Promise<void> {
-    await this.usersRepository.update(id, { email, password });
+  async update(
+    id: string,
+    email: string,
+    password: string,
+    firstname: string,
+    lastname: string,
+  ): Promise<void> {
+    await this.usersRepository.update(id, {
+      email,
+      password,
+      firstname,
+      lastname,
+    });
   }
 }

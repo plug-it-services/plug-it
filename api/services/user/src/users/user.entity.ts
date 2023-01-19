@@ -16,4 +16,7 @@ export class User {
 
   @Column()
   lastname: string;
+
+  @Column()
+  crsfToken?: string;
 }
