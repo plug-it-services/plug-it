@@ -48,22 +48,20 @@ export class AuthService {
     );
   }
 
-  async ssoSignup(
+  async ssoLoginOrSignup(
     email: string,
     firstName: string,
     lastName: string,
-  ): Promise<{ access_token: string}> {
-    if (await this.userExists(email))
-      throw new HttpException('User already exists', 422);
-    const user = await this.usersService.create(
-      email,
-      firstName,
-      lastName,
-      'sso',
-    );
-    return {
-      access_token: this.jwtService.sign({ sub: user.id }),
-    };
+  ): Promise<any> {
+    let user = await this.usersService.findOneByEmail(email);
+    if (!user) {
+      user = await this.usersService.create(email, firstName, lastName, 'sso');
+    } else {
+      return {
+        ...user,
+        access_token: this.jwtService.sign({ sub: user.id }),
+      };
+    }
   }
 
   private async userExists(email: string): Promise<boolean> {

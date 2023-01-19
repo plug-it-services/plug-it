@@ -112,18 +112,19 @@ export class AppController {
     if (!csrfToken) {
       throw new UnauthorizedException();
     }
-    await this.userService.setCrsfToken(req.user.id, csrfToken);
+
 
     const provider = this.ssoProvidersMappingService.mapping.get(service);
     if (!provider) {
       throw new NotFoundException('Provider not found');
     }
     const profile = await provider.getUserProfile(ssoLoginDto.token);
-    const result = await this.authService.ssoSignup(
+    const result = await this.authService.ssoLoginOrSignup(
       profile.email,
       profile.firstName,
       profile.lastName,
     );
+    await this.userService.setCrsfToken(result.id, csrfToken);
     res.cookie('access_token', result.access_token, {
       httpOnly: true,
       sameSite: 'strict',
