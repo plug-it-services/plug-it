@@ -91,13 +91,12 @@ export class AppController {
   @Get('verify')
   async verify(@Request() req, @Response() res) {
     const user = await this.userService.findOneById(req.user.id);
-    const { password, crsfToken, ...result } = user; // eslint-disable-line @typescript-eslint/no-unused-vars
 
-    if (!req.get('crsf_token') || crsfToken !== req.get('crsf_token')) {
+    if (!req.get('crsf_token') || user.crsfToken !== req.get('crsf_token')) {
       throw new UnauthorizedException();
     }
 
-    res.setHeader('user', JSON.stringify(result));
+    res.setHeader('user', JSON.stringify({ email: user.email, firstname: user.firstname, lastname: user.lastname, id: user.id }));
     res.send({ message: 'success' });
   }
 
