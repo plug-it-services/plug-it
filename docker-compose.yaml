@@ -18,6 +18,10 @@ services:
     image: sebp/elk
     ports:
       - ${KIBANA_UI_PORT}:5601
+      - 12201:12201/udp
+    volumes:
+      - ./logstash.conf:/etc/logstash/conf.d/30-output.conf
+      - elk_data:/var/lib/elasticsearch
     networks:
       - elk_network
 
@@ -81,10 +85,35 @@ services:
     env_file:
       - ./api/user/.env
 
+  test:
+    build: ./api/services/test
+    networks:
+      - rabbit_network
+    depends_on:
+      - rabbitmq
+      - elk
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://localhost:12201"
+        tag: "test-service"
+  
+  mongo:
+    image: mongo
+    restart: always
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${PLUGS_MONGO_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${PLUGS_MONGO_PASSWORD}
+      MONGO_INITDB_DATABASE: ${PLUGS_MONGO_DB}
+
+
 volumes:
   rabbit_data:
   rabbit_logs:
   client_data:
+  elk_data:
 
 networks:
   rabbit_network:
