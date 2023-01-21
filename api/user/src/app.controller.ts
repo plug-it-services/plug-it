@@ -27,8 +27,15 @@ export class AppController {
       throw new UnauthorizedException();
     }
 
-    res.setHeader('user', JSON.stringify({ email: user.email, firstname: user.firstname, lastname: user.lastname, id: user.id }));
+    res.setHeader(
+      'user',
+      JSON.stringify({
+        email: user.email,
+        firstname: user.firstname,
+        lastname: user.lastname,
+        id: user.id,
+      }),
+    );
     res.send({ message: 'success' });
   }
-
 }
