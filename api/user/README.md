@@ -24,7 +24,7 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+This is a simple user microservice in Nest which allow you to create, update, delete and get users using email and password or sso like google, facebook, twitter and more.
 
 ## Installation
 
