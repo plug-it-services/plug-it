@@ -42,25 +42,44 @@ services:
     ports:
       - ${SERVER_PORT}:80
       - ${TRAEFIK_UI_PORT}:8080
+    networks:
+      - traefik_network
     command:
       - --api.insecure=true
-      - --providers.docker
+      - --providers.docker=true
+      - --log.level=DEBUG
+      - --providers.docker.network=${COMPOSE_PROJECT_NAME}_traefik_network
       - --providers.docker.exposedbydefault=false
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
   ###################   MICROSERVICES  #######################
 
-  # users:
-  #   build: ./api/services/users
-  #   networks:
-  #     - rabbit_network
-  #   labels:
-  #     - traefik.http.routers.users.rule=Path(/users)
-  #     - traefik.enable=true
-  #   depends_on:
-  #     - rabbitmq
-  #     - elk
+  user:
+    build: ./api/user
+    networks:
+      - rabbit_network
+      - user_network
+      - traefik_network
+    labels:
+      - traefik.http.routers.users.rule=PathPrefix(`/auth`)
+      - traefik.http.middlewares.auth-replacepathregex.replacepathregex.regex=^/auth/(.*)
+      - traefik.http.middlewares.auth-replacepathregex.replacepathregex.replacement=/public/$$1
+      - traefik.http.routers.users.middlewares=auth-replacepathregex
+      - traefik.enable=true
+    ports:
+      - ${USER_PORT}:80
+    depends_on:
+      - rabbitmq
+      - elk
+      - user-postgres
+
+  user-postgres:
+    image: 'postgres:latest'
+    networks:
+      - user_network
+    env_file:
+      - ./api/user/.env
 
 volumes:
   rabbit_data:
@@ -70,3 +89,5 @@ volumes:
 networks:
   rabbit_network:
   elk_network:
+  user_network:
+  traefik_network:
