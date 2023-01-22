@@ -2,8 +2,8 @@ import { Module } from '@nestjs/common';
 import { ServicesController } from './services.controller';
 import { ServicesService } from './services/services.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ServiceSchema } from './entity/service.schema';
-import { UserConnectionSchema } from './entity/usersConnection.schema';
+import { ServiceSchema } from './schemas/service.schema';
+import { UserConnectionSchema } from './schemas/usersConnection.schema';
 import UsersConnectionsService from './services/usersConnections.service';
 
 @Module({

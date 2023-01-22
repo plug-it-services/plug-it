@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import UserConnection, {
   UserConnectionDocument,
-} from '../entity/usersConnection.schema';
+} from '../schemas/usersConnection.schema';
 import { Model } from 'mongoose';
 
 @Injectable()
