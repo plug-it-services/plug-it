@@ -1,27 +1,18 @@
-import {
-  Body,
-  Controller,
-  Param,
-  Post,
-  Headers,
-  Get,
-  Logger,
-} from '@nestjs/common';
+import { Body, Controller, Param, Post, Logger } from '@nestjs/common';
 import { InitializeRequestDto } from './dto/InitializeRequest.dto';
 import { ServicesService } from './services/services.service';
 import UserIdDto from './dto/userId.dto';
 import UsersConnectionsService from './services/usersConnections.service';
-import UserHeaderDto from '../dto/UserHeader.dto';
 
-@Controller()
-export class ServicesController {
-  private readonly logger = new Logger(ServicesController.name);
+@Controller('/service')
+export class PrivateServicesController {
+  private readonly logger = new Logger(PrivateServicesController.name);
   constructor(
     private servicesService: ServicesService,
     private usersConnectionsService: UsersConnectionsService,
   ) {}
 
-  @Post('/service/initialize')
+  @Post('/initialize')
   async initializeService(
     @Param('serviceName') serviceName: string,
     @Body() initializeData: InitializeRequestDto,
@@ -42,7 +33,7 @@ export class ServicesController {
     return { message: 'Service initialized' };
   }
 
-  @Post('/service/:serviceName/loggedIn')
+  @Post('/:serviceName/loggedIn')
   async loggedIn(
     @Param('serviceName') serviceName: string,
     @Body() dto: UserIdDto,
@@ -71,7 +62,7 @@ export class ServicesController {
     return { message: 'success' };
   }
 
-  @Post('/service/:serviceName/loggedOut')
+  @Post('/:serviceName/loggedOut')
   async loggedOut(
     @Param('serviceName') serviceName: string,
     @Body() dto: UserIdDto,
@@ -85,24 +76,5 @@ export class ServicesController {
       false,
     );
     return { message: 'success' };
-  }
-
-  @Get()
-  async listServices(@Headers('user') userHeader: string) {
-    const user: UserHeaderDto = JSON.parse(userHeader);
-    this.logger.log(`Listing services for user ${user.id}`);
-    return this.servicesService.listServicesPreview(user.id);
-  }
-
-  @Get(':serviceName/events')
-  async listEvents(@Param('serviceName') serviceName: string) {
-    this.logger.log(`Listing events for service ${serviceName}`);
-    return this.servicesService.listEvents(serviceName);
-  }
-
-  @Get(':serviceName/actions')
-  async listActions(@Param('serviceName') serviceName: string) {
-    this.logger.log(`Listing actions for service ${serviceName}`);
-    return this.servicesService.listActions(serviceName);
   }
 }

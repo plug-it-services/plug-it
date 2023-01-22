@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
-import { ServicesController } from './services.controller';
+import { PublicServicesController } from './public.controller';
 import { ServicesService } from './services/services.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ServiceSchema } from './schemas/service.schema';
 import { UserConnectionSchema } from './schemas/usersConnection.schema';
 import UsersConnectionsService from './services/usersConnections.service';
+import { PrivateServicesController } from './private.controller';
 
 @Module({
   imports: [
@@ -13,7 +14,7 @@ import UsersConnectionsService from './services/usersConnections.service';
       { name: 'UserConnection', schema: UserConnectionSchema },
     ]),
   ],
-  controllers: [ServicesController],
+  controllers: [PublicServicesController, PrivateServicesController],
   providers: [ServicesService, UsersConnectionsService],
 })
 export class ServicesModule {}
