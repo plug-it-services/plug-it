@@ -1,4 +1,4 @@
-import { IsArray, IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsEnum, IsOptional, IsString, ValidateNested } from 'class-validator';
 
 export enum AuthType {
   NONE = 'none',
@@ -37,6 +37,9 @@ export class Field {
 
   @IsString()
   displayName: string;
+
+  @IsBoolean()
+  required: boolean;
 }
 
 export class EventDescription {
@@ -50,9 +53,11 @@ export class EventDescription {
   description: string;
 
   @IsArray()
+  @ValidateNested()
   variables: Variable[];
 
   @IsArray()
+  @ValidateNested()
   fields: Field[];
 }
 
@@ -67,9 +72,11 @@ export class ActionDescription {
   description: string;
 
   @IsArray()
+  @ValidateNested()
   variables: Variable[];
 
   @IsArray()
+  @ValidateNested()
   fields: Field[];
 }
 
@@ -84,8 +91,10 @@ export class InitializeRequestDto {
   icon: string;
 
   @IsArray()
+  @ValidateNested()
   events: EventDescription[];
 
   @IsArray()
+  @ValidateNested()
   actions: ActionDescription[];
 }
