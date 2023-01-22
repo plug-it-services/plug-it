@@ -8,12 +8,12 @@ body {
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
 
 .card-generic-small {
-  height: 100px;
+  height: 80%;
+  width: 70%;
   padding-left: 10px;
   padding-right: 10px;
   display: flex;

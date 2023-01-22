@@ -16,7 +16,7 @@ export interface IServiceCardProps {
 function ServiceCard({ img, title, description, buttonLabel, onClick }: IServiceCardProps) {
   return (
     <div>
-      <Card>
+      <Card style={{ boxShadow: '0 4px 8px 0 rgba(0,0,0,0.5)' }}>
         <CardContent>
           <div>
             <div>
