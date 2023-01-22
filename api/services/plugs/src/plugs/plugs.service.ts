@@ -1,0 +1,213 @@
+import { HttpException, Injectable, Logger } from '@nestjs/common';
+import { Model } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
+import { Plug, PlugDocument } from './schemas/plug.schema';
+import { PlugSubmitDto } from './dto/PlugSubmit.dto';
+import { Step } from './dto/Step.dto';
+import { ServicesService } from '../services/services/services.service';
+import { Service } from '../services/schemas/service.schema';
+import {
+  ActionDescription,
+  EventDescription,
+  Field,
+  Variable,
+} from '../services/dto/InitializeRequest.dto';
+
+@Injectable()
+export class PlugsService {
+  logger = new Logger(PlugsService.name);
+
+  constructor(
+    @InjectModel(Plug.name) private plugsModel: Model<PlugDocument>,
+    private readonly servicesService: ServicesService,
+  ) {}
+
+  async findByOwner(owner: number): Promise<Plug[]> {
+    return this.plugsModel.find({ owner });
+  }
+
+  async findById(id: string): Promise<Plug> {
+    return this.plugsModel.findById(id);
+  }
+
+  async create(owner: number, plug: PlugSubmitDto): Promise<Plug> {
+    const toCreate = plug as any as Plug;
+    toCreate.owner = owner;
+    const createdPlug = await this.plugsModel.create(plug);
+
+    return createdPlug.save();
+  }
+
+  async update(id: string, plug: PlugSubmitDto): Promise<Plug> {
+    return this.plugsModel.findByIdAndUpdate(id, plug);
+  }
+
+  async editEnabled(id: string, enabled: boolean): Promise<Plug> {
+    return this.plugsModel.findByIdAndUpdate(id, { enabled });
+  }
+
+  async delete(id: string): Promise<Plug> {
+    return this.plugsModel.findByIdAndDelete(id);
+  }
+
+  async validateSteps(plug: PlugSubmitDto): Promise<boolean> {
+    const service = await this.findStepService(plug.event);
+    const eventDescription = await this.findStepEvent(service, plug.event);
+    const variablesMap = new Map<string, Variable[]>();
+
+    variablesMap.set('-1', eventDescription.variables);
+
+    for (const [idx, action] of plug.actions.entries()) {
+      const actionService = await this.findStepService(action);
+      const actionDescription = await this.findStepAction(
+        actionService,
+        action,
+      );
+
+      await this.validateStepFields(action, actionDescription, variablesMap);
+
+      variablesMap.set(idx.toString(), actionDescription.variables);
+    }
+
+    return true;
+  }
+
+  private async findStepService(step: Step): Promise<Service> {
+    const service = await this.servicesService.findByName(step.serviceName);
+
+    if (!service) {
+      this.logger.log(
+        `Requested service ${step.serviceName} not found while validating step`,
+      );
+      throw new HttpException('Requested service not found', 400);
+    }
+
+    return service;
+  }
+
+  private async findStepEvent(service, step: Step): Promise<EventDescription> {
+    const eventDescription = service.events.find((e) => e.id === step.id);
+    if (!eventDescription) {
+      this.logger.log(
+        `Requested event ${step.id} in ${service.name} not found while validating event`,
+      );
+      throw new HttpException('Requested event not found', 400);
+    }
+    return eventDescription;
+  }
+
+  private async findStepAction(
+    service,
+    step: Step,
+  ): Promise<ActionDescription> {
+    const actionDescription = service.actions.find((e) => e.id === step.id);
+    if (!actionDescription) {
+      this.logger.log(
+        `Requested action ${step.id} in ${service.name} not found while validating action`,
+      );
+      throw new HttpException('Requested action not found', 400);
+    }
+    return actionDescription;
+  }
+
+  private async validateStepFields(
+    step: Step,
+    config: ActionDescription | EventDescription,
+    variables: Map<string, Variable[]>,
+  ): Promise<void> {
+    let requiredFields = config.fields.filter((f) => f.required);
+
+    for (const field of step.fields) {
+      const actionField = await this.findActionField(config, field.key);
+
+      if (field.value.startsWith('$')) {
+        await this.validateVariableReference(
+          field.value,
+          variables,
+          actionField,
+        );
+      } else {
+        this.validateFieldType(field.value, actionField.type);
+      }
+      requiredFields = requiredFields.filter((f) => f.key !== field.key);
+    }
+    if (requiredFields.length > 0) {
+      this.logger.log(
+        `Required fields ${requiredFields.map(
+          (f) => f.key,
+        )} not found while validating action`,
+      );
+      throw new HttpException('Required fields not found', 400);
+    }
+  }
+
+  private async findActionField(
+    actionConfig: ActionDescription,
+    key: string,
+  ): Promise<Field> {
+    const field = actionConfig.fields.find((f) => f.key === key);
+
+    if (!field) {
+      this.logger.log(
+        `Requested field ${key} in ${actionConfig.name} action not found while validating action`,
+      );
+      throw new HttpException('Requested field not found', 400);
+    }
+    return field;
+  }
+
+  private async validateVariableReference(
+    variable: string,
+    variables: Map<string, Variable[]>,
+    field: Field,
+  ) {
+    const completeVariable = variable.substring(1); // remove $
+    const [provider, key] = completeVariable.split('.');
+
+    if (!variables.has(provider)) {
+      this.logger.log(
+        `Requested variable ${variable} in ${field.key} field not found while validating action`,
+      );
+      throw new HttpException('Requested variable not found', 400);
+    }
+
+    const definition = variables.get(provider).find((v) => v.key === key);
+    if (!definition) {
+      this.logger.log(
+        `Requested variable ${variable} in ${field.key} field not found while validating action`,
+      );
+      throw new HttpException('Requested variable not found', 400);
+    }
+
+    if (definition.type !== field.type) {
+      this.logger.log(
+        `Requested variable ${variable} in ${field.key} field has wrong type while validating action: got ${definition.type}, expected ${field.type}`,
+      );
+      throw new HttpException('Requested variable has wrong type', 400);
+    }
+  }
+
+  private validateFieldType(value: string, type: string) {
+    let result;
+
+    switch (type) {
+      case 'string':
+        result = typeof value === 'string';
+        break;
+      case 'number':
+        result = !isNaN(parseFloat(value));
+        break;
+      case 'boolean':
+        result = value === 'true' || value === 'false';
+        break;
+      default:
+        result = false;
+    }
+    if (!result) {
+      this.logger.log(
+        `Requested field has wrong type while validating action: got '${value}', expected type ${type}`,
+      );
+      throw new HttpException('Requested field has wrong type', 400);
+    }
+  }
+}
