@@ -22,12 +22,29 @@ export class PlugsService {
     private readonly servicesService: ServicesService,
   ) {}
 
+  private format(plug: any): Plug {
+    plug.id = plug._id;
+    delete plug._id;
+    delete plug.__v;
+    return plug;
+  }
+
+  private formatAll(plugs: any[]): Plug[] {
+    return plugs.map((plug) => {
+      return this.format(plug);
+    });
+  }
+
   async findByOwner(owner: number): Promise<Plug[]> {
-    return this.plugsModel.find({ owner });
+    const plugs = await this.plugsModel.find({ owner }).lean().exec();
+
+    return this.formatAll(plugs);
   }
 
   async findById(id: string): Promise<Plug> {
-    return this.plugsModel.findById(id);
+    const plug = await this.plugsModel.findById(id).lean().exec();
+
+    return this.format(plug);
   }
 
   async create(owner: number, plug: PlugSubmitDto): Promise<Plug> {
@@ -35,26 +52,39 @@ export class PlugsService {
     toCreate.owner = owner;
     const createdPlug = await this.plugsModel.create(plug);
 
-    return createdPlug.save();
+    const created = await createdPlug.save();
+    return this.format(created.toJSON());
+    //return this.format(created._doc);
   }
 
   async update(id: string, plug: PlugSubmitDto): Promise<Plug> {
-    return this.plugsModel.findByIdAndUpdate(id, plug);
+    const updated = await this.plugsModel
+      .findByIdAndUpdate(id, plug)
+      .lean()
+      .exec();
+
+    return this.format(updated);
   }
 
   async editEnabled(id: string, enabled: boolean): Promise<Plug> {
-    return this.plugsModel.findByIdAndUpdate(id, { enabled });
+    const updated = this.plugsModel
+      .findByIdAndUpdate(id, { enabled })
+      .lean()
+      .exec();
+
+    return this.format(updated);
   }
 
-  async delete(id: string): Promise<Plug> {
+  async delete(id: string): Promise<void> {
     return this.plugsModel.findByIdAndDelete(id);
   }
 
-  async validateSteps(plug: PlugSubmitDto): Promise<boolean> {
+  async validateSteps(plug: PlugSubmitDto): Promise<void> {
     const service = await this.findStepService(plug.event);
     const eventDescription = await this.findStepEvent(service, plug.event);
     const variablesMap = new Map<string, Variable[]>();
 
+    await this.validateStepFields(plug.event, eventDescription, variablesMap);
     variablesMap.set('-1', eventDescription.variables);
 
     for (const [idx, action] of plug.actions.entries()) {
@@ -68,8 +98,6 @@ export class PlugsService {
 
       variablesMap.set(idx.toString(), actionDescription.variables);
     }
-
-    return true;
   }
 
   private async findStepService(step: Step): Promise<Service> {
@@ -120,6 +148,12 @@ export class PlugsService {
     for (const field of step.fields) {
       const actionField = await this.findActionField(config, field.key);
 
+      if (typeof field.value !== 'string') {
+        this.logger.log(
+          `Field ${field.key} in ${config.name} action has invalid value : not a string`,
+        );
+        throw new HttpException('Invalid field value', 400);
+      }
       if (field.value.startsWith('$')) {
         await this.validateVariableReference(
           field.value,
