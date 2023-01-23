@@ -54,7 +54,6 @@ export class PlugsService {
 
     const created = await createdPlug.save();
     return this.format(created.toJSON());
-    //return this.format(created._doc);
   }
 
   async update(id: string, plug: PlugSubmitDto): Promise<Plug> {
@@ -67,8 +66,8 @@ export class PlugsService {
   }
 
   async editEnabled(id: string, enabled: boolean): Promise<Plug> {
-    const updated = this.plugsModel
-      .findByIdAndUpdate(id, { enabled })
+    const updated = await this.plugsModel
+      .findByIdAndUpdate(id, { enabled: enabled })
       .lean()
       .exec();
 

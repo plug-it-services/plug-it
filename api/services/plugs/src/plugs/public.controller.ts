@@ -9,6 +9,7 @@ import {
   Param,
   Post,
   Put,
+  Query
 } from '@nestjs/common';
 import { PlugsService } from './plugs.service';
 import UserHeaderDto from '../dto/UserHeader.dto';
@@ -72,22 +73,27 @@ export class PublicController {
     if (current.owner !== user.id)
       throw new ForbiddenException('Cannot edit a plug that is not yours');
     await this.plugsService.validateSteps(plug);
-    return this.plugsService.update(id, plug);
+    await this.plugsService.update(id, plug);
+    return { message: 'success' };
   }
 
   @Put(':id/enabled')
   async editEnabled(
     @Param('id') id: string,
     @Headers('user') userDto: string,
-    @Param('enabled') enabled: boolean,
+    @Query('enabled') enabled: string,
   ) {
     const user: UserHeaderDto = JSON.parse(userDto);
     const current = await this.plugsService.findById(id);
+    const enabledBool = enabled === 'true';
 
+    if (!enabled)
+      throw new NotFoundException(`Enabled query parameter is required`);
     if (!current)
       throw new NotFoundException(`Plug with id ${id} does not exist`);
     if (current.owner !== user.id)
       throw new ForbiddenException('Cannot edit a plug that is not yours');
-    return this.plugsService.editEnabled(id, enabled);
+    await this.plugsService.editEnabled(id, enabledBool);
+    return { message: 'success' };
   }
 }
