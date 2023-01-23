@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 class MyAppBar extends AppBar
 {
   String pageTitle = "Plug It";
-  MyAppBar({super.key, String? title}) {
-    if (title != null) {
-      pageTitle += ' - $title';
+  MyAppBar({super.key, String? pageTitle}) {
+    if (pageTitle != null) {
+      this.pageTitle += ' - $pageTitle';
 
     }
   }
