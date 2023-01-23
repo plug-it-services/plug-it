@@ -98,15 +98,34 @@ services:
         gelf-address: "udp://localhost:12201"
         tag: "test-service"
   
-  mongo:
+  plugs-mongo:
     image: mongo
     restart: always
     ports:
       - 27017:27017
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${PLUGS_MONGO_USER}
-      MONGO_INITDB_ROOT_PASSWORD: ${PLUGS_MONGO_PASSWORD}
-      MONGO_INITDB_DATABASE: ${PLUGS_MONGO_DB}
+    env_file:
+      - ./api/plugs/.env
+    networks:
+      - plugs_network
+
+  plugs:
+    build: ./api/plugs
+    networks:
+      - rabbit_network
+      - user_network
+      - traefik_network
+      - plugs_network
+    labels:
+      - traefik.http.routers.plugs.rule=PathPrefix(`/service`) || PathPrefix(`/plugs`)
+      - "traefik.http.middlewares.add-public.addprefix.prefix=/public"
+      - traefik.http.routers.plugs.middlewares=add-public
+      - traefik.enable=true
+    ports:
+      - ${PLUGS_PORT}:80
+    depends_on:
+      - rabbitmq
+      - elk
+      - plugs-mongo
 
 
 volumes:
@@ -119,4 +138,5 @@ networks:
   rabbit_network:
   elk_network:
   user_network:
+  plugs_network:
   traefik_network:
