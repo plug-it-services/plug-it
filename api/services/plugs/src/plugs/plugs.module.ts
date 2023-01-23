@@ -7,7 +7,7 @@ import { ServicesModule } from '../services/services.module';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: 'Plugs', schema: PlugSchema }]),
+    MongooseModule.forFeature([{ name: 'Plug', schema: PlugSchema }]),
     ServicesModule,
   ],
   controllers: [PublicController],
