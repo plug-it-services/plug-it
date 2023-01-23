@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsObject, IsString, ValidateNested } from 'class-validator';
+import { IsBoolean, IsString, ValidateNested } from 'class-validator';
 import { Step } from './Step.dto';
 
 export class PlugSubmitDto {

@@ -16,5 +16,6 @@ import { PrivateServicesController } from './private.controller';
   ],
   controllers: [PublicServicesController, PrivateServicesController],
   providers: [ServicesService, UsersConnectionsService],
+  exports: [ServicesService],
 })
 export class ServicesModule {}

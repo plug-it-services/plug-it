@@ -1,4 +1,10 @@
-import { IsArray, IsBoolean, IsEnum, IsOptional, IsString, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsBoolean,
+  IsEnum,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 
 export enum AuthType {
   NONE = 'none',

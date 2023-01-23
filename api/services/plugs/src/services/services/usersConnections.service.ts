@@ -16,7 +16,10 @@ export default class UsersConnectionsService {
     userId: number,
     serviceName: string,
   ): Promise<boolean> {
-    const userConnection = await this.userConnectionModel.findOne({ userId, service: serviceName });
+    const userConnection = await this.userConnectionModel.findOne({
+      userId,
+      service: serviceName,
+    });
 
     return !!userConnection;
   }
