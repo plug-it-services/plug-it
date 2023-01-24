@@ -14,25 +14,37 @@ export interface IServiceCardProps {
 }
 
 function ServiceCard({ img, title, description, buttonLabel, onClick }: IServiceCardProps) {
+  // Card with an image, a title, a description and a button (#718CDE)
+  // The card have 2 containers: one for the image, title and description and another one for button
+  // The image is left aligned and the title and description are centered in the right
+  // The button is centered in the bottom
   return (
-    <div>
-      <Card style={{ boxShadow: '0 4px 8px 0 rgba(0,0,0,0.5)' }}>
-        <CardContent>
-          <div>
-            <div>
-              <img src={img} alt={title} style={{ maxHeight: '100px', maxWidth: '150px' }} />
-            </div>
-          </div>
-          <Typography variant="h4" gutterBottom>
+    <Card
+      sx={{
+        backgroundColor: '#718CDE',
+        width: 320,
+        height: 170,
+        borderRadius: '8px',
+        boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.30)',
+      }}
+    >
+      <div style={{ display: 'flex', flexDirection: 'row', gap: '10px', padding: '10px' }}>
+        <img
+          src={img}
+          alt="service"
+          style={{ maxWidth: '100px', maxHeight: '100px', objectFit: 'contain', margin: '10px' }}
+        />
+        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <Typography variant="h5" component="div">
             {title}
           </Typography>
-          <Typography color="text">{description}</Typography>
-        </CardContent>
-        <CardActions style={{ justifyContent: 'center' }}>
-          <Button color="primary" text="Click me" onClick={() => alert('Hello')} />
-        </CardActions>
-      </Card>
-    </div>
+          <Typography variant="body2">{description}</Typography>
+        </div>
+      </div>
+      <CardActions style={{ display: 'flex', justifyContent: 'center' }}>
+        <Button color="primary" text={buttonLabel} onClick={onClick} />
+      </CardActions>
+    </Card>
   );
 }
 

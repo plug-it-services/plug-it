@@ -29,11 +29,10 @@ function SearchBar({
         display: 'flex',
         alignItems: 'center',
         width: 400,
-        backgroundColor,
         border: '1px solid',
         borderColor,
         borderRadius: '10px',
-        boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.50)',
+        boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.30)',
       }}
     >
       <IconButton type="submit" sx={{ p: '10px' }} aria-label="search" onClick={() => onSearch(defaultDummyValue)}>
