@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/appbar.dart';
+import 'package:mobile/pages/services/Services.dart';
+import 'package:mobile/ui-toolkit/appbar.dart';
 import 'package:mobile/main.dart';
 
-import 'pages/home/Home.dart';
+import '../pages/home/Home.dart';
 
 class NavBar extends StatefulWidget
 {
@@ -16,7 +17,7 @@ class _NavBarState extends State<NavBar> {
   int index = 0;
   final pages = [
     Home(),
-    Home(),
+    Services(),
     Home(),
     Home(),
     Home(),
