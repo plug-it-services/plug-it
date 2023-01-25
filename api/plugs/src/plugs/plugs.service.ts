@@ -13,6 +13,8 @@ import {
   Variable,
 } from '../services/dto/InitializeRequest.dto';
 
+export type PlugWithId = Plug & { id: string };
+
 @Injectable()
 export class PlugsService {
   logger = new Logger(PlugsService.name);
@@ -22,7 +24,7 @@ export class PlugsService {
     private readonly servicesService: ServicesService,
   ) {}
 
-  private format(plug: any): Plug {
+  private format(plug: any): PlugWithId {
     plug.id = plug._id;
     delete plug._id;
     delete plug.__v;
@@ -43,6 +45,24 @@ export class PlugsService {
 
   async findById(id: string): Promise<Plug> {
     const plug = await this.plugsModel.findById(id).lean().exec();
+
+    return this.format(plug);
+  }
+
+  async findOwnedByEvent(
+    owner: number,
+    serviceName: string,
+    eventId: string,
+  ): Promise<PlugWithId> {
+    const plug = await this.plugsModel
+      .findOne({
+        owner,
+        enabled: true,
+        'event.serviceName': serviceName,
+        'event.id': eventId,
+      })
+      .lean()
+      .exec();
 
     return this.format(plug);
   }
@@ -84,7 +104,7 @@ export class PlugsService {
     const variablesMap = new Map<string, Variable[]>();
 
     await this.validateStepFields(plug.event, eventDescription, variablesMap);
-    variablesMap.set('-1', eventDescription.variables);
+    variablesMap.set('0', eventDescription.variables);
 
     for (const [idx, action] of plug.actions.entries()) {
       const actionService = await this.findStepService(action);
@@ -95,7 +115,7 @@ export class PlugsService {
 
       await this.validateStepFields(action, actionDescription, variablesMap);
 
-      variablesMap.set(idx.toString(), actionDescription.variables);
+      variablesMap.set((idx + 1).toString(), actionDescription.variables);
     }
   }
 

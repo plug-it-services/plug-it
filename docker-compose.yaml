@@ -5,6 +5,7 @@ services:
     image: rabbitmq:3-management-alpine
     ports:
       - ${RABBITMQ_UI_PORT}:15672
+      - 5672:5672
     volumes:
         - rabbit_data:/var/lib/rabbitmq/
         - rabbit_logs:/var/log/rabbitmq
@@ -99,7 +100,6 @@ services:
     build: ./api/plugs
     networks:
       - rabbit_network
-      - user_network
       - traefik_network
       - plugs_network
     labels:

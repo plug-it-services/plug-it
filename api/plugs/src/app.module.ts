@@ -1,10 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { ServicesModule } from './services/services.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { PlugsModule } from './plugs/plugs.module';
+import { EventsConnectorModule } from './events-connector/events-connector.module';
 
 @Module({
   imports: [
@@ -20,8 +19,9 @@ import { PlugsModule } from './plugs/plugs.module';
       },
     }),
     PlugsModule,
+    EventsConnectorModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}

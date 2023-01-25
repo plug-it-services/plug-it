@@ -1,0 +1,13 @@
+import { Variable } from './Variable.dto';
+
+export class ActionFinishedDto {
+  serviceName: string;
+
+  actionId: string;
+
+  userId: number;
+
+  runId: string;
+
+  variables: Variable[];
+}

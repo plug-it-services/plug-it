@@ -1,12 +1,5 @@
 import { IsArray, IsString } from 'class-validator';
-
-export class Field {
-  @IsString()
-  key: string;
-
-  @IsString()
-  value: string;
-}
+import { Field } from '../../dto/Field.dto';
 
 export class Step {
   @IsString()

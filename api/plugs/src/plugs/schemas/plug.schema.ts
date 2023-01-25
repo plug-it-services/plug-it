@@ -18,9 +18,6 @@ export class Step {
   @Prop({ required: true })
   id: string;
 
-  @Prop({ required: true, index: true })
-  correlationId: string;
-
   @Prop({ required: true })
   fields: Field[];
 }
