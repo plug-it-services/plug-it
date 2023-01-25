@@ -16,4 +16,4 @@ export class Run {
   variables: Variable[][];
 }
 
-export const PlugSchema = SchemaFactory.createForClass(Run);
+export const RunSchema = SchemaFactory.createForClass(Run);

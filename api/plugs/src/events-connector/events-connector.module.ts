@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { EventsConnectorService } from './services/events-connector.service';
 import { EventsConnectorController } from './events-connector.controller';
 import { AmqpConnection, RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
@@ -6,6 +6,8 @@ import { ConfigService } from '@nestjs/config';
 import { PlugsModule } from '../plugs/plugs.module';
 import { RunsService } from './services/runs.service';
 import { VariablesService } from './services/variables.service';
+import { MongooseModule } from '@nestjs/mongoose';
+import { RunSchema } from './schemas/run.schema';
 
 @Module({
   imports: [
@@ -24,10 +26,12 @@ import { VariablesService } from './services/variables.service';
         };
       },
     }),
-    PlugsModule,
+    MongooseModule.forFeature([{ name: 'Run', schema: RunSchema }]),
+    forwardRef(() => PlugsModule),
   ],
   providers: [EventsConnectorService, RunsService, VariablesService],
   controllers: [EventsConnectorController],
+  exports: [EventsConnectorService],
 })
 export class EventsConnectorModule {
   constructor(

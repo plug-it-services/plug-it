@@ -19,7 +19,6 @@ export class EventsConnectorController {
     private eventsConnectorService: EventsConnectorService,
     private runsService: RunsService,
     private plugsService: PlugsService,
-    private servicesService: ServicesService,
 
     private variablesService: VariablesService,
   ) {}
@@ -123,7 +122,7 @@ export class EventsConnectorController {
 
     if (!plug) {
       this.logger.warn('No plug found for the run ' + event.runId);
-      throw new Nack();
+      throw new Nack(false);
     }
     if (run.stepIdx + 1 >= plug.actions.length) {
       this.logger.log('Run ' + id + ' execution finished');

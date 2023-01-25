@@ -14,10 +14,14 @@ import {
 import { PlugsService } from './plugs.service';
 import UserHeaderDto from '../dto/UserHeader.dto';
 import { PlugSubmitDto } from './dto/PlugSubmit.dto';
+import { EventsConnectorService } from '../events-connector/services/events-connector.service';
 
 @Controller('public/plugs')
 export class PublicController {
-  constructor(private plugsService: PlugsService) {}
+  constructor(
+    private plugsService: PlugsService,
+    private eventConnectorService: EventsConnectorService,
+  ) {}
 
   @Get()
   async listUserPlugs(@Headers('user') userDto: string) {
@@ -34,7 +38,16 @@ export class PublicController {
     const user: UserHeaderDto = JSON.parse(userDto);
 
     await this.plugsService.validateSteps(plug);
-    return this.plugsService.create(user.id, plug);
+    const created = await this.plugsService.create(user.id, plug);
+    await this.eventConnectorService.emitEventInitialize(
+      created.event.serviceName,
+      {
+        eventId: created.event.id,
+        userId: user.id,
+        fields: created.event.fields,
+      },
+    );
+    return created;
   }
 
   @Get(':id')

@@ -5,6 +5,7 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export enum AuthType {
   NONE = 'none',
@@ -60,10 +61,12 @@ export class EventDescription {
 
   @IsArray()
   @ValidateNested()
+  @Type(() => Variable)
   variables: Variable[];
 
   @IsArray()
   @ValidateNested()
+  @Type(() => Field)
   fields: Field[];
 }
 
@@ -79,10 +82,12 @@ export class ActionDescription {
 
   @IsArray()
   @ValidateNested()
+  @Type(() => Variable)
   variables: Variable[];
 
   @IsArray()
   @ValidateNested()
+  @Type(() => Field)
   fields: Field[];
 }
 
@@ -98,9 +103,11 @@ export class InitializeRequestDto {
 
   @IsArray()
   @ValidateNested()
+  @Type(() => EventDescription)
   events: EventDescription[];
 
   @IsArray()
   @ValidateNested()
+  @Type(() => ActionDescription)
   actions: ActionDescription[];
 }

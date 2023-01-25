@@ -7,33 +7,47 @@ import { ActionTriggerDto } from '../../dto/ActionTrigger.dto';
 @Injectable()
 export class EventsConnectorService {
   private logger = new Logger(EventsConnectorService.name);
-  private queueTemplate: string;
+  private actionTriggerQueueTemplate: string;
+  private eventInitializeQueueTemplate: string;
   private readonly queueTemplateNeedle: string;
 
   constructor(
     private amqpConnection: AmqpConnection,
     private configService: ConfigService,
   ) {
-    this.queueTemplate = this.configService.getOrThrow<string>(
+    this.actionTriggerQueueTemplate = this.configService.getOrThrow<string>(
       'PLUGS_ACTION_QUEUE_TEMPLATE',
+    );
+    this.eventInitializeQueueTemplate = this.configService.getOrThrow<string>(
+      'PLUGS_EVENT_INITIALIZE_QUEUE_TEMPLATE',
     );
     this.queueTemplateNeedle = this.configService.getOrThrow<string>(
       'PLUGS_ACTION_QUEUE_TEMPLATE_NEEDLE',
     );
   }
 
-  private buildActionQueue(service: string) {
-    return this.queueTemplate.replace(this.queueTemplateNeedle, service);
+  private buildActionQueue(template: string, service: string) {
+    return template.replace(this.queueTemplateNeedle, service);
   }
 
   async emitEventInitialize(service: string, data: EventInitializeDto) {
-    const queue = this.buildActionQueue(service);
+    const queue = this.buildActionQueue(
+      this.eventInitializeQueueTemplate,
+      service,
+    );
 
-    this.amqpConnection.publish('amq.direct', queue, data);
+    this.logger.log(
+      `Emitting event initialize to queue ${queue} : ${JSON.stringify(data)}`,
+    );
+
+    await this.amqpConnection.publish('amq.direct', queue, data);
   }
 
   async emitActionTrigger(service: string, data: ActionTriggerDto) {
-    const queue = this.buildActionQueue(service);
+    const queue = this.buildActionQueue(
+      this.actionTriggerQueueTemplate,
+      service,
+    );
 
     this.logger.log(
       `Emitting action trigger to queue ${queue} : ${JSON.stringify(data)}`,

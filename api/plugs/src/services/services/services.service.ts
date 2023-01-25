@@ -40,7 +40,7 @@ export class ServicesService {
   }
 
   async findByName(serviceName: string): Promise<Service> {
-    return this.serviceModel.findOne({ name: serviceName });
+    return this.serviceModel.findOne({ name: serviceName }).lean().exec();
   }
 
   async listServicesPreview(userId: number): Promise<ServicePreviewDto[]> {

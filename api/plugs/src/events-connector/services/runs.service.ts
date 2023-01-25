@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Schema } from 'mongoose';
+import mongoose, { Model, Schema } from 'mongoose';
 import { Run, RunDocument } from '../schemas/run.schema';
 import { Variable } from '../../dto/Variable.dto';
 import { Plug } from '../../plugs/schemas/plug.schema';
@@ -33,23 +33,35 @@ export class RunsService {
   async findById(
     id: string,
   ): Promise<
-    RunWithId & { plug: Plug; service: Service /*; nextService: Service*/ }
+    RunWithId & { plug: Plug /*; service: Service; nextService: Service*/ }
   > {
+    const objId = new mongoose.Types.ObjectId(id);
     const toFormat = await this.runModel
       .aggregate([
         {
           $match: {
-            _id: id,
+            _id: objId,
           },
         },
         {
           $lookup: {
             from: 'plugs',
-            localField: 'plugId',
-            foreignField: '_id',
+            let: {
+              plugId: '$plugId',
+            },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $eq: ['$_id', { $toObjectId: '$$plugId' }],
+                  },
+                },
+              },
+            ],
             as: 'plug',
           },
         },
+        /*
         {
           $lookup: {
             from: 'services',
@@ -70,6 +82,7 @@ export class RunsService {
             as: 'service',
           },
         },
+        */
         /*
         {
           $lookup: {
@@ -126,9 +139,12 @@ export class RunsService {
       ])
       .exec();
 
-    return this.format(toFormat) as RunWithId & {
+    const ret = this.format(toFormat[0]) as any;
+    if (ret.plug && ret.plug.length > 0) ret.plug = ret.plug[0];
+
+    return ret as RunWithId & {
       plug: Plug;
-      service: Service;
+      //service: Service;
       //nextService: Service;
     };
   }

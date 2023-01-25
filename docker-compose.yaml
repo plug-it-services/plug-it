@@ -93,6 +93,8 @@ services:
       - 27017:27017
     env_file:
       - ./api/plugs/.env
+    volumes:
+      - plugs_mongo_data:/data/db
     networks:
       - plugs_network
 
@@ -122,6 +124,7 @@ volumes:
   rabbit_logs:
   client_data:
   elk_data:
+  plugs_mongo_data:
 
 networks:
   rabbit_network:
