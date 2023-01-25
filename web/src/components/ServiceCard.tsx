@@ -35,10 +35,12 @@ function ServiceCard({ img, title, description, buttonLabel, onClick }: IService
           style={{ maxWidth: '100px', maxHeight: '100px', objectFit: 'contain', margin: '10px' }}
         />
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-          <Typography variant="h5" component="div">
+          <Typography variant="h5" component="div" color={'white'}>
             {title}
           </Typography>
-          <Typography variant="body2">{description}</Typography>
+          <Typography variant="body2" color={'white'}>
+            {description}
+          </Typography>
         </div>
       </div>
       <CardActions style={{ display: 'flex', justifyContent: 'center' }}>

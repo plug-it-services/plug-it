@@ -22,11 +22,10 @@ function Header({ title, area }: IHeaderProps) {
           {title}
         </Typography>
         <div style={{ marginRight: '20px', display: 'flex', alignItems: 'center', gap: '20px' }}>
-          <Button color="primary" text={area} onClick={() => alert('Hello')} />
-          <Button color="primary" text={area} onClick={() => alert('Hello')} />
+          <Button color="primary" text={'Services'} onClick={() => alert('Hello')} />
+          <Button color="primary" text={'AREAs'} onClick={() => alert('Hello')} />
           <AccountTile name="Jean Michel" email="jeanmichel@plugit.org" />
         </div>
-
       </div>
     </AppBar>
   );
