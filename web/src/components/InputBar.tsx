@@ -1,26 +1,24 @@
 // SearchBar.tsx
 import React from 'react';
 import { Box, InputBase, IconButton } from '@mui/material';
-import Typography from '@mui/material/Typography';
-import SearchIcon from '@mui/icons-material/Search';
 
-export interface ISearchBarProps {
+export interface IInputBarProps {
   defaultDummyValue: string;
   textColor: string;
   backgroundColor: string;
   borderColor: string;
+  isPassword: boolean;
   onChange: (value: string) => void;
-  onSearch: (value: string) => void;
 }
-// with shadow
-function SearchBar({
+
+function InputBar({
   defaultDummyValue,
   textColor,
   backgroundColor,
   borderColor,
+  isPassword,
   onChange,
-  onSearch,
-}: ISearchBarProps) {
+}: IInputBarProps) {
   return (
     <Box
       component="form"
@@ -37,23 +35,15 @@ function SearchBar({
         backgroundColor,
       }}
     >
-      <IconButton
-        type="submit"
-        sx={{ p: '10px' }}
-        aria-label="search"
-        onClick={() => onSearch(defaultDummyValue)}
-        color="primary"
-      >
-        <SearchIcon />
-      </IconButton>
       <InputBase
         sx={{ ml: 1, flex: 1 }}
         placeholder={defaultDummyValue}
         onChange={(e) => onChange(e.target.value)}
         style={{ color: textColor }}
+        type={isPassword ? 'password' : 'text'}
       />
     </Box>
   );
 }
 
-export default SearchBar;
+export default InputBar;
