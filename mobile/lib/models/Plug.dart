@@ -10,4 +10,5 @@ class Plug {
   Color? color;
   Trigger? trigger;
   List<Action>? actions;
+  List<String>? icons;
 }
