@@ -32,10 +32,17 @@ function SearchBar({
         border: '1px solid',
         borderColor,
         borderRadius: '10px',
-        boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.30)',
+        boxShadow: '0px 4px 10px 0px rgba(0,0,0,0.30)',
+        backgroundColor,
       }}
     >
-      <IconButton type="submit" sx={{ p: '10px' }} aria-label="search" onClick={() => onSearch(defaultDummyValue)}>
+      <IconButton
+        type="submit"
+        sx={{ p: '10px' }}
+        aria-label="search"
+        onClick={() => onSearch(defaultDummyValue)}
+        color="primary"
+      >
         <SearchIcon />
       </IconButton>
       <InputBase

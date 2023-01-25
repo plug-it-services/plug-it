@@ -19,8 +19,8 @@ function App() {
           onSearch={() => {}}
           defaultDummyValue="Search"
           textColor="black"
-          backgroundColor="white"
-          borderColor="grey"
+          backgroundColor="#EAF1FF"
+          borderColor="#EAF1FF"
         />
         <br></br>
         <Button color="primary" text="Click me" onClick={() => alert('Hello')} />
