@@ -34,7 +34,7 @@ function AreaCard({ title, date, iconList, buttonLabel, onClick }: IAreaCardProp
           {title}
         </Typography>
       </div>
-      <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+      <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center'}}>
         {iconList.map((icon) => (
           // draw a list of icons in a rounded container
           <div
@@ -46,6 +46,7 @@ function AreaCard({ title, date, iconList, buttonLabel, onClick }: IAreaCardProp
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
+              margin: '8px',
             }}
           >
             <img src={icon} alt="icon" style={{ maxWidth: '20px', maxHeight: '20px' }} />

@@ -6,7 +6,9 @@ import Button from './components/Button';
 import ServiceCard from './components/ServiceCard';
 import Header from './components/Header';
 import SearchBar from './components/SearchBar';
-import AreaCard  from './components/AreaCard';
+import AreaCard from './components/AreaCard';
+import InputBar from './components/InputBar';
+import LoginCard from './components/LoginCard';
 
 function App() {
   return (
@@ -21,6 +23,31 @@ function App() {
           textColor="black"
           backgroundColor="#EAF1FF"
           borderColor="#EAF1FF"
+        />
+        <br></br>
+        <InputBar
+          onChange={() => {}}
+          defaultDummyValue="Username field :O"
+          textColor="black"
+          backgroundColor="#EAF1FF"
+          borderColor="#EAF1FF"
+          isPassword={false}
+        />
+        <br></br>
+        <InputBar
+          onChange={() => {}}
+          defaultDummyValue="Password field :O"
+          textColor="black"
+          backgroundColor="#EAF1FF"
+          borderColor="#EAF1FF"
+          isPassword={true}
+        />
+        <br></br>
+        <LoginCard
+          title={'Login'}
+          description={'Login to your account.'}
+          buttonLabel={'Login'}
+          onClick={() => alert('Login')}
         />
         <br></br>
         <Button color="primary" text="Click me" onClick={() => alert('Hello')} />
@@ -38,7 +65,11 @@ function App() {
         <AreaCard
           title={'Youtube'}
           date={'2021-10-10'}
-          iconList={['https://clipart.info/images/ccovers/1590430652red-youtube-logo-png-xl.png']}
+          iconList={[
+            'https://clipart.info/images/ccovers/1590430652red-youtube-logo-png-xl.png',
+            'https://clipart.info/images/ccovers/1590430652red-youtube-logo-png-xl.png',
+            'https://clipart.info/images/ccovers/1590430652red-youtube-logo-png-xl.png',
+          ]}
           buttonLabel={'Connect'}
           onClick={() => alert('Add')}
         />
