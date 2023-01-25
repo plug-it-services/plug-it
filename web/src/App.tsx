@@ -9,6 +9,7 @@ import SearchBar from './components/SearchBar';
 import AreaCard from './components/AreaCard';
 import InputBar from './components/InputBar';
 import LoginCard from './components/LoginCard';
+import TriggerCard from './components/TriggerCard';
 
 function App() {
   return (
@@ -70,9 +71,17 @@ function App() {
             'https://clipart.info/images/ccovers/1590430652red-youtube-logo-png-xl.png',
             'https://clipart.info/images/ccovers/1590430652red-youtube-logo-png-xl.png',
           ]}
-          buttonLabel={'Connect'}
+          buttonLabel={'Disable'}
           onClick={() => alert('Add')}
         />
+        <br></br>
+        <TriggerCard
+          title={'Youtube'}
+          subtitle={'Youtube is a video sharing platform.'}
+          icon={'https://clipart.info/images/ccovers/1590430652red-youtube-logo-png-xl.png'}
+          backgroundColor={'#2757C9'}
+        />
+        <br></br>
       </header>
     </div>
   );
