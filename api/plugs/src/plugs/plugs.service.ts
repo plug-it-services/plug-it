@@ -1,5 +1,5 @@
 import { HttpException, Injectable, Logger } from '@nestjs/common';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Plug, PlugDocument } from './schemas/plug.schema';
 import { PlugSubmitDto } from './dto/PlugSubmit.dto';
@@ -37,16 +37,111 @@ export class PlugsService {
     });
   }
 
-  async findByOwner(owner: number): Promise<Plug[]> {
-    const plugs = await this.plugsModel.find({ owner }).lean().exec();
+  async findByOwner(
+    owner: number,
+  ): Promise<(PlugWithId & { icons: string[] })[]> {
+    const plugs = await this.plugsModel
+      .aggregate([
+        {
+          $match: {
+            owner: owner,
+          },
+        },
+        {
+          $lookup: {
+            from: 'services',
+            localField: 'event.serviceName',
+            foreignField: 'name',
+            as: 'icons',
+          },
+        },
+        {
+          $lookup: {
+            from: 'services',
+            let: {
+              names: '$actions.serviceName',
+            },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $in: ['$name', '$$names'],
+                  },
+                },
+              },
+            ],
+            as: 'actionsIcons',
+          },
+        },
+        {
+          $project: {
+            name: 1,
+            enabled: 1,
+            owner: 1,
+            event: 1,
+            actions: 1,
+            icons: {
+              $concatArrays: ['$icons.icon', '$actionsIcons.icon'],
+            },
+          },
+        },
+      ])
+      .exec();
 
-    return this.formatAll(plugs);
+    return this.formatAll(plugs) as any[];
   }
 
-  async findById(id: string): Promise<Plug> {
-    const plug = await this.plugsModel.findById(id).lean().exec();
+  async findById(id: string): Promise<Plug | null> {
+    const oid = new mongoose.Types.ObjectId(id);
+    const plug = await this.plugsModel
+      .aggregate([
+        {
+          $match: {
+            _id: oid,
+          },
+        },
+        {
+          $lookup: {
+            from: 'services',
+            localField: 'event.serviceName',
+            foreignField: 'name',
+            as: 'icons',
+          },
+        },
+        {
+          $lookup: {
+            from: 'services',
+            let: {
+              names: '$actions.serviceName',
+            },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $in: ['$name', '$$names'],
+                  },
+                },
+              },
+            ],
+            as: 'actionsIcons',
+          },
+        },
+        {
+          $project: {
+            name: 1,
+            enabled: 1,
+            owner: 1,
+            event: 1,
+            actions: 1,
+            icons: {
+              $concatArrays: ['$icons.icon', '$actionsIcons.icon'],
+            },
+          },
+        },
+      ])
+      .exec();
 
-    return this.format(plug);
+    return plug.length ? this.format(plug[0]) : null;
   }
 
   async findOwnedByEvent(

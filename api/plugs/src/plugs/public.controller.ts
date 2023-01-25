@@ -26,8 +26,16 @@ export class PublicController {
   @Get()
   async listUserPlugs(@Headers('user') userDto: string) {
     const user: UserHeaderDto = JSON.parse(userDto);
+    const plugs = await this.plugsService.findByOwner(user.id);
 
-    return this.plugsService.findByOwner(user.id);
+    return plugs.map((plug) => {
+      return {
+        id: plug.id,
+        name: plug.name,
+        icons: plug.icons,
+        enabled: plug.enabled,
+      };
+    });
   }
 
   @Post()
