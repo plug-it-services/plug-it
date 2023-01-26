@@ -14,7 +14,6 @@ class PlugCard extends StatefulWidget {
   State createState() => _StatePlugCard();
 }
 class _StatePlugCard extends State<PlugCard>{
-  bool pressed = false;
 
   List<Widget> _getServiceBubbles() {
     List<Widget> bubbles = [];
