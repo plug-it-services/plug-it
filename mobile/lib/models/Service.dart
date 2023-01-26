@@ -3,7 +3,7 @@ import 'Trigger.dart';
 
 class Service {
   List<Trigger> triggers = [];
-  List<Action> actions = [];
+  List<Event> actions = [];
   String name;
   String id;
   bool connected;
