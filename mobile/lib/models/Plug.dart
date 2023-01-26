@@ -9,6 +9,6 @@ class Plug {
   bool? activated;
   Color? color;
   Trigger? trigger;
-  List<Action>? actions;
+  List<Event>? actions;
   List<String>? icons;
 }
