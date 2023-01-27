@@ -15,6 +15,7 @@ export const twitter = {
           type: 'string',
           displayName: 'Tweet body',
           description: 'The content that will be posted as a tweet',
+          required: true,
         },
       ],
     },

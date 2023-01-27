@@ -1,6 +1,10 @@
 import { Controller } from '@nestjs/common';
-import { AmqpConnection, RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
-import { TwitterService } from './twitter.service';
+import {
+  AmqpConnection,
+  Nack,
+  RabbitSubscribe,
+} from '@golevelup/nestjs-rabbitmq';
+import { TwitterService } from '../services/twitter.service';
 
 @Controller('listener')
 export class ListenerController {
@@ -20,7 +24,12 @@ export class ListenerController {
     queue: 'plug_action_twitter_triggers',
   })
   async triggerAction(msg: any) {
-    const text = msg.fields.find((field: any) => field.key === 'body').value;
-    await this.twitterService.postTweet(text);
+    const { actionId, userId, serviceId, plugId } = msg;
+    if (actionId === 'tweet') {
+      const text = msg.fields.find((field: any) => field.key === 'body').value;
+      await this.twitterService.postTweet(userId, text);
+      return;
+    }
+    return new Nack(false);
   }
 }
