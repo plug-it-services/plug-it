@@ -78,7 +78,7 @@ export class PublicController {
 
   @UseGuards(JwtAuthGuard)
   @Put()
-  async update(@Request() req, @Body() userDto: UserSignupDto) {
+  async update(@Request() req, @Body(new ValidationPipe()) userDto: UserSignupDto) {
     await this.userService.update(
       req.user.id,
       userDto.email,
@@ -91,7 +91,7 @@ export class PublicController {
 
   @Post(':service/login')
   async socialLogin(
-    @Body() ssoLoginDto: SsoLoginDto,
+    @Body(new ValidationPipe()) ssoLoginDto: SsoLoginDto,
     @Param('service') service,
     @Request() req,
     @Response() res,
