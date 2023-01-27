@@ -1,14 +1,18 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { TwitterService } from './twitter.service';
-import { ListenerController } from './listener.controller';
+import { AppController } from './controllers/app.controller';
+import { TwitterService } from './services/twitter.service';
+import { ListenerController } from './controllers/listener.controller';
 import { AmqpConnection, RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TwitterAuthService } from './services/twitterAuth.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { TwitterAuthEntity } from './schemas/twitterAuth.entity';
 
 @Module({
   imports: [
-    ConfigModule,
+    ConfigModule.forRoot({ isGlobal: true }),
     RabbitMQModule.forRootAsync(RabbitMQModule, {
+      //imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
         return {
@@ -23,9 +27,26 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         };
       },
     }),
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => {
+        return {
+          type: 'postgres',
+          host: configService.get<string>('POSTGRES_HOST'),
+          port: configService.get<number>('POSTGRES_PORT'),
+          username: configService.get<string>('POSTGRES_USER'),
+          password: configService.get<string>('POSTGRES_PASSWORD'),
+          database: configService.get<string>('POSTGRES_DB'),
+          // TODO need to remove it in production
+          synchronize: true,
+          entities: [TwitterAuthEntity],
+        };
+      },
+    }),
+    TypeOrmModule.forFeature([TwitterAuthEntity]),
   ],
   controllers: [AppController, ListenerController],
-  providers: [TwitterService],
+  providers: [TwitterService, TwitterAuthService],
 })
 export class AppModule {
   constructor(

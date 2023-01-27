@@ -1,9 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { Client, auth } from 'twitter-api-sdk';
 import { ConfigService } from '@nestjs/config';
+import { TwitterAuthService } from './twitterAuth.service';
+import axios from 'axios';
 
 @Injectable()
 export class TwitterService {
+  constructor(private twitterAuthService: TwitterAuthService) {}
+  /*
   private authClient: auth.OAuth2User;
 
   private client: Client;
@@ -26,10 +29,30 @@ export class TwitterService {
   }
 
   async getAccessToken(code: string) {
-    await this.authClient.requestAccessToken(code);
+    try {
+      await this.authClient.requestAccessToken(code);
+    } catch (e) {
+      console.error(e);
+    }
   }
+*/
+  async postTweet(userId: number, tweet: string) {
+    const token = await this.twitterAuthService.getAccessToken(userId);
+    const url = 'https://api.twitter.com/2/tweets';
 
-  async postTweet(tweet: string) {
-    await this.client.tweets.createTweet({ text: tweet });
+    try {
+      const response = await axios.post(
+        url,
+        { text: tweet },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+    } catch (e) {
+      console.error(e);
+    }
+    //console.log(response.data);
   }
 }
