@@ -8,10 +8,13 @@ export interface ILoginCardProps {
   title: string;
   description: string;
   buttonLabel: string;
-  onClick: () => void;
+  onClick: (username: string, password: string) => void;
 }
 
 function LoginCard({ title, description, buttonLabel, onClick }: ILoginCardProps) {
+  const [email, setEmail] = React.useState('');
+  const [password, setPassword] = React.useState('');
+
   return (
     <Card
       sx={{
@@ -36,8 +39,8 @@ function LoginCard({ title, description, buttonLabel, onClick }: ILoginCardProps
         </Typography>
         <br />
         <InputBar
-          onChange={() => {}}
-          defaultDummyValue="Username"
+          onChange={setEmail}
+          defaultDummyValue="Email"
           textColor="black"
           backgroundColor="#EAF1FF"
           borderColor="#EAF1FF"
@@ -45,7 +48,7 @@ function LoginCard({ title, description, buttonLabel, onClick }: ILoginCardProps
         />
         <br />
         <InputBar
-          onChange={() => {}}
+          onChange={setPassword}
           defaultDummyValue="Password"
           textColor="black"
           backgroundColor="#EAF1FF"
@@ -53,7 +56,13 @@ function LoginCard({ title, description, buttonLabel, onClick }: ILoginCardProps
           isPassword={true}
         />
       </CardContent>
-      <Button color="primary" text={buttonLabel} onClick={onClick} />
+      <Button
+        color="primary"
+        text={buttonLabel}
+        onClick={() => {
+          onClick(email, password);
+        }}
+      />
     </Card>
   );
 }
