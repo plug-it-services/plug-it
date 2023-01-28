@@ -2,10 +2,6 @@ import React from 'react';
 import { Typography, CardActions } from '@mui/material';
 import Button from './Button';
 
-/*
-  * This is a component that displays a card with an image, a title, a date and a button
-  * The card is composed of 3 parts: the title, then a container for a list of icons and then the button
- */
 export interface IAreaCardProps {
   title: string;
   date: string;

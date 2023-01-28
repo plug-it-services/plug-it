@@ -29,21 +29,21 @@ const ServicesPage = () => (
         title={'Youtube'}
         description={'Youtube is a video sharing platform.'}
         buttonLabel={'Connect'}
-        onClick={() => alert('Add')}
+        onClick={() => {}}
       />
       <ServiceCard
         img={'https://clipart.info/images/ccovers/1590430652red-youtube-logo-png-xl.png'}
         title={'Youtube'}
         description={'Youtube is a video sharing platform.'}
         buttonLabel={'Connect'}
-        onClick={() => alert('Add')}
+        onClick={() => {}}
       />
       <ServiceCard
         img={'https://clipart.info/images/ccovers/1590430652red-youtube-logo-png-xl.png'}
         title={'Youtube'}
         description={'Youtube is a video sharing platform.'}
         buttonLabel={'Connect'}
-        onClick={() => alert('Add')}
+        onClick={() => {}}
       />
     </div>
   </div>

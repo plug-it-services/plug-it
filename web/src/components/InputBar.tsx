@@ -1,6 +1,6 @@
 // SearchBar.tsx
 import React from 'react';
-import { Box, InputBase, IconButton } from '@mui/material';
+import { Box, InputBase } from '@mui/material';
 
 export interface IInputBarProps {
   defaultDummyValue: string;

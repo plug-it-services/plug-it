@@ -1,7 +1,6 @@
 // SearchBar.tsx
 import React from 'react';
 import { Box, InputBase, IconButton } from '@mui/material';
-import Typography from '@mui/material/Typography';
 import SearchIcon from '@mui/icons-material/Search';
 
 export interface ISearchBarProps {

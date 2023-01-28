@@ -33,7 +33,7 @@ const AreasPage = () => (
           'https://clipart.info/images/ccovers/1590430652red-youtube-logo-png-xl.png',
         ]}
         buttonLabel={'Disable'}
-        onClick={() => alert('Add')}
+        onClick={() => {}}
       />
       <AreaCard
         title={'Youtube'}
@@ -44,7 +44,7 @@ const AreasPage = () => (
           'https://clipart.info/images/ccovers/1590430652red-youtube-logo-png-xl.png',
         ]}
         buttonLabel={'Disable'}
-        onClick={() => alert('Add')}
+        onClick={() => {}}
       />
     </div>
   </div>
