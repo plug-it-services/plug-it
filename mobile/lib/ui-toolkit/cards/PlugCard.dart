@@ -7,13 +7,16 @@ import 'package:mobile/ui-toolkit/buttons/ScreenWidthButton.dart';
 
 class PlugCard extends StatefulWidget {
   final Plug plug;
+  final void Function()? callback;
 
-  const PlugCard({super.key, required this.plug});
+  const PlugCard({super.key, required this.plug, this.callback});
 
   @override
   State createState() => _StatePlugCard();
 }
 class _StatePlugCard extends State<PlugCard>{
+  bool pressed = false;
+
 
   List<Widget> _getServiceBubbles() {
     List<Widget> bubbles = [];
@@ -58,53 +61,71 @@ class _StatePlugCard extends State<PlugCard>{
     return bubbles;
   }
 
+  void _onTap() {
+    setState(() {
+      pressed = true;
+    });
+  }
+
+  void _onEnd() {
+    setState(() {
+      pressed = false;
+    });
+    widget.callback!();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
         padding: const EdgeInsets.all(10),
-        child: Container(
-            decoration: BoxDecoration(
-              //TODO: make a dominant color picker of the icon to color the container
-                color: PlugItStyle.cardColor,
-                borderRadius: BorderRadius.circular(8)
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                    child: Column(
-                      children: [
-                        SizedBox(height: 10,),
+        child: GestureDetector(
+          onTap: _onTap,
+          child: AnimatedContainer(
+              onEnd: _onEnd,
+              duration: const Duration(milliseconds: 200),
+              decoration: BoxDecoration(
+                //TODO: make a dominant color picker of the icon to color the container
+                  color: (!pressed) ? PlugItStyle.cardColor : PlugItStyle.buttonColorPressed,
+                  borderRadius: BorderRadius.circular(8)
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 10,),
 
-                        // Plug title
-                        Text("\"${widget.plug.name!}\"", style: PlugItStyle.subtitleStyle),
-                        SizedBox(height: 20,),
-
-
-                        // Service bubbles
-                        Row(
-                          children: _getServiceBubbles(),
-                        ),
-                        SizedBox(height: 20,),
+                          // Plug title
+                          Text("\"${widget.plug.name!}\"", style: PlugItStyle.subtitleStyle),
+                          const SizedBox(height: 20,),
 
 
-                        // Row(Last plug activation date and Activated checkmark)
-                        Row (
-                          children: [
-                            const Text("Last activation: dd/mm/yyyy"),
-                            SizedBox(width: 10,),
-                            Checkbox(value: widget.plug.activated ?? false, onChanged: (value) {
-                              //TODO: disable plug
-                              setState(() {
-                                widget.plug.activated = value;
-                              });
-                            },),
-                          ]
-                        )
-                      ],
-                    )
-                )
-              ],
-            )
+                          // Service bubbles
+                          Row(
+                            children: _getServiceBubbles(),
+                          ),
+                          const SizedBox(height: 20,),
+
+
+                          // Row(Last plug activation date and Activated checkmark)
+                          Row (
+                            children: [
+                              const Text("Last activation: dd/mm/yyyy"),
+                              const SizedBox(width: 10,),
+                              Checkbox(value: widget.plug.activated ?? false, onChanged: (value) {
+                                //TODO: disable plug
+                                setState(() {
+                                  widget.plug.activated = value;
+                                });
+                              },),
+                            ]
+                          )
+                        ],
+                      )
+                  )
+                ],
+              )
+          )
         )
     );
 

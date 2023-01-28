@@ -4,11 +4,12 @@ import 'package:mobile/ui-toolkit/PlugItStyle.dart';
 
 class InputField extends StatefulWidget {
   final String hint;
+  final String? value;
   final bool obscured;
   final Icon? icon;
   final Color? iconColor;
   final void Function(String)? onChanged;
-  const InputField({super.key, required this.hint, this.obscured = false, this.onChanged, this.icon, this.iconColor});
+  const InputField({super.key, required this.hint, this.obscured = false, this.onChanged, this.icon, this.iconColor, this.value});
 
 
   @override
@@ -28,6 +29,7 @@ class _InputFieldState extends State<InputField> {
                 child: Padding(
                     padding: const EdgeInsets.only(left: 20),
                     child: TextField(
+                      controller: TextEditingController(text:widget.value),
                       style: PlugItStyle.inputTextStyle,
                       onChanged: widget.onChanged,
                       obscureText: widget.obscured,
