@@ -8,6 +8,7 @@ import 'package:mobile/models/service/Service.dart';
 import 'package:mobile/models/plug/Plug.dart';
 import 'package:mobile/models/plug/PlugDetails.dart';
 import 'package:mobile/models/plug/PlugEvent.dart';
+import 'package:mobile/ui-toolkit/PlugItStyle.dart';
 
 import 'package:mobile/ui-toolkit/cards/ActionEditCard.dart';
 import 'package:mobile/ui-toolkit/cards/TriggerEditCard.dart';
@@ -62,7 +63,7 @@ class _PlugsState extends State<Plugs> {
   List<Widget> _getPlugCards()
   {
     List<Widget> widgets = [];
-    for (Plug plug in plugs ?? [  ]) {
+    for (Plug plug in plugs ?? []) {
       widgets.add(PlugCard(
           plug: plug,
           callback: () => _createOrEditPlug(plug),
@@ -111,35 +112,49 @@ class _PlugsState extends State<Plugs> {
     widgets.add(InputField(
         hint: "Enter Plug Name",
         value: plugEdited!.name,
+        onChanged: (value) => plugEdited!.name = value,
     ));
     widgets.add(const SizedBox(height: 20,));
-    widgets.add(TriggerEditCard(services: services!, isOpen: true, onCardDeploy: () => {}, plug: plugEdited!));
-    widgets.add(const SizedBox(height: 15,));
+    widgets.add(TriggerEditCard(services: services ?? [], isOpen: true, onCardDeploy: () => {}, plug: plugEdited!));
+    widgets.add(const SizedBox(height: 5,));
     widgets.add(IconButton(onPressed: _addAction, icon: Icon(Icons.add_rounded),));
-    widgets.add(const SizedBox(height: 15,));
+    widgets.add(const SizedBox(height: 5,));
     int idx = 0;
     for (var action in plugEdited!.actions) {
-      widgets.add(ActionEditCard(services: services!, isOpen: false, onCardDeploy: () => {}, plug: plugEdited!, actionIdx: idx));
-      widgets.add(const SizedBox(height: 15,));
+      widgets.add(ActionEditCard(services: services ?? [], isOpen: false, onCardDeploy: () => {}, plug: plugEdited!, actionIdx: idx));
+      widgets.add(const SizedBox(height: 5,));
       widgets.add(IconButton(onPressed: _addAction, icon: Icon(Icons.add_rounded),));
-      widgets.add(const SizedBox(height: 15,));
+      widgets.add(const SizedBox(height: 5,));
       idx++;
     }
     widgets.add(const SizedBox(height: 5,));
     widgets.add(Row(
       children: [
-        ScreenWidthButton(
-          label: 'Save',
-          callback: _savePlug,
+        Expanded(
+            child:ScreenWidthButton(
+              label: 'Save',
+              color: PlugItStyle.validationColor,
+              pressedColor: PlugItStyle.secondaryColor,
+              callback: _savePlug,
+            )
         ),
-        ScreenWidthButton(
-          label: 'Cancel',
-          callback: _cancel,
+
+        Expanded(
+          child:ScreenWidthButton(
+            label: 'Cancel',
+            color: PlugItStyle.primaryColor,
+            pressedColor: PlugItStyle.secondaryColor,
+            callback: _cancel,
+          ),
         ),
-        ScreenWidthButton(
-          label: 'Delete',
-          callback: _delete,
-        )
+        Expanded(
+          child:ScreenWidthButton(
+            label: 'Delete',
+            color: Colors.red,
+            pressedColor: PlugItStyle.secondaryColor,
+            callback: _delete,
+          )
+        ),
       ],
     ));
     return widgets;

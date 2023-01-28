@@ -149,11 +149,16 @@ class _StateActionEditCard extends State<ActionEditCard>{
             child: !deployed
                 ? Row(
               children: [
-                Text("${widget.actionIdx} --| Action ${(selectedService != null) ? "- ${selectedService!.name}" : ""}"),
+                Text("${widget.actionIdx + 2} --| Action ${(selectedService != null) ? "- ${selectedService!.name}" : ""}", style: PlugItStyle.subtitleStyle),
                 IconButtonSwitch(
                     falseIcon: const Icon(Icons.keyboard_arrow_down_rounded),
                     trueIcon: const Icon(Icons.keyboard_arrow_up_rounded),
-                    onChange: (value) {deployed = value;}
+                    state: deployed,
+                    onChange: (value) {
+                      setState(() {
+                        deployed = value;
+                      });
+                    }
                 )
               ],
             )
@@ -161,28 +166,33 @@ class _StateActionEditCard extends State<ActionEditCard>{
               children: [
                 Row(
                   children: [
-                    Text("${widget.actionIdx} --| Action ${(selectedService != null) ? "- ${selectedService!.name}" : ""}"),
+                    Text("${widget.actionIdx + 2} --| Action ${(selectedService != null) ? "- ${selectedService!.name}" : ""}", style: PlugItStyle.subtitleStyle),
                     IconButtonSwitch(
                         falseIcon: const Icon(Icons.keyboard_arrow_down_rounded),
                         trueIcon: const Icon(Icons.keyboard_arrow_up_rounded),
-                        onChange: (value) {deployed = value;}
+                        state: deployed,
+                        onChange: (value) {
+                          setState(() {
+                            deployed = value;
+                          });
+                        }
                     )
                   ],
                 ),
                 const Divider(color: Colors.black),
                 Row(
                     children: [
-                      Text("1 ${(selectedEvent != null) ? "- ${selectedEvent!.name}" : "- Select an Action "}"),
+                      Text("1 ${(selectedEvent != null) ? "- ${selectedEvent!.name}" : "- Select an Action "}", style: PlugItStyle.subtitleStyle),
                       IconButtonSwitch(
                           falseIcon: const Icon(Icons.keyboard_arrow_down_rounded),
                           trueIcon: const Icon(Icons.keyboard_arrow_up_rounded),
+                          state: editServiceActionDeployed,
                           onChange: (value) {
                             setState(() {
                               editServiceActionDeployed = value;
                               editActionDeployed = !value;
                             });
                           },
-                          state: true
                       )
                     ],
                   ),
@@ -191,10 +201,11 @@ class _StateActionEditCard extends State<ActionEditCard>{
                   ...getActionSelection(),
                   Row(
                     children: [
-                      Text("2 - Edit Action"),
+                      Text("2 - Edit Action", style: PlugItStyle.subtitleStyle),
                       IconButtonSwitch(
                           falseIcon: const Icon(Icons.keyboard_arrow_down_rounded),
                           trueIcon: const Icon(Icons.keyboard_arrow_up_rounded),
+                          state: editActionDeployed,
                           onChange: (value) {
                             setState(() {
                               editServiceActionDeployed = !value;

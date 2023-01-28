@@ -83,11 +83,14 @@ class _StateTriggerEditCard extends State<TriggerEditCard>{
             child: !deployed
                 ? Row(
               children: [
-                Text("1 --| Trigger ${(editedTrigger != null) ? "- ${editedTrigger!.serviceName}" : ""}"),
+                Text("1 --| Trigger ${(editedTrigger != null) ? "- ${editedTrigger!.serviceName}" : ""}", style: PlugItStyle.subtitleStyle),
                 IconButtonSwitch(
                   falseIcon: const Icon(Icons.keyboard_arrow_down_rounded),
                   trueIcon: const Icon(Icons.keyboard_arrow_up_rounded),
-                  onChange: (value) {deployed = value;}
+                  onChange: (value) {
+                    setState(() => deployed = value);
+                  },
+                  state: deployed
                 )
               ],
             )
@@ -95,11 +98,14 @@ class _StateTriggerEditCard extends State<TriggerEditCard>{
               children: [
                 Row(
                   children: [
-                    Text("1 --| Trigger ${(editedTrigger != null) ? "- ${editedTrigger!.serviceName}" : ""}"),
+                    Text("1 --| Trigger ${(editedTrigger != null) ? "- ${editedTrigger!.serviceName}" : ""}", style: PlugItStyle.subtitleStyle),
                     IconButtonSwitch(
                         falseIcon: const Icon(Icons.keyboard_arrow_down_rounded),
                         trueIcon: const Icon(Icons.keyboard_arrow_up_rounded),
-                        onChange: (value) {deployed = value;}
+                        onChange: (value) {
+                          setState(() => deployed = value);
+                        },
+                        state: deployed
                     )
                   ],
                 ),
