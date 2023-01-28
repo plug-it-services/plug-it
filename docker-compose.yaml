@@ -118,6 +118,23 @@ services:
       - elk
       - plugs-mongo
 
+  twitter-postgres:
+    image: 'postgres:latest'
+    networks:
+      - twitter_network
+    ports:
+      - 5433:5432
+    env_file:
+      - ./api/twitter/.env
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8888:8080
+    networks:
+      - twitter_network
+
 
 volumes:
   rabbit_data:
@@ -132,3 +149,4 @@ networks:
   user_network:
   plugs_network:
   traefik_network:
+  twitter_network:

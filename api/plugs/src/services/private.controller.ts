@@ -13,19 +13,16 @@ export class PrivateServicesController {
   ) {}
 
   @Post('/initialize')
-  async initializeService(
-    @Param('serviceName') serviceName: string,
-    @Body() initializeData: InitializeRequestDto,
-  ) {
-    if (await this.servicesService.exists(serviceName)) {
+  async initializeService(@Body() initializeData: InitializeRequestDto) {
+    if (await this.servicesService.exists(initializeData.name)) {
       this.logger.log(
-        `Updating service ${serviceName} with new data : 
+        `Updating service ${initializeData.name} with new data : 
         ${JSON.stringify(initializeData)}`,
       );
-      await this.servicesService.update(serviceName, initializeData);
+      await this.servicesService.update(initializeData.name, initializeData);
     } else {
       this.logger.log(
-        `Creating service ${serviceName} with data :
+        `Creating service ${initializeData.name} with data :
         ${JSON.stringify(initializeData)}`,
       );
       await this.servicesService.create(initializeData);
