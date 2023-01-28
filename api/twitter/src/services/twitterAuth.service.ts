@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -9,9 +9,10 @@ import axios from 'axios';
 
 @Injectable()
 export class TwitterAuthService {
-  clientId: string;
-  clientSecret: string;
-  callbackUrl: string;
+  private clientId: string;
+  private clientSecret: string;
+  private callbackUrl: string;
+  private logger = new Logger(TwitterAuthService.name);
 
   constructor(
     private configService: ConfigService,
@@ -114,6 +115,7 @@ export class TwitterAuthService {
           expiresAt: Date.now() + response.data.expires_in * 1000,
         },
       );
+      return auth.userId;
     } catch (e) {
       console.error(e);
     }
@@ -169,15 +171,20 @@ export class TwitterAuthService {
       'client_id',
       this.configService.getOrThrow<string>('CLIENT_ID'),
     );
-    const response = await axios.post(
-      url.toString(),
-      {},
-      {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+    url.searchParams.append("token_type_hint", "access_token");
+    try {
+      const response = await axios.post(
+        url.toString(),
+        {},
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
         },
-      },
-    );
+      );
+    } catch (e) {
+      this.logger.error(`Cannot revoke token for user ${auth.userId}`, e);
+    }
     await this.twitterAuthRepository.delete({ userId });
   }
 }

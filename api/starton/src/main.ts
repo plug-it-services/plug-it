@@ -8,12 +8,17 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
 
-  const url = configService.get<string>('PLUGS_SERVICE_INITIALIZE_URL');
-  // const response = await axios.post(url, JSON.stringify(starton));
-  // if (response.status !== 200) {
-  //   throw new Error(`Failed to initialize service: ${response.statusText}`);
-  // }
+  const url = configService.getOrThrow<string>('PLUGS_SERVICE_INITIALIZE_URL');
+  try {
+    const response = await axios.post(url, starton);
+    if (response.status !== 201) {
+      throw new Error(`Failed to initialize service: ${response.statusText}`);
+    }
+  } catch (error) {
+    console.error('Failed to send service config to plugs microservice', error);
+    process.exit(1);
+  }
 
-  await app.listen(configService.get<number>('PORT'));
+  await app.listen(configService.getOrThrow<number>('PORT'));
 }
 bootstrap();

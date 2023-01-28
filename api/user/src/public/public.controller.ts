@@ -11,7 +11,7 @@ import {
   UnauthorizedException,
   Param,
   NotFoundException,
-  LoggerService,
+  Logger,
 } from '@nestjs/common';
 import { AuthService } from 'src/auth/auth.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
@@ -24,11 +24,12 @@ import { UsersService } from 'src/users/users.service';
 
 @Controller('public')
 export class PublicController {
+  private logger = new Logger(PublicController.name);
+
   constructor(
     private authService: AuthService,
     private userService: UsersService,
     private ssoProvidersMappingService: SsoProvidersMappingService,
-    private loggerService: LoggerService,
   ) {}
 
   @UseGuards(LocalAuthGuard)
@@ -36,7 +37,7 @@ export class PublicController {
   async login(@Body() userDto: UserLoginDto, @Response() res, @Request() req) {
     const csrfToken = req.get('crsf_token');
     if (!csrfToken) {
-      this.loggerService.error("CSRF token doesn't match");
+      this.logger.error("CSRF token doesn't match");
       throw new UnauthorizedException();
     }
     await this.userService.setCrsfToken(req.user.id, csrfToken);
@@ -98,13 +99,13 @@ export class PublicController {
   ) {
     const csrfToken = req.get('crsf_token');
     if (!csrfToken) {
-      this.loggerService.error("CSRF token doesn't match");
+      this.logger.error("CSRF token doesn't match");
       throw new UnauthorizedException();
     }
 
     const provider = this.ssoProvidersMappingService.mapping.get(service);
     if (!provider) {
-      this.loggerService.error(`${service} provider doesn't exist to log in`);
+      this.logger.error(`${service} provider doesn't exist to log in`);
       throw new NotFoundException('Provider not found');
     }
     const profile = await provider.getUserProfile(ssoLoginDto.token);

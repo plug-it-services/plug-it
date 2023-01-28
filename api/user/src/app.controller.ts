@@ -5,16 +5,16 @@ import {
   UseGuards,
   Get,
   UnauthorizedException,
-  LoggerService,
+  Logger,
 } from '@nestjs/common';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { UsersService } from './users/users.service';
 
 @Controller()
 export class AppController {
+  private logger = new Logger(AppController.name);
   constructor(
     private userService: UsersService,
-    private loggerService: LoggerService,
   ) {}
 
   @UseGuards(JwtAuthGuard)
@@ -23,7 +23,7 @@ export class AppController {
     const user = await this.userService.findOneById(req.user.id);
 
     if (!req.get('crsf_token') || user.crsfToken !== req.get('crsf_token')) {
-      this.loggerService.error("CSRF token doesn't match");
+      this.logger.debug("CSRF token doesn't match");
       throw new UnauthorizedException();
     }
 

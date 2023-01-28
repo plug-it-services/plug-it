@@ -6,17 +6,21 @@ import {
   Param,
   Headers,
   Response,
+  Logger,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { ApiKeyDto } from '../dto/ApiKeyDto';
 import { AmqpService } from '../services/amqp.service';
 import { UserService } from '../services/user.service';
 import { BN } from 'bn.js';
+import axios from 'axios';
 
 @Controller('public')
 export class PublicController {
   constructor(
     private readonly amqpService: AmqpService,
     private userService: UserService,
+    private configService: ConfigService,
   ) {}
 
   @Post('/apiKey')
@@ -24,17 +28,24 @@ export class PublicController {
     @Body(new ValidationPipe()) body: ApiKeyDto,
     @Headers('user') userHeader: string,
   ) {
-    const user: { userId: number } = JSON.parse(userHeader);
-    await this.userService.create(user.userId, body.apiKey);
+    const user: { id: number } = JSON.parse(userHeader);
+    await this.userService.create(user.id, body.apiKey);
+
+    await axios.post(this.configService.getOrThrow<string>('PLUGS_SERVICE_LOGGED_IN_URL'), {
+      userId: user.id,
+    });
 
     return { message: 'success' };
   }
 
   @Post('/disconnect')
   async disconnect(@Response() res, @Headers('user') userHeader: string) {
-    const user: { userId: number } = JSON.parse(userHeader);
+    const user: { id: number } = JSON.parse(userHeader);
 
-    await this.userService.delete(user.userId);
+    await this.userService.delete(user.id);
+    await axios.post(this.configService.getOrThrow<string>('PLUGS_SERVICE_LOGGED_OUT_URL'), {
+      userId: user.id,
+    });
     res.status(200).json({ message: 'success' });
   }
 
