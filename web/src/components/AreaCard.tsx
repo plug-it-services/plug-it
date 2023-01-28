@@ -30,13 +30,12 @@ function AreaCard({ title, date, iconList, buttonLabel, onClick }: IAreaCardProp
       }}
     >
       <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-        <Typography variant="h5" component="div">
+        <Typography variant="h4" component="div" color={'white'}>
           {title}
         </Typography>
       </div>
-      <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center'}}>
+      <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
         {iconList.map((icon) => (
-          // draw a list of icons in a rounded container
           <div
             style={{
               backgroundColor: '#EAF1FF',

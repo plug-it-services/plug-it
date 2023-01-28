@@ -1,4 +1,6 @@
 import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+
 import logo from './logo.svg';
 import './App.css';
 
@@ -11,10 +13,27 @@ import InputBar from './components/InputBar';
 import LoginCard from './components/LoginCard';
 import TriggerCard from './components/TriggerCard';
 
+import LoginPage from './pages/LoginPage';
+import ServicesPage from './pages/ServicesPage';
+import AreasPage from './pages/AreasPage';
+
 function App() {
+  // Router
   return (
     <div className="App">
-      <Header title="Plug-it" area="AREAs" />
+      <Router>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/services" element={<ServicesPage />} />
+          <Route path="/areas" element={<AreasPage />} />
+        </Routes>
+      </Router>
+    </div>
+  );
+}
+
+/*
+ <Header title="Plug-it" area="AREAs" />
       <header className="App-header">
         <br></br>
         <SearchBar
@@ -83,8 +102,6 @@ function App() {
         />
         <br></br>
       </header>
-    </div>
-  );
-}
+ */
 
 export default App;

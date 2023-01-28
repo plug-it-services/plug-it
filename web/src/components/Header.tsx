@@ -22,8 +22,20 @@ function Header({ title, area }: IHeaderProps) {
           {title}
         </Typography>
         <div style={{ marginRight: '20px', display: 'flex', alignItems: 'center', gap: '20px' }}>
-          <Button color="primary" text={'Services'} onClick={() => alert('Hello')} />
-          <Button color="primary" text={'AREAs'} onClick={() => alert('Hello')} />
+          <Button
+            color="primary"
+            text={'Services'}
+            onClick={() => {
+              window.location.href = '/services';
+            }}
+          />
+          <Button
+            color="primary"
+            text={'AREAs'}
+            onClick={() => {
+              window.location.href = '/areas';
+            }}
+          />
           <AccountTile name="Jean Michel" email="jeanmichel@plugit.org" />
         </div>
       </div>
