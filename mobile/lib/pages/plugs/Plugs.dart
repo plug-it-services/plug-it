@@ -1,50 +1,68 @@
 import 'dart:js_util';
 
 import 'package:flutter/material.dart';
-import 'package:mobile/models/Action.dart';
-import 'package:mobile/models/Service.dart';
+import 'package:mobile/PlugApi.dart';
+
+
+import 'package:mobile/models/service/Service.dart';
+import 'package:mobile/models/plug/Plug.dart';
+import 'package:mobile/models/plug/PlugDetails.dart';
+import 'package:mobile/models/plug/PlugEvent.dart';
+
 import 'package:mobile/ui-toolkit/cards/ActionEditCard.dart';
 import 'package:mobile/ui-toolkit/cards/TriggerEditCard.dart';
 import 'package:mobile/ui-toolkit/input/InputField.dart';
-import '../../models/Plug.dart';
 import '../../ui-toolkit/buttons/ScreenWidthButton.dart';
 import '../../ui-toolkit/cards/PlugCard.dart';
 
 
-class Plugs extends StatefulWidget {
-  List<Plug>? plugs;
-  List<Service>? services;
 
-  Plugs({super.key, this.plugs, this.services});
+
+class Plugs extends StatefulWidget {
+  Plugs({super.key});
   @override
   State<Plugs> createState() => _PlugsState();
 }
 
 class _PlugsState extends State<Plugs> {
 
-  Plug? plugEdited;
+  PlugDetails? plugEdited;
   bool editing = false;
   bool creating = false;
+  List<Plug>? plugs;
+  List<Service>? services;
 
-
-  void _createOrEditPlug(Plug? plug)
-  {
+  void _createOrEditPlug(Plug? plug) {
+    
     if (plug != null) {
-      creating = false;
-      editing = true;
-      plugEdited = plug;
+      PlugApi.getPlug(plug.id).then((res) =>
+      {
+        setState(() {
+          creating = false;
+          editing = true;
+          plugEdited = res;
+        })
+      });
     }
     else {
-      editing = false;
-      creating = true;
-      plugEdited = Plug();
+      setState(() {
+        editing = false;
+        creating = true;
+        plugEdited = PlugDetails(
+          id: '',
+          name: '',
+          event: null,
+          enabled: true,
+          actions: [],
+        );
+      });
     }
   }
 
   List<Widget> _getPlugCards()
   {
     List<Widget> widgets = [];
-    for (Plug plug in widget.plugs!) {
+    for (Plug plug in plugs ?? [  ]) {
       widgets.add(PlugCard(
           plug: plug,
           callback: () => _createOrEditPlug(plug),
@@ -60,21 +78,17 @@ class _PlugsState extends State<Plugs> {
 
   void _addAction() {
     setState(() {
-      if (plugEdited!.actions == null) {
-        plugEdited!.actions = [Event()];
-      }
-      else {
-        plugEdited!.actions?.add(Event());
-      }
+      plugEdited!.actions.add(PlugEvent(id: '', serviceName: '', fields: [],));
     });
   }
   void _savePlug() {
     if (creating) {
-      //TODO: send post request of the current plug
+      PlugApi.createPlug(plugEdited!).then((value) => _cancel());
     } else if (editing) {
-      //TODO: send put request of the current plug
+      PlugApi.editPlug(plugEdited!).then((value) => {
+        _cancel()
+      });
     }
-    _cancel();
   }
   void _cancel() {
     setState(() {
@@ -86,9 +100,10 @@ class _PlugsState extends State<Plugs> {
 
   void _delete() {
     if (editing) {
-      //TODO: send delete request of the current plug
+      PlugApi.deletePlug(plugEdited!.id).then((value) => {
+        _cancel()
+      });
     }
-    _cancel();
   }
 
   List<Widget> _getPlugEdit() {
@@ -98,13 +113,13 @@ class _PlugsState extends State<Plugs> {
         value: plugEdited!.name,
     ));
     widgets.add(const SizedBox(height: 20,));
-    widgets.add(TriggerEditCard(services: widget.services!, isOpen: true, onCardDeploy: () => {}, plug: plugEdited!));
+    widgets.add(TriggerEditCard(services: services!, isOpen: true, onCardDeploy: () => {}, plug: plugEdited!));
     widgets.add(const SizedBox(height: 15,));
     widgets.add(IconButton(onPressed: _addAction, icon: Icon(Icons.add_rounded),));
     widgets.add(const SizedBox(height: 15,));
     int idx = 0;
-    for (var action in plugEdited!.actions!) {
-      widgets.add(ActionEditCard(services: widget.services!, isOpen: false, onCardDeploy: () => {}, plug: plugEdited!, actionIdx: idx));
+    for (var action in plugEdited!.actions) {
+      widgets.add(ActionEditCard(services: services!, isOpen: false, onCardDeploy: () => {}, plug: plugEdited!, actionIdx: idx));
       widgets.add(const SizedBox(height: 15,));
       widgets.add(IconButton(onPressed: _addAction, icon: Icon(Icons.add_rounded),));
       widgets.add(const SizedBox(height: 15,));
@@ -130,6 +145,17 @@ class _PlugsState extends State<Plugs> {
     return widgets;
   }
 
+  @override
+  void initState() {
+    super.initState();
+    PlugApi.getPlugs().then((value) => setState(() => {
+      plugs = value
+    }));
+    PlugApi.getServices().then((value) => setState(() => {
+      services = value
+    }));
+  }
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -1,19 +1,22 @@
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile/PlugApi.dart';
+import 'package:mobile/models/Event.dart';
 
-import 'package:mobile/models/Plug.dart';
-import 'package:mobile/models/Service.dart';
+import 'package:mobile/models/Plug/Plug.dart';
+import 'package:mobile/models/plug/PlugDetails.dart';
+import 'package:mobile/models/plug/PlugEvent.dart';
+import 'package:mobile/models/service/Service.dart';
 import 'package:mobile/ui-toolkit/PlugItStyle.dart';
 import 'package:mobile/ui-toolkit/buttons/IconButtonSwitch.dart';
 import 'package:mobile/ui-toolkit/buttons/ScreenWidthButton.dart';
-import 'package:mobile/models/Trigger.dart';
 
 
 class TriggerEditCard extends StatefulWidget {
   final List<Service> services;
   final bool isOpen;
   final void Function() onCardDeploy;
-  final Plug plug;
+  final PlugDetails plug;
 
   const TriggerEditCard({super.key,
     required this.services,
@@ -27,25 +30,47 @@ class TriggerEditCard extends StatefulWidget {
 }
 class _StateTriggerEditCard extends State<TriggerEditCard>{
   Service? selectedService;
-  Trigger? selectedTrigger;
+  Event? selectedTrigger;
+  PlugEvent? editedTrigger;
   bool deployed = false;
+  List<Event>? events;
 
-  void onServiceSelected(value) {
-    setState(() => {
-      selectedService = value
+  void onServiceSelected(Service? value) {
+    setState(() {
+      selectedService = value;
+      _getEvents();
     });
   }
 
-  void onTriggerSelected(value) {
+  void onTriggerSelected(Event? value) {
     setState(() {
       selectedTrigger = value;
-      widget.plug.trigger = value;
+      widget.plug.event = PlugEvent.fromEventService(
+        event: value!,
+        serviceName: selectedService!.name,
+      );
+    });
+  }
+
+  void _setEvents(List<Event> events) {
+    setState(() {
+      this.events = events;
+    });
+  }
+
+  void _getEvents()
+  {
+    if (selectedService == null) {
+      return;
+    }
+     PlugApi.getServiceEvents(selectedService!.name).then((events) => {
+      _setEvents(events ?? [])
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    selectedTrigger = widget.plug.trigger;
+    editedTrigger = widget.plug.event;
     return Padding(
         padding: const EdgeInsets.all(10),
         child: AnimatedContainer(
@@ -58,7 +83,7 @@ class _StateTriggerEditCard extends State<TriggerEditCard>{
             child: !deployed
                 ? Row(
               children: [
-                Text("1 --| Trigger ${(selectedTrigger!.name != null) ? "- ${selectedTrigger!.name}" : ""}"),
+                Text("1 --| Trigger ${(editedTrigger != null) ? "- ${editedTrigger!.serviceName}" : ""}"),
                 IconButtonSwitch(
                   falseIcon: const Icon(Icons.keyboard_arrow_down_rounded),
                   trueIcon: const Icon(Icons.keyboard_arrow_up_rounded),
@@ -70,7 +95,7 @@ class _StateTriggerEditCard extends State<TriggerEditCard>{
               children: [
                 Row(
                   children: [
-                    Text("1 --| Trigger ${(selectedTrigger!.name != null) ? "- ${selectedTrigger!.name}" : ""}"),
+                    Text("1 --| Trigger ${(editedTrigger != null) ? "- ${editedTrigger!.serviceName}" : ""}"),
                     IconButtonSwitch(
                         falseIcon: const Icon(Icons.keyboard_arrow_down_rounded),
                         trueIcon: const Icon(Icons.keyboard_arrow_up_rounded),
@@ -94,11 +119,11 @@ class _StateTriggerEditCard extends State<TriggerEditCard>{
                   ),
                 ),
                 const SizedBox(height: 15,),
-                DropdownSearch<Trigger>(
+                DropdownSearch<Event>(
                   onChanged: onTriggerSelected,
-                  items: selectedService!.triggers,
+                  items: events ?? [],
                   itemAsString: (service) {
-                    return service.name!;
+                    return service.name;
                   },
                   dropdownDecoratorProps: const DropDownDecoratorProps(
                     dropdownSearchDecoration: InputDecoration(

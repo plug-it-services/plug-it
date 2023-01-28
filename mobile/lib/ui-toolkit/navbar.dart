@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/pages/services/Services.dart';
 import 'package:mobile/ui-toolkit/appbar.dart';
-import 'package:mobile/main.dart';
 
-import '../pages/home/Home.dart';
+import 'package:mobile/PlugApi.dart';
+import 'package:mobile/models/plug/Plug.dart';
+import 'package:mobile/models/service/Service.dart';
+
+import 'package:mobile/pages/plugs/Plugs.dart';
+import 'package:mobile/pages/home/Home.dart';
+import 'package:mobile/pages/services/Services.dart';
 
 class NavBar extends StatefulWidget
 {
@@ -15,13 +19,9 @@ class NavBar extends StatefulWidget
 
 class _NavBarState extends State<NavBar> {
   int index = 0;
-  final pages = [
-    Home(),
-    Services(),
-    Home(),
-    Home(),
-    Home(),
-  ];
+  List<Service>? services;
+  List<Plug>? plugs;
+
   final headTitles = [
     null,
     "Services",
@@ -31,7 +31,14 @@ class _NavBarState extends State<NavBar> {
   ];
   @override
   Widget build(BuildContext context) {
-      return Scaffold(
+    final pages = [
+      Home(),
+      Services(),
+      Plugs(),
+      Home(),
+      Home(),
+    ];
+    return Scaffold(
           appBar: MyAppBar(pageTitle:headTitles[index]),
           body: pages[index],
           bottomNavigationBar: NavigationBarTheme(

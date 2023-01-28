@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/models/Plug.dart';
-import 'package:mobile/models/Service.dart';
+import 'package:mobile/PlugApi.dart';
+import 'package:mobile/models/plug/Plug.dart';
 import 'package:mobile/ui-toolkit/PlugItStyle.dart';
-import 'package:mobile/ui-toolkit/buttons/ScreenWidthButton.dart';
 
 
 class PlugCard extends StatefulWidget {
@@ -22,8 +21,8 @@ class _StatePlugCard extends State<PlugCard>{
     List<Widget> bubbles = [];
     int idx = 0;
 
-    for (String icon in widget.plug.icons!) {
-      if (idx >= 4 && widget.plug.icons!.length > 5) {
+    for (String icon in widget.plug.icons) {
+      if (idx >= 4 && widget.plug.icons.length > 5) {
         break;
       }
       bubbles.add(Container(
@@ -40,13 +39,13 @@ class _StatePlugCard extends State<PlugCard>{
             height: 10,
         )
       ));
-      if (idx + 1 < widget.plug.icons!.length && idx + 1 <= 4) {
+      if (idx + 1 < widget.plug.icons.length && idx + 1 <= 4) {
         bubbles.add(const Divider());
       }
       idx++;
     }
     if (widget.plug.icons!.length > 5) {
-      var moreLen = 4 - widget.plug.icons!.length;
+      var moreLen = 4 - widget.plug.icons.length;
       bubbles.add(Container(
           width: 12,
           height: 12,
@@ -112,10 +111,11 @@ class _StatePlugCard extends State<PlugCard>{
                             children: [
                               const Text("Last activation: dd/mm/yyyy"),
                               const SizedBox(width: 10,),
-                              Checkbox(value: widget.plug.activated ?? false, onChanged: (value) {
+                              Checkbox(value: widget.plug.enabled, onChanged: (value) {
                                 //TODO: disable plug
                                 setState(() {
-                                  widget.plug.activated = value;
+                                  widget.plug.enabled = value ?? false;
+                                  PlugApi.enablePlug(widget.plug.id, widget.plug.enabled);
                                 });
                               },),
                             ]

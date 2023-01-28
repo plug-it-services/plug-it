@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../models/Plug.dart';
-import '../../models/Service.dart';
+import '../../models/Plug/Plug.dart';
+import '../../models/service/Service.dart';
 
 
 class HomeCard extends StatefulWidget {

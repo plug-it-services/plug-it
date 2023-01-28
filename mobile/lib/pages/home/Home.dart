@@ -1,29 +1,32 @@
 import 'package:flutter/material.dart';
-import '../../models/Plug.dart';
-import '../../models/Service.dart';
+import 'package:mobile/PlugApi.dart';
+
+import 'package:mobile/models/plug/Plug.dart';
+import 'package:mobile/models/service/Service.dart';
+
 import 'HomeCard.dart';
 
 
 class Home extends StatefulWidget {
-  List<Service>? services;
-  List<Plug>? plugs;
 
-  Home({super.key, this.services, this.plugs});
+  Home({super.key});
   @override
   State<Home> createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
+  List<Plug>? plugs;
+  List<Service>? services;
+
 
   int _countConnectedServices() {
-    var services = widget.services;
-    if (services == null || services.isEmpty) {
+    if (services == null || services!.isEmpty) {
       return 0;
     }
     int count = 0;
-    for (var element in services) {
+    for (var element in services!) {
       var connected = element.connected;
-      if (connected != null && connected) {
+      if (connected) {
         count += 1;
       }
     }
@@ -31,14 +34,14 @@ class _HomeState extends State<Home> {
   }
 
   int _countConnectedPlugs() {
-    var services = widget.plugs;
+    var services = plugs;
     if (services == null || services.isEmpty) {
       return 0;
     }
     int count = 0;
     for (var element in services) {
-      var connected = element.activated;
-      if (connected != null && connected) {
+      var connected = element.enabled;
+      if (connected) {
         count += 1;
       }
     }
@@ -46,19 +49,30 @@ class _HomeState extends State<Home> {
   }
 
   int _countNotConnectedPlugs() {
-    var services = widget.plugs;
+    var services = plugs;
     if (services == null || services.isEmpty) {
       return 0;
     }
     int count = 0;
     for (var element in services) {
-      var connected = element.activated;
-      if (connected == null || !connected) {
+      if (!element.enabled) {
         count += 1;
       }
     }
     return count;
   }
+
+  @override
+  void initState() {
+    super.initState();
+    PlugApi.getPlugs().then((value) => setState(() => {
+      plugs = value
+    }));
+    PlugApi.getServices().then((value) => setState(() => {
+      services = value
+    }));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

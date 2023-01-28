@@ -1,11 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:mobile/models/Plug.dart';
-import 'package:mobile/models/Service.dart';
-import 'package:mobile/ui-toolkit/PlugItStyle.dart';
-import 'package:mobile/ui-toolkit/buttons/ScreenWidthButton.dart';
-import 'package:mobile/models/Trigger.dart';
-
 
 class IconButtonSwitch extends StatefulWidget {
   final void Function(bool value)? onChange;

@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/models/Service.dart';
+import 'package:mobile/models/service/Service.dart';
 import 'package:mobile/ui-toolkit/PlugItStyle.dart';
 import 'package:mobile/ui-toolkit/buttons/ScreenWidthButton.dart';
 
 
 class ServiceCard extends StatefulWidget {
   final Service service;
+  final void Function()? onChangeState;
 
-  const ServiceCard({super.key, required this.service});
+  const ServiceCard({super.key, required this.service, this.onChangeState});
 
   @override
   State createState() => _StateServiceCard();
@@ -28,9 +29,9 @@ class _StateServiceCard extends State<ServiceCard>{
         child: Row(
           children: [
             Padding(
-              padding: EdgeInsets.all(20),
-              child: Image.asset(
-                  widget.service.icon.path,
+              padding: const EdgeInsets.all(20),
+              child: Image.network(
+                  widget.service.icon,
                   width: 100,
                   height: 100,
               ),

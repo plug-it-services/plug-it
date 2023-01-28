@@ -1,13 +1,16 @@
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile/PlugApi.dart';
 
-import 'package:mobile/models/Plug.dart';
-import 'package:mobile/models/Service.dart';
-import 'package:mobile/models/Variable.dart';
+import 'package:mobile/models/Plug/Plug.dart';
+import 'package:mobile/models/plug/PlugDetails.dart';
+import 'package:mobile/models/plug/PlugEvent.dart';
+import 'package:mobile/models/service/Service.dart';
+import 'package:mobile/models/field/Field.dart';
 import 'package:mobile/ui-toolkit/PlugItStyle.dart';
 import 'package:mobile/ui-toolkit/buttons/IconButtonSwitch.dart';
 import 'package:mobile/ui-toolkit/buttons/ScreenWidthButton.dart';
-import 'package:mobile/models/Action.dart';
+import 'package:mobile/models/Event.dart';
 import 'package:mobile/ui-toolkit/input/InputField.dart';
 
 
@@ -15,7 +18,7 @@ class ActionEditCard extends StatefulWidget {
   final List<Service> services;
   final bool isOpen;
   final void Function() onCardDeploy;
-  final Plug plug;
+  final PlugDetails plug;
   final int actionIdx;
 
   const ActionEditCard({super.key,
@@ -31,38 +34,62 @@ class ActionEditCard extends StatefulWidget {
 }
 class _StateActionEditCard extends State<ActionEditCard>{
   Service? selectedService;
-  Event? selectedAction;
+  List<Event>? events;
+  Event? selectedEvent;
+  PlugEvent? editedEvent;
   bool deployed = false;
   bool editActionDeployed = false;
   bool editServiceActionDeployed = true;
 
   void onServiceSelected(value) {
-    setState(() => {
-      selectedService = value
+    setState(() {
+      selectedService = value;
+      _getEvents();
     });
   }
 
-  void onTriggerSelected(value) {
+  void onEventSelected(value) {
     setState(() {
-      selectedAction = value;
-      widget.plug.actions![widget.actionIdx] = value;
+      selectedEvent = value;
+      editedEvent = PlugEvent.fromEventService(event: value, serviceName: selectedService!.name);
+      widget.plug.actions[widget.actionIdx] = editedEvent!;
+    });
+  }
+
+
+  void _setEvents(List<Event> events) {
+    setState(() {
+      this.events = events;
+    });
+  }
+
+  void _getEvents() {
+    if (selectedService == null) {
+      return;
+    }
+    PlugApi.getServiceActions(selectedService!.name).then((events) =>
+    {
+      _setEvents(events ?? [])
     });
   }
 
   List<Widget> getActionFields() {
     List<Widget> fields = [];
 
-    if (!editActionDeployed || selectedAction == null) {
+    if (!editActionDeployed || selectedEvent == null) {
       return fields;
     }
-    for (Field field in selectedAction!.fields!) {
+    for (Field field in selectedEvent!.fields) {
       //TODO: get proper input field based on the type of the data
       fields.add(const SizedBox(height:10));
+      int idx = selectedEvent!.fields.indexOf(field);
       fields.add(Row(
         children: [
-          Text(field.name!),
+          Text(field.displayName),
           const SizedBox(width: 5,),
-          InputField(hint: 'Enter ${field.type}'),
+          InputField(hint: 'Enter ${field.type}', onChanged: (value) {
+            editedEvent!.fields[idx].value = value;
+          }, value: editedEvent!.fields[idx].value),
           //TODO insert properly a dropdown to select and insert a variable in the field
         ],
       ));
@@ -93,10 +120,10 @@ class _StateActionEditCard extends State<ActionEditCard>{
 
     fields.add(const SizedBox(height: 15,));
     fields.add(DropdownSearch<Event>(
-        onChanged: onTriggerSelected,
-        items: selectedService!.actions,
+        onChanged: onEventSelected,
+        items: events ?? [],
         itemAsString: (service) {
-          return service.name!;
+          return service.name;
         },
         dropdownDecoratorProps: const DropDownDecoratorProps(
             dropdownSearchDecoration: InputDecoration(
@@ -109,7 +136,7 @@ class _StateActionEditCard extends State<ActionEditCard>{
 
   @override
   Widget build(BuildContext context) {
-    selectedAction = widget.plug.actions![widget.actionIdx];
+    editedEvent = widget.plug.actions[widget.actionIdx];
     return Padding(
         padding: const EdgeInsets.all(10),
         child: AnimatedContainer(
@@ -122,7 +149,7 @@ class _StateActionEditCard extends State<ActionEditCard>{
             child: !deployed
                 ? Row(
               children: [
-                Text("${widget.actionIdx} --| Action ${(selectedAction!.name != null) ? "- ${selectedAction!.name}" : ""}"),
+                Text("${widget.actionIdx} --| Action ${(selectedService != null) ? "- ${selectedService!.name}" : ""}"),
                 IconButtonSwitch(
                     falseIcon: const Icon(Icons.keyboard_arrow_down_rounded),
                     trueIcon: const Icon(Icons.keyboard_arrow_up_rounded),
@@ -134,7 +161,7 @@ class _StateActionEditCard extends State<ActionEditCard>{
               children: [
                 Row(
                   children: [
-                    Text("${widget.actionIdx} --| Action ${(selectedAction!.name != null) ? "- ${selectedAction!.name}" : ""}"),
+                    Text("${widget.actionIdx} --| Action ${(selectedService != null) ? "- ${selectedService!.name}" : ""}"),
                     IconButtonSwitch(
                         falseIcon: const Icon(Icons.keyboard_arrow_down_rounded),
                         trueIcon: const Icon(Icons.keyboard_arrow_up_rounded),
@@ -145,13 +172,15 @@ class _StateActionEditCard extends State<ActionEditCard>{
                 const Divider(color: Colors.black),
                 Row(
                     children: [
-                      Text("1 ${(selectedAction!.name != null) ? "- ${selectedAction!.name}" : "- Select an Action "}"),
+                      Text("1 ${(selectedEvent != null) ? "- ${selectedEvent!.name}" : "- Select an Action "}"),
                       IconButtonSwitch(
                           falseIcon: const Icon(Icons.keyboard_arrow_down_rounded),
                           trueIcon: const Icon(Icons.keyboard_arrow_up_rounded),
                           onChange: (value) {
-                            editServiceActionDeployed = value;
-                            editActionDeployed = !value;
+                            setState(() {
+                              editServiceActionDeployed = value;
+                              editActionDeployed = !value;
+                            });
                           },
                           state: true
                       )
@@ -167,8 +196,10 @@ class _StateActionEditCard extends State<ActionEditCard>{
                           falseIcon: const Icon(Icons.keyboard_arrow_down_rounded),
                           trueIcon: const Icon(Icons.keyboard_arrow_up_rounded),
                           onChange: (value) {
-                            editServiceActionDeployed = !value;
-                            editActionDeployed = value;
+                            setState(() {
+                              editServiceActionDeployed = !value;
+                              editActionDeployed = value;
+                            });
                           }
                       )
                     ],

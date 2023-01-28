@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:mobile/PlugApi.dart';
 import 'package:mobile/models/User.dart';
 import 'package:mobile/ui-toolkit/PlugItStyle.dart';
 import 'package:mobile/ui-toolkit/buttons/GoogleAuthButton.dart';
@@ -31,10 +32,11 @@ class _LoginState extends State<Login> {
 
   String username = "";
   String password = "";
-  String? actualText = "";
 
   void onSign() {
-    widget.onLogged(User(id:"1", email:"jean.michel@plug-it.com", username: "Jean Michel Plug It", token:"123456789ABCDEFG"));
+    PlugApi.login(username, password).then((value) =>
+        widget.onLogged(User(id:"", email:username, username: username, token:PlugApi.token ?? ""))
+    );
   }
 
   void onGoogleAuth() {
