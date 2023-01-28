@@ -44,7 +44,7 @@ class _StatePlugCard extends State<PlugCard>{
       }
       idx++;
     }
-    if (widget.plug.icons!.length > 5) {
+    if (widget.plug.icons.length > 5) {
       var moreLen = 4 - widget.plug.icons.length;
       bubbles.add(Container(
           width: 12,
@@ -95,7 +95,7 @@ class _StatePlugCard extends State<PlugCard>{
                           const SizedBox(height: 10,),
 
                           // Plug title
-                          Text("\"${widget.plug.name!}\"", style: PlugItStyle.subtitleStyle),
+                          Text("\"${widget.plug.name}\"", style: PlugItStyle.subtitleStyle),
                           const SizedBox(height: 20,),
 
 

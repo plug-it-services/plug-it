@@ -1,4 +1,5 @@
 
+import 'package:flutter/foundation.dart';
 import 'package:mobile/models/Event.dart';
 import 'package:mobile/models/plug/Plug.dart';
 import 'package:mobile/models/plug/PlugDetails.dart';
@@ -11,8 +12,8 @@ import 'package:uuid/uuid.dart';
 class PlugApi {
   static String? token;
   static String? sessionToken = const Uuid().v4();
-  static const String apiUrl = "https://plug-it.com";
-  static const String devApiUrl = "https://localhost.com/";
+  static const String devApiUrl = "https://api.dev.area.alexandrejublot.com/api/v1.0";
+  static const String apiUrl = (kReleaseMode) ? "https://api.area.alexandrejublot.com/api/v1.0" : devApiUrl;
   static var error;
   static var dio = Dio();
 
