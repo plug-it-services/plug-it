@@ -4,11 +4,13 @@ import LoginPage from '../pages/LoginPage';
 import ServicesPage from '../pages/ServicesPage';
 import AreasPage from '../pages/AreasPage';
 import AreaCreatePage from '../pages/AreaCreatePage';
+import SignupPage from '../pages/SignupPage';
 
 const Router = () => (
   <BrowserRouter>
     <Routes>
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/signup" element={<SignupPage />} />
       <Route path="/services" element={<ServicesPage />} />
       <Route path="/areas" element={<AreasPage />} />
       <Route path="/areas/create" element={<AreaCreatePage />} />

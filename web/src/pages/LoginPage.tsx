@@ -15,7 +15,7 @@ const LoginPage = () => {
     }
 
     api.post(
-      '/login',
+      '/auth/login',
       {
         email,
         password,
