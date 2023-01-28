@@ -2,6 +2,7 @@ import React from 'react';
 
 import { Typography } from '@mui/material';
 import Header from '../components/Header';
+import Button from '../components/Button';
 import SearchBar from '../components/SearchBar';
 import AreaCard from '../components/AreaCard';
 
@@ -14,14 +15,23 @@ const AreasPage = () => (
       Areas
     </Typography>
     <br />
-    <SearchBar
-      onChange={() => {}}
-      onSearch={() => {}}
-      defaultDummyValue="Search an area"
-      textColor="black"
-      backgroundColor="#EAF1FF"
-      borderColor="#EAF1FF"
-    />
+    <div style={{ display: 'flex', flexDirection: 'row', gap: '20px' }}>
+      <SearchBar
+        onChange={() => {}}
+        onSearch={() => {}}
+        defaultDummyValue="Search an area"
+        textColor="black"
+        backgroundColor="#EAF1FF"
+        borderColor="#EAF1FF"
+      />
+      <Button
+        color="primary"
+        text={'Add Area'}
+        onClick={() => {
+          window.location.href = '/areas/create';
+        }}
+      />
+    </div>
     <br />
     <div style={{ display: 'flex', flexDirection: 'row', gap: '20px' }}>
       <AreaCard

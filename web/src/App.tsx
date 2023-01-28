@@ -1,21 +1,12 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 
-import logo from './logo.svg';
 import './App.css';
-
-import Button from './components/Button';
-import ServiceCard from './components/ServiceCard';
-import Header from './components/Header';
-import SearchBar from './components/SearchBar';
-import AreaCard from './components/AreaCard';
-import InputBar from './components/InputBar';
-import LoginCard from './components/LoginCard';
-import TriggerCard from './components/TriggerCard';
 
 import LoginPage from './pages/LoginPage';
 import ServicesPage from './pages/ServicesPage';
 import AreasPage from './pages/AreasPage';
+import AreaCreatePage from './pages/AreaCreatePage';
 
 function App() {
   // Router
@@ -26,6 +17,7 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/services" element={<ServicesPage />} />
           <Route path="/areas" element={<AreasPage />} />
+          <Route path="/areas/create" element={<AreaCreatePage />} />
         </Routes>
       </Router>
     </div>
