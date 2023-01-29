@@ -8,6 +8,8 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
 
+  app.enableCors();
+
   const url = configService.getOrThrow<string>('PLUGS_SERVICE_INITIALIZE_URL');
   try {
     const response = await axios.post(url, starton);

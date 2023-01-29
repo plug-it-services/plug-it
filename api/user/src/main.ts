@@ -9,10 +9,7 @@ async function bootstrap() {
   app.getHttpAdapter().getInstance().disable('x-powered-by');
 
   app.use(cookieParser());
-  app.enableCors({
-    origin: true,
-    credentials: true,
-  });
+  app.enableCors();
 
   const configService = app.get(ConfigService);
   await app.listen(configService.get<number>('PORT'));

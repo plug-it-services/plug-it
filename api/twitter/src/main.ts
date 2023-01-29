@@ -10,6 +10,8 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const logger = new Logger('Main');
 
+  app.enableCors();
+
   const url = configService.getOrThrow('PLUGS_SERVICE_INITIALIZE_URL');
   try {
     const response = await axios.post(url, twitter);

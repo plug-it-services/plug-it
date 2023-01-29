@@ -14,12 +14,17 @@ services:
       - RABBITMQ_DEFAULT_PASS=${RABBIT_PASSWORD}
     networks:
       - rabbit_network
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "rabbitmq"
 
   elk:
     image: sebp/elk
     ports:
       - ${KIBANA_UI_PORT}:5601
-      - 12201:12201/udp
+      - ${LOGSTASH_INGEST_PORT}:12201/udp
     volumes:
       - ./logstash.conf:/etc/logstash/conf.d/30-output.conf
       - elk_data:/var/lib/elasticsearch
@@ -59,6 +64,11 @@ services:
       - --providers.docker.exposedbydefault=false
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "server"
 
   ###################   MICROSERVICES  #######################
 
@@ -80,6 +90,11 @@ services:
       - rabbitmq
       - elk
       - user-postgres
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "user"
 
   user-postgres:
     image: 'postgres:latest'
@@ -87,6 +102,13 @@ services:
       - user_network
     env_file:
       - ./api/user/.env
+    volumes:
+      - user_data:/var/lib/postgresql/data
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "user-postgres"
 
 
   plugs-mongo:
@@ -100,6 +122,11 @@ services:
       - plugs_mongo_data:/data/db
     networks:
       - plugs_network
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "plugs-mongo"
 
   plugs:
     build: ./api/plugs
@@ -120,6 +147,11 @@ services:
       - rabbitmq
       - elk
       - plugs-mongo
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "plugs"
 
   twitter-postgres:
     image: 'postgres:latest'
@@ -129,6 +161,11 @@ services:
       - ./api/twitter/.env
     volumes:
       - twitter_data:/var/lib/postgresql/data
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "twitter-potgres"
 
   twitter:
     build: ./api/twitter
@@ -152,6 +189,11 @@ services:
       - rabbitmq
       - elk
       - twitter-postgres
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "twitter"
 
 
   starton:
@@ -174,6 +216,11 @@ services:
       - rabbitmq
       - elk
       - starton-postgres
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "starton"
 
   starton-postgres:
     image: 'postgres:latest'
@@ -183,6 +230,11 @@ services:
       - ./api/starton/.env
     volumes:
       - starton_data:/var/lib/postgresql/data
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "starton-postgres"
 
   adminer:
     image: adminer
@@ -204,6 +256,7 @@ volumes:
   plugs_mongo_data:
   twitter_data:
   starton_data:
+  user_data:
 
 networks:
   rabbit_network:
