@@ -37,8 +37,8 @@ export class PublicController {
   async login(@Body() userDto: UserLoginDto, @Response() res, @Request() req) {
     const csrfToken = req.get('crsf_token');
     if (!csrfToken) {
-      this.logger.error("CSRF token doesn't match");
-      throw new UnauthorizedException();
+      this.logger.error("CSRF token doesn't exist");
+      throw new UnauthorizedException("CSRF token doesn't exist");
     }
     await this.userService.setCrsfToken(req.user.id, csrfToken);
 
