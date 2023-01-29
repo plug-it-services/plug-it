@@ -44,6 +44,7 @@ function SignupCard({ title, description, buttonLabel, onClick }: ISignupCardPro
           backgroundColor="#EAF1FF"
           borderColor="#EAF1FF"
           isPassword={false}
+          autoComplete="given-name"
         />
         <br />
         <InputBar
@@ -53,6 +54,7 @@ function SignupCard({ title, description, buttonLabel, onClick }: ISignupCardPro
           backgroundColor="#EAF1FF"
           borderColor="#EAF1FF"
           isPassword={false}
+          autoComplete="family-name"
         />
         <br />
         <InputBar
@@ -62,6 +64,7 @@ function SignupCard({ title, description, buttonLabel, onClick }: ISignupCardPro
           backgroundColor="#EAF1FF"
           borderColor="#EAF1FF"
           isPassword={false}
+          autoComplete="username"
         />
         <br />
         <InputBar
@@ -71,6 +74,7 @@ function SignupCard({ title, description, buttonLabel, onClick }: ISignupCardPro
           backgroundColor="#EAF1FF"
           borderColor="#EAF1FF"
           isPassword={true}
+          autoComplete="new-password"
         />
         <br />
         <Button

@@ -43,6 +43,7 @@ function LoginCard({ title, description, buttonLabel, onClick }: ILoginCardProps
           backgroundColor="#EAF1FF"
           borderColor="#EAF1FF"
           isPassword={false}
+          autoComplete="username"
         />
         <br />
         <InputBar
@@ -52,6 +53,7 @@ function LoginCard({ title, description, buttonLabel, onClick }: ILoginCardProps
           backgroundColor="#EAF1FF"
           borderColor="#EAF1FF"
           isPassword={true}
+          autoComplete="current-password"
         />
         <br />
         <Button
