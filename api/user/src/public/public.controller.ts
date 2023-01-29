@@ -12,6 +12,7 @@ import {
   Param,
   NotFoundException,
   Logger,
+  Headers,
 } from '@nestjs/common';
 import { AuthService } from 'src/auth/auth.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
@@ -34,8 +35,12 @@ export class PublicController {
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Body() userDto: UserLoginDto, @Response() res, @Request() req) {
-    const csrfToken = req.get('crsf_token');
+  async login(
+    @Body() userDto: UserLoginDto,
+    @Response() res,
+    @Request() req,
+    @Headers('crsf_token') csrfToken: string,
+  ) {
     if (!csrfToken) {
       this.logger.error("CSRF token doesn't exist");
       throw new UnauthorizedException("CSRF token doesn't exist");
@@ -79,7 +84,10 @@ export class PublicController {
 
   @UseGuards(JwtAuthGuard)
   @Put()
-  async update(@Request() req, @Body(new ValidationPipe()) userDto: UserSignupDto) {
+  async update(
+    @Request() req,
+    @Body(new ValidationPipe()) userDto: UserSignupDto,
+  ) {
     await this.userService.update(
       req.user.id,
       userDto.email,
@@ -94,10 +102,9 @@ export class PublicController {
   async socialLogin(
     @Body(new ValidationPipe()) ssoLoginDto: SsoLoginDto,
     @Param('service') service,
-    @Request() req,
     @Response() res,
+    @Headers('crsf_token') csrfToken: string,
   ) {
-    const csrfToken = req.get('crsf_token');
     if (!csrfToken) {
       this.logger.error("CSRF token doesn't match");
       throw new UnauthorizedException();

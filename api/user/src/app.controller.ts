@@ -13,9 +13,7 @@ import { UsersService } from './users/users.service';
 @Controller()
 export class AppController {
   private logger = new Logger(AppController.name);
-  constructor(
-    private userService: UsersService,
-  ) {}
+  constructor(private userService: UsersService) {}
 
   @UseGuards(JwtAuthGuard)
   @Get('verify')

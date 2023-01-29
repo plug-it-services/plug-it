@@ -5,7 +5,7 @@ import { compare, hash } from 'bcrypt';
 
 @Injectable()
 export class AuthService {
-  private logger = new Logger(AuthService.name)
+  private logger = new Logger(AuthService.name);
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
