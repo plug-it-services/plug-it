@@ -44,13 +44,6 @@ const LoginPage = () => {
         <br />
         <LoginCard title={'Login'} description={'Login to your account.'} buttonLabel={'Login'} onClick={onLogin} />
         <br />
-        <MessageBox
-          title={'Login'}
-          description={'Login to your account.'}
-          buttons={[{ label: 'Login', onClick: () => {} }]}
-          type={'error'}
-        />
-        <br />
       </div>
     </div>
   );

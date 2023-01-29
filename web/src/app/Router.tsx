@@ -5,10 +5,12 @@ import ServicesPage from '../pages/ServicesPage';
 import AreasPage from '../pages/AreasPage';
 import AreaCreatePage from '../pages/AreaCreatePage';
 import SignupPage from '../pages/SignupPage';
+import HomePage from "../pages/HomePage";
 
 const Router = () => (
   <BrowserRouter>
     <Routes>
+      <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/services" element={<ServicesPage />} />

@@ -19,8 +19,6 @@ function SignupCard({ title, description, buttonLabel, onClick }: ISignupCardPro
   return (
     <Card
       sx={{
-        width: 500,
-        height: 430,
         borderRadius: '8px',
         boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.30)',
         justifyContent: 'center',
@@ -74,14 +72,15 @@ function SignupCard({ title, description, buttonLabel, onClick }: ISignupCardPro
           borderColor="#EAF1FF"
           isPassword={true}
         />
+        <br />
+        <Button
+          color="primary"
+          text={buttonLabel}
+          onClick={() => {
+            onClick(email, password, firstname, lastname);
+          }}
+        />
       </CardContent>
-      <Button
-        color="primary"
-        text={buttonLabel}
-        onClick={() => {
-          onClick(email, password, firstname, lastname);
-        }}
-      />
     </Card>
   );
 }
