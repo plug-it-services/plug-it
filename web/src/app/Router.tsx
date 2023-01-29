@@ -5,7 +5,7 @@ import ServicesPage from '../pages/ServicesPage';
 import AreasPage from '../pages/AreasPage';
 import AreaCreatePage from '../pages/AreaCreatePage';
 import SignupPage from '../pages/SignupPage';
-import HomePage from "../pages/HomePage";
+import HomePage from '../pages/HomePage';
 
 const Router = () => (
   <BrowserRouter>
