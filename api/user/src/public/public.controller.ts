@@ -39,13 +39,13 @@ export class PublicController {
     @Body() userDto: UserLoginDto,
     @Response() res,
     @Request() req,
-    @Headers('crsf_token') csrfToken: string,
+    @Headers('crsf-token') crsfToken: string,
   ) {
-    if (!csrfToken) {
-      this.logger.error("CSRF token doesn't exist");
-      throw new UnauthorizedException("CSRF token doesn't exist");
+    if (!crsfToken) {
+      this.logger.error("CRSF token doesn't exist");
+      throw new UnauthorizedException("CRSF token doesn't exist");
     }
-    await this.userService.setCrsfToken(req.user.id, csrfToken);
+    await this.userService.setCrsfToken(req.user.id, crsfToken);
 
     const result = await this.authService.login(userDto.email);
     res.cookie('access_token', result.access_token, {
@@ -103,10 +103,10 @@ export class PublicController {
     @Body(new ValidationPipe()) ssoLoginDto: SsoLoginDto,
     @Param('service') service,
     @Response() res,
-    @Headers('crsf_token') csrfToken: string,
+    @Headers('crsf-token') crsfToken: string,
   ) {
-    if (!csrfToken) {
-      this.logger.error("CSRF token doesn't match");
+    if (!crsfToken) {
+      this.logger.error("CRSF token doesn't match");
       throw new UnauthorizedException();
     }
 
@@ -121,7 +121,7 @@ export class PublicController {
       profile.firstName,
       profile.lastName,
     );
-    await this.userService.setCrsfToken(result.id, csrfToken);
+    await this.userService.setCrsfToken(result.id, crsfToken);
     res.cookie('access_token', result.access_token, {
       httpOnly: true,
       sameSite: 'strict',
