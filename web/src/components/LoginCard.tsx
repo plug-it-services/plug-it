@@ -3,6 +3,7 @@ import React from 'react';
 import { Card, CardContent, Typography } from '@mui/material';
 import InputBar from './InputBar';
 import Button from './Button';
+import LoginWithCard from './LoginWithCard';
 
 export interface ILoginCardProps {
   title: string;
@@ -19,7 +20,7 @@ function LoginCard({ title, description, buttonLabel, onClick }: ILoginCardProps
     <Card
       sx={{
         width: 500,
-        height: 300,
+        height: 550,
         borderRadius: '8px',
         boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.30)',
         justifyContent: 'center',
@@ -61,6 +62,25 @@ function LoginCard({ title, description, buttonLabel, onClick }: ILoginCardProps
         text={buttonLabel}
         onClick={() => {
           onClick(email, password);
+        }}
+      />
+      <br />
+      <Typography variant="body1" color={'white'}>
+        Or
+      </Typography>
+      <br />
+      <LoginWithCard
+        title="External Login"
+        description="Login with any of the following services!"
+        iconList={[
+          { service: 'Google', icon: 'https://img.icons8.com/color/48/000000/google-logo.png' },
+          { service: 'Facebook', icon: 'https://img.icons8.com/color/48/000000/facebook-new.png' },
+          { service: 'Twitter', icon: 'https://img.icons8.com/color/48/000000/twitter--v1.png' },
+          { service: 'Github', icon: 'https://img.icons8.com/color/48/000000/github--v1.png' },
+          { service: 'Discord', icon: 'https://img.icons8.com/color/48/000000/discord-logo.png' },
+        ]}
+        onClick={(service) => {
+          alert(`Login with ${service}!`);
         }}
       />
     </Card>
