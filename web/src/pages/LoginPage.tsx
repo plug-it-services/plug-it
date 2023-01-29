@@ -4,6 +4,7 @@ import randomstring from 'randomstring';
 import { Typography } from '@mui/material';
 import LoginCard from '../components/LoginCard';
 import api from '../utils/api';
+import MessageBox from '../components/MessageBox';
 
 const LoginPage = () => {
   const onLogin = (email: string, password: string) => {
@@ -42,6 +43,14 @@ const LoginPage = () => {
         </Typography>
         <br />
         <LoginCard title={'Login'} description={'Login to your account.'} buttonLabel={'Login'} onClick={onLogin} />
+        <br />
+        <MessageBox
+          title={'Login'}
+          description={'Login to your account.'}
+          buttons={[{ label: 'Login', onClick: () => {} }]}
+          type={'error'}
+        />
+        <br />
       </div>
     </div>
   );
