@@ -11,6 +11,7 @@ const SignupPage = () => {
     setOpen(false);
   }
   const [message, setMessage] = useState('');
+  const [error, setError] = useState("Can't signup");
 
   const onSignup = async (email: string, password: string, firstname: string, lastname: string) => {
     try {
@@ -21,6 +22,7 @@ const SignupPage = () => {
         lastname,
       });
     } catch (err: any) {
+      setError(err.response.data.error);
       if (err.response.status === 400) {
         setMessage(err.response.data.message[0]);
       } else {
@@ -44,7 +46,7 @@ const SignupPage = () => {
         </Typography>
         <br />
         <SignupCard title={'Signup'} description={'Create a new account.'} buttonLabel={'Signup'} onClick={onSignup} />
-        <MessageBox title={"Can't signup"} description={message} buttons={[]} type={"error"} isOpen={open} onClose={onClose}/>
+        <MessageBox title={error} description={message} buttons={[]} type={"error"} isOpen={open} onClose={onClose}/>
       </div>
     </div>
   );
