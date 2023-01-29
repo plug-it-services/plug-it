@@ -22,7 +22,14 @@ export class AppController {
     @Request() req,
     @Response() res,
     @Headers('crsf-token') crsfToken: string,
+    @Headers('X-Forwarded-Method') method: string,
   ) {
+    console.log(`try header method: ${method}`);
+    // This is a workaround for the preflight request
+    if (method === 'OPTIONS') {
+      return res.send({ message: 'success' });
+    }
+
     const user = await this.userService.findOneById(req.user.id);
 
     if (!crsfToken || user.crsfToken !== crsfToken) {
