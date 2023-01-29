@@ -1,19 +1,35 @@
-import React from 'react';
+import React, {useState} from 'react';
 
 import { Typography } from '@mui/material';
 import SignupCard from '../components/SignupCard';
 import api from '../utils/api';
+import MessageBox from "../components/MessageBox";
 
 const SignupPage = () => {
-  const onSignup = (email: string, password: string, firstname: string, lastname: string) => {
-    api.post('/auth/signup', {
-      email,
-      password,
-      firstname,
-      lastname,
-    });
+  const [open, setOpen] = useState(false);
+  const onClose = () => {
+    setOpen(false);
+  }
+  const [message, setMessage] = useState('');
 
-    window.location.href = '/services';
+  const onSignup = async (email: string, password: string, firstname: string, lastname: string) => {
+    try {
+      await api.post('/auth/signup', {
+        email,
+        password,
+        firstname,
+        lastname,
+      });
+    } catch (err: any) {
+      if (err.response.status === 400) {
+        setMessage(err.response.data.message[0]);
+      } else {
+        setMessage(err.response.data.message);
+      }
+      setOpen(true);
+      return;
+    }
+    window.location.href = '/login';
   };
 
   return (
@@ -28,6 +44,7 @@ const SignupPage = () => {
         </Typography>
         <br />
         <SignupCard title={'Signup'} description={'Create a new account.'} buttonLabel={'Signup'} onClick={onSignup} />
+        <MessageBox title={"Can't signup"} description={message} buttons={[]} type={"error"} isOpen={open} onClose={onClose}/>
       </div>
     </div>
   );
