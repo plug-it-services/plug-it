@@ -14,6 +14,8 @@ services:
       - RABBITMQ_DEFAULT_PASS=${RABBIT_PASSWORD}
     networks:
       - rabbit_network
+    depends_on:
+      - elk
     logging:
       driver: gelf
       options:
@@ -31,7 +33,7 @@ services:
     networks:
       - elk_network
     environment:
-      - ES_JAVA_OPTS=-Xmx1g
+      - ES_JAVA_OPTS=-Xmx1g -Xms1g
 
   client_mobile:
     build: ./mobile
