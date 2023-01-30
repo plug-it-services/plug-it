@@ -38,17 +38,27 @@ const LoginPage = () => {
         },
       );
     } catch (err: any) {
-      setError(err.response.data.error);
+      if (err.response.data.error) {
+        setError(err.response.data.error);
+      }
       if (err.response.status === 400) {
         setMessage(err.response.data.message[0]);
       } else {
         setMessage(err.response.data.message);
       }
       setOpen(true);
-      return;
+      // return;
     }
 
-    window.location.href = '/services';
+    await api.get(
+      '/services',
+      {
+        headers: {
+          "crsf-token": crsf,
+        },
+      },
+    );
+    // window.location.href = '/services';
   };
 
   let crsf = localStorage.getItem('crsf-token');
@@ -87,7 +97,6 @@ const LoginPage = () => {
                     },
                   },
                 );
-                window.location.href = '/services';
               } catch (err: any) {
                 setError(err.response.data.error);
                 if (err.response.status === 400) {
@@ -97,6 +106,16 @@ const LoginPage = () => {
                 }
                 setOpen(true);
               }
+              // window.location.href = '/services';
+              await api.post(
+                '/services',
+                {},
+                {
+                  headers: {
+                    "crsf-token": crsf,
+                  },
+                },
+              );
             }}
             onError={() => {
               alert('Login Error');

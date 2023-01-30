@@ -22,7 +22,9 @@ const SignupPage = () => {
         lastname,
       });
     } catch (err: any) {
-      setError(err.response.data.error);
+      if (err.response.data.error) {
+        setError(err.response.data.error);
+      }
       if (err.response.status === 400) {
         setMessage(err.response.data.message[0]);
       } else {

@@ -50,6 +50,7 @@
     "cypress:open": "cypress open",
     "cypress:run": "cypress run"
   },
+  "proxy": "http://localhost:3000",
   "eslintConfig": {
     "extends": [
       "react-app",
