@@ -5,7 +5,7 @@ import { Typography } from '@mui/material';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
 import LoginCard from '../components/LoginCard';
-import api from '../utils/api';
+import api, {getServices} from '../utils/api';
 import MessageBox from '../components/MessageBox';
 
 const LoginPage = () => {
@@ -50,14 +50,11 @@ const LoginPage = () => {
       // return;
     }
 
-    await api.get(
-      '/services',
-      {
-        headers: {
-          "crsf-token": crsf,
-        },
+    await api.get('/services', {
+      headers: {
+        'crsf-token': crsf,
       },
-    );
+    });
     // window.location.href = '/services';
   };
 
@@ -98,7 +95,7 @@ const LoginPage = () => {
                   },
                 );
               } catch (err: any) {
-                setError(err.response.data.error);
+                setError(err);
                 if (err.response.status === 400) {
                   setMessage(err.response.data.message[0]);
                 } else {
@@ -106,16 +103,8 @@ const LoginPage = () => {
                 }
                 setOpen(true);
               }
-              // window.location.href = '/services';
-              await api.post(
-                '/services',
-                {},
-                {
-                  headers: {
-                    "crsf-token": crsf,
-                  },
-                },
-              );
+              const result = await getServices();
+              console.log(result);
             }}
             onError={() => {
               alert('Login Error');
