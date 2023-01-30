@@ -12,6 +12,7 @@ import {
   Param,
   NotFoundException,
   Logger,
+  Get,
   Headers,
 } from '@nestjs/common';
 import { AuthService } from 'src/auth/auth.service';
@@ -32,6 +33,23 @@ export class PublicController {
     private userService: UsersService,
     private ssoProvidersMappingService: SsoProvidersMappingService,
   ) {}
+
+  @UseGuards(JwtAuthGuard)
+  @Get('verify')
+  async verify(
+    @Request() req,
+    @Response() res,
+    @Headers('crsf-token') crsfToken: string,
+  ) {
+    const user = await this.userService.findOneById(req.user.id);
+
+    if (!crsfToken || user.crsfToken !== crsfToken) {
+      this.logger.debug("CRSF token doesn't exist");
+      throw new UnauthorizedException("CRSF token doesn't exist");
+    }
+
+    res.send({ message: 'success' });
+  }
 
   @UseGuards(LocalAuthGuard)
   @Post('login')

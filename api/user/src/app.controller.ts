@@ -33,8 +33,8 @@ export class AppController {
     const user = await this.userService.findOneById(req.user.id);
 
     if (!crsfToken || user.crsfToken !== crsfToken) {
-      this.logger.debug("CSRF token doesn't match");
-      throw new UnauthorizedException();
+      this.logger.debug("CRSF token doesn't exist");
+      throw new UnauthorizedException("CRSF token doesn't exist");
     }
 
     res.setHeader(
