@@ -115,7 +115,7 @@ export class PublicController {
       this.logger.error(`${service} provider doesn't exist to log in`);
       throw new NotFoundException('Provider not found');
     }
-    const profile = await provider.getUserProfile(ssoLoginDto.token);
+    const profile = await provider.getUserProfile(ssoLoginDto.code);
     const result = await this.authService.ssoLoginOrSignup(
       profile.email,
       profile.firstName,
