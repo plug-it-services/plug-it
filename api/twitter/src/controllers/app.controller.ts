@@ -3,8 +3,9 @@ import { TwitterService } from '../services/twitter.service';
 import UserHeaderDto from '../dto/UserHeader.dto';
 import { ConfigService } from '@nestjs/config';
 import { TwitterAuthService } from '../services/twitterAuth.service';
+import axios from "axios";
 
-@Controller('/public/')
+@Controller('public')
 export class AppController {
   private frontendUrl: string;
   constructor(
@@ -17,7 +18,7 @@ export class AppController {
     );
   }
 
-  @Post('/oauth2')
+  @Post('oauth2')
   async getAuthUrl(@Response() res, @Headers('user') userHeader: string) {
     const user: UserHeaderDto = JSON.parse(userHeader);
     const url = await this.twitterAuthService.getAuthUrl(user.id);
@@ -25,19 +26,27 @@ export class AppController {
     res.redirect(url);
   }
 
-  @Post('/disconnect')
+  @Post('disconnect')
   async disconnect(@Headers('user') userHeader: string) {
     const user: UserHeaderDto = JSON.parse(userHeader);
     await this.twitterAuthService.disconnect(user.id);
+
+    await axios.post(this.configService.getOrThrow<string>('PLUGS_SERVICE_LOGGED_OUT_URL'), {
+      userId: user.id,
+    });
   }
 
-  @Get('/callback')
+  @Get('callback')
   async getAccessToken(
     @Response() res,
     @Query('code') code: string,
     @Query('state') state: string,
   ) {
-    await this.twitterAuthService.storeAccessToken(state, code);
+    const userId = await this.twitterAuthService.storeAccessToken(state, code);
+
+    await axios.post(this.configService.getOrThrow<string>('PLUGS_SERVICE_LOGGED_IN_URL'), {
+      userId: userId,
+    });
 
     res.redirect(this.frontendUrl);
   }

@@ -1,20 +1,20 @@
-import { HttpException, Injectable, LoggerService } from '@nestjs/common';
+import { HttpException, Injectable, Logger } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { compare, hash } from 'bcrypt';
 
 @Injectable()
 export class AuthService {
+  private logger = new Logger(AuthService.name);
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
-    private loggerService: LoggerService,
   ) {}
 
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.usersService.findOneByEmail(email);
     if (!user) {
-      this.loggerService.error(`${email} not found when trying to log in`);
+      this.logger.warn(`${email} not found when trying to log in`);
       return null;
     }
     if (await compare(password, user.password)) {

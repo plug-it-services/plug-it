@@ -10,6 +10,11 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const logger = new Logger('Main');
 
+  app.enableCors({
+    origin: ["http://localhost:3000", "http://localhost:3001", configService.get<string>('CORS_ORIGIN')],
+    credentials: true,
+  });
+
   const url = configService.getOrThrow('PLUGS_SERVICE_INITIALIZE_URL');
   try {
     const response = await axios.post(url, twitter);
@@ -21,6 +26,6 @@ async function bootstrap() {
     process.exit(1);
   }
 
-  await app.listen(3000);
+  await app.listen(configService.getOrThrow<number>('PORT'));
 }
 bootstrap();

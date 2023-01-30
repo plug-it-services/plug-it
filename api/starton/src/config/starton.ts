@@ -33,12 +33,14 @@ export default {
           type: 'string',
           displayName: 'Address',
           description: 'The address to watch',
+          required: true,
         },
         {
           key: 'network',
           type: 'string',
           displayName: 'Network',
           description: 'The network to watch',
+          required: true,
         },
         {
           key: 'confirmations',
@@ -46,6 +48,7 @@ export default {
           displayName: 'Confirmations',
           description:
             'The number of confirmations to wait for before emitting the event',
+          required: true,
         },
       ],
     },

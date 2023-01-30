@@ -14,17 +14,26 @@ services:
       - RABBITMQ_DEFAULT_PASS=${RABBIT_PASSWORD}
     networks:
       - rabbit_network
+    depends_on:
+      - elk
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "rabbitmq"
 
   elk:
     image: sebp/elk
     ports:
       - ${KIBANA_UI_PORT}:5601
-      - 12201:12201/udp
+      - ${LOGSTASH_INGEST_PORT}:12201/udp
     volumes:
       - ./logstash.conf:/etc/logstash/conf.d/30-output.conf
       - elk_data:/var/lib/elasticsearch
     networks:
       - elk_network
+    environment:
+      - ES_JAVA_OPTS=-Xmx1g -Xms1g
 
   client_mobile:
     build: ./mobile
@@ -57,6 +66,11 @@ services:
       - --providers.docker.exposedbydefault=false
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "server"
 
   ###################   MICROSERVICES  #######################
 
@@ -78,6 +92,11 @@ services:
       - rabbitmq
       - elk
       - user-postgres
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "user"
 
   user-postgres:
     image: 'postgres:latest'
@@ -85,6 +104,14 @@ services:
       - user_network
     env_file:
       - ./api/user/.env
+    volumes:
+      - user_data:/var/lib/postgresql/data
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "user-postgres"
+
 
   plugs-mongo:
     image: mongo
@@ -97,6 +124,11 @@ services:
       - plugs_mongo_data:/data/db
     networks:
       - plugs_network
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "plugs-mongo"
 
   plugs:
     build: ./api/plugs
@@ -105,7 +137,7 @@ services:
       - traefik_network
       - plugs_network
     labels:
-      - traefik.http.routers.plugs.rule=PathPrefix(`/service`) || PathPrefix(`/plugs`)
+      - traefik.http.routers.plugs.rule=Path(`/services`) || PathPrefix(`/plugs`) || Path(`/service/{service:.*}/events`) || Path(`/service/{service:.*}/actions`)
       - traefik.http.middlewares.add-public.addprefix.prefix=/public
       - traefik.http.middlewares.test-auth.forwardauth.address=http://user/verify
       - traefik.http.middlewares.test-auth.forwardauth.authResponseHeaders=user
@@ -117,15 +149,55 @@ services:
       - rabbitmq
       - elk
       - plugs-mongo
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "plugs"
 
   twitter-postgres:
     image: 'postgres:latest'
     networks:
       - twitter_network
-    ports:
-      - 5433:5432
     env_file:
       - ./api/twitter/.env
+    volumes:
+      - twitter_data:/var/lib/postgresql/data
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "twitter-potgres"
+
+  twitter:
+    build: ./api/twitter
+    networks:
+      - rabbit_network
+      - traefik_network
+      - twitter_network
+    labels:
+      - traefik.http.routers.twitter-oauth2-callback.rule=Path(`/service/twitter/callback`)
+      - traefik.http.routers.twitter.rule=Path(`/service/twitter/oauth2`) || Path(`/service/twitter/disconnect`)
+      - traefik.http.middlewares.twitter-replacepathregex.replacepathregex.regex=^/service/twitter/(.*)
+      - traefik.http.middlewares.twitter-replacepathregex.replacepathregex.replacement=/public/$$1
+      - traefik.http.middlewares.test-auth.forwardauth.address=http://user/verify
+      - traefik.http.middlewares.test-auth.forwardauth.authResponseHeaders=user
+      - traefik.http.routers.twitter.middlewares=twitter-replacepathregex, test-auth
+      - traefik.http.routers.twitter-oauth2-callback.middlewares=twitter-replacepathregex
+      - traefik.enable=true
+    ports:
+      - ${TWITTER_PORT}:80
+    depends_on:
+      - rabbitmq
+      - elk
+      - twitter-postgres
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "twitter"
+
+
   starton:
     build: ./api/starton
     networks:
@@ -133,18 +205,28 @@ services:
       - traefik_network
       - starton_network
     labels:
-      - traefik.http.routers.plugs.rule=PathPrefix(`/service/starton`)
-      - traefik.http.middlewares.add-public.addprefix.prefix=/public
+      - traefik.http.routers.starton.rule=PathPrefix(`/service/starton`)
+      - traefik.http.routers.starton-webhook.rule=PathPrefix(`/webhook/starton`)
+      - traefik.http.middlewares.starton-replacepathregex.replacepathregex.regex=^/servicewebhook/starton/(.*)
+      - traefik.http.middlewares.starton-replacepathregex.replacepathregex.replacement=/public/$$1
+      - traefik.http.middlewares.starton-webhook-replacepathregex.replacepathregex.regex=^/webhook/starton/(.*)
+      - traefik.http.middlewares.starton-webhook-replacepathregex.replacepathregex.replacement=/public/$$1
       - traefik.http.middlewares.test-auth.forwardauth.address=http://user/verify
       - traefik.http.middlewares.test-auth.forwardauth.authResponseHeaders=user
-      - traefik.http.routers.plugs.middlewares=add-public, test-auth
+      - traefik.http.routers.starton.middlewares=starton-replacepathregex, test-auth
+      - traefik.http.routers.starton-webhook.middlewares=starton-webhook-replacepathregex
       - traefik.enable=true
     ports:
       - ${STARTON_PORT}:80
     depends_on:
       - rabbitmq
       - elk
-      - plugs-mongo
+      - starton-postgres
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "starton"
 
   starton-postgres:
     image: 'postgres:latest'
@@ -152,7 +234,25 @@ services:
       - starton_network
     env_file:
       - ./api/starton/.env
+    volumes:
+      - starton_data:/var/lib/postgresql/data
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "starton-postgres"
 
+  adminer:
+    image: adminer
+    restart: always
+    networks:
+      - traefik_network
+      - user_network
+      - plugs_network
+      - starton_network
+      - twitter_network
+    ports:
+      - 7000:8080
 
 volumes:
   rabbit_data:
@@ -160,6 +260,9 @@ volumes:
   client_data:
   elk_data:
   plugs_mongo_data:
+  twitter_data:
+  starton_data:
+  user_data:
 
 networks:
   rabbit_network:

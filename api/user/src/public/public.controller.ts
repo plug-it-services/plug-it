@@ -11,7 +11,9 @@ import {
   UnauthorizedException,
   Param,
   NotFoundException,
-  LoggerService,
+  Logger,
+  Get,
+  Headers,
 } from '@nestjs/common';
 import { AuthService } from 'src/auth/auth.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
@@ -24,27 +26,50 @@ import { UsersService } from 'src/users/users.service';
 
 @Controller('public')
 export class PublicController {
+  private logger = new Logger(PublicController.name);
+
   constructor(
     private authService: AuthService,
     private userService: UsersService,
     private ssoProvidersMappingService: SsoProvidersMappingService,
-    private loggerService: LoggerService,
   ) {}
+
+  @UseGuards(JwtAuthGuard)
+  @Get('verify')
+  async verify(
+    @Request() req,
+    @Response() res,
+    @Headers('crsf-token') crsfToken: string,
+  ) {
+    const user = await this.userService.findOneById(req.user.id);
+
+    if (!crsfToken || user.crsfToken !== crsfToken) {
+      this.logger.debug("CRSF token doesn't exist");
+      throw new UnauthorizedException("CRSF token doesn't exist");
+    }
+
+    res.send({ message: 'success' });
+  }
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Body() userDto: UserLoginDto, @Response() res, @Request() req) {
-    const csrfToken = req.get('crsf_token');
-    if (!csrfToken) {
-      this.loggerService.error("CSRF token doesn't match");
-      throw new UnauthorizedException();
+  async login(
+    @Body() userDto: UserLoginDto,
+    @Response() res,
+    @Request() req,
+    @Headers('crsf-token') crsfToken: string,
+  ) {
+    if (!crsfToken) {
+      this.logger.error("CRSF token doesn't exist");
+      throw new UnauthorizedException("CRSF token doesn't exist");
     }
-    await this.userService.setCrsfToken(req.user.id, csrfToken);
+    await this.userService.setCrsfToken(req.user.id, crsfToken);
 
     const result = await this.authService.login(userDto.email);
     res.cookie('access_token', result.access_token, {
-      httpOnly: true,
-      sameSite: 'strict',
+      sameSite: 'none',
+      secure: true,
+      path: '/'
     });
     res.status(200).send({ message: 'success' });
   }
@@ -78,7 +103,10 @@ export class PublicController {
 
   @UseGuards(JwtAuthGuard)
   @Put()
-  async update(@Request() req, @Body(new ValidationPipe()) userDto: UserSignupDto) {
+  async update(
+    @Request() req,
+    @Body(new ValidationPipe()) userDto: UserSignupDto,
+  ) {
     await this.userService.update(
       req.user.id,
       userDto.email,
@@ -93,30 +121,30 @@ export class PublicController {
   async socialLogin(
     @Body(new ValidationPipe()) ssoLoginDto: SsoLoginDto,
     @Param('service') service,
-    @Request() req,
     @Response() res,
+    @Headers('crsf-token') crsfToken: string,
   ) {
-    const csrfToken = req.get('crsf_token');
-    if (!csrfToken) {
-      this.loggerService.error("CSRF token doesn't match");
+    if (!crsfToken) {
+      this.logger.error("CRSF token doesn't match");
       throw new UnauthorizedException();
     }
 
     const provider = this.ssoProvidersMappingService.mapping.get(service);
     if (!provider) {
-      this.loggerService.error(`${service} provider doesn't exist to log in`);
+      this.logger.error(`${service} provider doesn't exist to log in`);
       throw new NotFoundException('Provider not found');
     }
-    const profile = await provider.getUserProfile(ssoLoginDto.token);
+    const profile = await provider.getUserProfile(ssoLoginDto.code);
     const result = await this.authService.ssoLoginOrSignup(
       profile.email,
       profile.firstName,
       profile.lastName,
     );
-    await this.userService.setCrsfToken(result.id, csrfToken);
+    await this.userService.setCrsfToken(result.id, crsfToken);
     res.cookie('access_token', result.access_token, {
-      httpOnly: true,
-      sameSite: 'strict',
+      sameSite: 'none',
+      secure: true,
+      path: '/'
     });
     res.status(200).send({ message: 'success' });
   }

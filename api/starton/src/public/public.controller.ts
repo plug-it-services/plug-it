@@ -6,17 +6,23 @@ import {
   Param,
   Headers,
   Response,
+  Logger,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { ApiKeyDto } from '../dto/ApiKeyDto';
 import { AmqpService } from '../services/amqp.service';
 import { UserService } from '../services/user.service';
 import { BN } from 'bn.js';
+import axios from 'axios';
 
 @Controller('public')
 export class PublicController {
+  private logger = new Logger(PublicController.name);
+
   constructor(
     private readonly amqpService: AmqpService,
     private userService: UserService,
+    private configService: ConfigService,
   ) {}
 
   @Post('/apiKey')
@@ -24,26 +30,38 @@ export class PublicController {
     @Body(new ValidationPipe()) body: ApiKeyDto,
     @Headers('user') userHeader: string,
   ) {
-    const user: { userId: number } = JSON.parse(userHeader);
-    await this.userService.create(user.userId, body.apiKey);
+    this.logger.log(`Receiving apiKey`);
+    const user: { id: number } = JSON.parse(userHeader);
+    await this.userService.create(user.id, body.apiKey);
+
+    await axios.post(this.configService.getOrThrow<string>('PLUGS_SERVICE_LOGGED_IN_URL'), {
+      userId: user.id,
+    });
+    this.logger.log(`User ${user.id} connected to Starton`);
 
     return { message: 'success' };
   }
 
   @Post('/disconnect')
   async disconnect(@Response() res, @Headers('user') userHeader: string) {
-    const user: { userId: number } = JSON.parse(userHeader);
+    const user: { id: number } = JSON.parse(userHeader);
 
-    await this.userService.delete(user.userId);
+    this.logger.log(`Receiving disconnect for user ${user.id}`);
+    await this.userService.delete(user.id);
+    await axios.post(this.configService.getOrThrow<string>('PLUGS_SERVICE_LOGGED_OUT_URL'), {
+      userId: user.id,
+    });
+    this.logger.log(`User ${user.id} disconnected from Starton`);
     res.status(200).json({ message: 'success' });
   }
 
   @Post(':uid')
-  async onTrigger(@Body() body: any, @Param('id') uid: string) {
+  async onTrigger(@Body() body: any, @Param('uid') uid: string) {
+    this.logger.log(`Received transaction for user ${uid}`);
     const from = body.data.transaction.from;
     const to = body.data.transaction.to;
     const value = body.data.transaction.value.hex;
-    const valueString = new BN(value, 16).toString(10);
+    const valueString = new BN(value.substr(2), 16).toString(10);
 
     const variables = [
       {
@@ -66,6 +84,7 @@ export class PublicController {
       parseInt(uid),
       variables,
     );
+    this.logger.log(`Published event for transaction of user ${uid}`);
     return { message: 'success' };
   }
 }
