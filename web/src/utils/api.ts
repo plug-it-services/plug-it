@@ -48,13 +48,26 @@ export interface PlugDetail {
 /*   END Interfaces   */
 
 /*    GET    */
+export const verify = async (): Promise<boolean> => {
+  try {
+    await api.get('/auth/verify', {
+      withCredentials: true,
+      headers: {
+        'crsf-token': localStorage.getItem('crsf-token') ?? '',
+      },
+    });
+  } catch (err) {
+    return false;
+  }
+  return true;
+};
+
 export const getServices = async (): Promise<Service[]> => {
   try {
     const response = await api.get('/services', {
       withCredentials: true,
       headers: {
         'crsf-token': localStorage.getItem('crsf-token') ?? '',
-        Authorization: localStorage.getItem('crsf-token') ?? '',
       },
     });
     return response.data;

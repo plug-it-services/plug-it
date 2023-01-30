@@ -48,15 +48,9 @@ const LoginPage = () => {
         setMessage(err.response.data.message);
       }
       setOpen(true);
-      // return;
+      return;
     }
-
-    await api.get('/services', {
-      headers: {
-        'crsf-token': crsf,
-      },
-    });
-    // window.location.href = '/services';
+    window.location.href = '/services';
   };
 
   let crsf = localStorage.getItem('crsf-token');
@@ -105,11 +99,11 @@ const LoginPage = () => {
                 }
                 setOpen(true);
               }
-              const result = await getServices();
-              console.log(result);
             }}
             onError={() => {
-              alert('Login Error');
+              setError('Unauthorized');
+              setMessage("Can't log in with google");
+              setOpen(true);
             }}
           />
         </GoogleOAuthProvider>
