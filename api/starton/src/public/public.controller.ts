@@ -56,7 +56,7 @@ export class PublicController {
   }
 
   @Post(':uid')
-  async onTrigger(@Body() body: any, @Param('id') uid: string) {
+  async onTrigger(@Body() body: any, @Param('uid') uid: string) {
     this.logger.log(`Received transaction for user ${uid}`);
     const from = body.data.transaction.from;
     const to = body.data.transaction.to;
