@@ -10,7 +10,10 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const logger = new Logger('Main');
 
-  app.enableCors();
+  app.enableCors({
+    origin: ["http://localhost:3000", "http://localhost:3001", configService.get<string>('CORS_ORIGIN')],
+    credentials: true,
+  });
 
   const url = configService.getOrThrow('PLUGS_SERVICE_INITIALIZE_URL');
   try {

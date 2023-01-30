@@ -49,8 +49,8 @@ export class PublicController {
 
     const result = await this.authService.login(userDto.email);
     res.cookie('access_token', result.access_token, {
-      httpOnly: true,
-      sameSite: 'strict',
+      sameSite: 'none',
+      secure: true,
     });
     res.status(200).send({ message: 'success' });
   }
@@ -123,8 +123,8 @@ export class PublicController {
     );
     await this.userService.setCrsfToken(result.id, crsfToken);
     res.cookie('access_token', result.access_token, {
-      httpOnly: true,
-      sameSite: 'strict',
+      sameSite: 'none',
+      secure: true,
     });
     res.status(200).send({ message: 'success' });
   }
