@@ -1,7 +1,8 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import randomstring from 'randomstring';
 
 import { Typography } from '@mui/material';
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import LoginCard from '../components/LoginCard';
 import api from '../utils/api';
 import MessageBox from '../components/MessageBox';
@@ -10,7 +11,7 @@ const LoginPage = () => {
   const [open, setOpen] = useState(false);
   const onClose = () => {
     setOpen(false);
-  }
+  };
   const [message, setMessage] = useState('');
   const [error, setError] = useState("Can't login");
 
@@ -31,7 +32,7 @@ const LoginPage = () => {
         },
         {
           headers: {
-            "crsf-token": crsf,
+            'crsf-token': crsf,
           },
         },
       );
@@ -60,8 +61,20 @@ const LoginPage = () => {
         </Typography>
         <br />
         <LoginCard title={'Login'} description={'Login to your account.'} buttonLabel={'Login'} onClick={onLogin} />
-        <MessageBox title={error} description={message} buttons={[]} type={"error"} isOpen={open} onClose={onClose}/>
-        <br />
+        <MessageBox title={error} description={message} buttons={[]} type={'error'} isOpen={open} onClose={onClose} />
+        <Typography variant="h6" fontWeight="bold" color={'primary'} padding={2}>
+          Or
+        </Typography>
+        <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID ?? ''}>
+          <GoogleLogin
+            onSuccess={async (credentialResponse) => {
+              alert('Login Success');
+            }}
+            onError={() => {
+              alert('Login Error');
+            }}
+          />
+        </GoogleOAuthProvider>
       </div>
     </div>
   );
