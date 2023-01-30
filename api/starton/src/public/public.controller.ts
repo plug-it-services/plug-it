@@ -61,7 +61,7 @@ export class PublicController {
     const from = body.data.transaction.from;
     const to = body.data.transaction.to;
     const value = body.data.transaction.value.hex;
-    const valueString = new BN(value, 16).toString(10);
+    const valueString = new BN(value.substr(2), 16).toString(10);
 
     const variables = [
       {
