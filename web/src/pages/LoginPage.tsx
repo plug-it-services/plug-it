@@ -32,6 +32,7 @@ const LoginPage = () => {
           password,
         },
         {
+          withCredentials: true,
           headers: {
             'crsf-token': crsf,
           },
@@ -89,6 +90,7 @@ const LoginPage = () => {
                     code: credentialResponse.credential ?? '',
                   },
                   {
+                    withCredentials: true,
                     headers: {
                       'crsf-token': crsf ?? '',
                     },

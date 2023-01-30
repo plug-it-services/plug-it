@@ -51,8 +51,10 @@ export interface PlugDetail {
 export const getServices = async (): Promise<Service[]> => {
   try {
     const response = await api.get('/services', {
+      withCredentials: true,
       headers: {
         'crsf-token': localStorage.getItem('crsf-token') ?? '',
+        Authorization: localStorage.getItem('crsf-token') ?? '',
       },
     });
     return response.data;
