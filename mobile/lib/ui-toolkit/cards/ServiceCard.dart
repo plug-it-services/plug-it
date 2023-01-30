@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/PlugApi.dart';
 import 'package:mobile/models/service/Service.dart';
 import 'package:mobile/ui-toolkit/PlugItStyle.dart';
 import 'package:mobile/ui-toolkit/buttons/ScreenWidthButton.dart';
@@ -31,7 +32,7 @@ class _StateServiceCard extends State<ServiceCard>{
             Padding(
               padding: const EdgeInsets.all(20),
               child: Image.network(
-                  widget.service.icon,
+                "${PlugApi.assetsUrl}/${widget.service.icon}",
                   width: 100,
                   height: 100,
               ),

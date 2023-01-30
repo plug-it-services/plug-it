@@ -1,5 +1,6 @@
 
 import 'package:flutter/foundation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:mobile/models/Event.dart';
 import 'package:mobile/models/plug/Plug.dart';
 import 'package:mobile/models/plug/PlugDetails.dart';
@@ -24,11 +25,13 @@ class PlugApi {
   static String? sessionToken = const Uuid().v4();
   static const String devApiUrl = "https://api-area-dev.alexandrejublot.com";
   static const String apiUrl = (kReleaseMode) ? "https://api-area.alexandrejublot.com" : devApiUrl;
+  static const String assetsUrl = (kReleaseMode) ? "https://area.alexandrejublot.com" : "https://area-dev.alexandrejublot.com";
   static var error;
+  static var cookies = CookieJar();
   static var dio = Dio();
 
   static void init() {
-    // dio.interceptors.add(CookieManager(PersistCookieJar()));
+    dio.interceptors.add(CookieManager(cookies));
     dio.interceptors.add(InterceptorsWrapper(onRequest: (options, handler) async {
       options.extra["withCredentials"] = true;
       return handler.next(options);
@@ -49,29 +52,32 @@ class PlugApi {
     );
   }
 
-  static T handleResponse<T>(Response<T> result) {
+  static void handleError(Response result) {
     if (result.statusCode != 200) {
       throw PlugError(error: null, statusCode: result.statusCode!, statusMessage: result.statusMessage!);
     }
     if (result.data == null) {
       throw PlugError(error: error, statusCode: 500, statusMessage: "Error occurred but not raised by server, no data received.");
     }
-    return result.data!;
   }
 
-  static bool handleResponseCheck<T>(Response<T> result) {
-    if (result.statusCode != 200) {
+  static bool handleResponseCheck(Response result, {int excpeted = 200}) {
+    if (result.statusCode != excpeted) {
       throw PlugError(error: null, statusCode: result.statusCode!, statusMessage: result.statusMessage!);
-    }
-    if (result.data == null) {
-      throw PlugError(error: error, statusCode: 500, statusMessage: "Error occurred but not raised by server, no data received.");
     }
     return true;
   }
 
   static Future<List<Service>?> getServices() async {
-      Response<List<Service>> result = await dio.get<List<Service>>("$apiUrl/services", options: getHeaders());
-      return handleResponse(result);
+      List<Service>? services;
+
+      Response result = await dio.get("$apiUrl/services", options: getHeaders());
+      handleError(result);
+      services = [];
+      for (var json in result.data!) {
+        services.add(Service.fromJson(json));
+      }
+      return services;
   }
 
   static Future<String?> OAuth2(String serviceName) async {
@@ -93,22 +99,43 @@ class PlugApi {
 
   static Future<bool> disconnectService(String serviceName) async {
     Response result = await dio.post("$apiUrl/service/$serviceName/disconnect", options: getHeaders());
-    return handleResponseCheck<dynamic>(result);
+    return handleResponseCheck(result);
   }
 
   static Future<List<Event>?> getServiceEvents(String serviceName) async {
-    Response<List<Event>> result = await dio.get<List<Event>>("$apiUrl/service/$serviceName/events", options: getHeaders());
-    return handleResponse(result);
+    List<Event>? events;
+
+    Response result = await dio.get("$apiUrl/service/$serviceName/events", options: getHeaders());
+    handleError(result);
+    events = [];
+    for (var json in result.data!) {
+      events.add(Event.fromJson(json));
+    }
+    return events;
   }
 
   static Future<List<Event>?> getServiceActions(String serviceName) async {
-    Response<List<Event>> result = await dio.get<List<Event>>("$apiUrl/service/$serviceName/actions", options: getHeaders());
-    return handleResponse(result);
+    List<Event>? events;
+
+    Response result = await dio.get("$apiUrl/service/$serviceName/actions", options: getHeaders());
+    handleError(result);
+    events = [];
+    for (var json in result.data!) {
+      events.add(Event.fromJson(json));
+    }
+    return events;
   }
 
   static Future<List<Plug>?> getPlugs() async {
-    Response<List<Plug>> result = await dio.get<List<Plug>>("$apiUrl/plugs", options: getHeaders());
-    return handleResponse(result);
+    List<Plug>? plugs;
+
+    Response result = await dio.get("$apiUrl/plugs", options: getHeaders());
+    handleError(result);
+    plugs = [];
+    for (var json in result.data!) {
+      plugs.add(Plug.fromJson(json));
+    }
+    return plugs;
   }
 
   static Future<bool> createPlug(PlugDetails plug) async {
@@ -117,8 +144,9 @@ class PlugApi {
   }
 
   static Future<PlugDetails?> getPlug(String id) async {
-    Response<PlugDetails> result = await dio.get<PlugDetails>("$apiUrl/plugs/$id", options: getHeaders());
-    return handleResponse(result);
+    Response result = await dio.get("$apiUrl/plugs/$id", options: getHeaders());
+    handleError(result);
+    return PlugDetails.fromJson(result.data);
   }
 
   static Future<bool> deletePlug(String id) async {

@@ -34,7 +34,7 @@ class _StatePlugCard extends State<PlugCard>{
           border: Border.all(color: Colors.black)
         ),
         child: Image.network(
-            icon,
+            "${PlugApi.assetsUrl}/$icon",
             width: 10,
             height: 10,
         )

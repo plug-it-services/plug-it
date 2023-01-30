@@ -40,6 +40,8 @@ dependencies:
   json_serializable: ^6.6.0
   build_runner: ^2.3.3
   json_annotation: ^4.8.0
+  dio_cookie_manager: ^2.0.0
+  #google_sign_in: ^4.0.16
 
 dev_dependencies:
   flutter_test:
