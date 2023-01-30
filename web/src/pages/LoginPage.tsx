@@ -5,7 +5,7 @@ import { Typography } from '@mui/material';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
 import LoginCard from '../components/LoginCard';
-import api, {getServices} from '../utils/api';
+import api, { getServices } from '../utils/api';
 import MessageBox from '../components/MessageBox';
 
 const LoginPage = () => {

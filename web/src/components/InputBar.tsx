@@ -19,7 +19,7 @@ function InputBar({
   borderColor,
   isPassword,
   onChange,
-  autoComplete
+  autoComplete,
 }: IInputBarProps) {
   return (
     <Box

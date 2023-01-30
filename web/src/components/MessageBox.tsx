@@ -6,7 +6,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import WarningIcon from '@mui/icons-material/Warning';
 import CloseIcon from '@mui/icons-material/Close';
-import Button from "./Button";
+import Button from './Button';
 
 export interface IMessageBoxProps {
   title: string;
