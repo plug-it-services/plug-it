@@ -205,8 +205,8 @@ services:
       - traefik_network
       - starton_network
     labels:
-      - traefik.http.routers.starton.rule=PathPrefix(`/service/starton`)
-      - traefik.http.middlewares.starton-replacepathregex.replacepathregex.regex=^/service/starton/(.*)
+      - traefik.http.routers.starton.rule=PathPrefix(`/service/starton`) || PathPrefix(`/webhook/starton`)
+      - traefik.http.middlewares.starton-replacepathregex.replacepathregex.regex=^/(?:(?:service)|(?:webhook))/starton/(.*)
       - traefik.http.middlewares.starton-replacepathregex.replacepathregex.replacement=/public/$$1
       - traefik.http.middlewares.test-auth.forwardauth.address=http://user/verify
       - traefik.http.middlewares.test-auth.forwardauth.authResponseHeaders=user

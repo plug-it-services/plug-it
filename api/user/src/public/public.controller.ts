@@ -69,6 +69,7 @@ export class PublicController {
     res.cookie('access_token', result.access_token, {
       sameSite: 'none',
       secure: true,
+      path: '/'
     });
     res.status(200).send({ message: 'success' });
   }
@@ -143,6 +144,7 @@ export class PublicController {
     res.cookie('access_token', result.access_token, {
       sameSite: 'none',
       secure: true,
+      path: '/'
     });
     res.status(200).send({ message: 'success' });
   }
