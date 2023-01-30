@@ -63,7 +63,7 @@ class _LoginState extends State<Login> {
 
                   // LOGIN INPUT
                   InputField(hint: "Email or Username", onChanged: (value) => {
-                    password = value
+                    username = value
                   }, iconColor: Colors.black, icon: const Icon(Icons.account_circle)),
 
                   const SizedBox(height: 25),

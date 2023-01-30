@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 
 import 'package:mobile/ui-toolkit/appbar.dart';
+import 'package:mobile/PlugApi.dart';
 import 'ui-toolkit/navbar.dart';
 import 'pages/auth/Login.dart';
 
 void main() {
+  PlugApi.init();
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final _token = null;
   const MyApp({super.key});
 
   // This widget is the root of your application.
