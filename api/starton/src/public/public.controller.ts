@@ -84,6 +84,7 @@ export class PublicController {
       parseInt(uid),
       variables,
     );
+    this.logger.log(`Published event for transaction of user ${uid}`);
     return { message: 'success' };
   }
 }
