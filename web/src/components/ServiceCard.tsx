@@ -67,18 +67,22 @@ function ServiceCard({ service }: IServiceCardProps) {
       <CardActions style={{ display: 'flex', justifyContent: 'center' }}>
         <Button
           color="primary"
-          text={service.connected ? "Disconnect" : "Connect"}
+          text={service.connected ? 'Disconnect' : 'Connect'}
           onClick={async () => {
             if (service.connected) {
               try {
-                await api.post(`/service/${service.name}/disconnect`, {}, {
-                  headers: {
-                    'crsf-token': localStorage.getItem('crsf-token'),
+                await api.post(
+                  `/service/${service.name}/disconnect`,
+                  {},
+                  {
+                    headers: {
+                      'crsf-token': localStorage.getItem('crsf-token'),
+                    },
+                    withCredentials: true,
                   },
-                  withCredentials: true,
-                });
-                } catch (err) {
-                  console.log(err);
+                );
+              } catch (err) {
+                console.log(err);
               }
               return;
             }
@@ -89,7 +93,9 @@ function ServiceCard({ service }: IServiceCardProps) {
               try {
                 res = await api.post(
                   `/service/${service.name}/oauth2`,
-                  {},
+                  {
+                    redirectUrl: `${process.env.REACT_APP_BASE_URL}/services`,
+                  },
                   {
                     headers: {
                       'crsf-token': localStorage.getItem('crsf-token'),
