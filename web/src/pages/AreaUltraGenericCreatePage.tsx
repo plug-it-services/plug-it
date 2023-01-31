@@ -1,18 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Typography } from '@mui/material';
 import Header from '../components/Header';
 import UltraGenericTriggerCard, { StepInfo, TriggerCardType } from '../components/UltraGenericTriggerCard';
 import Button from '../components/Button';
-import {
-  FieldValue,
-  getServiceActions,
-  getServiceEvents,
-  getServices, PlugDetail,
-  postPlug,
-  Service,
-  ServiceAction,
-  ServiceEvent,
-} from '../utils/api';
+import { PlugDetail, postPlug, ServiceAction, ServiceEvent } from '../utils/api';
 import InputBar from '../components/InputBar';
 
 type ServiceDetail = {

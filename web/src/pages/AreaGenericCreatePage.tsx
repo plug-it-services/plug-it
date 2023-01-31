@@ -1,7 +1,7 @@
-import React, {useEffect, useState} from 'react';
-import {Typography} from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { Typography } from '@mui/material';
 import Header from '../components/Header';
-import TriggerCard, {StepInfo, TriggerCardType} from '../components/GenericTriggerCard';
+import TriggerCard, { StepInfo, TriggerCardType } from '../components/GenericTriggerCard';
 import Button from '../components/Button';
 import {
   FieldValue,
@@ -10,7 +10,7 @@ import {
   getServices,
   Service,
   ServiceAction,
-  ServiceEvent
+  ServiceEvent,
 } from '../utils/api';
 
 type ServiceDetail = {
@@ -27,12 +27,9 @@ const AreaCreatePage = () => {
   ]);
 
   function findStepsSet(selection: StepInfo) {
-    if (!selection.service)
-      return [];
-    if (selection.type == TriggerCardType.EVENT)
-      return serviceDetails?.get(selection.service.name)?.events ?? [];
-    else
-      return serviceDetails?.get(selection.service.name)?.actions ?? [];
+    if (!selection.service) return [];
+    if (selection.type == TriggerCardType.EVENT) return serviceDetails?.get(selection.service.name)?.events ?? [];
+    return serviceDetails?.get(selection.service.name)?.actions ?? [];
   }
 
   useEffect(() => {
@@ -43,9 +40,9 @@ const AreaCreatePage = () => {
           const newVal = {
             actions: await getServiceActions(selection.service?.name ?? ''),
             events: await getServiceEvents(selection.service?.name ?? ''),
-          }
-          cpy?.set(selection.service?.name ?? '', newVal)
-          setServiceDetails(cpy)
+          };
+          cpy?.set(selection.service?.name ?? '', newVal);
+          setServiceDetails(cpy);
         }
       }
     }
@@ -73,17 +70,22 @@ const AreaCreatePage = () => {
           services={servicesPreviews}
           steps={findStepsSet(selections[0])}
           onServiceSelected={(service: Service) => {
-            setSelections(selections.map((selection, idx) => idx === 0 ? { service, step: null, fields: null, type: TriggerCardType.EVENT} : selection))
+            setSelections(
+              selections.map((selection, idx) =>
+                idx === 0 ? { service, step: null, fields: null, type: TriggerCardType.EVENT } : selection,
+              ),
+            );
           }}
           onStepSelected={(step: ServiceEvent) => {
-            setSelections(selections.map((selection, idx) => idx === 0 ? { service: selection.service, step, fields: null, type: TriggerCardType.EVENT} : selection))
+            setSelections(
+              selections.map((selection, idx) =>
+                idx === 0 ? { service: selection.service, step, fields: null, type: TriggerCardType.EVENT } : selection,
+              ),
+            );
           }}
-          onFieldChanged={(key: string, value: string) => {
-
-          }}
+          onFieldChanged={(key: string, value: string) => {}}
           backgroundColor={'#2757C9'}
         />
-        
       </div>
       <br />
       <div style={{ display: 'flex', flexDirection: 'row', gap: '20px' }}>

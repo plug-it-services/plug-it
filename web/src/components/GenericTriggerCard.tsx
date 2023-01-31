@@ -14,7 +14,7 @@ import {
 import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import InputBar from './InputBar';
-import {Service, ServiceEvent, ServiceAction, FieldValue} from '../utils/api';
+import { Service, ServiceEvent, ServiceAction, FieldValue } from '../utils/api';
 
 export enum TriggerCardType {
   EVENT,
