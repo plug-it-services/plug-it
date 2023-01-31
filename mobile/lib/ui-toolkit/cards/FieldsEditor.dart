@@ -47,8 +47,7 @@ class _StateFieldsEditor extends State<FieldsEditor>{
       fields.add(
           Row(
             children: [
-              Text(field.displayName.capitalize(), style: PlugItStyle.smallestStyle),
-              const SizedBox(width: 5,),
+              Text(field.displayName.capitalize(), style: PlugItStyle.smallStyle),
               Expanded(
                   child: InputField(
                     hint: 'Enter ${field.type.capitalize()}',
@@ -77,27 +76,30 @@ class _StateFieldsEditor extends State<FieldsEditor>{
             ),
             child: Column(
               children: [
-                Row(
-                  children: [
-                    const Text("2 - Edit Event", style: PlugItStyle.smallStyle),
-                    IconButtonSwitch(
-                        falseIcon: const Icon(Icons.keyboard_arrow_down_rounded),
-                        trueIcon: const Icon(Icons.keyboard_arrow_up_rounded),
-                        state: widget.isOpen,
-                        onChange: (value) {
-                          setState(() {
-                            if (widget.isOpen) {
-                              widget.onCardDeploy(false);
-                            } else {
-                              widget.onCardDeploy(true);
-                            }
-                          });
-                        }
-                    )
-                  ],
+                Padding (
+                  padding: const EdgeInsets.all(5),
+                  child: Row(
+                    children: [
+                      const Text("2 - Edit Event", style: PlugItStyle.smallStyle),
+                      IconButtonSwitch(
+                          falseIcon: const Icon(Icons.keyboard_arrow_down_rounded),
+                          trueIcon: const Icon(Icons.keyboard_arrow_up_rounded),
+                          state: widget.isOpen,
+                          onChange: (value) {
+                            setState(() {
+                              if (widget.isOpen) {
+                                widget.onCardDeploy(false);
+                              } else {
+                                widget.onCardDeploy(true);
+                              }
+                            });
+                          }
+                      )
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 10,),
-                const Divider(color: Colors.black),
+                SizedBox(height: (widget.isOpen) ? 10 : 0,),
+                (widget.isOpen) ? const Divider(color: Colors.black) : const SizedBox(height: 0,),
                 ...getActionFields(),
               ],
             )

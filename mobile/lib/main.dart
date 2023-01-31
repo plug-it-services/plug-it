@@ -76,9 +76,17 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  void onLogOut() {
+    setState(() {
+      loginOpen = true;
+      registerOpen = false;
+      connected = false;
+      PlugApi.token = null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return (connected) ?
-    const NavBar() : getCurrentForm();
+    return (connected) ? NavBar(onLogOut: onLogOut) : getCurrentForm();
   }
 }

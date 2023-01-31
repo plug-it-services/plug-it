@@ -8,9 +8,10 @@ class ScreenWidthButton extends StatefulWidget {
   final Color? color;
   final double? height;
   final Color? pressedColor;
+  final bool enabled;
   final void Function()? callback;
 
-  const ScreenWidthButton({super.key, this.label = "", this.size = 15, this.callback, this.color, this.pressedColor, this.height});
+  const ScreenWidthButton({super.key, this.label = "", this.size = 15, this.callback, this.color, this.pressedColor, this.height, this.enabled = true});
 
   @override
   State createState() => _StateScreenWidthButton();
@@ -19,12 +20,18 @@ class _StateScreenWidthButton extends State<ScreenWidthButton>{
   bool pressed = false;
 
   void onTap() {
+    if (!widget.enabled) {
+      return;
+    }
     setState(() {
       pressed = true;
     });
   }
 
   void onEnd() {
+    if (!widget.enabled) {
+      return;
+    }
     if (pressed == true) {
       setState(() {
           widget.callback!();

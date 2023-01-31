@@ -121,24 +121,27 @@ class _StateEventSelection extends State<EventSelection>{
             ),
             child: Column(
               children: [
-                Row(
-                  children: [
-                    Text("1 ${(widget.selectedEvent != null) ? "- ${widget.selectedEvent!.name.capitalize()}" : "- Select an Action "}", style: PlugItStyle.smallStyle),
-                    IconButtonSwitch(
-                      falseIcon: const Icon(Icons.keyboard_arrow_down_rounded),
-                      trueIcon: const Icon(Icons.keyboard_arrow_up_rounded),
-                      state: widget.isOpen,
-                      onChange: (value) {
-                        setState(() {
-                          if (widget.isOpen) {
-                            widget.onCardDeploy(false);
-                          } else {
-                            widget.onCardDeploy(true);
-                          }
-                        });
-                      },
-                    )
-                  ],
+                Padding(
+                  padding: const EdgeInsets.all(5),
+                  child: Row(
+                    children: [
+                      Text("1 ${(widget.selectedEvent != null) ? "- ${widget.selectedEvent!.name.capitalize()}" : "- Select an Action "}", style: PlugItStyle.smallStyle),
+                      IconButtonSwitch(
+                        falseIcon: const Icon(Icons.keyboard_arrow_down_rounded),
+                        trueIcon: const Icon(Icons.keyboard_arrow_up_rounded),
+                        state: widget.isOpen,
+                        onChange: (value) {
+                          setState(() {
+                            if (widget.isOpen) {
+                              widget.onCardDeploy(false);
+                            } else {
+                              widget.onCardDeploy(true);
+                            }
+                          });
+                        },
+                      )
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 10,),
                 const Divider(color: Colors.black),

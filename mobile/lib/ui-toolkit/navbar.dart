@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/pages/settings/Settings.dart';
 import 'package:mobile/ui-toolkit/appbar.dart';
 
 import 'package:mobile/PlugApi.dart';
@@ -11,7 +12,9 @@ import 'package:mobile/pages/services/Services.dart';
 
 class NavBar extends StatefulWidget
 {
-  const NavBar({Key? key}) : super(key: key);
+  final void Function() onLogOut;
+
+  const NavBar({Key? key, required this.onLogOut}) : super(key: key);
 
   @override
   State<NavBar> createState() => _NavBarState();
@@ -33,10 +36,10 @@ class _NavBarState extends State<NavBar> {
   Widget build(BuildContext context) {
     final pages = [
       Home(),
-      Services(),
+      const Services(),
       Plugs(),
       Home(),
-      Home(),
+      Settings(onLogOut: widget.onLogOut),
     ];
     return Scaffold(
           appBar: MyAppBar(pageTitle:headTitles[index]),

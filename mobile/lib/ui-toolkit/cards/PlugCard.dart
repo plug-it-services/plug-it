@@ -80,7 +80,6 @@ class _StatePlugCard extends State<PlugCard>{
 
   @override
   Widget build(BuildContext context) {
-    final double height = MediaQuery.of(context).size.height;
     return Padding(
         padding: const EdgeInsets.all(10),
         child: GestureDetector(

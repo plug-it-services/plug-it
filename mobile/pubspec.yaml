@@ -43,6 +43,7 @@ dependencies:
   dio_cookie_manager: ^2.0.0
   transparent_image: ^2.0.0
   cached_network_image: ^3.2.3
+  url_launcher: ^5.2.7
   #google_sign_in: ^4.0.16
 
 dev_dependencies:

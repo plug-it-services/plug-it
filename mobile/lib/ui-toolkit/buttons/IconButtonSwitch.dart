@@ -25,15 +25,11 @@ class _StateIconButtonSwitch extends State<IconButtonSwitch>{
     setState(() {
       changed = true;
       state = !state;
+      widget.onChange!(state);
     });
   }
 
   void onEnd() {
-    if (!changed) {
-      return;
-    }
-    changed = false;
-    widget.onChange!(state);
   }
 
   @override

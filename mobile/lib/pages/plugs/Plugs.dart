@@ -10,7 +10,6 @@ import 'package:mobile/models/plug/PlugEvent.dart';
 import 'package:mobile/ui-toolkit/PlugItStyle.dart';
 
 import 'package:mobile/ui-toolkit/cards/ActionEditCard.dart';
-import 'package:mobile/ui-toolkit/cards/TriggerEditCard.dart';
 import 'package:mobile/ui-toolkit/input/InputField.dart';
 import '../../ui-toolkit/buttons/ScreenWidthButton.dart';
 import '../../ui-toolkit/cards/PlugCard.dart';
@@ -87,10 +86,12 @@ class _PlugsState extends State<Plugs> {
   void _savePlug() {
     //TODO: validate data first
     if (creating) {
-      PlugApi.createPlug(plugEdited!).then((value) => _cancel());
+      PlugApi.createPlug(plugEdited!).then((value) {
+          _cancel();
+      });
     } else if (editing) {
-      PlugApi.editPlug(plugEdited!).then((value) => {
-        _cancel()
+      PlugApi.editPlug(plugEdited!).then((value) {
+          _cancel();
       });
     }
   }
@@ -100,6 +101,9 @@ class _PlugsState extends State<Plugs> {
       editing = false;
       creating = false;
     });
+    PlugApi.getPlugs().then((value) => setState(() => {
+      plugs = value
+    }));
   }
 
   void _delete() {
@@ -178,7 +182,6 @@ class _PlugsState extends State<Plugs> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        resizeToAvoidBottomInset: true,
         body: ListView(
               children: (editing || creating) ? _getPlugEdit() : _getPlugCards(),
         )

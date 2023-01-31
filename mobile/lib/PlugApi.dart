@@ -10,7 +10,7 @@ import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:uuid/uuid.dart';
-
+import 'package:url_launcher/url_launcher.dart';
 
 class PlugError {
   var error;
@@ -62,7 +62,7 @@ class PlugApi {
   }
 
   static bool handleResponseCheck(Response result, {int excpeted = 200}) {
-    if (result.statusCode != excpeted) {
+    if (result.statusCode == null || result.statusCode! < 200 || result.statusCode! > 299) {
       throw PlugError(error: null, statusCode: result.statusCode!, statusMessage: result.statusMessage!);
     }
     return true;
@@ -99,26 +99,25 @@ class PlugApi {
       return null;
   }
 
-  static Future<String?> OAuth2(String serviceName) async {
-    //TODO: OAuth2
+  static Future OAuth2(String serviceName) async {
+    Response result = await dio.post("$apiUrl/service/$serviceName/oauth2", data: {'redirectUrl': 'plugit'}, options: getHeaders());
+    String authUrl = result.data['url'] ?? "";
+    if (await canLaunch(authUrl)) {
+      return launch(authUrl, forceWebView: true, enableJavaScript: true, enableDomStorage: true);
+    }
   }
 
-  static Future<String?> OAuth2Callback(String serviceName) async {
-    //TODO: OAuth2Callback
-
+  static Future OAuthApiKey(String serviceName, String apiKey) async {
+    return dio.post("$apiUrl/service/$serviceName/apiKey", data: {'apiKey': apiKey}, options: getHeaders());
   }
 
-  static Future<String?> OAuthApiKey(String serviceName, String apiKey) async {
-    //TODO: OAuth2ApiKey
-  }
-
-  static Future<String?> OAuthCredentials(String serviceName, String id, String secret) async {
-    //TODO: OAuth2Crendentials
+  static Future OAuthCredentials(String serviceName, String id, String secret) async {
+    return dio.post("$apiUrl/service/$serviceName/clientSecrets", data: {'clientId': id, 'clientSecret': secret}, options: getHeaders());
   }
 
   static Future<bool> disconnectService(String serviceName) async {
     Response result = await dio.post("$apiUrl/service/$serviceName/disconnect", options: getHeaders());
-    return handleResponseCheck(result);
+    return handleResponseCheck(result, excpeted: 201);
   }
 
   static Future<List<Event>?> getServiceEvents(String serviceName) async {
