@@ -80,7 +80,10 @@ export const getServices = async (): Promise<Service[]> => {
 export const getPlugs = async (): Promise<Plug[]> => {
   try {
     const response = await api.get('/plugs', {
-      withCredentials: true,
+      headers: {
+        'crsf-token': localStorage.getItem('crsf-token') ?? '',
+      },
+      withCredentials: true
     });
     return response.data;
   } catch (error) {
