@@ -22,11 +22,11 @@ const PlugsPage = () => {
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <Header title="Plug-It" area="Areas" />
       <br />
-      <Typography variant="h4" fontWeight="bold" color={'primary'}>
+      <Typography variant="h4" fontWeight="bold" color={'primary'} style={{ paddingTop: '20px' }}>
         Plugs
       </Typography>
       <br />
-      <div style={{ display: 'flex', flexDirection: 'row', gap: '20px' }}>
+      <div style={{ display: 'flex', flexDirection: 'row', gap: '20px', paddingTop: '20px' }}>
         <SearchBar
           onChange={() => {}}
           onSearch={() => {}}
@@ -45,7 +45,7 @@ const PlugsPage = () => {
       </div>
       <br />
       <div style={{ display: 'flex', flexDirection: 'row', gap: '20px' }}>
-        <Grid container spacing={2} columns={3}>
+        <Grid container spacing={2} columns={3} style={{ paddingTop: '20px' }}>
           {plugs.map((plug) => (
             <Grid item key={plug.id}>
               <PlugCard plug={plug} />

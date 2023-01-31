@@ -21,7 +21,7 @@ const ServicesPage = () => {
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <Header title="Plug-It" area="Services" />
       <br />
-      <Typography variant="h4" fontWeight="bold" color={'primary'}>
+      <Typography variant="h4" fontWeight="bold" color={'primary'} style={{ paddingTop: '20px' }}>
         Services
       </Typography>
       <br />
@@ -35,7 +35,7 @@ const ServicesPage = () => {
       />
       <br />
       <div style={{ display: 'flex', flexDirection: 'row', gap: '20px' }}>
-        <Grid container spacing={2} columns={3}>
+        <Grid container spacing={2} columns={3} style={{ paddingTop: '20px' }}>
           {services.map((service) => (
             <Grid item key={service.name}>
               <ServiceCard service={service} />

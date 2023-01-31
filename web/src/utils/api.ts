@@ -10,6 +10,11 @@ export interface Error {
 }
 
 /*   Interfaces   */
+export type FieldValue = {
+  key: string;
+  value: string;
+};
+
 export interface Service {
   name: string;
   authType: 'none' | 'apiKey' | 'clientSecret' | 'oauth2';
@@ -61,26 +66,21 @@ export interface Plug {
 }
 
 export interface PlugDetail {
-  id: string;
+  id?: string;
   name: string;
-  activated: boolean;
+  enabled: boolean;
   event: {
     serviceName: string;
     id: string;
-    fields: {
-      key: string;
-      value: string;
-    }[];
+    fields: FieldValue[];
   };
   actions: {
     serviceName: string;
     id: string;
-    fields: {
-      key: string;
-      value: string;
-    }[];
+    fields: FieldValue[];
   }[];
-};
+}
+
 /*   END Interfaces   */
 
 /*    GET    */
@@ -162,7 +162,12 @@ export const getPlugs = async (): Promise<Plug[]> => {
 /*    POST    */
 export const postPlug = async (plug: PlugDetail): Promise<boolean> => {
   try {
-    const response = await api.post('/plugs', plug);
+    const response = await api.post('/plugs', plug, {
+      headers: {
+        'crsf-token': localStorage.getItem('crsf-token') ?? '',
+      },
+      withCredentials: true,
+    });
     return true;
   } catch (error) {
     console.error(error);

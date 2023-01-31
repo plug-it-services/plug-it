@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import {
   Select,
@@ -14,7 +14,15 @@ import {
 import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import InputBar from './InputBar';
-import {Service, ServiceEvent, ServiceAction, FieldValue} from '../utils/api';
+import {
+  Service,
+  ServiceEvent,
+  ServiceAction,
+  FieldValue,
+  getServices,
+  getServiceEvents,
+  getServiceActions,
+} from '../utils/api';
 
 export enum TriggerCardType {
   EVENT,
@@ -22,31 +30,66 @@ export enum TriggerCardType {
 }
 
 export type StepInfo = {
-  service: Service | null;
-  step: ServiceEvent | ServiceAction | null;
-  fields: FieldValue[] | null;
   type: TriggerCardType;
+  serviceName: string;
+  stepId: string;
+  fields: FieldValue[];
 };
 
 export interface ITriggerCardProps {
-  services: Service[];
-  steps: ServiceEvent[] | ServiceAction[];
   selected: StepInfo;
-  onServiceSelected: (service: Service) => void;
-  onStepSelected: (step: ServiceAction | ServiceEvent) => void;
-  onFieldChanged: (key: string, newValue: string) => void;
+  onSelectedChange: (infos: StepInfo) => void;
   backgroundColor: string;
 }
 
-function GenericTriggerCard({
-  services,
-  steps,
-  selected,
-  onServiceSelected,
-  onStepSelected,
-  onFieldChanged,
-  backgroundColor,
-}: ITriggerCardProps) {
+function UltraGenericTriggerCard({ selected, onSelectedChange, backgroundColor }: ITriggerCardProps) {
+  const [servicesPreviews, setServicesPreviews] = useState<Service[]>([]);
+  const [steps, setSteps] = useState<ServiceAction[] | ServiceEvent[]>([]);
+  const [step, setStep] = useState<ServiceAction | ServiceEvent | null>();
+
+  async function onServiceSelected(serviceName: string) {
+    const service = servicesPreviews.find((el) => el.name === serviceName);
+
+    if (!service) return;
+    if (selected.type === TriggerCardType.EVENT) setSteps(await getServiceEvents(serviceName));
+    else setSteps(await getServiceActions(serviceName));
+    // eslint-disable-next-line no-param-reassign
+    selected.serviceName = serviceName;
+    onSelectedChange(selected);
+  }
+
+  async function onStepSelected(stepId: string) {
+    console.log(stepId);
+    const found = steps.find((el) => el.id === stepId);
+
+    if (!found) return;
+    // eslint-disable-next-line no-param-reassign
+    selected.stepId = stepId;
+    // eslint-disable-next-line no-param-reassign
+    selected.fields = found.fields.map((field) => ({
+      key: field.key,
+      value: '',
+    }));
+    setStep(found);
+    onSelectedChange(selected);
+  }
+
+  async function onFieldChange(key: string, value: string) {
+    // eslint-disable-next-line no-param-reassign
+    selected.fields = selected.fields.map((field) => ({
+      key: field.key,
+      value: field.key === key ? value : field.value,
+    }));
+    onSelectedChange(selected);
+  }
+
+  useEffect(() => {
+    async function fetchServicesPreviews() {
+      setServicesPreviews(await getServices());
+    }
+    fetchServicesPreviews();
+  }, []);
+
   return (
     <Card
       sx={{
@@ -79,12 +122,10 @@ function GenericTriggerCard({
                 id={'service'}
                 label={'Service'}
                 style={{ color: 'white', backgroundColor, borderColor: 'white' }}
-                onChange={(elem) => {
-                  const service = services.find((el) => el.name === elem.target.value);
-                  if (service) onServiceSelected(service);
-                }}
+                value={selected.serviceName}
+                onChange={(elem) => onServiceSelected(elem.target.value as string)}
               >
-                {services.map((service) => (
+                {servicesPreviews.map((service) => (
                   <MenuItem
                     value={service.name}
                     style={{ color: 'white', backgroundColor, borderColor: 'white' }}
@@ -95,9 +136,12 @@ function GenericTriggerCard({
                 ))}
               </Select>
             </FormControl>
-            {selected.service ?? (
+            {selected.serviceName !== '' && (
               <FormControl fullWidth>
-                <InputLabel id={'service'} style={{ color: 'white' }}>
+                <InputLabel
+                  id={selected.type === TriggerCardType.ACTION ? 'Action' : 'Event'}
+                  style={{ color: 'white' }}
+                >
                   {selected.type === TriggerCardType.ACTION ? 'Action' : 'Event'}
                 </InputLabel>
                 <Select
@@ -105,18 +149,16 @@ function GenericTriggerCard({
                   id={'step'}
                   label={'step'}
                   style={{ color: 'white', backgroundColor, borderColor: 'white' }}
-                  onChange={(elem) => {
-                    const step = steps.find((el) => el.id === elem.target.value);
-                    if (step) onStepSelected(step);
-                  }}
+                  value={selected.stepId}
+                  onChange={(elem) => onStepSelected(elem.target.value as string)}
                 >
-                  {steps.map((step) => (
+                  {steps.map((elem) => (
                     <MenuItem
-                      value={step.id}
+                      value={elem.id}
                       style={{ color: 'white', backgroundColor, borderColor: 'white' }}
-                      key={step.id}
+                      key={elem.id}
                     >
-                      {step.name}
+                      {elem.name}
                     </MenuItem>
                   ))}
                 </Select>
@@ -130,22 +172,21 @@ function GenericTriggerCard({
           <Typography color={'white'}>{'Values'}</Typography>
         </AccordionSummary>
         <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          {selected.step &&
-            selected.step.fields.map((field) => (
-              <InputBar
-                defaultDummyValue={field.displayName}
-                textColor="black"
-                backgroundColor="#EAF1FF"
-                borderColor="#EAF1FF"
-                isPassword={false}
-                onChange={() => {}}
-                key={field.key}
-              />
-            ))}
+          {step?.fields.map((field) => (
+            <InputBar
+              defaultDummyValue={field.displayName}
+              textColor="black"
+              backgroundColor="#EAF1FF"
+              borderColor="#EAF1FF"
+              isPassword={false}
+              onChange={(val) => onFieldChange(field.key, val)}
+              key={field.key}
+            />
+          ))}
         </CardContent>
       </Accordion>
     </Card>
   );
 }
 
-export default GenericTriggerCard;
+export default UltraGenericTriggerCard;

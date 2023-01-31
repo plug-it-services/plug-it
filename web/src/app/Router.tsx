@@ -6,6 +6,7 @@ import PlugsPage from '../pages/PlugsPage';
 import AreaCreatePage from '../pages/AreaCreatePage';
 import SignupPage from '../pages/SignupPage';
 import HomePage from '../pages/HomePage';
+import AreaUltraGenericCreatePage from "../pages/AreaUltraGenericCreatePage";
 
 const Router = () => (
   <BrowserRouter>
@@ -15,8 +16,8 @@ const Router = () => (
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/services" element={<ServicesPage />} />
       <Route path="/plugs" element={<PlugsPage />} />
-      <Route path="/plugs/create" element={<AreaCreatePage />} />
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="/plugs/create" element={<AreaUltraGenericCreatePage />} />
+      <Route path="*" element={<Navigate to={'/'} replace />} />
     </Routes>
   </BrowserRouter>
 );

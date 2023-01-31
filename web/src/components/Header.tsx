@@ -31,9 +31,9 @@ function Header({ title, area }: IHeaderProps) {
           />
           <Button
             color="primary"
-            text={'AREAs'}
+            text={'PLUGS'}
             onClick={() => {
-              window.location.href = '/areas';
+              window.location.href = '/plugs';
             }}
           />
           <AccountTile name="Jean Michel" email="jeanmichel@plugit.org" />

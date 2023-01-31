@@ -1,43 +1,62 @@
-import React, { useEffect, useState } from 'react';
-
-import { Typography } from '@mui/material';
+import React, {useEffect, useState} from 'react';
+import {Typography} from '@mui/material';
 import Header from '../components/Header';
-import TriggerCard from '../components/TriggerCard';
+import TriggerCard, {StepInfo, TriggerCardType} from '../components/GenericTriggerCard';
 import Button from '../components/Button';
-import { getServices, getServiceEvents, Service, ServiceEvent, ServiceAction, getServiceActions } from '../utils/api';
+import {
+  FieldValue,
+  getServiceActions,
+  getServiceEvents,
+  getServices,
+  Service,
+  ServiceAction,
+  ServiceEvent
+} from '../utils/api';
+
+type ServiceDetail = {
+  events: ServiceEvent[] | null;
+  actions: ServiceAction[] | null;
+};
 
 const AreaCreatePage = () => {
-  const [services, setServices] = useState<Service[]>([]);
-  const [serviceEvents, setServiceEvents] = useState<ServiceEvent[]>([]);
-  const [serviceActions, setServiceActions] = useState<ServiceAction[]>([]);
-  const [eventSelectedService, setEventSelectedService] = useState<Service | null>(null);
-  const [eventSelectedServiceEvent, setEventSelectedServiceEvent] = useState<ServiceEvent | null>(null);
-  const [eventSelectedServiceAction, setEventSelectedServiceAction] = useState<ServiceAction | null>(null);
+  const [servicesPreviews, setServicesPreviews] = useState<Service[]>([]);
+  const [serviceDetails, setServiceDetails] = useState<Map<string, ServiceDetail>>();
+  const [selections, setSelections] = useState<StepInfo[]>([
+    { service: null, step: null, type: TriggerCardType.EVENT, fields: null },
+    { service: null, step: null, type: TriggerCardType.ACTION, fields: null },
+  ]);
+
+  function findStepsSet(selection: StepInfo) {
+    if (!selection.service)
+      return [];
+    if (selection.type == TriggerCardType.EVENT)
+      return serviceDetails?.get(selection.service.name)?.events ?? [];
+    else
+      return serviceDetails?.get(selection.service.name)?.actions ?? [];
+  }
 
   useEffect(() => {
-    if (!eventSelectedService) return;
-    async function fetchServiceEvents() {
-      const events = await getServiceEvents(eventSelectedService ? eventSelectedService.name : '');
-      console.log(events);
-      setServiceEvents(events);
+    async function hydrateSelections() {
+      for (const selection of selections) {
+        if (!serviceDetails?.has(selection.service?.name ?? '')) {
+          const cpy = serviceDetails;
+          const newVal = {
+            actions: await getServiceActions(selection.service?.name ?? ''),
+            events: await getServiceEvents(selection.service?.name ?? ''),
+          }
+          cpy?.set(selection.service?.name ?? '', newVal)
+          setServiceDetails(cpy)
+        }
+      }
     }
-    fetchServiceEvents();
-  }, [eventSelectedService]);
+    hydrateSelections();
+  }, [selections]);
 
   useEffect(() => {
-    if (!eventSelectedService) return;
-    async function fetchServiceActions() {
-      const actions = await getServiceActions(eventSelectedService ? eventSelectedService.name : '');
-      setServiceActions(actions);
+    async function fetchServicesPreviews() {
+      setServicesPreviews(await getServices());
     }
-    fetchServiceActions();
-  }, [eventSelectedService]);
-
-  useEffect(() => {
-    async function fetchServices() {
-      setServices(await getServices());
-    }
-    fetchServices();
+    fetchServicesPreviews();
   }, []);
 
   return (
@@ -50,17 +69,21 @@ const AreaCreatePage = () => {
       <br />
       <div style={{ display: 'flex', flexDirection: 'row', gap: '20px' }}>
         <TriggerCard
-          services={services}
-          actions={serviceActions}
-          selectedService={eventSelectedService}
-          selectedEvent={eventSelectedServiceEvent}
-          selectedAction={eventSelectedServiceAction}
-          onServiceSelected={(service: Service) => setEventSelectedService(service)}
-          onEventSelected={(event: ServiceEvent) => setEventSelectedServiceEvent(event)}
-          onActionSelected={(action: ServiceAction) => setEventSelectedServiceAction(action)}
-          events={serviceEvents}
+          selected={selections[0]}
+          services={servicesPreviews}
+          steps={findStepsSet(selections[0])}
+          onServiceSelected={(service: Service) => {
+            setSelections(selections.map((selection, idx) => idx === 0 ? { service, step: null, fields: null, type: TriggerCardType.EVENT} : selection))
+          }}
+          onStepSelected={(step: ServiceEvent) => {
+            setSelections(selections.map((selection, idx) => idx === 0 ? { service: selection.service, step, fields: null, type: TriggerCardType.EVENT} : selection))
+          }}
+          onFieldChanged={(key: string, value: string) => {
+
+          }}
           backgroundColor={'#2757C9'}
         />
+        
       </div>
       <br />
       <div style={{ display: 'flex', flexDirection: 'row', gap: '20px' }}>
