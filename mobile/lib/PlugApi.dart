@@ -24,7 +24,8 @@ class PlugApi {
   static String? token;
   static String? sessionToken = const Uuid().v4();
   static const String devApiUrl = "https://api-area-dev.alexandrejublot.com";
-  static const String apiUrl = (kReleaseMode) ? "https://api-area.alexandrejublot.com" : devApiUrl;
+  static const String prodApiUrl = "https://api-area.alexandrejublot.com";
+  static const String apiUrl = (kReleaseMode) ? devApiUrl : devApiUrl;
   static const String assetsUrl = (kReleaseMode) ? "https://area.alexandrejublot.com" : "https://area-dev.alexandrejublot.com";
   static var error;
   static var cookies = CookieJar();
