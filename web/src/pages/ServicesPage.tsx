@@ -39,9 +39,9 @@ const ServicesPage = () => {
           {services.map((service) => (
             <Grid item key={service.name}>
               <ServiceCard
-                img={'https://clipart.info/images/ccovers/1590430652red-youtube-logo-png-xl.png'}
+                img={'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fmedia1.tenor.com%2Fimages%2Fe3452993e179156393e2928cb3927185%2Ftenor.gif%3Fitemid%3D16107418&f=1&nofb=1&ipt=f05d099307d6059931ab88ac72c5eee5358a6d7f3f81904b337e7734c798f618&ipo=images'}
                 title={service.name}
-                description={'Youtube is a video sharing platform.'}
+                description={'MVP description'}
                 buttonLabel={'Connect'}
                 onClick={() => {}}
               />
