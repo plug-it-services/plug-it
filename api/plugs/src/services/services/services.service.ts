@@ -85,6 +85,39 @@ export class ServicesService {
     ]);
   }
 
+  async listAboutServices() {
+    return this.serviceModel.aggregate([
+      {
+        $project: {
+          events: {
+            $map: {
+              input: '$events',
+              as: 'event',
+              in: {
+                name: '$$event.name',
+                description: '$$event.description',
+              },
+            },
+          },
+          actions: {
+            $map: {
+              input: '$actions',
+              as: 'action',
+              in: {
+                name: '$$action.name',
+                description: '$$action.description',
+              },
+            },
+          },
+          name: 1,
+        },
+      },
+      {
+        $unset: ['_id', '__v'],
+      },
+    ]);
+  }
+
   async listEvents(serviceName: string): Promise<EventDescription[]> {
     const service = await this.findByName(serviceName);
 
