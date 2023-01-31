@@ -23,21 +23,21 @@ const AreasPage = () => {
       <Header title="Plug-It" area="Areas" />
       <br />
       <Typography variant="h4" fontWeight="bold" color={'primary'}>
-        Areas
+        Plugs
       </Typography>
       <br />
       <div style={{ display: 'flex', flexDirection: 'row', gap: '20px' }}>
         <SearchBar
           onChange={() => {}}
           onSearch={() => {}}
-          defaultDummyValue="Search an area"
+          defaultDummyValue="Search a plug"
           textColor="black"
           backgroundColor="#EAF1FF"
           borderColor="#EAF1FF"
         />
         <Button
           color="primary"
-          text={'Add Area'}
+          text={'Add Plug'}
           onClick={() => {
             window.location.href = '/areas/create';
           }}
@@ -47,15 +47,8 @@ const AreasPage = () => {
       <div style={{ display: 'flex', flexDirection: 'row', gap: '20px' }}>
         <Grid container spacing={2} columns={3}>
           {areas.map((area) => (
-            <Grid item key={area.name}>
-              <AreaCard
-                title={area.name}
-                buttonLabel={'Connect'}
-                onClick={() => {}}
-                date={'2001-09-11'}
-                iconList={area.icons}
-                key={area.name}
-              />
+            <Grid item key={area.id}>
+              <AreaCard plug={area} />
             </Grid>
           ))}
         </Grid>

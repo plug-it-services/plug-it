@@ -103,6 +103,24 @@ export const postPlug = async (plug: PlugDetail): Promise<boolean> => {
     return false;
   }
 };
+
+export const setPlugEnable = async (enable: boolean, id: string) => {
+  try {
+    await api.put(
+      `/plugs/${id}/enabled?enabled=${enable}`,
+      {},
+      {
+        headers: {
+          'crsf-token': localStorage.getItem('crsf-token') ?? '',
+        },
+        withCredentials: true,
+      },
+    );
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 /*   END POST   */
 
 export default api;
