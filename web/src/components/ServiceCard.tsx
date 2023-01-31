@@ -20,7 +20,7 @@ function ServiceCard({ img, title, description, buttonLabel, onClick }: IService
   return (
     <Card
       sx={{
-        backgroundColor: '#718CDE',
+        backgroundColor: `#718CDE`,
         width: 320,
         height: 170,
         borderRadius: '8px',
@@ -31,7 +31,7 @@ function ServiceCard({ img, title, description, buttonLabel, onClick }: IService
         <img
           src={img}
           alt="service"
-          style={{ maxWidth: '100px', maxHeight: '100px', objectFit: 'contain', margin: '10px' }}
+          style={{ maxWidth: '100px', maxHeight: '75px', objectFit: 'contain', margin: '10px' }}
         />
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
           <Typography variant="h5" component="div" color={'white'}>
