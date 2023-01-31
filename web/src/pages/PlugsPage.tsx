@@ -4,12 +4,12 @@ import { Grid, Typography } from '@mui/material';
 import Header from '../components/Header';
 import Button from '../components/Button';
 import SearchBar from '../components/SearchBar';
-import AreaCard from '../components/AreaCard';
+import PlugCard from '../components/PlugCard';
 import { getPlugs, Plug } from '../utils/api';
 import ServiceCard from '../components/ServiceCard';
 
-const AreasPage = () => {
-  const [areas, setPlugs] = useState<Plug[]>([]);
+const PlugsPage = () => {
+  const [plugs, setPlugs] = useState<Plug[]>([]);
 
   useEffect(() => {
     async function fetchPlugs() {
@@ -39,16 +39,16 @@ const AreasPage = () => {
           color="primary"
           text={'Add Plug'}
           onClick={() => {
-            window.location.href = '/areas/create';
+            window.location.href = '/plugs/create';
           }}
         />
       </div>
       <br />
       <div style={{ display: 'flex', flexDirection: 'row', gap: '20px' }}>
         <Grid container spacing={2} columns={3}>
-          {areas.map((area) => (
-            <Grid item key={area.id}>
-              <AreaCard plug={area} />
+          {plugs.map((plug) => (
+            <Grid item key={plug.id}>
+              <PlugCard plug={plug} />
             </Grid>
           ))}
         </Grid>
@@ -57,4 +57,4 @@ const AreasPage = () => {
   );
 };
 
-export default AreasPage;
+export default PlugsPage;

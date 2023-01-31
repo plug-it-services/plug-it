@@ -7,7 +7,7 @@ export interface IAreaCardProps {
   plug: Plug;
 }
 
-function AreaCard({ plug }: IAreaCardProps) {
+function PlugCard({ plug }: IAreaCardProps) {
   const onClick = () => {
     setPlugEnable(!plug.enabled, plug.id);
   };
@@ -55,4 +55,4 @@ function AreaCard({ plug }: IAreaCardProps) {
   );
 }
 
-export default AreaCard;
+export default PlugCard;
