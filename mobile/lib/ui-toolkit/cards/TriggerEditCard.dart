@@ -3,13 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:mobile/PlugApi.dart';
 import 'package:mobile/models/Event.dart';
 
-import 'package:mobile/models/Plug/Plug.dart';
 import 'package:mobile/models/plug/PlugDetails.dart';
 import 'package:mobile/models/plug/PlugEvent.dart';
 import 'package:mobile/models/service/Service.dart';
 import 'package:mobile/ui-toolkit/PlugItStyle.dart';
 import 'package:mobile/ui-toolkit/buttons/IconButtonSwitch.dart';
-import 'package:mobile/ui-toolkit/buttons/ScreenWidthButton.dart';
 
 
 class TriggerEditCard extends StatefulWidget {

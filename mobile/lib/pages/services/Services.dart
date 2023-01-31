@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/PlugApi.dart';
-import '../../models/Plug/Plug.dart';
+import '../../models/plug/Plug.dart';
 import '../../models/service/Service.dart';
 import '../../ui-toolkit/cards/ServiceCard.dart';
 

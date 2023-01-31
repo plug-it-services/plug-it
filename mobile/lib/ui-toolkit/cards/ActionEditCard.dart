@@ -2,14 +2,12 @@ import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/PlugApi.dart';
 
-import 'package:mobile/models/Plug/Plug.dart';
 import 'package:mobile/models/plug/PlugDetails.dart';
 import 'package:mobile/models/plug/PlugEvent.dart';
 import 'package:mobile/models/service/Service.dart';
 import 'package:mobile/models/field/Field.dart';
 import 'package:mobile/ui-toolkit/PlugItStyle.dart';
 import 'package:mobile/ui-toolkit/buttons/IconButtonSwitch.dart';
-import 'package:mobile/ui-toolkit/buttons/ScreenWidthButton.dart';
 import 'package:mobile/models/Event.dart';
 import 'package:mobile/ui-toolkit/input/InputField.dart';
 

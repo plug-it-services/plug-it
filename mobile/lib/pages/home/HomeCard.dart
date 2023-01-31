@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../models/Plug/Plug.dart';
+import '../../models/plug/Plug.dart';
 import '../../models/service/Service.dart';
 
 
