@@ -17,6 +17,42 @@ export interface Service {
   icon: string;
 }
 
+export interface ServiceEvent {
+  id: string;
+  name: string;
+  description: string;
+  variables: {
+    key: string;
+    type: string;
+    displayName: string;
+    description: string;
+  }[];
+  fields: {
+    type: string;
+    key: string;
+    displayName: string;
+    required: boolean;
+  }[];
+}
+
+export interface ServiceAction {
+  id: string;
+  name: string;
+  description: string;
+  variables: {
+    key: string;
+    type: string;
+    displayName: string;
+    description: string;
+  }[];
+  fields: {
+    type: string;
+    key: string;
+    displayName: string;
+    required: boolean;
+  }[];
+}
+
 export interface Plug {
   id: string;
   name: string;
@@ -44,7 +80,7 @@ export interface PlugDetail {
       value: string;
     }[];
   }[];
-}
+};
 /*   END Interfaces   */
 
 /*    GET    */
@@ -65,6 +101,36 @@ export const verify = async (): Promise<boolean> => {
 export const getServices = async (): Promise<Service[]> => {
   try {
     const response = await api.get('/services', {
+      withCredentials: true,
+      headers: {
+        'crsf-token': localStorage.getItem('crsf-token') ?? '',
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+};
+
+export const getServiceEvents = async (serviceName: string): Promise<ServiceEvent[]> => {
+  try {
+    const response = await api.get(`/service/${serviceName}/events`, {
+      withCredentials: true,
+      headers: {
+        'crsf-token': localStorage.getItem('crsf-token') ?? '',
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+};
+
+export const getServiceActions = async (serviceName: string): Promise<ServiceAction[]> => {
+  try {
+    const response = await api.get(`/service/${serviceName}/actions`, {
       withCredentials: true,
       headers: {
         'crsf-token': localStorage.getItem('crsf-token') ?? '',
