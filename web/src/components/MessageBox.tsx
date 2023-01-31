@@ -1,23 +1,21 @@
-import React from 'react';
-
-// Message box component
-import { Card, CardContent, Typography, CardActions, IconButton, Modal } from '@mui/material';
+import React, { ReactNode } from 'react';
+import { Card, CardContent, Typography, IconButton, Modal } from '@mui/material';
 import CancelIcon from '@mui/icons-material/Cancel';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import WarningIcon from '@mui/icons-material/Warning';
 import CloseIcon from '@mui/icons-material/Close';
-import Button from './Button';
+import InfoIcon from '@mui/icons-material/Info';
 
 export interface IMessageBoxProps {
   title: string;
   description: string;
-  buttons: { label: string; onClick: () => void }[];
-  type: 'error' | 'success' | 'warning';
+  type: 'error' | 'success' | 'warning' | 'info';
   isOpen: boolean;
   onClose: () => void;
+  children?: ReactNode;
 }
 
-function MessageBox({ title, description, buttons, type, isOpen, onClose }: IMessageBoxProps) {
+function MessageBox({ title, description, type, isOpen, onClose, children }: IMessageBoxProps) {
   return (
     <div>
       <Modal
@@ -45,6 +43,7 @@ function MessageBox({ title, description, buttons, type, isOpen, onClose }: IMes
               {type === 'error' && <CancelIcon sx={{ color: '#F44336' }} />}
               {type === 'success' && <CheckCircleIcon sx={{ color: '#4CAF50' }} />}
               {type === 'warning' && <WarningIcon sx={{ color: '#FF9800' }} />}
+              {type === 'info' && <InfoIcon sx={{ color: 'grey' }} />}
               <Typography variant="h5" component="div" style={{ marginLeft: '10px' }}>
                 {title}
               </Typography>
@@ -62,19 +61,7 @@ function MessageBox({ title, description, buttons, type, isOpen, onClose }: IMes
               {description}
             </Typography>
           </CardContent>
-          <CardActions style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            {buttons.map((button, index) => (
-              <Button
-                key={index}
-                color="primary"
-                text={button.label}
-                onClick={() => {
-                  alert('TODO: close');
-                  button.onClick();
-                }}
-              />
-            ))}
-          </CardActions>
+          {children}
         </Card>
       </Modal>
     </div>

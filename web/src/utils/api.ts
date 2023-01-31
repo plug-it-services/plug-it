@@ -12,7 +12,7 @@ export interface Error {
 /*   Interfaces   */
 export interface Service {
   name: string;
-  authType: string;
+  authType: 'none' | 'apiKey' | 'clientSecret' | 'oauth2';
   connected: boolean;
   icon: string;
 }
@@ -83,7 +83,7 @@ export const getPlugs = async (): Promise<Plug[]> => {
       headers: {
         'crsf-token': localStorage.getItem('crsf-token') ?? '',
       },
-      withCredentials: true
+      withCredentials: true,
     });
     return response.data;
   } catch (error) {

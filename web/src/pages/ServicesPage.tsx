@@ -38,17 +38,7 @@ const ServicesPage = () => {
         <Grid container spacing={2} columns={3}>
           {services.map((service) => (
             <Grid item key={service.name}>
-              <ServiceCard
-                img={
-                  service.icon.length > 0
-                    ? service.icon
-                    : 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fmedia1.tenor.com%2Fimages%2Fe3452993e179156393e2928cb3927185%2Ftenor.gif%3Fitemid%3D16107418&f=1&nofb=1&ipt=f05d099307d6059931ab88ac72c5eee5358a6d7f3f81904b337e7734c798f618&ipo=images'
-                }
-                title={service.name}
-                description={'MVP description'}
-                buttonLabel={'Connect'}
-                onClick={() => {}}
-              />
+              <ServiceCard service={service} />
             </Grid>
           ))}
         </Grid>

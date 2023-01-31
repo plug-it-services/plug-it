@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 
-import {Grid, Typography} from '@mui/material';
+import { Grid, Typography } from '@mui/material';
 import Header from '../components/Header';
 import Button from '../components/Button';
 import SearchBar from '../components/SearchBar';
 import AreaCard from '../components/AreaCard';
 import { getPlugs, Plug } from '../utils/api';
-import ServiceCard from "../components/ServiceCard";
+import ServiceCard from '../components/ServiceCard';
 
 const AreasPage = () => {
   const [areas, setPlugs] = useState<Plug[]>([]);

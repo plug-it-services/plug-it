@@ -70,7 +70,7 @@ const LoginPage = () => {
         </Typography>
         <br />
         <LoginCard title={'Login'} description={'Login to your account.'} buttonLabel={'Login'} onClick={onLogin} />
-        <MessageBox title={error} description={message} buttons={[]} type={'error'} isOpen={open} onClose={onClose} />
+        <MessageBox title={error} description={message} type={'error'} isOpen={open} onClose={onClose} />
         <Typography variant="h6" fontWeight="bold" color={'primary'} padding={2}>
           Or
         </Typography>
