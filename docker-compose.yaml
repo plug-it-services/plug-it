@@ -138,10 +138,12 @@ services:
       - plugs_network
     labels:
       - traefik.http.routers.plugs.rule=Path(`/services`) || PathPrefix(`/plugs`) || Path(`/service/{service:.*}/events`) || Path(`/service/{service:.*}/actions`)
+      - traefik.http.routers.about.rule=Path(`/about.json`)
       - traefik.http.middlewares.add-public.addprefix.prefix=/public
       - traefik.http.middlewares.test-auth.forwardauth.address=http://user/verify
       - traefik.http.middlewares.test-auth.forwardauth.authResponseHeaders=user
       - traefik.http.routers.plugs.middlewares=add-public, test-auth
+      - traefik.http.routers.about.middlewares=add-public
       - traefik.enable=true
     ports:
       - ${PLUGS_PORT}:80
