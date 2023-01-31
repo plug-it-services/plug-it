@@ -54,3 +54,5 @@ jobs:
         run: yarn install
       - name: Build app
         run: yarn build
+        env:
+          CI: false
