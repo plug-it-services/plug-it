@@ -15,9 +15,8 @@ const AreaCreatePage = () => (
     <br />
     <div style={{ display: 'flex', flexDirection: 'row', gap: '20px' }}>
       <TriggerCard
-        title={'Youtube'}
-        subtitle={'Youtube is a video sharing platform.'}
-        icon={'https://clipart.info/images/ccovers/1590430652red-youtube-logo-png-xl.png'}
+        services={['Test Service', 'MVP Service']}
+        actions={['Test Action', 'MVP Action']}
         backgroundColor={'#2757C9'}
       />
     </div>

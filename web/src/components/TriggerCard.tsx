@@ -12,13 +12,12 @@ import SearchBar from './SearchBar';
 import InputBar from './InputBar';
 
 export interface ITriggerCardProps {
-  icon: string;
-  title: string;
-  subtitle: string;
+  services: string[];
+  actions: string[];
   backgroundColor: string;
 }
 
-function TriggerCard({ icon, title, subtitle, backgroundColor }: ITriggerCardProps) {
+function TriggerCard({ services, actions, backgroundColor }: ITriggerCardProps) {
   return (
     <Card
       sx={{
