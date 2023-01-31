@@ -209,7 +209,7 @@ services:
     labels:
       - traefik.http.routers.starton.rule=PathPrefix(`/service/starton`)
       - traefik.http.routers.starton-webhook.rule=PathPrefix(`/webhook/starton`)
-      - traefik.http.middlewares.starton-replacepathregex.replacepathregex.regex=^/servicewebhook/starton/(.*)
+      - traefik.http.middlewares.starton-replacepathregex.replacepathregex.regex=^/service/starton/(.*)
       - traefik.http.middlewares.starton-replacepathregex.replacepathregex.replacement=/public/$$1
       - traefik.http.middlewares.starton-webhook-replacepathregex.replacepathregex.regex=^/webhook/starton/(.*)
       - traefik.http.middlewares.starton-webhook-replacepathregex.replacepathregex.replacement=/public/$$1
