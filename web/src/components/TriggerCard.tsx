@@ -45,17 +45,23 @@ function TriggerCard({ services, actions, backgroundColor }: ITriggerCardProps) 
           <Typography color={'white'}>{'Action'}</Typography>
         </AccordionSummary>
         <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          <Select
-            labelId={'action'}
-            id={'action'}
-            value={''}
-            label={'Action'}
-            style={{ color: 'black', backgroundColor: '#EAF1FF' }}
-          >
-            {actions.map((action) => (
-              <MenuItem value={action}>{action}</MenuItem>
-            ))}
-          </Select>
+          <FormControl fullWidth>
+            <InputLabel id={'service'} style={{ color: 'white' }}>
+              {'Service'}
+            </InputLabel>
+            <Select
+              labelId={'action'}
+              id={'action'}
+              label={'Action'}
+              style={{ color: 'white', backgroundColor, borderColor: 'white' }}
+            >
+              {actions.map((action) => (
+                <MenuItem value={action} style={{ color: 'white', backgroundColor, borderColor: 'white' }}>
+                  {action}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </CardContent>
       </Accordion>
       <Accordion style={{ backgroundColor }}>
