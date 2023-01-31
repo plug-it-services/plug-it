@@ -106,7 +106,6 @@ export class TwitterAuthService {
     const auth = await this.retrieveByState(state);
     try {
       const response = await this.fetchAccessToken(auth.codeChallenge, code);
-      console.log(response.data);
       await this.twitterAuthRepository.update(
         { id: state },
         {
