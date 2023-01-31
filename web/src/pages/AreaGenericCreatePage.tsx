@@ -28,7 +28,7 @@ const AreaCreatePage = () => {
 
   function findStepsSet(selection: StepInfo) {
     if (!selection.service) return [];
-    if (selection.type == TriggerCardType.EVENT) return serviceDetails?.get(selection.service.name)?.events ?? [];
+    if (selection.type === TriggerCardType.EVENT) return serviceDetails?.get(selection.service.name)?.events ?? [];
     return serviceDetails?.get(selection.service.name)?.actions ?? [];
   }
 

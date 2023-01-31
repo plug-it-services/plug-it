@@ -6,7 +6,7 @@ import PlugsPage from '../pages/PlugsPage';
 import AreaCreatePage from '../pages/AreaCreatePage';
 import SignupPage from '../pages/SignupPage';
 import HomePage from '../pages/HomePage';
-import AreaUltraGenericCreatePage from "../pages/AreaUltraGenericCreatePage";
+import AreaUltraGenericCreatePage from '../pages/AreaUltraGenericCreatePage';
 
 const Router = () => (
   <BrowserRouter>
