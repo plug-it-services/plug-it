@@ -9,6 +9,8 @@ import 'package:mobile/models/field/Field.dart';
 import 'package:mobile/ui-toolkit/PlugItStyle.dart';
 import 'package:mobile/ui-toolkit/buttons/IconButtonSwitch.dart';
 import 'package:mobile/models/Event.dart';
+import 'package:mobile/ui-toolkit/cards/EventSelection.dart';
+import 'package:mobile/ui-toolkit/cards/FieldsEditor.dart';
 import 'package:mobile/ui-toolkit/input/InputField.dart';
 
 
@@ -32,109 +34,93 @@ class ActionEditCard extends StatefulWidget {
 }
 class _StateActionEditCard extends State<ActionEditCard>{
   Service? selectedService;
-  List<Event>? events;
   Event? selectedEvent;
-  PlugEvent? editedEvent;
+  List<Event>? events;
   bool deployed = false;
-  bool editActionDeployed = false;
-  bool editServiceActionDeployed = true;
+  bool selectEventDeployed = true;
+  bool editEventDeployed = false;
 
   void onServiceSelected(value) {
     setState(() {
       selectedService = value;
-      _getEvents();
+      if (widget.actionIdx != -1) {
+        PlugApi.getServiceActions(selectedService!.name).then((events) =>
+        {
+          _setEvents(events ?? [])
+        });
+      }
+      else {
+        PlugApi.getServiceEvents(selectedService!.name).then((events) =>
+        {
+          _setEvents(events ?? [])
+        });
+
+      }
     });
   }
 
   void onEventSelected(value) {
     setState(() {
       selectedEvent = value;
-      editedEvent = PlugEvent.fromEventService(event: value, serviceName: selectedService!.name);
-      widget.plug.actions[widget.actionIdx] = editedEvent!;
+      var ev = PlugEvent.fromEventService(event: value, serviceName: selectedService!.name);
+      if (widget.actionIdx == -1) {
+        widget.plug.event = ev;
+      }
+      else {
+        widget.plug.actions[widget.actionIdx] = ev;
+      }
     });
   }
 
+  String getLabel() {
+    if (widget.actionIdx == -1) {
+      return "1 --| Trigger";
+    }
+    return "${widget.actionIdx + 2} --| Action";
+  }
+
+  PlugEvent? getEditedEvent() {
+    if (widget.actionIdx == -1) {
+      return (widget.plug.event == null ||(widget.plug.event!.id == "" && widget.plug.event!.serviceName == "")) ? null : widget.plug.event!;
+    }
+    else {
+      return (widget.plug.actions[widget.actionIdx].id == "" && widget.plug.actions[widget.actionIdx].serviceName == "") ? null : widget.plug.actions[widget.actionIdx];
+    }
+  }
 
   void _setEvents(List<Event> events) {
     setState(() {
       this.events = events;
     });
   }
-
-  void _getEvents() {
-    if (selectedService == null) {
-      return;
-    }
-    PlugApi.getServiceActions(selectedService!.name).then((events) =>
-    {
-      _setEvents(events ?? [])
+  void getCurrentData(String serviceName, String eventId) {
+    PlugApi.getServiceByName(serviceName).then((value) {
+      setState(() {
+        selectedService = value;
+      });
+    });
+    PlugApi.getEvent(serviceName, eventId, isTrigger: widget.actionIdx == -1).then((value) {
+      setState(() {
+        selectedEvent = value;
+      });
     });
   }
 
-  List<Widget> getActionFields() {
-    List<Widget> fields = [];
+  @override
+  void initState() {
 
-    if (!editActionDeployed || selectedEvent == null) {
-      return fields;
+    super.initState();
+    if (widget.actionIdx == -1 && widget.plug.event != null && widget.plug.event!.id != "" && widget.plug.event!.serviceName != "") {
+      getCurrentData(widget.plug.event!.serviceName, widget.plug.event!.id);
     }
-    for (Field field in selectedEvent!.fields) {
-      //TODO: get proper input field based on the type of the data
-      fields.add(const SizedBox(height:10));
-      int idx = selectedEvent!.fields.indexOf(field);
-      fields.add(Row(
-        children: [
-          Text(field.displayName),
-          const SizedBox(width: 5,),
-          InputField(hint: 'Enter ${field.type}', onChanged: (value) {
-            editedEvent!.fields[idx].value = value;
-          }, value: editedEvent!.fields[idx].value),
-          //TODO insert properly a dropdown to select and insert a variable in the field
-        ],
-      ));
+    if (widget.actionIdx != -1 && widget.plug.actions[widget.actionIdx].id != "" && widget.plug.actions[widget.actionIdx].serviceName != "") {
+      getCurrentData(widget.plug.actions[widget.actionIdx].serviceName, widget.plug.actions[widget.actionIdx].id);
     }
-    return fields;
-  }
 
-  List<Widget> getActionSelection() {
-
-    List<Widget> fields = [];
-
-    if (!editServiceActionDeployed) {
-      return fields;
-    }
-    fields.add(const SizedBox(height: 20,));
-    fields.add(DropdownSearch<Service>(
-        onChanged: onServiceSelected,
-        items: widget.services,
-        itemAsString: (service) {
-          return service.name;
-        },
-        dropdownDecoratorProps: const DropDownDecoratorProps(
-            dropdownSearchDecoration: InputDecoration(
-              hintText: "Select a service",
-            )
-        )
-    ));
-
-    fields.add(const SizedBox(height: 15,));
-    fields.add(DropdownSearch<Event>(
-        onChanged: onEventSelected,
-        items: events ?? [],
-        itemAsString: (service) {
-          return service.name;
-        },
-        dropdownDecoratorProps: const DropDownDecoratorProps(
-            dropdownSearchDecoration: InputDecoration(
-              hintText: "Select an event",
-            )
-        )
-    ));
-    return fields;
   }
 
   @override
   Widget build(BuildContext context) {
-    editedEvent = widget.plug.actions[widget.actionIdx];
     return Padding(
         padding: const EdgeInsets.all(10),
         child: AnimatedContainer(
@@ -147,7 +133,10 @@ class _StateActionEditCard extends State<ActionEditCard>{
             child: !deployed
                 ? Row(
               children: [
-                Text("${widget.actionIdx + 2} --| Action ${(selectedService != null) ? "- ${selectedService!.name}" : ""}", style: PlugItStyle.subtitleStyle),
+                Padding(
+                  padding: const EdgeInsets.all(5),
+                  child:Text("${getLabel()} ${(selectedService != null) ? "- ${selectedService!.name.capitalize()}" : ""}", style: PlugItStyle.subtitleStyle)
+                ),
                 IconButtonSwitch(
                     falseIcon: const Icon(Icons.keyboard_arrow_down_rounded),
                     trueIcon: const Icon(Icons.keyboard_arrow_up_rounded),
@@ -164,7 +153,10 @@ class _StateActionEditCard extends State<ActionEditCard>{
               children: [
                 Row(
                   children: [
-                    Text("${widget.actionIdx + 2} --| Action ${(selectedService != null) ? "- ${selectedService!.name}" : ""}", style: PlugItStyle.subtitleStyle),
+                    Padding(
+                        padding: const EdgeInsets.all(5),
+                        child:Text("${getLabel()} ${(selectedService != null) ? "- ${selectedService!.name.capitalize()}" : ""}", style: PlugItStyle.subtitleStyle)
+                    ),
                     IconButtonSwitch(
                         falseIcon: const Icon(Icons.keyboard_arrow_down_rounded),
                         trueIcon: const Icon(Icons.keyboard_arrow_up_rounded),
@@ -178,44 +170,35 @@ class _StateActionEditCard extends State<ActionEditCard>{
                   ],
                 ),
                 const Divider(color: Colors.black),
-                Row(
-                    children: [
-                      Text("1 ${(selectedEvent != null) ? "- ${selectedEvent!.name}" : "- Select an Action "}", style: PlugItStyle.subtitleStyle),
-                      IconButtonSwitch(
-                          falseIcon: const Icon(Icons.keyboard_arrow_down_rounded),
-                          trueIcon: const Icon(Icons.keyboard_arrow_up_rounded),
-                          state: editServiceActionDeployed,
-                          onChange: (value) {
-                            setState(() {
-                              editServiceActionDeployed = value;
-                              editActionDeployed = !value;
-                            });
-                          },
-                      )
-                    ],
-                  ),
-                  const SizedBox(height: 10,),
-                  const Divider(color: Colors.black),
-                  ...getActionSelection(),
-                  Row(
-                    children: [
-                      Text("2 - Edit Action", style: PlugItStyle.subtitleStyle),
-                      IconButtonSwitch(
-                          falseIcon: const Icon(Icons.keyboard_arrow_down_rounded),
-                          trueIcon: const Icon(Icons.keyboard_arrow_up_rounded),
-                          state: editActionDeployed,
-                          onChange: (value) {
-                            setState(() {
-                              editServiceActionDeployed = !value;
-                              editActionDeployed = value;
-                            });
-                          }
-                      )
-                    ],
-                  ),
-                const SizedBox(height: 10,),
-                const Divider(color: Colors.black),
-                ...getActionFields(),
+                EventSelection(
+                    services: widget.services,
+                    isOpen: selectEventDeployed,
+                    onCardDeploy: (value) => {
+                      setState(() {
+                        selectEventDeployed = value;
+                        editEventDeployed = !selectEventDeployed;
+                      })
+                    },
+                    onEventSelected: onEventSelected,
+                    onServiceSelected: onServiceSelected,
+                    plug: widget.plug,
+                    editedEvent: getEditedEvent(),
+                    selectedEvent: selectedEvent,
+                    selectedService: selectedService,
+                    events: events,
+                ),
+                FieldsEditor(
+                    services: widget.services,
+                    isOpen: editEventDeployed,
+                    onCardDeploy: (value) => {
+                      setState(() {
+                        editEventDeployed = value;
+                        selectEventDeployed = !editEventDeployed;
+                      })
+                    },
+                    selectedEvent: selectedEvent,
+                    editedEvent: getEditedEvent(),
+                )
               ],
             )
         )

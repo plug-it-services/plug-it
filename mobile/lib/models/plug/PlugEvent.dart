@@ -10,16 +10,20 @@ part 'PlugEvent.g.dart';
 class PlugEvent {
   String id;
   String serviceName;
-  List<FieldInput> fields;
+  List<FieldInput> fields = [];
 
   PlugEvent({required this.id, required this.serviceName, required this.fields});
 
   PlugEvent.fromEventService({required Event event, required this.serviceName, this.id = "", this.fields = const []}) {
+    List<FieldInput> newFields = [];
     id = event.id;
     for (Field field in event.fields) {
-      fields.add(FieldInput(key: field.key, value: ""));
+      newFields.add(FieldInput(key: field.key, value: ""));
     }
+    fields = newFields;
   }
+
+
 
   factory PlugEvent.fromJson(Json json) => _$PlugEventFromJson(json);
 

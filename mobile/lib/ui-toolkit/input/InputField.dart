@@ -9,7 +9,19 @@ class InputField extends StatefulWidget {
   final Icon? icon;
   final Color? iconColor;
   final void Function(String)? onChanged;
-  const InputField({super.key, required this.hint, this.obscured = false, this.onChanged, this.icon, this.iconColor, this.value});
+  final TextStyle? hintStyle;
+  final TextStyle? valueStyle;
+
+  const InputField({super.key,
+    required this.hint,
+    this.obscured = false,
+    this.onChanged,
+    this.icon,
+    this.iconColor,
+    this.value,
+    this.valueStyle,
+    this.hintStyle
+  });
 
 
   @override
@@ -27,10 +39,10 @@ class _InputFieldState extends State<InputField> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Padding(
-                    padding: const EdgeInsets.only(left: 20),
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: TextField(
                       controller: TextEditingController(text:widget.value),
-                      style: PlugItStyle.inputTextStyle,
+                      style: widget.valueStyle ?? PlugItStyle.inputTextStyle,
                       onChanged: widget.onChanged,
                       obscureText: widget.obscured,
                       decoration: InputDecoration(
@@ -38,7 +50,7 @@ class _InputFieldState extends State<InputField> {
                           iconColor: widget.iconColor,
                           border: InputBorder.none,
                           hintText: widget.hint,
-                          hintStyle: PlugItStyle.inputHintStyle
+                          hintStyle: widget.hintStyle ?? PlugItStyle.inputHintStyle
                       ),
                     )
                 ),

@@ -79,6 +79,25 @@ class PlugApi {
       }
       return services;
   }
+  
+  static Future<Service?> getServiceByName(String serviceName) async {
+    List<Service>? service = await getServices();
+    if (service != null) {
+      return service.firstWhere((element) => element.name == serviceName);
+    }
+    return null;
+  }
+  
+  static Future<Event?> getEvent(String serviceName, String eventId, {bool isTrigger = true}) async {
+      List<Event>? events = (isTrigger)
+        ? await getServiceEvents(serviceName)
+        : await getServiceActions(serviceName);
+
+      if (events != null) {
+        return events.firstWhere((element) => element.id == eventId);
+      }
+      return null;
+  }
 
   static Future<String?> OAuth2(String serviceName) async {
     //TODO: OAuth2
@@ -140,13 +159,15 @@ class PlugApi {
 
   static Future<bool> createPlug(PlugDetails plug) async {
     Response result = await dio.post("$apiUrl/plugs", data:plug, options: getHeaders());
-    return handleResponseCheck(result);
+    return handleResponseCheck(result, excpeted: 201);
   }
 
   static Future<PlugDetails?> getPlug(String id) async {
     Response result = await dio.get("$apiUrl/plugs/$id", options: getHeaders());
     handleError(result);
-    return PlugDetails.fromJson(result.data);
+    var plug = PlugDetails.fromJson(result.data);
+    plug.id = id;
+    return plug;
   }
 
   static Future<bool> deletePlug(String id) async {

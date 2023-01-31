@@ -62,17 +62,20 @@ class _PlugsState extends State<Plugs> {
   List<Widget> _getPlugCards()
   {
     List<Widget> widgets = [];
-    for (Plug plug in plugs ?? []) {
-      widgets.add(PlugCard(
-          plug: plug,
-          callback: () => _createOrEditPlug(plug),
-      ));
-    }
+    widgets.add(const SizedBox(height: 5,));
     widgets.add(ScreenWidthButton(
       label: "Create",
       height: 50,
       callback: () => _createOrEditPlug(null),
     ));
+    for (Plug plug in plugs ?? []) {
+      widgets.add(const SizedBox(height: 10,));
+      widgets.add(PlugCard(
+          plug: plug,
+          callback: () => _createOrEditPlug(plug),
+      ));
+    }
+
     return widgets;
   }
 
@@ -82,6 +85,7 @@ class _PlugsState extends State<Plugs> {
     });
   }
   void _savePlug() {
+    //TODO: validate data first
     if (creating) {
       PlugApi.createPlug(plugEdited!).then((value) => _cancel());
     } else if (editing) {
@@ -108,25 +112,26 @@ class _PlugsState extends State<Plugs> {
 
   List<Widget> _getPlugEdit() {
     List<Widget> widgets = [];
+    widgets.add(const SizedBox(height: 5,));
     widgets.add(InputField(
         hint: "Enter Plug Name",
         value: plugEdited!.name,
         onChanged: (value) => plugEdited!.name = value,
     ));
     widgets.add(const SizedBox(height: 20,));
-    widgets.add(TriggerEditCard(services: services ?? [], isOpen: true, onCardDeploy: () => {}, plug: plugEdited!));
-    widgets.add(const SizedBox(height: 5,));
+    widgets.add(ActionEditCard(services: services ?? [], isOpen: false, onCardDeploy: () => {}, plug: plugEdited!, actionIdx: -1));
+    widgets.add(const SizedBox(height: 2,));
     widgets.add(IconButton(onPressed: _addAction, icon: Icon(Icons.add_rounded),));
-    widgets.add(const SizedBox(height: 5,));
+    widgets.add(const SizedBox(height: 2,));
     int idx = 0;
     for (var action in plugEdited!.actions) {
       widgets.add(ActionEditCard(services: services ?? [], isOpen: false, onCardDeploy: () => {}, plug: plugEdited!, actionIdx: idx));
-      widgets.add(const SizedBox(height: 5,));
+      widgets.add(const SizedBox(height: 2,));
       widgets.add(IconButton(onPressed: _addAction, icon: Icon(Icons.add_rounded),));
-      widgets.add(const SizedBox(height: 5,));
+      widgets.add(const SizedBox(height: 2,));
       idx++;
     }
-    widgets.add(const SizedBox(height: 5,));
+    widgets.add(const SizedBox(height: 2,));
     widgets.add(Row(
       children: [
         Expanded(
@@ -146,14 +151,14 @@ class _PlugsState extends State<Plugs> {
             callback: _cancel,
           ),
         ),
-        Expanded(
+        (editing) ? Expanded(
           child:ScreenWidthButton(
             label: 'Delete',
             color: Colors.red,
             pressedColor: PlugItStyle.secondaryColor,
             callback: _delete,
           )
-        ),
+        ) : const SizedBox(width: 0,),
       ],
     ));
     return widgets;

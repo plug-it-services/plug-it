@@ -1,7 +1,9 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/PlugApi.dart';
 import 'package:mobile/models/plug/Plug.dart';
 import 'package:mobile/ui-toolkit/PlugItStyle.dart';
+import 'package:transparent_image/transparent_image.dart';
 
 
 class PlugCard extends StatefulWidget {
@@ -25,22 +27,25 @@ class _StatePlugCard extends State<PlugCard>{
       if (idx >= 4 && widget.plug.icons.length > 5) {
         break;
       }
+
       bubbles.add(Container(
-        width: 12,
-        height: 12,
+        width: 46,
+        height: 46,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(100),
           color: PlugItStyle.foregroundColor,
           border: Border.all(color: Colors.black)
         ),
-        child: Image.network(
-            "${PlugApi.assetsUrl}/$icon",
-            width: 10,
-            height: 10,
-        )
+        child: CachedNetworkImage(
+          imageUrl: "${PlugApi.assetsUrl}/$icon",
+          placeholder: (context, url) => const CircularProgressIndicator(),
+          errorWidget: (context, url, error) => const Icon(Icons.error, color: Colors.black),
+          width: 44,
+          height: 44,
+        ),
       ));
       if (idx + 1 < widget.plug.icons.length && idx + 1 <= 4) {
-        bubbles.add(const Divider());
+        bubbles.add(const SizedBox(width: 20,));
       }
       idx++;
     }
@@ -75,6 +80,7 @@ class _StatePlugCard extends State<PlugCard>{
 
   @override
   Widget build(BuildContext context) {
+    final double height = MediaQuery.of(context).size.height;
     return Padding(
         padding: const EdgeInsets.all(10),
         child: GestureDetector(
@@ -87,46 +93,45 @@ class _StatePlugCard extends State<PlugCard>{
                   color: (!pressed) ? PlugItStyle.cardColor : PlugItStyle.buttonColorPressed,
                   borderRadius: BorderRadius.circular(8)
               ),
-              child: Row(
-                children: [
-                  Expanded(
-                      child: Column(
-                        children: [
-                          const SizedBox(height: 10,),
+              child: MediaQuery.removePadding(
+                  context: context,
+                  removeTop: true,
+                  child: Column(
+                    children: [
+                        const SizedBox(height: 10,),
 
-                          // Plug title
-                          Text("\"${widget.plug.name}\"", style: PlugItStyle.subtitleStyle),
-                          const SizedBox(height: 20,),
+                        // Plug title
+                        Text("\"${widget.plug.name}\"", style: PlugItStyle.subtitleStyle),
+                        // Service bubbles
+                        const SizedBox(height: 20,),
 
-
-                          // Service bubbles
-                          Row(
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: _getServiceBubbles(),
-                          ),
-                          const SizedBox(height: 20,),
+                        ),
+                        const SizedBox(height: 20,),
+                        // const SizedBox(height: 20,),
 
 
-                          // Row(Last plug activation date and Activated checkmark)
-                          Row (
-                            children: [
-                              const Text("Last activation: dd/mm/yyyy"),
-                              const SizedBox(width: 10,),
-                              Checkbox(value: widget.plug.enabled, onChanged: (value) {
-                                //TODO: disable plug
-                                setState(() {
-                                  widget.plug.enabled = value ?? false;
-                                  PlugApi.enablePlug(widget.plug.id, widget.plug.enabled);
-                                });
-                              },),
-                            ]
-                          )
-                        ],
-                      )
-                  )
-                ],
+                        // Row(Last plug activation date and Activated checkmark)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text("Last activation: dd/mm/yyyy"),
+                            //const SizedBox(height: 0,),
+                            Checkbox(value: widget.plug.enabled, onChanged: (value) {
+                              setState(() {
+                                widget.plug.enabled = value ?? false;
+                                PlugApi.enablePlug(widget.plug.id, widget.plug.enabled);
+                              });
+                            },),
+                          ]
+                        )
+                      ],
+                )
               )
+            )
           )
-        )
     );
 
   }

@@ -19,5 +19,13 @@ class PlugItStyle {
   static const inputTextStyle = TextStyle(fontStyle: FontStyle.normal, fontWeight: FontWeight.normal, color: Colors.black);
   static const titleStyle = TextStyle(fontWeight: FontWeight.bold, fontSize: 52);
   static const subtitleStyle = TextStyle(fontWeight: FontWeight.w500, fontSize: 20);
+  static const smallStyle = TextStyle(fontWeight: FontWeight.w300, fontSize: 16);
+  static const smallestStyle = TextStyle(fontWeight: FontWeight.w300, fontSize: 11);
 
+}
+
+extension StringExtension on String {
+  String capitalize() {
+    return "${this[0].toUpperCase()}${substring(1).toLowerCase()}";
+  }
 }

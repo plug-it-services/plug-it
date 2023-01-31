@@ -1,8 +1,10 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/PlugApi.dart';
 import 'package:mobile/models/service/Service.dart';
 import 'package:mobile/ui-toolkit/PlugItStyle.dart';
 import 'package:mobile/ui-toolkit/buttons/ScreenWidthButton.dart';
+import 'package:transparent_image/transparent_image.dart';
 
 
 class ServiceCard extends StatefulWidget {
@@ -31,18 +33,20 @@ class _StateServiceCard extends State<ServiceCard>{
           children: [
             Padding(
               padding: const EdgeInsets.all(20),
-              child: Image.network(
-                "${PlugApi.assetsUrl}/${widget.service.icon}",
-                  width: 100,
-                  height: 100,
+              child: CachedNetworkImage(
+                imageUrl: "${PlugApi.assetsUrl}/${widget.service.icon}",
+                placeholder: (context, url) => const CircularProgressIndicator(),
+                errorWidget: (context, url, error) => const Icon(Icons.error),
+                width: 100,
+                height: 100,
               ),
             ),
             Expanded(
                 child:Column(
                   children: [
-                    SizedBox(height: 10,),
-                    Text(widget.service.name, style: PlugItStyle.subtitleStyle),
-                    SizedBox(height: 30,),
+                    const SizedBox(height: 10,),
+                    Text(widget.service.name.capitalize(), style: PlugItStyle.subtitleStyle),
+                    const SizedBox(height: 30,),
                     widget.service.connected
                         ? ScreenWidthButton(label:"Connected", color: PlugItStyle.validationColor, pressedColor: PlugItStyle.validationColor, height: 40,)
                         : const ScreenWidthButton(label:"Connection", height: 40)
