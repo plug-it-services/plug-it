@@ -1,14 +1,18 @@
-// Trigger Card Component
-// A card with an icon and title at the top
-// another title after in middle
-// then 2 search fields with an icon before
-// and finally an accordion with a title
-
 import React from 'react';
-import { Card, CardContent, Typography, Accordion, AccordionSummary } from '@mui/material';
+
+import {
+  Select,
+  MenuItem,
+  InputLabel,
+  FormControl,
+  Card,
+  CardContent,
+  Typography,
+  Accordion,
+  AccordionSummary,
+} from '@mui/material';
 import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import SearchBar from './SearchBar';
 import InputBar from './InputBar';
 
 export interface ITriggerCardProps {
@@ -41,22 +45,23 @@ function TriggerCard({ services, actions, backgroundColor }: ITriggerCardProps) 
           <Typography color={'white'}>{'Action'}</Typography>
         </AccordionSummary>
         <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          <SearchBar
-            defaultDummyValue={'Search a service'}
-            textColor={'black'}
-            backgroundColor={'#EAF1FF'}
-            borderColor={'white'}
-            onSearch={() => {}}
-            onChange={() => {}}
-          />
-          <SearchBar
-            defaultDummyValue={'Search an action'}
-            textColor={'black'}
-            backgroundColor={'#EAF1FF'}
-            borderColor={'white'}
-            onSearch={() => {}}
-            onChange={() => {}}
-          />
+          <FormControl fullWidth>
+            <InputLabel id={'service'} style={{ color: 'white' }}>
+              {'Service'}
+            </InputLabel>
+            <Select
+              labelId={'action'}
+              id={'action'}
+              label={'Action'}
+              style={{ color: 'white', backgroundColor, borderColor: 'white' }}
+            >
+              {actions.map((action) => (
+                <MenuItem value={action} style={{ color: 'white', backgroundColor, borderColor: 'white' }}>
+                  {action}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </CardContent>
       </Accordion>
       <Accordion style={{ backgroundColor }}>
