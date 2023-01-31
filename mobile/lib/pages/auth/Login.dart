@@ -11,6 +11,7 @@ import 'package:mobile/ui-toolkit/cards/ErrorLabel.dart';
 import 'package:mobile/ui-toolkit/input/InputField.dart';
 
 import 'package:mobile/ui-toolkit/appbar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 class Login extends StatefulWidget {
@@ -33,6 +34,8 @@ class _LoginState extends State<Login> {
     "Try it, but don't get addicted !"
   ];
 
+  SharedPreferences? _prefs;
+  bool _rememberMe = false;
   String username = "";
   String password = "";
   String? mailError;
@@ -81,6 +84,7 @@ class _LoginState extends State<Login> {
       setState(() {
         error = null;
       });
+      save();
       PlugApi.login(username, password).then((value) =>
           widget.onLogged(User(id:"", email:username, username: username, token:PlugApi.token ?? ""))
       ).catchError((error) {
@@ -123,6 +127,45 @@ class _LoginState extends State<Login> {
     return [
       ErrorCard(errorMessage: error!, errorLevel: Level.error, showIcon: true, big: true),
     ];
+  }
+
+  void save() {
+    if (!_rememberMe) {
+      return;
+    }
+    if (_prefs == null) {
+      setState(() {
+        error = "Error while loading preferences!";
+      });
+      return;
+    }
+    _prefs!.setBool("RememberMe", _rememberMe);
+    _prefs!.setString("email", username);
+    _prefs!.setString("password", password);
+  }
+
+  void rememberMePressed(bool? value) {
+    setState(() {
+      _rememberMe = value ?? !_rememberMe;
+    });
+  }
+
+  void initRememberMe(SharedPreferences value) {
+    _prefs = value;
+    setState(() {
+      _rememberMe = _prefs!.getBool("RememberMe") ?? false;
+      password = _prefs!.getString("password") ?? "";
+      username = _prefs!.getString("email") ?? "";
+    });
+
+  }
+
+  @override
+  void initState() {
+    SharedPreferences.getInstance().then((value) {
+      initRememberMe(value);
+    });
+    super.initState();
   }
 
   @override
@@ -176,6 +219,12 @@ class _LoginState extends State<Login> {
                   ScreenWidthButton(label: "No account? Register!", size: 20, callback: widget.onChangeToRegisterPressed),
                   const SizedBox(height: 15),
                   GoogleAuthButton(callback: onGoogleAuth),
+                  Row(
+                    children: [
+                      const Text("Remember me:", style: PlugItStyle.smallStyle),
+                      Checkbox(value: _rememberMe, onChanged: rememberMePressed)
+                    ],
+                  )
                 ],
           )
         )

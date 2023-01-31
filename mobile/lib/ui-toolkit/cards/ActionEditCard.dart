@@ -9,6 +9,7 @@ import 'package:mobile/models/field/Field.dart';
 import 'package:mobile/ui-toolkit/PlugItStyle.dart';
 import 'package:mobile/ui-toolkit/buttons/IconButtonSwitch.dart';
 import 'package:mobile/models/Event.dart';
+import 'package:mobile/ui-toolkit/cards/CardTitle.dart';
 import 'package:mobile/ui-toolkit/cards/EventSelection.dart';
 import 'package:mobile/ui-toolkit/cards/FieldsEditor.dart';
 import 'package:mobile/ui-toolkit/input/InputField.dart';
@@ -105,6 +106,43 @@ class _StateActionEditCard extends State<ActionEditCard>{
       });
     });
   }
+  List<Widget> getBody() {
+    if (deployed) {
+      return [
+        const Divider(color: Colors.black),
+        EventSelection(
+          services: widget.services,
+          isOpen: selectEventDeployed,
+          onCardDeploy: (value) => {
+            setState(() {
+              selectEventDeployed = value;
+              editEventDeployed = !selectEventDeployed;
+            })
+          },
+          onEventSelected: onEventSelected,
+          onServiceSelected: onServiceSelected,
+          plug: widget.plug,
+          editedEvent: getEditedEvent(),
+          selectedEvent: selectedEvent,
+          selectedService: selectedService,
+          events: events,
+        ),
+        FieldsEditor(
+          services: widget.services,
+          isOpen: editEventDeployed,
+          onCardDeploy: (value) => {
+            setState(() {
+              editEventDeployed = value;
+              selectEventDeployed = !editEventDeployed;
+            })
+          },
+          selectedEvent: selectedEvent,
+          editedEvent: getEditedEvent(),
+        )
+      ];
+    }
+    return [];
+  }
 
   @override
   void initState() {
@@ -126,79 +164,21 @@ class _StateActionEditCard extends State<ActionEditCard>{
         child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             decoration: BoxDecoration(
-              //TODO: make a dominant color picker of the icon to color the container
                 color: PlugItStyle.cardColor,
                 borderRadius: BorderRadius.circular(8)
             ),
-            child: !deployed
-                ? Row(
+            child: Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(5),
-                  child:Text("${getLabel()} ${(selectedService != null) ? "- ${selectedService!.name.capitalize()}" : ""}", style: PlugItStyle.subtitleStyle)
+                CardTitle(
+                  label: "${getLabel()} ${(selectedService != null) ? "- ${selectedService!.name.capitalize()}" : ""}",
+                  state: deployed,
+                  onPressed: () => {
+                    setState(() {
+                      deployed = !deployed;
+                    })
+                  },
                 ),
-                IconButtonSwitch(
-                    falseIcon: const Icon(Icons.keyboard_arrow_down_rounded),
-                    trueIcon: const Icon(Icons.keyboard_arrow_up_rounded),
-                    state: deployed,
-                    onChange: (value) {
-                      setState(() {
-                        deployed = value;
-                      });
-                    }
-                )
-              ],
-            )
-                : Column(
-              children: [
-                Row(
-                  children: [
-                    Padding(
-                        padding: const EdgeInsets.all(5),
-                        child:Text("${getLabel()} ${(selectedService != null) ? "- ${selectedService!.name.capitalize()}" : ""}", style: PlugItStyle.subtitleStyle)
-                    ),
-                    IconButtonSwitch(
-                        falseIcon: const Icon(Icons.keyboard_arrow_down_rounded),
-                        trueIcon: const Icon(Icons.keyboard_arrow_up_rounded),
-                        state: deployed,
-                        onChange: (value) {
-                          setState(() {
-                            deployed = value;
-                          });
-                        }
-                    )
-                  ],
-                ),
-                const Divider(color: Colors.black),
-                EventSelection(
-                    services: widget.services,
-                    isOpen: selectEventDeployed,
-                    onCardDeploy: (value) => {
-                      setState(() {
-                        selectEventDeployed = value;
-                        editEventDeployed = !selectEventDeployed;
-                      })
-                    },
-                    onEventSelected: onEventSelected,
-                    onServiceSelected: onServiceSelected,
-                    plug: widget.plug,
-                    editedEvent: getEditedEvent(),
-                    selectedEvent: selectedEvent,
-                    selectedService: selectedService,
-                    events: events,
-                ),
-                FieldsEditor(
-                    services: widget.services,
-                    isOpen: editEventDeployed,
-                    onCardDeploy: (value) => {
-                      setState(() {
-                        editEventDeployed = value;
-                        selectEventDeployed = !editEventDeployed;
-                      })
-                    },
-                    selectedEvent: selectedEvent,
-                    editedEvent: getEditedEvent(),
-                )
+                ...getBody(),
               ],
             )
         )
