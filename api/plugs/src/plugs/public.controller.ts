@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -9,7 +10,7 @@ import {
   Param,
   Post,
   Put,
-  Query,
+  Query
 } from '@nestjs/common';
 import { PlugsService } from './plugs.service';
 import UserHeaderDto from '../dto/UserHeader.dto';
@@ -93,6 +94,8 @@ export class PublicController {
       throw new NotFoundException(`Plug with id ${id} does not exist`);
     if (current.owner !== user.id)
       throw new ForbiddenException('Cannot edit a plug that is not yours');
+    if (!plug.event || !plug.actions.length)
+      throw new BadRequestException('Plug must have at least one event/action');
     await this.plugsService.validateSteps(plug);
     await this.plugsService.update(id, plug);
     return { message: 'success' };
