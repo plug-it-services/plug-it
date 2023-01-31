@@ -35,9 +35,10 @@ class _ServicesState extends State<Services> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        resizeToAvoidBottomInset: true,
         body: ListView(
-          children: _getServiceCards(),
-        )
+            children: _getServiceCards(),
+          )
     );
   }
 }

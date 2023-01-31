@@ -4,6 +4,7 @@ import 'package:mobile/ui-toolkit/appbar.dart';
 import 'package:mobile/PlugApi.dart';
 import 'ui-toolkit/navbar.dart';
 import 'pages/auth/Login.dart';
+import 'pages/auth/SignUp.dart';
 
 void main() {
   PlugApi.init();
@@ -37,16 +38,47 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
+  bool loginOpen = true;
+  bool registerOpen = true;
   bool connected = false;
+
+  Widget getCurrentForm() {
+    if (loginOpen) {
+      return Login(
+        onLogged: (user) {
+          setState(() {
+            connected = true;
+          });
+        },
+        onChangeToRegisterPressed: () {
+          setState(() {
+            loginOpen = false;
+            registerOpen = true;
+          });
+        },
+      );
+    }
+    else {
+      return Signup(
+        onSignedUp: (user) {
+          setState(() {
+            loginOpen = true;
+            registerOpen = false;
+          });
+        },
+        onChangeToLoginPressed: () {
+          setState(() {
+            loginOpen = true;
+            registerOpen = false;
+          });
+        },
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return (connected) ?
-    const NavBar() : Login(onLogged: (user) {
-      setState(() {
-        connected = true;
-      });
-    },);
+    const NavBar() : getCurrentForm();
   }
 }

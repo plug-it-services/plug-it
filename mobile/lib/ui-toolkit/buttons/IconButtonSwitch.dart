@@ -25,18 +25,30 @@ class _StateIconButtonSwitch extends State<IconButtonSwitch>{
     setState(() {
       changed = true;
       state = !state;
-      widget.onChange!(state);
     });
+  }
+
+  void onEnd() {
+    if (!changed) {
+      return;
+    }
+    changed = false;
+    widget.onChange!(state);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    state = widget.state;
+
   }
 
   @override
   Widget build(BuildContext context) {
-    if (!changed) {
-      state = widget.state;
-    }
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
+        onEnd: onEnd,
         duration: const Duration(milliseconds: 200),
         child: state ? widget.trueIcon : widget.falseIcon
       )

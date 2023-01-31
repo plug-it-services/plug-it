@@ -1,11 +1,13 @@
 import 'dart:math';
 
+
 import 'package:flutter/material.dart';
 import 'package:mobile/PlugApi.dart';
 import 'package:mobile/models/User.dart';
 import 'package:mobile/ui-toolkit/PlugItStyle.dart';
 import 'package:mobile/ui-toolkit/buttons/GoogleAuthButton.dart';
 import 'package:mobile/ui-toolkit/buttons/ScreenWidthButton.dart';
+import 'package:mobile/ui-toolkit/cards/ErrorLabel.dart';
 import 'package:mobile/ui-toolkit/input/InputField.dart';
 
 import 'package:mobile/ui-toolkit/appbar.dart';
@@ -13,7 +15,8 @@ import 'package:mobile/ui-toolkit/appbar.dart';
 
 class Login extends StatefulWidget {
   final void Function(User) onLogged;
-  const Login({super.key, required this.onLogged});
+  final void Function() onChangeToRegisterPressed;
+  const Login({super.key, required this.onLogged, required this.onChangeToRegisterPressed});
 
 
   @override
@@ -32,52 +35,146 @@ class _LoginState extends State<Login> {
 
   String username = "";
   String password = "";
+  String? mailError;
+  String? passwordError;
+  String? error;
+  RegExp emailRegExp = RegExp(
+    r'^[a-zA-Z\d.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z\d-]+(?:\.[a-zA-Z\d-]+)*$',
+  );
+
+  void checkEmail() {
+    if (username.isEmpty) {
+      setState(() {
+        mailError = "Missing email!";
+      });
+      return;
+    }
+    if (!emailRegExp.hasMatch(username)) {
+      setState(() {
+        mailError = "Must be a valid email!";
+      });
+      return;
+    }
+    if (mailError != null) {
+      setState(() {
+        mailError = null;
+      });
+    }
+  }
+  void checkPassword() {
+    if (password.isEmpty) {
+      setState(() {
+        passwordError = "Missing password!";
+      });
+      return;
+    }
+    if (passwordError != null) {
+      setState(() {
+        passwordError = null;
+      });
+    }
+  }
 
   void onSign() {
-    PlugApi.login(username, password).then((value) =>
-        widget.onLogged(User(id:"", email:username, username: username, token:PlugApi.token ?? ""))
-    );
+      checkEmail();
+      checkPassword();
+      setState(() {
+        error = null;
+      });
+      PlugApi.login(username, password).then((value) =>
+          widget.onLogged(User(id:"", email:username, username: username, token:PlugApi.token ?? ""))
+      ).catchError((error) {
+        setState(() {
+          this.error = error.response.data['message'];
+        });
+      });
   }
 
   void onGoogleAuth() {
     widget.onLogged(User(id:"1", email:"jean.michel@plug-it.com", username: "Jean Michel Plug It", token:"123456789ABCDEFG"));
   }
 
+  List<Widget> getMailError() {
+    if (mailError == null) {
+      return [];
+    }
+    return [
+      ErrorCard(errorMessage: mailError!, errorLevel: Level.warning, showIcon: true,),
+      const SizedBox(height: 5,)
+    ];
+  }
+
+  List<Widget> getPasswordError() {
+    if (passwordError == null) {
+      return [];
+    }
+    return [
+      ErrorCard(errorMessage: passwordError!, errorLevel: Level.warning, showIcon: true,),
+      const SizedBox(height: 5,)
+    ];
+  }
+
+  List<Widget> getSignError() {
+    if (error == null) {
+      return [
+        Text(welcomeTexts[Random().nextInt(welcomeTexts.length)], style: PlugItStyle.subtitleStyle,),
+      ];
+    }
+    return [
+      ErrorCard(errorMessage: error!, errorLevel: Level.error, showIcon: true, big: true),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
-    return
-    Scaffold(
+    return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: MyAppBar(),
-      body: SafeArea(
-          child: Center(
+      body: SingleChildScrollView(
+      child: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   const SizedBox(height: 80),
-                  const Text("Welcome !", style: PlugItStyle.titleStyle,),
+                  const Text("Welcome back!", style: PlugItStyle.titleStyle,),
                   const SizedBox(height: 8),
-                  Text(welcomeTexts[Random().nextInt(welcomeTexts.length)], style: PlugItStyle.subtitleStyle,),
+                  ...getSignError(),
+                  //Text(welcomeTexts[Random().nextInt(welcomeTexts.length)], style: PlugItStyle.subtitleStyle,),
 
                   const SizedBox(height: 25),
 
                   // LOGIN INPUT
-                  InputField(hint: "Email or Username", onChanged: (value) => {
-                    username = value
-                  }, iconColor: Colors.black, icon: const Icon(Icons.account_circle)),
+                  ...getMailError(),
+                  InputField(
+                      hint: "Email or Username",
+                      onChanged: (value) => {username = value},
+                      onExitFocus: () => checkEmail(),
+                      iconColor: Colors.black,
+                      icon: const Icon(Icons.account_circle),
+                      value:username,
+                  ),
 
                   const SizedBox(height: 25),
 
                   // PASSWORD INPUT
-                  InputField(hint: "Password", obscured: true, onChanged: (value) => {
-                    password = value
-                  }, iconColor: Colors.black, icon: const Icon(Icons.lock)),
+                  ...getPasswordError(),
+                  InputField(
+                      hint: "Password",
+                      obscured: true,
+                      onChanged: (value) => password = value,
+                      onExitFocus: () => checkPassword(),
+                      iconColor: Colors.black,
+                      icon: const Icon(Icons.lock),
+                      value: password
+                  ),
 
                   const SizedBox(height: 25),
 
                   //Sign in button
                   ScreenWidthButton(label: "Sign In", size: 20, callback: onSign),
-                  const SizedBox(height: 25),
+                  const SizedBox(height: 15),
+                  ScreenWidthButton(label: "No account? Register!", size: 20, callback: widget.onChangeToRegisterPressed),
+                  const SizedBox(height: 15),
                   GoogleAuthButton(callback: onGoogleAuth),
                 ],
           )

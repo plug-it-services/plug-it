@@ -193,7 +193,7 @@ class PlugApi {
   }
 
   static Future<bool> register(String firstName, String lastName, String email, String password) async {
-    Response result = await dio.post("$apiUrl/auth/login", data:{"firstName":firstName, "lastName":lastName, "email": email, "password": password}, options: getHeaders());
+    Response result = await dio.post("$apiUrl/auth/signUp", data:{"firstname":firstName, "lastname":lastName, "email": email, "password": password}, options: getHeaders());
     return handleResponseCheck(result);
   }
 

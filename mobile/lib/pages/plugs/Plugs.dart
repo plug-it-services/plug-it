@@ -178,8 +178,9 @@ class _PlugsState extends State<Plugs> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        resizeToAvoidBottomInset: true,
         body: ListView(
-          children: (editing || creating) ? _getPlugEdit() : _getPlugCards(),
+              children: (editing || creating) ? _getPlugEdit() : _getPlugCards(),
         )
     );
   }

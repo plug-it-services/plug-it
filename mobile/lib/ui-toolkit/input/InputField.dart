@@ -9,6 +9,7 @@ class InputField extends StatefulWidget {
   final Icon? icon;
   final Color? iconColor;
   final void Function(String)? onChanged;
+  final void Function()? onExitFocus;
   final TextStyle? hintStyle;
   final TextStyle? valueStyle;
 
@@ -16,6 +17,7 @@ class InputField extends StatefulWidget {
     required this.hint,
     this.obscured = false,
     this.onChanged,
+    this.onExitFocus,
     this.icon,
     this.iconColor,
     this.value,
@@ -40,10 +42,11 @@ class _InputFieldState extends State<InputField> {
                 ),
                 child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: TextField(
+                    child: TextFormField(
                       controller: TextEditingController(text:widget.value),
                       style: widget.valueStyle ?? PlugItStyle.inputTextStyle,
                       onChanged: widget.onChanged,
+                      onEditingComplete: widget.onExitFocus,
                       obscureText: widget.obscured,
                       decoration: InputDecoration(
                           icon: widget.icon,

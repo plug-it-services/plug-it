@@ -25,10 +25,12 @@ class _StateScreenWidthButton extends State<ScreenWidthButton>{
   }
 
   void onEnd() {
-    setState(() {
-      pressed = false;
-      widget.callback!();
-    });
+    if (pressed == true) {
+      setState(() {
+          widget.callback!();
+          pressed = false;
+      });
+    }
   }
 
   @override
