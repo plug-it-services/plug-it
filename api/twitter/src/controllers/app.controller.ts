@@ -19,11 +19,11 @@ export class AppController {
   }
 
   @Post('oauth2')
-  async getAuthUrl(@Response() res, @Headers('user') userHeader: string) {
+  async getAuthUrl(@Headers('user') userHeader: string) {
     const user: UserHeaderDto = JSON.parse(userHeader);
     const url = await this.twitterAuthService.getAuthUrl(user.id);
 
-    res.redirect(url);
+    return { url };
   }
 
   @Post('disconnect')
