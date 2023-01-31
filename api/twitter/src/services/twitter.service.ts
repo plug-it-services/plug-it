@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { TwitterAuthService } from './twitterAuth.service';
 import axios from 'axios';
 
@@ -41,7 +40,7 @@ export class TwitterService {
     const url = 'https://api.twitter.com/2/tweets';
 
     try {
-      const response = await axios.post(
+      await axios.post(
         url,
         { text: tweet },
         {

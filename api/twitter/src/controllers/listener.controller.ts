@@ -24,7 +24,7 @@ export class ListenerController {
     queue: 'plug_action_twitter_triggers',
   })
   async triggerAction(msg: any) {
-    const { actionId, userId, serviceId, plugId } = msg;
+    const { actionId, userId } = msg;
     if (actionId === 'tweet') {
       const text = msg.fields.find((field: any) => field.key === 'body').value;
       await this.twitterService.postTweet(userId, text);

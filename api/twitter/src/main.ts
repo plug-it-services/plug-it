@@ -3,15 +3,18 @@ import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
 import { twitter } from './config/twitter';
-import axios from "axios";
+import axios from 'axios';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
-  const logger = new Logger('Main');
 
   app.enableCors({
-    origin: ["http://localhost:3000", "http://localhost:3001", configService.get<string>('CORS_ORIGIN')],
+    origin: [
+      'http://localhost:3000',
+      'http://localhost:3001',
+      configService.get<string>('CORS_ORIGIN'),
+    ],
     credentials: true,
   });
 

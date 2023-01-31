@@ -1,4 +1,4 @@
-import { Entity, Column, Index, PrimaryColumn, CreateDateColumn } from "typeorm";
+import { Entity, Column, Index, PrimaryColumn } from 'typeorm';
 
 @Entity()
 export class TwitterAuthEntity {
@@ -13,6 +13,9 @@ export class TwitterAuthEntity {
 
   @Column({ type: 'bigint', nullable: true })
   expiresAt: number;
+
+  @Column()
+  redirectUrl: string;
 
   @Column()
   codeChallenge: string;

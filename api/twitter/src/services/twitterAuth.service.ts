@@ -24,14 +24,31 @@ export class TwitterAuthService {
     this.callbackUrl = this.configService.getOrThrow<string>('OAUTH2_CALLBACK');
   }
 
-  private async saveState(userId: number, codeChallenge: string) {
+  private async saveState(
+    userId: number,
+    redirectUrl: string,
+    codeChallenge: string,
+  ) {
     const state = uuidv4();
+    const exists = await this.twitterAuthRepository.findOneBy({ userId });
 
-    await this.twitterAuthRepository.save({
-      id: state,
-      userId,
-      codeChallenge,
-    });
+    if (exists) {
+      await this.twitterAuthRepository.update(
+        { userId },
+        {
+          id: state,
+          redirectUrl,
+          codeChallenge,
+        },
+      );
+    } else {
+      await this.twitterAuthRepository.save({
+        id: state,
+        userId,
+        redirectUrl,
+        codeChallenge,
+      });
+    }
     return state;
   }
 
@@ -51,7 +68,10 @@ export class TwitterAuthService {
       .replace(/=/g, '');
   }
 
-  private async buildUrl(state: string, codeVerifier: string) {
+  private async buildUrl(
+    state: string,
+    codeVerifier: string,
+  ) {
     const codeChallenge = this.base64URLEncode(this.sha256(codeVerifier));
     const url = new URL('https://twitter.com/i/oauth2/authorize');
 
@@ -68,9 +88,9 @@ export class TwitterAuthService {
     return url.toString();
   }
 
-  async getAuthUrl(userId: number) {
+  async getAuthUrl(userId: number, redirectUrl: string) {
     const codeVerifier = this.base64URLEncode(crypto.randomBytes(32));
-    const state = await this.saveState(userId, codeVerifier);
+    const state = await this.saveState(userId, redirectUrl, codeVerifier);
     return this.buildUrl(state, codeVerifier);
   }
 
@@ -114,7 +134,7 @@ export class TwitterAuthService {
           expiresAt: Date.now() + response.data.expires_in * 1000,
         },
       );
-      return auth.userId;
+      return { userId: auth.userId, redirectUrl: auth.redirectUrl };
     } catch (e) {
       console.error(e);
     }
@@ -170,9 +190,9 @@ export class TwitterAuthService {
       'client_id',
       this.configService.getOrThrow<string>('CLIENT_ID'),
     );
-    url.searchParams.append("token_type_hint", "access_token");
+    url.searchParams.append('token_type_hint', 'access_token');
     try {
-      const response = await axios.post(
+      await axios.post(
         url.toString(),
         {},
         {
