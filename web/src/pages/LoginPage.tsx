@@ -98,7 +98,10 @@ const LoginPage = () => {
                   setMessage(err.response.data.message);
                 }
                 setOpen(true);
+                return;
               }
+              window.location.href = '/services';
+
             }}
             onError={() => {
               setError('Unauthorized');
