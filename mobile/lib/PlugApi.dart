@@ -26,7 +26,7 @@ class PlugApi {
   static const String devApiUrl = "https://api-area-dev.alexandrejublot.com";
   static const String prodApiUrl = "https://api-area.alexandrejublot.com";
   static const String apiUrl = (kReleaseMode) ? devApiUrl : devApiUrl;
-  static const String assetsUrl = (kReleaseMode) ? "https://area.alexandrejublot.com" : "https://area-dev.alexandrejublot.com";
+  static const String assetsUrl = (kReleaseMode) ? "https://area-dev.alexandrejublot.com" : "https://area-dev.alexandrejublot.com";
   static var error;
   static var cookies = CookieJar();
   static var dio = Dio();
@@ -101,7 +101,7 @@ class PlugApi {
   }
 
   static Future OAuth2(String serviceName) async {
-    Response result = await dio.post("$apiUrl/service/$serviceName/oauth2", data: {'redirectUrl': 'plugit'}, options: getHeaders());
+    Response result = await dio.post("$apiUrl/service/$serviceName/oauth2", data: {'redirectUrl': 'area.plug-it.app://oauth2redirect'}, options: getHeaders());
     String authUrl = result.data['url'] ?? "";
     if (await canLaunch(authUrl)) {
       return launch(authUrl, forceWebView: true, enableJavaScript: true, enableDomStorage: true);
