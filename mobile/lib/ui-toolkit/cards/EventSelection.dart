@@ -2,7 +2,7 @@ import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/PlugApi.dart';
 
-import 'package:mobile/models/Plug/Plug.dart';
+import 'package:mobile/models/plug/Plug.dart';
 import 'package:mobile/models/plug/PlugDetails.dart';
 import 'package:mobile/models/plug/PlugEvent.dart';
 import 'package:mobile/models/service/Service.dart';
