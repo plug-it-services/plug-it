@@ -101,10 +101,10 @@ class PlugApi {
   }
 
   static Future OAuth2(String serviceName) async {
-    Response result = await dio.post("$apiUrl/service/$serviceName/oauth2", data: {'redirectUrl': 'area.plug-it.app://oauth2redirect'}, options: getHeaders());
+    Response result = await dio.post("$apiUrl/service/$serviceName/oauth2", data: {'redirectUrl': 'area.plug-it.app:/oauth2redirect'}, options: getHeaders());
     String authUrl = result.data['url'] ?? "";
     if (await canLaunch(authUrl)) {
-      return launch(authUrl, forceWebView: true, enableJavaScript: true, enableDomStorage: true);
+      return launch(authUrl, forceWebView: false, enableJavaScript: true, enableDomStorage: true);
     }
   }
 
