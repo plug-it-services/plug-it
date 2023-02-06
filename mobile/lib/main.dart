@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:mobile/ui-toolkit/appbar.dart';
 import 'package:mobile/PlugApi.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'ui-toolkit/navbar.dart';
 import 'pages/auth/Login.dart';
 import 'pages/auth/SignUp.dart';
@@ -23,11 +24,23 @@ class MyApp extends StatefulWidget {
 
 class StateMyApp extends State<MyApp> {
   int index = 0;
+  SharedPreferences? _prefs;
   final List<ThemeMode> modes = [
     ThemeMode.dark,
     ThemeMode.light,
     ThemeMode.system,
   ];
+
+  @override
+  void initState() {
+    SharedPreferences.getInstance().then((value) {
+      setState(() {
+        _prefs = value;
+        index = _prefs!.getInt('theme') ?? 0;
+      });
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +53,10 @@ class StateMyApp extends State<MyApp> {
       ),
       home: MyHomePage(
           title: 'Plug It',
-          onThemeSelected: (int newIndex) => setState(() => {index = newIndex}),
+          onThemeSelected: (int newIndex) => setState(() {
+            index = newIndex;
+            _prefs?.setInt('theme', index);
+          }),
           themes: modes,
           actualTheme: index
       ),
