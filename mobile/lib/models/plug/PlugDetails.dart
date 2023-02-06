@@ -17,4 +17,16 @@ class PlugDetails {
 
   Json toJson() => _$PlugDetailsToJson(this);
 
+
+  bool containsFilter(String filter) {
+    if (event != null && event!.serviceName.toLowerCase().contains(filter)) {
+      return true;
+    }
+    for (var action in actions) {
+      if (action.serviceName.toLowerCase().contains(filter)) {
+        return true;
+      }
+    }
+    return false;
+  }
 }

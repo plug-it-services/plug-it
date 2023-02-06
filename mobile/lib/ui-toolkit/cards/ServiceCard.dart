@@ -9,9 +9,8 @@ import 'package:transparent_image/transparent_image.dart';
 
 class ServiceCard extends StatefulWidget {
   final Service service;
-  final void Function()? onChangeState;
 
-  const ServiceCard({super.key, required this.service, this.onChangeState});
+  const ServiceCard({super.key, required this.service});
 
   @override
   State createState() => _StateServiceCard();
