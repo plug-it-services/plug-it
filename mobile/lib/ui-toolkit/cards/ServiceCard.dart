@@ -4,6 +4,7 @@ import 'package:mobile/PlugApi.dart';
 import 'package:mobile/models/service/Service.dart';
 import 'package:mobile/ui-toolkit/PlugItStyle.dart';
 import 'package:mobile/ui-toolkit/buttons/ScreenWidthButton.dart';
+import 'package:mobile/ui-toolkit/input/InputField.dart';
 import 'package:transparent_image/transparent_image.dart';
 
 
@@ -19,6 +20,11 @@ class _StateServiceCard extends State<ServiceCard>{
   bool pressed = false;
   bool connected = false;
   bool loading = false;
+  bool apiKeyInput = false;
+  bool apiCredentialsInput = false;
+  String apiKeyValue = "";
+  String apiCredentialsId = "";
+  String apiCredentialsSecret = "";
 
   void setLoading(bool state) {
     setState(() {
@@ -36,29 +42,21 @@ class _StateServiceCard extends State<ServiceCard>{
       });
     }
     if (widget.service.authType == 'apiKey') {
-      //TODO: need to input api key
-      setLoading(true);
-      PlugApi.OAuthApiKey(widget.service.name, '').then((value) {
-      Future.delayed(const Duration(seconds: 2)).then((value) {
-          setState(() => {connected = true});
-          setLoading(false);
-        });
+      setState(() {
+        apiKeyInput = true;
       });
+      setLoading(true);
+
     }
     if (widget.service.authType == 'clientSecrets') {
-      //TODO: need to input credentials
-      setLoading(true);
-      PlugApi.OAuthCredentials(widget.service.name, '', '').then((value) {
-      Future.delayed(const Duration(seconds: 2)).then((value) {
-          setState(() => {connected = true});
-          setLoading(false);
-        });
+      setState(() {
+        apiCredentialsInput = true;
       });
+      setLoading(true);
     }
   }
 
   void disconnectService() {
-    print('Disconnect pressed');
     setLoading(true);
     PlugApi.disconnectService(widget.service.name).then((value) {
     Future.delayed(const Duration(seconds: 2)).then((value) {
@@ -68,10 +66,32 @@ class _StateServiceCard extends State<ServiceCard>{
     });
   }
 
+  void onConfirm() {
+    if (apiCredentialsInput) {
+      PlugApi.OAuthCredentials(widget.service.name, apiCredentialsId, apiCredentialsSecret).then((value) {
+        Future.delayed(const Duration(seconds: 2)).then((value) {
+          setState(() => {connected = true});
+          setState(() => {apiCredentialsInput = false});
+          setLoading(false);
+        });
+      });
+    } else {
+      PlugApi.OAuthApiKey(widget.service.name, apiKeyValue).then((value) {
+        Future.delayed(const Duration(seconds: 2)).then((value) {
+          setState(() => {connected = true});
+          setState(() => {apiKeyInput = false});
+          setLoading(false);
+        });
+      });
+    }
+  }
+
   @override
   void initState() {
+    setState(() => {
+      connected = widget.service.connected
+    });
     super.initState();
-    connected = widget.service.connected;
   }
 
   @override
@@ -102,19 +122,35 @@ class _StateServiceCard extends State<ServiceCard>{
                     const SizedBox(height: 10,),
                     Text(widget.service.name.capitalize(), style: PlugItStyle.subtitleStyle),
                     const SizedBox(height: 30,),
-                      Row(
-                        children: [
-                          (loading) ? const CircularProgressIndicator(color:Colors.black) : const SizedBox(height: 0,),
-                          Expanded(child:ScreenWidthButton(
+                    (apiKeyInput) ? InputField(hint: "Enter Api Key", onChanged: (value) => {
+                      apiKeyValue = value
+                    }, icon: const Icon(Icons.key),) : const SizedBox(height: 0,),
+                    (apiCredentialsInput) ? InputField(hint: "Enter Client Id", onChanged: (value) => {
+                      apiCredentialsId = value
+                    }, icon: const Icon(Icons.perm_identity),) : const SizedBox(height: 0,),
+                    (apiCredentialsInput) ? const SizedBox(height: 5,) : const SizedBox(height: 0,),
+                    (apiCredentialsInput) ? InputField(hint: "Enter Client Secret", onChanged: (value) => {
+                      apiCredentialsSecret = value
+                    }, icon: const Icon(Icons.password),) : const SizedBox(height: 0,),
+                    (apiKeyInput || apiCredentialsInput) ? const SizedBox(height: 5,) : const SizedBox(height: 0,),
+                    (apiKeyInput || apiCredentialsInput) ? ScreenWidthButton(label: "Confirm", height: 40, callback: onConfirm,) : const SizedBox(height: 0,),
+                    (apiKeyInput || apiCredentialsInput) ? const SizedBox(height: 10,) : const SizedBox(height: 0,),
+
+                    Row(
+                      children: [
+                        (loading) ? const CircularProgressIndicator(color:Colors.black) : const SizedBox(height: 0,),
+                        Expanded(
+                            child: ScreenWidthButton(
                               label: (connected) ? "Connected" : "Connection",
                               color: (connected) ? PlugItStyle.validationColor : null,
                               pressedColor: (connected) ? PlugItStyle.validationColor!.withAlpha(200) : null,
                               height: 40,
                               enabled: !loading,
                               callback: () => (connected) ? disconnectService() : handleOAuth2(),
-                          ))
-                        ]
-                      )
+                            )
+                        )
+                      ]
+                    )
                   ],
               )
             )
