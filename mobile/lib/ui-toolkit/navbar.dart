@@ -13,8 +13,11 @@ import 'package:mobile/pages/services/Services.dart';
 class NavBar extends StatefulWidget
 {
   final void Function() onLogOut;
+  final void Function(int index) onThemeSelected;
+  final List<ThemeMode> themes;
+  final int actualTheme;
 
-  const NavBar({Key? key, required this.onLogOut}) : super(key: key);
+  const NavBar({Key? key, required this.onLogOut, required this.onThemeSelected, required this.themes, required this.actualTheme}) : super(key: key);
 
   @override
   State<NavBar> createState() => _NavBarState();
@@ -39,7 +42,7 @@ class _NavBarState extends State<NavBar> {
       const Services(),
       Plugs(),
       Home(),
-      Settings(onLogOut: widget.onLogOut),
+      Settings(onLogOut: widget.onLogOut, onThemeSelected: widget.onThemeSelected, themes: widget.themes, actualTheme: widget.actualTheme,),
     ];
     return Scaffold(
           appBar: MyAppBar(pageTitle:headTitles[index]),
