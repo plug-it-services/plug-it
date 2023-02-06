@@ -8,7 +8,7 @@ export interface IHeaderProps {
   area: string;
 }
 
-function Header({ title, area }: IHeaderProps) {
+function Header({ title }: IHeaderProps) {
   // AppBar with a title at the left and a button at the right
   return (
     <AppBar position="static" style={{ backgroundColor: '#EAF1FF' }}>

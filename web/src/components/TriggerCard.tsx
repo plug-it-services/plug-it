@@ -74,6 +74,66 @@ function TriggerCard({ selected, onSelectedChange, backgroundColor }: ITriggerCa
     onSelectedChange(selected);
   }
 
+  function getActionServices() {
+    return (
+      <FormControl fullWidth>
+        <InputLabel id={'service'} style={{ color: 'white' }}>
+          {'Service'}
+        </InputLabel>
+        <Select
+          labelId={'service'}
+          id={'service'}
+          label={'Service'}
+          style={{ color: 'white', backgroundColor, borderColor: 'white' }}
+          value={selected.serviceName}
+          onChange={(elem) => onServiceSelected(elem.target.value as string)}
+        >
+          {servicesPreviews.map((service) => (
+            <MenuItem
+              value={service.name}
+              style={{ color: 'white', backgroundColor, borderColor: 'white' }}
+              key={service.name}
+            >
+              {service.name}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+    );
+  }
+
+  function getReactionsOptions() {
+    return (
+      <>
+        {selected.serviceName !== '' && (
+          <FormControl fullWidth>
+            <InputLabel id={selected.type === TriggerCardType.ACTION ? 'Action' : 'Event'} style={{ color: 'white' }}>
+              {selected.type === TriggerCardType.ACTION ? 'Action' : 'Event'}
+            </InputLabel>
+            <Select
+              labelId={'step'}
+              id={'step'}
+              label={'step'}
+              style={{ color: 'white', backgroundColor, borderColor: 'white' }}
+              value={selected.stepId}
+              onChange={(elem) => onStepSelected(elem.target.value as string)}
+            >
+              {steps.map((elem) => (
+                <MenuItem
+                  value={elem.id}
+                  style={{ color: 'white', backgroundColor, borderColor: 'white' }}
+                  key={elem.id}
+                >
+                  {elem.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        )}
+      </>
+    );
+  }
+
   async function onFieldChange(key: string, value: string) {
     // eslint-disable-next-line no-param-reassign
     selected.fields = selected.fields.map((field) => ({
@@ -112,59 +172,8 @@ function TriggerCard({ selected, onSelectedChange, backgroundColor }: ITriggerCa
           <Typography color={'white'}>{'Action'}</Typography>
         </AccordionSummary>
         <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          <>
-            <FormControl fullWidth>
-              <InputLabel id={'service'} style={{ color: 'white' }}>
-                {'Service'}
-              </InputLabel>
-              <Select
-                labelId={'service'}
-                id={'service'}
-                label={'Service'}
-                style={{ color: 'white', backgroundColor, borderColor: 'white' }}
-                value={selected.serviceName}
-                onChange={(elem) => onServiceSelected(elem.target.value as string)}
-              >
-                {servicesPreviews.map((service) => (
-                  <MenuItem
-                    value={service.name}
-                    style={{ color: 'white', backgroundColor, borderColor: 'white' }}
-                    key={service.name}
-                  >
-                    {service.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            {selected.serviceName !== '' && (
-              <FormControl fullWidth>
-                <InputLabel
-                  id={selected.type === TriggerCardType.ACTION ? 'Action' : 'Event'}
-                  style={{ color: 'white' }}
-                >
-                  {selected.type === TriggerCardType.ACTION ? 'Action' : 'Event'}
-                </InputLabel>
-                <Select
-                  labelId={'step'}
-                  id={'step'}
-                  label={'step'}
-                  style={{ color: 'white', backgroundColor, borderColor: 'white' }}
-                  value={selected.stepId}
-                  onChange={(elem) => onStepSelected(elem.target.value as string)}
-                >
-                  {steps.map((elem) => (
-                    <MenuItem
-                      value={elem.id}
-                      style={{ color: 'white', backgroundColor, borderColor: 'white' }}
-                      key={elem.id}
-                    >
-                      {elem.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            )}
-          </>
+          {getActionServices()}
+          {getReactionsOptions()}
         </CardContent>
       </Accordion>
       <Accordion style={{ backgroundColor }}>
