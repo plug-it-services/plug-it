@@ -47,6 +47,7 @@ export class PublicController {
     const user: UserHeaderDto = JSON.parse(userDto);
 
     await this.plugsService.validateSteps(plug);
+    await this.plugsService.verifyServicesConnected(user.id, plug);
     const created = await this.plugsService.create(user.id, plug);
     await this.eventConnectorService.emitEventInitialize(
       created.event.serviceName,
@@ -97,6 +98,7 @@ export class PublicController {
     if (!plug.event || !plug.actions.length)
       throw new BadRequestException('Plug must have at least one event/action');
     await this.plugsService.validateSteps(plug);
+    await this.plugsService.verifyServicesConnected(user.id, plug);
     await this.plugsService.update(id, plug);
     return { message: 'success' };
   }
