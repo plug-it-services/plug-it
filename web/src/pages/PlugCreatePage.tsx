@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Typography } from '@mui/material';
 import Header from '../components/Header';
-import UltraGenericTriggerCard, { StepInfo, TriggerCardType } from '../components/UltraGenericTriggerCard';
+import TriggerCard, { StepInfo, TriggerCardType } from '../components/TriggerCard';
 import Button from '../components/Button';
 import { PlugDetail, postPlug, ServiceAction, ServiceEvent } from '../utils/api';
 import InputBar from '../components/InputBar';
@@ -11,7 +11,7 @@ type ServiceDetail = {
   actions: ServiceAction[] | null;
 };
 
-const AreaUltraGenericCreatePage = () => {
+const PlugCreatePage = () => {
   const [selections, setSelections] = useState<StepInfo[]>([
     { serviceName: '', stepId: '', type: TriggerCardType.EVENT, fields: [] },
     { serviceName: '', stepId: '', type: TriggerCardType.ACTION, fields: [] },
@@ -40,7 +40,7 @@ const AreaUltraGenericCreatePage = () => {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginTop: 30 }}>
         {selections.map((selection, selectionIdx) => (
           <>
-            <UltraGenericTriggerCard
+            <TriggerCard
               key={selectionIdx}
               selected={selection}
               onSelectedChange={(selected: StepInfo) => {
@@ -101,4 +101,4 @@ const AreaUltraGenericCreatePage = () => {
   );
 };
 
-export default AreaUltraGenericCreatePage;
+export default PlugCreatePage;
