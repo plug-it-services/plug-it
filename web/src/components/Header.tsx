@@ -1,5 +1,5 @@
 import React from 'react';
-import { AppBar, Typography } from '@mui/material';
+import {AppBar, Link, Typography} from '@mui/material';
 import Button from './Button';
 import AccountTile from './AccountTile';
 
@@ -19,7 +19,7 @@ function Header({ title, area }: IHeaderProps) {
           color={'primary'}
           style={{ marginLeft: '20px', display: 'flex', alignItems: 'center' }}
         >
-          {title}
+          <Link href="/">{title}</Link>
         </Typography>
         <div style={{ marginRight: '20px', display: 'flex', alignItems: 'center', gap: '20px' }}>
           <Button

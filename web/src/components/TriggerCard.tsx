@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import {
   Select,
@@ -14,33 +14,82 @@ import {
 import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import InputBar from './InputBar';
-import { getServiceEvents, Service, ServiceEvent, ServiceAction } from '../utils/api';
+import {
+  Service,
+  ServiceEvent,
+  ServiceAction,
+  FieldValue,
+  getServices,
+  getServiceEvents,
+  getServiceActions,
+} from '../utils/api';
+
+export enum TriggerCardType {
+  EVENT,
+  ACTION,
+}
+
+export type StepInfo = {
+  type: TriggerCardType;
+  serviceName: string;
+  stepId: string;
+  fields: FieldValue[];
+};
 
 export interface ITriggerCardProps {
-  services: Service[];
-  actions: ServiceAction[];
-  selectedService: Service | null;
-  selectedEvent: ServiceEvent | null;
-  selectedAction: ServiceAction | null;
-  onServiceSelected: (service: Service) => void;
-  onEventSelected: (event: ServiceEvent) => void;
-  onActionSelected: (action: ServiceAction) => void;
-  events: ServiceEvent[];
+  selected: StepInfo;
+  onSelectedChange: (infos: StepInfo) => void;
   backgroundColor: string;
 }
 
-function TriggerCard({
-  services,
-  selectedService,
-  selectedEvent,
-  onServiceSelected,
-  onEventSelected,
-  events,
-  backgroundColor,
-  selectedAction,
-  onActionSelected,
-  actions,
-}: ITriggerCardProps) {
+function TriggerCard({ selected, onSelectedChange, backgroundColor }: ITriggerCardProps) {
+  const [servicesPreviews, setServicesPreviews] = useState<Service[]>([]);
+  const [steps, setSteps] = useState<ServiceAction[] | ServiceEvent[]>([]);
+  const [step, setStep] = useState<ServiceAction | ServiceEvent | null>();
+
+  async function onServiceSelected(serviceName: string) {
+    const service = servicesPreviews.find((el) => el.name === serviceName);
+
+    if (!service) return;
+    if (selected.type === TriggerCardType.EVENT) setSteps(await getServiceEvents(serviceName));
+    else setSteps(await getServiceActions(serviceName));
+    // eslint-disable-next-line no-param-reassign
+    selected.serviceName = serviceName;
+    onSelectedChange(selected);
+  }
+
+  async function onStepSelected(stepId: string) {
+    console.log(stepId);
+    const found = steps.find((el) => el.id === stepId);
+
+    if (!found) return;
+    // eslint-disable-next-line no-param-reassign
+    selected.stepId = stepId;
+    // eslint-disable-next-line no-param-reassign
+    selected.fields = found.fields.map((field) => ({
+      key: field.key,
+      value: '',
+    }));
+    setStep(found);
+    onSelectedChange(selected);
+  }
+
+  async function onFieldChange(key: string, value: string) {
+    // eslint-disable-next-line no-param-reassign
+    selected.fields = selected.fields.map((field) => ({
+      key: field.key,
+      value: field.key === key ? value : field.value,
+    }));
+    onSelectedChange(selected);
+  }
+
+  useEffect(() => {
+    async function fetchServicesPreviews() {
+      setServicesPreviews(await getServices());
+    }
+    fetchServicesPreviews();
+  }, []);
+
   return (
     <Card
       sx={{
@@ -63,82 +112,59 @@ function TriggerCard({
           <Typography color={'white'}>{'Action'}</Typography>
         </AccordionSummary>
         <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          <FormControl fullWidth>
-            <InputLabel id={'service'} style={{ color: 'white' }}>
-              {'Service'}
-            </InputLabel>
-            <Select
-              labelId={'service'}
-              id={'service'}
-              label={'Service'}
-              style={{ color: 'white', backgroundColor, borderColor: 'white' }}
-              onChange={(selected) => {
-                const service = services.find((el) => el.name === selected.target.value);
-                if (service) onServiceSelected(service);
-              }}
-            >
-              {services.map((service) => (
-                <MenuItem
-                  value={service.name}
-                  style={{ color: 'white', backgroundColor, borderColor: 'white' }}
-                  key={service.name}
+          <>
+            <FormControl fullWidth>
+              <InputLabel id={'service'} style={{ color: 'white' }}>
+                {'Service'}
+              </InputLabel>
+              <Select
+                labelId={'service'}
+                id={'service'}
+                label={'Service'}
+                style={{ color: 'white', backgroundColor, borderColor: 'white' }}
+                value={selected.serviceName}
+                onChange={(elem) => onServiceSelected(elem.target.value as string)}
+              >
+                {servicesPreviews.map((service) => (
+                  <MenuItem
+                    value={service.name}
+                    style={{ color: 'white', backgroundColor, borderColor: 'white' }}
+                    key={service.name}
+                  >
+                    {service.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            {selected.serviceName !== '' && (
+              <FormControl fullWidth>
+                <InputLabel
+                  id={selected.type === TriggerCardType.ACTION ? 'Action' : 'Event'}
+                  style={{ color: 'white' }}
                 >
-                  {service.name}
-                </MenuItem>
-              ))}
-            </Select>
-            {}
-          </FormControl>
-          <FormControl fullWidth>
-            <InputLabel id={'event'} style={{ color: 'white' }}>
-              {'Event'}
-            </InputLabel>
-            <Select
-              labelId={'event'}
-              id={'event'}
-              label={'event'}
-              style={{ color: 'white', backgroundColor, borderColor: 'white' }}
-              onChange={(selected) => {
-                const event = events.find((el) => el.name === selected.target.value);
-                if (event) onEventSelected(event);
-              }}
-            >
-              {events.map((event) => (
-                <MenuItem
-                  value={event.name}
+                  {selected.type === TriggerCardType.ACTION ? 'Action' : 'Event'}
+                </InputLabel>
+                <Select
+                  labelId={'step'}
+                  id={'step'}
+                  label={'step'}
                   style={{ color: 'white', backgroundColor, borderColor: 'white' }}
-                  key={event.name}
+                  value={selected.stepId}
+                  onChange={(elem) => onStepSelected(elem.target.value as string)}
                 >
-                  {event.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <FormControl fullWidth>
-            <InputLabel id={'action'} style={{ color: 'white' }}>
-              {'Action'}
-            </InputLabel>
-            <Select
-              labelId={'action'}
-              id={'action'}
-              label={'action'}
-              style={{ color: 'white', backgroundColor, borderColor: 'white' }}
-              onChange={(selected) => {
-                const action = actions.find((el) => el.name === selected.target.value);
-                if (action) onActionSelected(action);
-              }}
-            >
-              {actions.map((action) => (
-                <MenuItem
-                  value={action.name}
-                  style={{ color: 'white', backgroundColor, borderColor: 'white' }}
-                  key={action.name}
-                >
-                  {action.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+                  {steps.map((elem) => (
+                    <MenuItem
+                      value={elem.id}
+                      style={{ color: 'white', backgroundColor, borderColor: 'white' }}
+                      key={elem.id}
+                    >
+                      {elem.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            )}
+          </>
         </CardContent>
       </Accordion>
       <Accordion style={{ backgroundColor }}>
@@ -146,15 +172,15 @@ function TriggerCard({
           <Typography color={'white'}>{'Values'}</Typography>
         </AccordionSummary>
         <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          {selectedEvent?.variables.map((event) => (
+          {step?.fields.map((field) => (
             <InputBar
-              defaultDummyValue={event.displayName}
+              defaultDummyValue={field.displayName}
               textColor="black"
               backgroundColor="#EAF1FF"
               borderColor="#EAF1FF"
               isPassword={false}
-              onChange={() => {}}
-              key={event.key}
+              onChange={(val) => onFieldChange(field.key, val)}
+              key={field.key}
             />
           ))}
         </CardContent>

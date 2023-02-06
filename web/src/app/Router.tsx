@@ -3,10 +3,9 @@ import React from 'react';
 import LoginPage from '../pages/LoginPage';
 import ServicesPage from '../pages/ServicesPage';
 import PlugsPage from '../pages/PlugsPage';
-import AreaCreatePage from '../pages/AreaCreatePage';
 import SignupPage from '../pages/SignupPage';
 import HomePage from '../pages/HomePage';
-import AreaUltraGenericCreatePage from '../pages/AreaUltraGenericCreatePage';
+import PlugCreatePage from '../pages/PlugCreatePage';
 
 const Router = () => (
   <BrowserRouter>
@@ -16,7 +15,7 @@ const Router = () => (
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/services" element={<ServicesPage />} />
       <Route path="/plugs" element={<PlugsPage />} />
-      <Route path="/plugs/create" element={<AreaUltraGenericCreatePage />} />
+      <Route path="/plugs/create" element={<PlugCreatePage />} />
       <Route path="*" element={<Navigate to={'/'} replace />} />
     </Routes>
   </BrowserRouter>
