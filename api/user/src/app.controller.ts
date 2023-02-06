@@ -24,7 +24,6 @@ export class AppController {
     @Headers('crsf-token') crsfToken: string,
     @Headers('X-Forwarded-Method') method: string,
   ) {
-    console.log(`try header method: ${method}`);
     // This is a workaround for the preflight request
     if (method === 'OPTIONS') {
       return res.send({ message: 'success' });
@@ -32,7 +31,7 @@ export class AppController {
 
     const user = await this.userService.findOneById(req.user.id);
 
-    if (!crsfToken || user.crsfToken !== crsfToken) {
+    if (!crsfToken || !user.crsfTokens.find((el) => el.token === crsfToken)) {
       this.logger.debug("CRSF token doesn't exist");
       throw new UnauthorizedException("CRSF token doesn't exist");
     }

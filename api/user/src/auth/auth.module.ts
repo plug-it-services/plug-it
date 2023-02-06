@@ -6,7 +6,7 @@ import { LocalStrategy } from './local.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy';
 import { ConfigService } from '@nestjs/config';
-import { PreflightStrategy } from "./preflight.strategy";
+import { PreflightStrategy } from './preflight.strategy';
 
 @Module({
   imports: [
