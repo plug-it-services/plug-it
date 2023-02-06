@@ -151,14 +151,7 @@ function TriggerCard({ selected, onSelectedChange, backgroundColor }: ITriggerCa
   }, []);
 
   return (
-    <Card
-      sx={{
-        backgroundColor,
-        width: 450,
-        borderRadius: '8px',
-        boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.30)',
-      }}
-    >
+    <Card className={'trigger-card'} sx={{ backgroundColor }}>
       <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
         <div style={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>
           <TipsAndUpdatesIcon style={{ color: 'white', fontSize: '30px' }} />
