@@ -7,6 +7,7 @@ import { User } from './users/user.entity';
 import { UsersModule } from './users/users.module';
 import { SsoModule } from './sso/sso.module';
 import { PublicController } from './public/public.controller';
+import { CrsfToken } from './users/crsfToken.entity';
 
 @Module({
   imports: [
@@ -25,7 +26,7 @@ import { PublicController } from './public/public.controller';
           database: configService.get<string>('POSTGRES_DB'),
           // TODO need to remove it in production
           synchronize: true,
-          entities: [User],
+          entities: [User, CrsfToken],
         };
       },
     }),

@@ -43,7 +43,7 @@ export class PublicController {
   ) {
     const user = await this.userService.findOneById(req.user.id);
 
-    if (!crsfToken || user.crsfToken !== crsfToken) {
+    if (!crsfToken || !user.crsfTokens.find((el) => el.token === crsfToken)) {
       this.logger.debug("CRSF token doesn't exist");
       throw new UnauthorizedException("CRSF token doesn't exist");
     }
@@ -63,7 +63,7 @@ export class PublicController {
       this.logger.error("CRSF token doesn't exist");
       throw new UnauthorizedException("CRSF token doesn't exist");
     }
-    await this.userService.setCrsfToken(req.user.id, crsfToken);
+    await this.userService.saveCrsfToken(req.user.id, crsfToken);
 
     const result = await this.authService.login(userDto.email);
     res.cookie('access_token', result.access_token, {
@@ -87,9 +87,13 @@ export class PublicController {
 
   @UseGuards(JwtAuthGuard)
   @Post('logout')
-  async logout(@Request() req, @Response() res) {
+  async logout(
+    @Request() req,
+    @Response() res,
+    @Headers('crsf-token') crsfToken: string,
+  ) {
     res.clearCookie('access_token');
-    await this.userService.setCrsfToken(req.user.id, null);
+    await this.userService.removeCrsfToken(req.user.id, crsfToken);
 
     res.status(200).send({ message: 'success' });
   }
@@ -140,7 +144,7 @@ export class PublicController {
       profile.firstName,
       profile.lastName,
     );
-    await this.userService.setCrsfToken(result.id, crsfToken);
+    await this.userService.saveCrsfToken(result.id, crsfToken);
     res.cookie('access_token', result.access_token, {
       sameSite: 'none',
       secure: true,
