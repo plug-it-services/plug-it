@@ -17,16 +17,9 @@ function SearchBar({ placeholder, textColor, backgroundColor, borderColor, onCha
   return (
     <Box
       component="form"
+      className="input-bar"
       sx={{
-        p: '2px 4px',
-        display: 'flex',
-        alignItems: 'center',
-        width: 400, // TODO make this responsive
-        height: 40, // TODO make this responsive
-        border: '1px solid',
         borderColor,
-        borderRadius: '10px',
-        boxShadow: '0px 4px 10px 0px rgba(0,0,0,0.30)',
         backgroundColor,
       }}
     >

@@ -17,13 +17,8 @@ function SignupCard({ title, description, onClick }: ISignupCardProps) {
 
   return (
     <Card
+      className={'login-card'}
       sx={{
-        borderRadius: '8px',
-        boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.30)',
-        justifyContent: 'center',
-        alignItems: 'center',
-        display: 'flex',
-        flexDirection: 'column',
         backgroundImage: 'linear-gradient(180deg, #2757C9 0%, #718CDE 100%)',
       }}
     >
