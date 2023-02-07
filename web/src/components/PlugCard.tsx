@@ -1,17 +1,14 @@
 import React from 'react';
 import { Typography, CardActions } from '@mui/material';
 import Button from './Button';
-import { Plug, setPlugEnable } from '../utils/api';
+import { Plug } from '../utils/api';
 
 export interface IAreaCardProps {
   plug: Plug;
+  onClickButton?: () => void;
 }
 
-function PlugCard({ plug }: IAreaCardProps) {
-  const onClick = () => {
-    setPlugEnable(!plug.enabled, plug.id); // TODO should be passed as props
-  };
-
+function PlugCard({ plug, onClickButton }: IAreaCardProps) {
   return (
     <div className={'plug-card'}>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -21,24 +18,13 @@ function PlugCard({ plug }: IAreaCardProps) {
       </div>
       <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
         {plug.icons.map((icon) => (
-          <div
-            key={icon}
-            style={{
-              width: '30px', // TODO make this responsive
-              height: '30px', // TODO make this responsive
-              borderRadius: '50%',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              margin: '8px',
-            }}
-          >
+          <div key={icon} className={'plug-card-icon'}>
             <img src={icon} alt="icon" style={{ maxWidth: '20px', maxHeight: '20px' }} />
           </div>
         ))}
       </div>
       <CardActions style={{ display: 'flex', justifyContent: 'center' }}>
-        <Button color="primary" text={plug.enabled ? 'Disable' : 'Enable'} onClick={onClick} />
+        <Button color="primary" text={plug.enabled ? 'Disable' : 'Enable'} onClick={onClickButton} />
       </CardActions>
     </div>
   );

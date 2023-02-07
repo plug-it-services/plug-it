@@ -118,3 +118,13 @@ code {
   box-shadow: 0 0 10px 0 rgba(0,0,0,0.30);
   background-color: #FFFFFF;
 }
+
+.plug-card-icon {
+  width: 30px; /* TODO make this responsive */
+  height: 30px; /* TODO make this responsive */
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 8px;
+}
