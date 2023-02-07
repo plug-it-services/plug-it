@@ -30,7 +30,7 @@ const PlugsPage = () => {
         <SearchBar
           onChange={() => {}}
           onSearch={() => {}}
-          defaultDummyValue="Search a plug"
+          placeholder="Search a plug"
           textColor="black"
           backgroundColor="#EAF1FF"
           borderColor="#EAF1FF"

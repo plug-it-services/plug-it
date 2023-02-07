@@ -1,9 +1,8 @@
-// SearchBar.tsx
 import React from 'react';
 import { Box, InputBase } from '@mui/material';
 
 export interface IInputBarProps {
-  defaultDummyValue: string;
+  placeholder: string;
   textColor: string;
   backgroundColor: string;
   borderColor: string;
@@ -13,7 +12,7 @@ export interface IInputBarProps {
 }
 
 function InputBar({
-  defaultDummyValue,
+  placeholder,
   textColor,
   backgroundColor,
   borderColor,
@@ -25,11 +24,11 @@ function InputBar({
     <Box
       component="form"
       sx={{
-        p: '2px 4px',
+        padding: '2px 4px',
         display: 'flex',
         alignItems: 'center',
-        width: 400,
-        height: 40,
+        width: 400, // TODO make this responsive
+        height: 40, // TODO make this responsive
         border: '1px solid',
         borderColor,
         borderRadius: '10px',
@@ -39,7 +38,7 @@ function InputBar({
     >
       <InputBase
         sx={{ ml: 1, flex: 1 }}
-        placeholder={defaultDummyValue}
+        placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
         style={{ color: textColor }}
         type={isPassword ? 'password' : 'text'}

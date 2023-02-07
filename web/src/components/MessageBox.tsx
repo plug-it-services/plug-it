@@ -29,10 +29,10 @@ function MessageBox({ title, description, type, isOpen, onClose, children }: IMe
             position: 'absolute',
             top: '50%',
             left: '50%',
-            p: 1,
+            padding: 1,
             transform: 'translate(-50%, -50%)',
-            width: 400,
-            maxWidth: 800,
+            width: 400, // TODO make this responsive
+            maxWidth: 800, // TODO make this responsive
             borderRadius: '8px',
             boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.30)',
             backgroundColor: '#FFFFFF',

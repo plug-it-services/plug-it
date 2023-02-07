@@ -28,7 +28,7 @@ const ServicesPage = () => {
       <SearchBar
         onChange={() => {}}
         onSearch={() => {}}
-        defaultDummyValue="Search a service"
+        placeholder="Search a service"
         textColor="black"
         backgroundColor="#EAF1FF"
         borderColor="#EAF1FF"

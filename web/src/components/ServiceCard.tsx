@@ -18,7 +18,7 @@ function ServiceCard({ service }: IServiceCardProps) {
   };
   const [key, setKey] = useState('');
 
-  const onSubmit = async () => {
+  const onSubmit = async () => { // TODO to move in api
     try {
       await api.post(
         `/service/${service.name}/apiKey`,
@@ -43,8 +43,8 @@ function ServiceCard({ service }: IServiceCardProps) {
     <Card
       sx={{
         backgroundColor: `#718CDE`,
-        width: 320,
-        height: 170,
+        width: 320, // TODO make this responsive
+        height: 170, // TODO make this responsive
         borderRadius: '8px',
         boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.30)',
       }}
@@ -53,14 +53,11 @@ function ServiceCard({ service }: IServiceCardProps) {
         <img
           src={service.icon}
           alt="service"
-          style={{ maxWidth: '100px', maxHeight: '75px', objectFit: 'contain', margin: '10px' }}
+          style={{ maxWidth: '100px', maxHeight: '75px', objectFit: 'contain', margin: '10px' }} // TODO make this responsive
         />
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
           <Typography variant="h5" component="div" color={'white'}>
             {service.name}
-          </Typography>
-          <Typography variant="body2" color={'white'}>
-            {'This is a description'}
           </Typography>
         </div>
       </div>
@@ -68,7 +65,7 @@ function ServiceCard({ service }: IServiceCardProps) {
         <Button
           color="primary"
           text={service.connected ? 'Disconnect' : 'Connect'}
-          onClick={async () => {
+          onClick={async () => { // TODO move this logic (the if connected) to above the return and move api call in api file
             if (service.connected) {
               try {
                 await api.post(
@@ -111,10 +108,16 @@ function ServiceCard({ service }: IServiceCardProps) {
             }
           }}
         />
-        <MessageBox title={'Login '} description={'Cheh'} type={'info'} isOpen={open} onClose={onClose}>
+        <MessageBox
+          title={'Login'}
+          description={'Please log in to your account.'}
+          type={'info'}
+          isOpen={open}
+          onClose={onClose}
+        >
           <InputBar
             onChange={setKey}
-            defaultDummyValue="apiKey"
+            placeholder="apiKey"
             textColor="black"
             backgroundColor="#EAF1FF"
             borderColor="#EAF1FF"
