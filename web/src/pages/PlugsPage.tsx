@@ -5,8 +5,7 @@ import Header from '../components/Header';
 import Button from '../components/Button';
 import SearchBar from '../components/SearchBar';
 import PlugCard from '../components/PlugCard';
-import { getPlugs, Plug } from '../utils/api';
-import ServiceCard from '../components/ServiceCard';
+import { getPlugs, setPlugEnable, Plug } from '../utils/api';
 
 const PlugsPage = () => {
   const [plugs, setPlugs] = useState<Plug[]>([]);
@@ -48,7 +47,7 @@ const PlugsPage = () => {
         <Grid container spacing={2} columns={3} style={{ paddingTop: '20px' }}>
           {plugs.map((plug) => (
             <Grid item key={plug.id}>
-              <PlugCard plug={plug} />
+              <PlugCard plug={plug} onClickButton={() => setPlugEnable(!plug.enabled, plug.id)} />
             </Grid>
           ))}
         </Grid>
