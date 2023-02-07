@@ -4,6 +4,7 @@ import 'package:mobile/PlugApi.dart';
 import 'package:mobile/models/service/Service.dart';
 import 'package:mobile/ui-toolkit/PlugItStyle.dart';
 import 'package:mobile/ui-toolkit/buttons/ScreenWidthButton.dart';
+import 'package:mobile/ui-toolkit/cards/ErrorLabel.dart';
 import 'package:mobile/ui-toolkit/input/InputField.dart';
 import 'package:transparent_image/transparent_image.dart';
 
@@ -45,14 +46,12 @@ class _StateServiceCard extends State<ServiceCard>{
       setState(() {
         apiKeyInput = true;
       });
-      setLoading(true);
 
     }
     if (widget.service.authType == 'clientSecrets') {
       setState(() {
         apiCredentialsInput = true;
       });
-      setLoading(true);
     }
   }
 
@@ -67,6 +66,7 @@ class _StateServiceCard extends State<ServiceCard>{
   }
 
   void onConfirm() {
+    setLoading(true);
     if (apiCredentialsInput) {
       PlugApi.OAuthCredentials(widget.service.name, apiCredentialsId, apiCredentialsSecret).then((value) {
         Future.delayed(const Duration(seconds: 2)).then((value) {
@@ -84,6 +84,107 @@ class _StateServiceCard extends State<ServiceCard>{
         });
       });
     }
+  }
+
+
+  List<Widget> getApiKeyInput() {
+    if (apiKeyInput) {
+      return [
+        InputField(
+          hint: "Enter Api Key",
+          onChanged: (value) => {apiKeyValue = value},
+          icon: const Icon(Icons.key),
+        ),
+        const SizedBox(height: 5,),
+        Row(
+          children: [
+            (loading) ? const CircularProgressIndicator(color:Colors.black) : const SizedBox(height: 0,),
+            Expanded(
+              child:  ScreenWidthButton(label: "Confirm", height: 40, callback: onConfirm,),
+            ),
+          ],
+        ),
+        const SizedBox(height: 5,)
+      ];
+    }
+    else {
+      return getApiOAuthLayout();
+    }
+  }
+
+  List<Widget> getApiCredentialsInput() {
+      if (apiCredentialsInput) {
+        return [
+          InputField(
+            hint: "Enter Client Id",
+            onChanged: (value) => {apiCredentialsId = value},
+            icon: const Icon(Icons.perm_identity),
+          ),
+          const SizedBox(height: 5,),
+          InputField(
+            hint: "Enter Client Secret",
+            onChanged: (value) => {apiCredentialsSecret = value},
+            icon: const Icon(Icons.password),
+          ),
+          const SizedBox(height: 5,),
+          Row(
+            children: [
+              (loading) ? const CircularProgressIndicator(color:Colors.black) : const SizedBox(height: 0,),
+              Expanded(
+                child:  ScreenWidthButton(
+                  label: "Confirm",
+                  height: 40,
+                  callback: onConfirm,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 5,)
+        ];
+      }
+      else {
+        return getApiOAuthLayout();
+      }
+  }
+
+  List<Widget> getApiOAuthLayout() {
+      return [
+        Row(
+            children: [
+              (loading) ? const CircularProgressIndicator(color:Colors.black) : const SizedBox(height: 0,),
+              Expanded(
+                  child: ScreenWidthButton(
+                    label: (connected) ? "Connected" : "Connection",
+                    color: (connected) ? PlugItStyle.validationColor : null,
+                    pressedColor: (connected) ? PlugItStyle.validationColor!.withAlpha(200) : null,
+                    height: 40,
+                    enabled: !loading,
+                    callback: () => (connected) ? disconnectService() : handleOAuth2(),
+                  )
+              )
+            ]
+        )
+      ];
+  }
+
+  List<Widget> getCardLayout() {
+    if (widget.service.authType == 'oauth2') {
+      return getApiOAuthLayout();
+    }
+    if (widget.service.authType == 'apiKey') {
+      return getApiKeyInput();
+    }
+    if (widget.service.authType == 'clientSecrets') {
+      return getApiCredentialsInput();
+    }
+    return [
+      ErrorCard(
+        errorMessage: "Failed to identify service auth type: '${widget.service.authType}'",
+        big: true,
+        errorLevel: Level.error,
+
+      )
+    ];
   }
 
   @override
@@ -119,39 +220,11 @@ class _StateServiceCard extends State<ServiceCard>{
             Expanded(
                 child:Column(
                   children: [
-                    const SizedBox(height: 10,),
-                    Text(widget.service.name.capitalize(), style: PlugItStyle.subtitleStyle),
-                    const SizedBox(height: 30,),
-                    (apiKeyInput) ? InputField(hint: "Enter Api Key", onChanged: (value) => {
-                      apiKeyValue = value
-                    }, icon: const Icon(Icons.key),) : const SizedBox(height: 0,),
-                    (apiCredentialsInput) ? InputField(hint: "Enter Client Id", onChanged: (value) => {
-                      apiCredentialsId = value
-                    }, icon: const Icon(Icons.perm_identity),) : const SizedBox(height: 0,),
-                    (apiCredentialsInput) ? const SizedBox(height: 5,) : const SizedBox(height: 0,),
-                    (apiCredentialsInput) ? InputField(hint: "Enter Client Secret", onChanged: (value) => {
-                      apiCredentialsSecret = value
-                    }, icon: const Icon(Icons.password),) : const SizedBox(height: 0,),
-                    (apiKeyInput || apiCredentialsInput) ? const SizedBox(height: 5,) : const SizedBox(height: 0,),
-                    (apiKeyInput || apiCredentialsInput) ? ScreenWidthButton(label: "Confirm", height: 40, callback: onConfirm,) : const SizedBox(height: 0,),
-                    (apiKeyInput || apiCredentialsInput) ? const SizedBox(height: 10,) : const SizedBox(height: 0,),
-
-                    Row(
-                      children: [
-                        (loading) ? const CircularProgressIndicator(color:Colors.black) : const SizedBox(height: 0,),
-                        Expanded(
-                            child: ScreenWidthButton(
-                              label: (connected) ? "Connected" : "Connection",
-                              color: (connected) ? PlugItStyle.validationColor : null,
-                              pressedColor: (connected) ? PlugItStyle.validationColor!.withAlpha(200) : null,
-                              height: 40,
-                              enabled: !loading,
-                              callback: () => (connected) ? disconnectService() : handleOAuth2(),
-                            )
-                        )
-                      ]
-                    )
-                  ],
+                      const SizedBox(height: 10,),
+                      Text(widget.service.name.capitalize(), style: PlugItStyle.subtitleStyle),
+                      const SizedBox(height: 30,),
+                      ...getCardLayout()
+                  ]
               )
             )
           ],
