@@ -1,5 +1,5 @@
 name: mobile
-description: A new Flutter project.
+description: A mobile app to automate tasks with common daily services.
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -43,8 +43,8 @@ dependencies:
   dio_cookie_manager: ^2.0.0
   transparent_image: ^2.0.0
   cached_network_image: ^3.2.3
-  url_launcher: ^5.2.7
-  shared_preferences: ^0.5.5
+  url_launcher: ^5.5.0
+  shared_preferences: ^2.0.17
   #google_sign_in: ^4.0.16
 
 dev_dependencies:
