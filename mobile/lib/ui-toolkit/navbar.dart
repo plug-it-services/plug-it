@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/pages/navigate/navigate.dart';
 import 'package:mobile/pages/settings/Settings.dart';
 import 'package:mobile/ui-toolkit/appbar.dart';
 
@@ -25,8 +26,7 @@ class NavBar extends StatefulWidget
 
 class _NavBarState extends State<NavBar> {
   int index = 0;
-  List<Service>? services;
-  List<Plug>? plugs;
+  Plug? selectedPlug;
 
   final headTitles = [
     null,
@@ -40,8 +40,13 @@ class _NavBarState extends State<NavBar> {
     final pages = [
       Home(),
       const Services(),
-      Plugs(),
-      Home(),
+      Plugs(selectedPlug: selectedPlug),
+      Navigate(onPlugSelected: (plug) => {
+        setState(() {
+          selectedPlug = plug;
+          index = 2;
+        })
+      }),
       Settings(onLogOut: widget.onLogOut, onThemeSelected: widget.onThemeSelected, themes: widget.themes, actualTheme: widget.actualTheme,),
     ];
     return Scaffold(

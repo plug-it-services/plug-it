@@ -18,7 +18,9 @@ import '../../ui-toolkit/cards/PlugCard.dart';
 
 
 class Plugs extends StatefulWidget {
-  Plugs({super.key});
+  final Plug? selectedPlug;
+
+  const Plugs({super.key, this.selectedPlug});
   @override
   State<Plugs> createState() => _PlugsState();
 }
@@ -170,13 +172,16 @@ class _PlugsState extends State<Plugs> {
 
   @override
   void initState() {
-    super.initState();
     PlugApi.getPlugs().then((value) => setState(() => {
       plugs = value
     }));
-    PlugApi.getServices().then((value) => setState(() => {
-      services = value
+    PlugApi.getServices().then((value) => setState((){
+      services = value;
+      if (widget.selectedPlug != null) {
+          _createOrEditPlug(widget.selectedPlug);
+      }
     }));
+    super.initState();
   }
   
   @override
