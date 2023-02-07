@@ -1,4 +1,4 @@
-import { HttpException, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, HttpException, Injectable, Logger } from '@nestjs/common';
 import mongoose, { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Plug, PlugDocument } from './schemas/plug.schema';
@@ -191,6 +191,37 @@ export class PlugsService {
 
   async delete(id: string): Promise<void> {
     return this.plugsModel.findByIdAndDelete(id);
+  }
+
+  async verifyServicesConnected(
+    userId: number,
+    plug: PlugSubmitDto,
+  ): Promise<void> {
+    const services = await this.servicesService.listServicesPreview(userId);
+
+    const servicesNames = services
+      .filter((service) => service.connected)
+      .map((service) => service.name);
+
+    if (!servicesNames.includes(plug.event.serviceName)) {
+      this.logger.log(
+        `Service ${plug.event.serviceName} is not connected for user ${userId}`,
+      );
+      throw new BadRequestException(
+        `Service ${plug.event.serviceName} is not connected`,
+      );
+    }
+
+    for (const action of plug.actions) {
+      if (!servicesNames.includes(action.serviceName)) {
+        this.logger.log(
+          `Service ${action.serviceName} is not connected for user ${userId}`,
+        );
+        throw new BadRequestException(
+          `Service ${action.serviceName} is not connected`,
+        );
+      }
+    }
   }
 
   async validateSteps(plug: PlugSubmitDto): Promise<void> {
