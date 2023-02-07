@@ -7,11 +7,10 @@ import Button from './Button';
 export interface ILoginCardProps {
   title: string;
   description: string;
-  buttonLabel: string;
   onClick: (username: string, password: string) => void;
 }
 
-function LoginCard({ title, description, buttonLabel, onClick }: ILoginCardProps) {
+function LoginCard({ title, description, onClick }: ILoginCardProps) {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
 
@@ -52,7 +51,7 @@ function LoginCard({ title, description, buttonLabel, onClick }: ILoginCardProps
         <br />
         <Button
           color="primary"
-          text={buttonLabel}
+          text={'Login'}
           onClick={() => {
             onClick(email, password);
           }}
