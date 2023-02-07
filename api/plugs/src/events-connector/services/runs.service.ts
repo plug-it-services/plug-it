@@ -5,6 +5,7 @@ import { Run, RunDocument } from '../schemas/run.schema';
 import { Variable } from '../../dto/Variable.dto';
 import { Plug } from '../../plugs/schemas/plug.schema';
 import { Service } from '../../services/schemas/service.schema';
+import { PlugWithId } from '../../plugs/plugs.service';
 
 export type RunWithId = Run & { id: string };
 
@@ -12,7 +13,7 @@ export type RunWithId = Run & { id: string };
 export class RunsService {
   constructor(@InjectModel(Run.name) private runModel: Model<RunDocument>) {}
 
-  private format(run: any): RunWithId {
+  private format(run: any): any & { id: string } {
     run.id = run._id;
     delete run._id;
     delete run.__v;
@@ -33,7 +34,7 @@ export class RunsService {
   async findById(
     id: string,
   ): Promise<
-    RunWithId & { plug: Plug /*; service: Service; nextService: Service*/ }
+    RunWithId & { plug: PlugWithId /*; service: Service; nextService: Service*/ }
   > {
     const objId = new mongoose.Types.ObjectId(id);
     const toFormat = await this.runModel
@@ -140,10 +141,10 @@ export class RunsService {
       .exec();
 
     const ret = this.format(toFormat[0]) as any;
-    if (ret.plug && ret.plug.length > 0) ret.plug = ret.plug[0];
+    if (ret.plug && ret.plug.length > 0) ret.plug = this.format(ret.plug[0]);
 
     return ret as RunWithId & {
-      plug: Plug;
+      plug: PlugWithId;
       //service: Service;
       //nextService: Service;
     };

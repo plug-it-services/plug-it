@@ -3,12 +3,14 @@ import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 import { ConfigService } from '@nestjs/config';
 import { EventInitializeDto } from '../../dto/EventInitialize.dto';
 import { ActionTriggerDto } from '../../dto/ActionTrigger.dto';
+import { PlugDisabledDto } from '../../dto/PlugDisabled.dto';
 
 @Injectable()
 export class EventsConnectorService {
   private logger = new Logger(EventsConnectorService.name);
-  private actionTriggerQueueTemplate: string;
-  private eventInitializeQueueTemplate: string;
+  private readonly actionTriggerQueueTemplate: string;
+  private readonly eventInitializeQueueTemplate: string;
+  private readonly plugDisabledQueueTemplate: string;
   private readonly queueTemplateNeedle: string;
 
   constructor(
@@ -21,6 +23,9 @@ export class EventsConnectorService {
     this.eventInitializeQueueTemplate = this.configService.getOrThrow<string>(
       'PLUGS_EVENT_INITIALIZE_QUEUE_TEMPLATE',
     );
+    this.plugDisabledQueueTemplate = this.configService.getOrThrow<string>(
+      'PLUGS_PLUG_DISABLED_QUEUE_TEMPLATE',
+    );
     this.queueTemplateNeedle = this.configService.getOrThrow<string>(
       'PLUGS_ACTION_QUEUE_TEMPLATE_NEEDLE',
     );
@@ -30,17 +35,20 @@ export class EventsConnectorService {
     return template.replace(this.queueTemplateNeedle, service);
   }
 
+  private async logAndEmit(queue: string, type: string, data: any) {
+    this.logger.log(
+      `Emitting ${type} message to queue ${queue} : ${JSON.stringify(data)}`,
+    );
+    await this.amqpConnection.publish('amq.direct', queue, data);
+  }
+
   async emitEventInitialize(service: string, data: EventInitializeDto) {
     const queue = this.buildActionQueue(
       this.eventInitializeQueueTemplate,
       service,
     );
 
-    this.logger.log(
-      `Emitting event initialize to queue ${queue} : ${JSON.stringify(data)}`,
-    );
-
-    await this.amqpConnection.publish('amq.direct', queue, data);
+    await this.logAndEmit(queue, 'event initialize', data);
   }
 
   async emitActionTrigger(service: string, data: ActionTriggerDto) {
@@ -49,10 +57,15 @@ export class EventsConnectorService {
       service,
     );
 
-    this.logger.log(
-      `Emitting action trigger to queue ${queue} : ${JSON.stringify(data)}`,
+    await this.logAndEmit(queue, 'action trigger', data);
+  }
+
+  async emitPlugDisabling(service: string, data: PlugDisabledDto) {
+    const queue = this.buildActionQueue(
+      this.plugDisabledQueueTemplate,
+      service,
     );
 
-    this.amqpConnection.publish('amq.direct', queue, data);
+    await this.logAndEmit(queue, 'plug disabling', data);
   }
 }

@@ -103,6 +103,7 @@ export class EventsConnectorController {
       await this.eventsConnectorService.emitActionTrigger(
         plug.actions[0].serviceName,
         {
+          plugId: plug.id,
           actionId: plug.actions[0].id,
           userId: event.userId,
           runId: run.id,
@@ -140,6 +141,7 @@ export class EventsConnectorController {
     await this.eventsConnectorService.emitActionTrigger(
       plug.actions[0].serviceName,
       {
+        plugId: plug.id,
         actionId: plug.actions[run.stepIdx].id,
         userId: event.userId,
         runId: id,
