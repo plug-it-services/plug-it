@@ -192,6 +192,69 @@ export const setPlugEnable = async (enable: boolean, id: string) => {
   }
 };
 
+export const authService = async (service: Service, key: string) : Promise<boolean> => {
+  try {
+    await api.post(
+      `/service/${service.name}/apiKey`,
+      {
+        apiKey: key,
+      },
+      {
+        headers: {
+          'crsf-token': localStorage.getItem('crsf-token'),
+        },
+        withCredentials: true,
+      },
+    );
+    return true;
+  } catch (err) {
+    console.log(err);
+    return false;
+  }
+};
+
+export const disconnectService = async (service: Service): Promise<boolean> => {
+  try {
+    await api.post(
+      `/service/${service.name}/disconnect`,
+      {},
+      {
+        headers: {
+          'crsf-token': localStorage.getItem('crsf-token'),
+        },
+        withCredentials: true,
+      },
+    );
+    return true;
+  } catch (err) {
+    console.log(err);
+    return false;
+  }
+};
+
+export const authOAuth2 = async (service: Service): Promise<string> => {
+  try {
+    const res = await api.post(
+      `/service/${service.name}/oauth2`,
+      {
+        redirectUrl: `${process.env.REACT_APP_BASE_URL}/services`,
+      },
+      {
+        headers: {
+          'crsf-token': localStorage.getItem('crsf-token'),
+        },
+        withCredentials: true,
+      },
+    );
+    return res.data.url;
+  } catch (err) {
+    console.log(err);
+    return '';
+  }
+};
+
+// TODO for every function : throw a standard object in case of failure containing at least status + message
+
 /*   END POST   */
 
 export default api;

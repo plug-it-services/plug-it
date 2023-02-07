@@ -3,7 +3,7 @@ import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import Typography from '@mui/material/Typography';
 import Button from './Button';
-import api, { Service } from '../utils/api';
+import { authOAuth2, authService, disconnectService, Service } from '../utils/api';
 import MessageBox from './MessageBox';
 import InputBar from './InputBar';
 
@@ -17,27 +17,6 @@ function ServiceCard({ service }: IServiceCardProps) {
     setOpen(false);
   };
   const [key, setKey] = useState('');
-
-  const onSubmit = async () => { // TODO to move in api
-    try {
-      await api.post(
-        `/service/${service.name}/apiKey`,
-        {
-          apiKey: key,
-        },
-        {
-          headers: {
-            'crsf-token': localStorage.getItem('crsf-token'),
-          },
-          withCredentials: true,
-        },
-      );
-    } catch (err) {
-      console.log(err);
-      return;
-    }
-    setOpen(false);
-  };
 
   return (
     <Card
@@ -62,46 +41,18 @@ function ServiceCard({ service }: IServiceCardProps) {
         <Button
           color="primary"
           text={service.connected ? 'Disconnect' : 'Connect'}
-          onClick={async () => { // TODO move this logic (the if connected) to above the return and move api call in api file
+          onClick={async () => {
             if (service.connected) {
-              try {
-                await api.post(
-                  `/service/${service.name}/disconnect`,
-                  {},
-                  {
-                    headers: {
-                      'crsf-token': localStorage.getItem('crsf-token'),
-                    },
-                    withCredentials: true,
-                  },
-                );
-              } catch (err) {
-                console.log(err);
-              }
+              await disconnectService(service);
               return;
             }
             if (service.authType === 'apiKey') {
               setOpen(true);
             } else if (service.authType === 'oauth2') {
-              let res: any;
-              try {
-                res = await api.post(
-                  `/service/${service.name}/oauth2`,
-                  {
-                    redirectUrl: `${process.env.REACT_APP_BASE_URL}/services`,
-                  },
-                  {
-                    headers: {
-                      'crsf-token': localStorage.getItem('crsf-token'),
-                    },
-                    withCredentials: true,
-                  },
-                );
-              } catch (err) {
-                console.log(err);
-                return;
+              const authUrl = await authOAuth2(service);
+              if (authUrl.length > 0) {
+                window.location.href = authUrl;
               }
-              window.location.href = res.data.url;
             }
           }}
         />
@@ -121,7 +72,13 @@ function ServiceCard({ service }: IServiceCardProps) {
             isPassword={false}
           />
           <br />
-          <Button text={'Submit'} onClick={onSubmit} />
+          <Button
+            text={'Submit'}
+            onClick={async () => {
+              await authService(service, key);
+              setOpen(false);
+            }}
+          />
         </MessageBox>
       </CardActions>
     </Card>

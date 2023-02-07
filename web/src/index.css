@@ -64,6 +64,7 @@ code {
 
 .trigger-card {
   width: 450px; /*TODO: make this responsive*/
+  height: 100%;
   border-radius: 8px;
   box-shadow: 0 0 10px 0 rgba(0,0,0,0.30);
 }
@@ -71,6 +72,7 @@ code {
 .plug-card {
   background-color: #718CDE;
   width: 320px; /* TODO make this responsive */
+  height: 100%;
   border-radius: 8px;
   box-shadow: 0 0 10px 0 rgba(0,0,0,0.30);
   display: flex;
@@ -83,16 +85,16 @@ code {
   padding: 2px 4px;
   display: flex;
   align-items: center;
-  width: 400px; /* TODO make this responsive */
-  height: 40px; /* TODO make this responsive */
+  width: 80%;
+  height: 100%;
   border: 1px solid;
   border-radius: 10px;
   box-shadow: 0 4px 10px 0 rgba(0,0,0,0.30);
 }
 
 .service-card {
-  width: 320px; /* TODO make this responsive */
-  height: 170px; /* TODO make this responsive */
+  width: 100%;
+  height: 100%;
   border-radius: 8px;
   box-shadow: 0 0 10px 0 rgba(0,0,0,0.30);
 }
