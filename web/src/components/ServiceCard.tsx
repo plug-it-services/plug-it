@@ -29,7 +29,7 @@ function ServiceCard({ service }: IServiceCardProps) {
         <img
           src={service.icon}
           alt="service"
-          style={{ maxWidth: '100px', maxHeight: '75px', objectFit: 'contain', margin: '10px' }} // TODO make this responsive
+          style={{ maxWidth: '25%', maxHeight: '75px', objectFit: 'contain', margin: '10px' }}
         />
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
           <Typography variant="h5" component="div" color={'white'}>
