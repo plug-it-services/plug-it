@@ -47,7 +47,7 @@ const SignupPage = () => {
           Signup
         </Typography>
         <br />
-        <SignupCard title={'Signup'} description={'Create a new account.'} buttonLabel={'Signup'} onClick={onSignup} />
+        <SignupCard title={'Signup'} description={'Create a new account.'} onClick={onSignup} />
         <MessageBox title={error} description={message} type={'error'} isOpen={open} onClose={onClose} />
       </div>
     </div>

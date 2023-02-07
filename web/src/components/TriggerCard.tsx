@@ -176,7 +176,7 @@ function TriggerCard({ selected, onSelectedChange, backgroundColor }: ITriggerCa
         <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {step?.fields.map((field) => (
             <InputBar
-              defaultDummyValue={field.displayName}
+              placeholder={field.displayName}
               textColor="black"
               backgroundColor="#EAF1FF"
               borderColor="#EAF1FF"

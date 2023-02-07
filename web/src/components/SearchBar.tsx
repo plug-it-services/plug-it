@@ -1,10 +1,9 @@
-// SearchBar.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import { Box, InputBase, IconButton } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 
 export interface ISearchBarProps {
-  defaultDummyValue: string;
+  placeholder: string;
   textColor: string;
   backgroundColor: string;
   borderColor: string;
@@ -12,14 +11,9 @@ export interface ISearchBarProps {
   onSearch: (value: string) => void;
 }
 // with shadow
-function SearchBar({
-  defaultDummyValue,
-  textColor,
-  backgroundColor,
-  borderColor,
-  onChange,
-  onSearch,
-}: ISearchBarProps) {
+function SearchBar({ placeholder, textColor, backgroundColor, borderColor, onChange, onSearch }: ISearchBarProps) {
+  const [searched, setSearched] = useState('');
+
   return (
     <Box
       component="form"
@@ -27,8 +21,8 @@ function SearchBar({
         p: '2px 4px',
         display: 'flex',
         alignItems: 'center',
-        width: 400,
-        height: 40,
+        width: 400, // TODO make this responsive
+        height: 40, // TODO make this responsive
         border: '1px solid',
         borderColor,
         borderRadius: '10px',
@@ -40,15 +34,22 @@ function SearchBar({
         type="submit"
         sx={{ p: '10px' }}
         aria-label="search"
-        onClick={() => onSearch(defaultDummyValue)}
+        onClick={() => onSearch(searched)}
         color="primary"
       >
         <SearchIcon />
       </IconButton>
       <InputBase
         sx={{ ml: 1, flex: 1 }}
-        placeholder={defaultDummyValue}
-        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        onChange={(e) => {
+          setSearched(e.target.value);
+          onChange(e.target.value);
+        }}
+        onSubmit={(e) => {
+          e.preventDefault();
+          onSearch(searched);
+        }}
         style={{ color: textColor }}
       />
     </Box>

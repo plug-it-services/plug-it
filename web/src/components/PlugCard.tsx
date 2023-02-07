@@ -9,14 +9,14 @@ export interface IAreaCardProps {
 
 function PlugCard({ plug }: IAreaCardProps) {
   const onClick = () => {
-    setPlugEnable(!plug.enabled, plug.id);
+    setPlugEnable(!plug.enabled, plug.id); // TODO should be passed as props
   };
 
   return (
     <div
       style={{
         backgroundColor: '#718CDE',
-        width: 320,
+        width: 320, // TODO make this responsive
         borderRadius: '8px',
         boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.30)',
         display: 'flex',
@@ -35,8 +35,8 @@ function PlugCard({ plug }: IAreaCardProps) {
           <div
             key={icon}
             style={{
-              width: '30px',
-              height: '30px',
+              width: '30px', // TODO make this responsive
+              height: '30px', // TODO make this responsive
               borderRadius: '50%',
               display: 'flex',
               justifyContent: 'center',

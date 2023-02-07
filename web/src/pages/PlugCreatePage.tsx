@@ -19,6 +19,31 @@ const PlugCreatePage = () => {
 
   const [plugName, setPlugName] = useState<string>('');
 
+  const createPlug = async () => {
+    // Create PlugDetail
+    // Redirect to Plugs
+    const plugDetail: PlugDetail = {
+      name: plugName,
+      enabled: true,
+      event: {
+        serviceName: selections[0].serviceName,
+        id: selections[0].stepId,
+        fields: selections[0].fields,
+      },
+      actions: [
+        {
+          serviceName: selections[1].serviceName,
+          id: selections[1].stepId,
+          fields: selections[1].fields,
+        },
+      ],
+    };
+    // Post Plug
+    postPlug(plugDetail).then((res) => {
+      console.log(res);
+    });
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <Header title="Plug-It" area="Plugs" />
@@ -27,7 +52,7 @@ const PlugCreatePage = () => {
       </Typography>
       <div style={{ display: 'flex', flexDirection: 'row', gap: '20px', marginTop: 30 }}>
         <InputBar
-          defaultDummyValue={'Plug Name'}
+          placeholder={'Plug Name'}
           textColor={'white'}
           backgroundColor={'#2757C9'}
           borderColor={'#2757C9'}
@@ -71,29 +96,7 @@ const PlugCreatePage = () => {
           color="primary"
           text={'Create'}
           onClick={() => {
-            // Create PlugDetail
-            const plugDetail: PlugDetail = {
-              name: plugName,
-              enabled: true,
-              event: {
-                serviceName: selections[0].serviceName,
-                id: selections[0].stepId,
-                fields: selections[0].fields,
-              },
-              actions: [
-                {
-                  serviceName: selections[1].serviceName,
-                  id: selections[1].stepId,
-                  fields: selections[1].fields,
-                },
-              ],
-            };
-            // Post Plug
-            postPlug(plugDetail).then((res) => {
-              console.log(res);
-            });
-            // Redirect to Plugs
-            // on check que ça marche avant mdr window.location.href = '/plugs';
+            createPlug();
           }}
         />
       </div>

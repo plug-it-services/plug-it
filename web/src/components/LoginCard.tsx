@@ -38,7 +38,7 @@ function LoginCard({ title, description, buttonLabel, onClick }: ILoginCardProps
         <br />
         <InputBar
           onChange={setEmail}
-          defaultDummyValue="Email"
+          placeholder="Email"
           textColor="black"
           backgroundColor="#EAF1FF"
           borderColor="#EAF1FF"
@@ -48,7 +48,7 @@ function LoginCard({ title, description, buttonLabel, onClick }: ILoginCardProps
         <br />
         <InputBar
           onChange={setPassword}
-          defaultDummyValue="Password"
+          placeholder="Password"
           textColor="black"
           backgroundColor="#EAF1FF"
           borderColor="#EAF1FF"
