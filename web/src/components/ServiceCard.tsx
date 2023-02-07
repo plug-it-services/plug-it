@@ -41,12 +41,9 @@ function ServiceCard({ service }: IServiceCardProps) {
 
   return (
     <Card
+      className={'service-card'}
       sx={{
         backgroundColor: `#718CDE`,
-        width: 320, // TODO make this responsive
-        height: 170, // TODO make this responsive
-        borderRadius: '8px',
-        boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.30)',
       }}
     >
       <div style={{ display: 'flex', flexDirection: 'row', gap: '10px', padding: '10px' }}>
