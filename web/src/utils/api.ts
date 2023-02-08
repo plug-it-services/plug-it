@@ -1,12 +1,17 @@
-import axios from 'axios';
+import axios, { Axios } from 'axios';
 
 const api = axios.create({
   withCredentials: true,
   baseURL: process.env.REACT_APP_API_URL,
 });
 
-export interface Error {
-  message: string;
+export class ApiError extends Error {
+  code: number;
+
+  constructor(code: number, message: string) {
+    super(message);
+    this.code = code;
+  }
 }
 
 /*   Interfaces   */
@@ -83,177 +88,87 @@ export interface PlugDetail {
 
 /*   END Interfaces   */
 
+const throwApiError = (error: any) => {
+  if (axios.isAxiosError(error)) {
+    throw new ApiError(error.response?.status ?? -1, error.response?.data?.message ?? 'Unknown error');
+  }
+  throw new ApiError(-1, 'Unknown error');
+};
+
+async function makeRequest(method: 'get' | 'post' | 'put', endpoint: string, data?: any): Promise<any> {
+  try {
+    if (method === 'get')
+      return (
+        await api.get('/services', {
+          withCredentials: true,
+          headers: {
+            'crsf-token': localStorage.getItem('crsf-token') ?? '',
+          },
+        })
+      ).data;
+    if (method === 'post')
+      return (
+        await api.post('/services', data, {
+          withCredentials: true,
+          headers: {
+            'crsf-token': localStorage.getItem('crsf-token') ?? '',
+          },
+        })
+      ).data;
+    if (method === 'put')
+      return (
+        await api.put('/services', data, {
+          withCredentials: true,
+          headers: {
+            'crsf-token': localStorage.getItem('crsf-token') ?? '',
+          },
+        })
+      ).data;
+  } catch (error) {
+    throwApiError(error);
+  }
+  throw new ApiError(-1, 'No matching method');
+}
+
 /*    GET    */
 export const verify = async (): Promise<boolean> => {
   try {
-    await api.get('/auth/verify', {
-      withCredentials: true,
-      headers: {
-        'crsf-token': localStorage.getItem('crsf-token') ?? '',
-      },
-    });
+    await makeRequest('get', '/auth/verify');
   } catch (err) {
     return false;
   }
   return true;
 };
 
-export const getServices = async (): Promise<Service[]> => {
-  try {
-    const response = await api.get('/services', {
-      withCredentials: true,
-      headers: {
-        'crsf-token': localStorage.getItem('crsf-token') ?? '',
-      },
-    });
-    return response.data;
-  } catch (error) {
-    console.error(error);
-    return [];
-  }
-};
+export const getServices = async (): Promise<Service[]> => makeRequest('get', '/services');
 
-export const getServiceEvents = async (serviceName: string): Promise<ServiceEvent[]> => {
-  try {
-    const response = await api.get(`/service/${serviceName}/events`, {
-      withCredentials: true,
-      headers: {
-        'crsf-token': localStorage.getItem('crsf-token') ?? '',
-      },
-    });
-    return response.data;
-  } catch (error) {
-    console.error(error);
-    return [];
-  }
-};
+export const getServiceEvents = async (serviceName: string): Promise<ServiceEvent[]> =>
+  makeRequest('get', `/service/${serviceName}/events`);
 
-export const getServiceActions = async (serviceName: string): Promise<ServiceAction[]> => {
-  try {
-    const response = await api.get(`/service/${serviceName}/actions`, {
-      withCredentials: true,
-      headers: {
-        'crsf-token': localStorage.getItem('crsf-token') ?? '',
-      },
-    });
-    return response.data;
-  } catch (error) {
-    console.error(error);
-    return [];
-  }
-};
+export const getServiceActions = async (serviceName: string): Promise<ServiceAction[]> =>
+  makeRequest('get', `/service/${serviceName}/actions`);
 
-export const getPlugs = async (): Promise<Plug[]> => {
-  try {
-    const response = await api.get('/plugs', {
-      headers: {
-        'crsf-token': localStorage.getItem('crsf-token') ?? '',
-      },
-      withCredentials: true,
-    });
-    return response.data;
-  } catch (error) {
-    console.error(error);
-    return [];
-  }
-};
+export const getPlugs = async (): Promise<Plug[]> => makeRequest('get', '/plugs');
 /*   END GET   */
 
 /*    POST    */
-export const postPlug = async (plug: PlugDetail): Promise<boolean> => {
-  try {
-    const response = await api.post('/plugs', plug, {
-      headers: {
-        'crsf-token': localStorage.getItem('crsf-token') ?? '',
-      },
-      withCredentials: true,
-    });
-    return true;
-  } catch (error) {
-    console.error(error);
-    return false;
-  }
-};
+export const postPlug = async (plug: PlugDetail): Promise<PlugDetail> => makeRequest('post', '/plugs', plug);
 
-export const setPlugEnable = async (enable: boolean, id: string) => {
-  try {
-    await api.put(
-      `/plugs/${id}/enabled?enabled=${enable}`,
-      {},
-      {
-        headers: {
-          'crsf-token': localStorage.getItem('crsf-token') ?? '',
-        },
-        withCredentials: true,
-      },
-    );
-  } catch (error) {
-    console.error(error);
-  }
-};
+export const setPlugEnable = async (enable: boolean, id: string) =>
+  makeRequest('put', `/plugs/${id}/enabled?enabled=${enable}`);
 
-export const authService = async (service: Service, key: string) : Promise<boolean> => {
-  try {
-    await api.post(
-      `/service/${service.name}/apiKey`,
-      {
-        apiKey: key,
-      },
-      {
-        headers: {
-          'crsf-token': localStorage.getItem('crsf-token'),
-        },
-        withCredentials: true,
-      },
-    );
-    return true;
-  } catch (err) {
-    console.log(err);
-    return false;
-  }
-};
+export const authService = async (service: Service, key: string): Promise<boolean> =>
+  makeRequest('post', `/service/${service.name}/apiKey`, {
+    apiKey: key,
+  });
 
-export const disconnectService = async (service: Service): Promise<boolean> => {
-  try {
-    await api.post(
-      `/service/${service.name}/disconnect`,
-      {},
-      {
-        headers: {
-          'crsf-token': localStorage.getItem('crsf-token'),
-        },
-        withCredentials: true,
-      },
-    );
-    return true;
-  } catch (err) {
-    console.log(err);
-    return false;
-  }
-};
+export const disconnectService = async (service: Service): Promise<boolean> =>
+  makeRequest('post', `/service/${service.name}/disconnect`, {});
 
-export const authOAuth2 = async (service: Service): Promise<string> => {
-  try {
-    const res = await api.post(
-      `/service/${service.name}/oauth2`,
-      {
-        redirectUrl: `${process.env.REACT_APP_BASE_URL}/services`,
-      },
-      {
-        headers: {
-          'crsf-token': localStorage.getItem('crsf-token'),
-        },
-        withCredentials: true,
-      },
-    );
-    return res.data.url;
-  } catch (err) {
-    console.log(err);
-    return '';
-  }
-};
-
-// TODO for every function : throw a standard object in case of failure containing at least status + message
+export const authOAuth2 = async (service: Service): Promise<string> =>
+  makeRequest('post', `/service/${service.name}/oauth2`, {
+    redirectUrl: `${process.env.REACT_APP_BASE_URL}/services`,
+  });
 
 /*   END POST   */
 
