@@ -1,20 +1,19 @@
 import React, { useState } from 'react';
 import randomstring from 'randomstring';
-
 import { Typography } from '@mui/material';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
-import axios from 'axios';
 import LoginCard from '../components/LoginCard';
-import api, { getServices } from '../utils/api';
+import api, { googleLogin, loginAccount } from '../utils/api';
 import MessageBox from '../components/MessageBox';
 
 const LoginPage = () => {
   const [open, setOpen] = useState(false);
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState("Can't login");
+
   const onClose = () => {
     setOpen(false);
   };
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState("Can't login");
 
   const onLogin = async (email: string, password: string) => {
     let crsf = localStorage.getItem('crsf-token');
@@ -25,33 +24,26 @@ const LoginPage = () => {
     }
 
     try {
-      await api.post(
-        '/auth/login',
-        {
-          email,
-          password,
-        },
-        {
-          withCredentials: true,
-          headers: {
-            'crsf-token': crsf,
-          },
-        },
-      );
+      await loginAccount(email, password);
+      window.location.href = '/services';
     } catch (err: any) {
-      if (err.response.data.error) {
-        setError(err.response.data.error);
-      }
-      if (err.response.status === 400) {
-        setMessage(err.response.data.message[0]);
-      } else {
-        setMessage(err.response.data.message);
-      }
+      setError('Cannot login');
+      setMessage(err.message);
+      setOpen(true);
+    }
+  };
+
+  async function onSsoLogin(code: string) {
+    try {
+      await googleLogin(code);
+    } catch (err: any) {
+      setError('Cannot login with SSO');
+      setMessage(err.message);
       setOpen(true);
       return;
     }
     window.location.href = '/services';
-  };
+  }
 
   let crsf = localStorage.getItem('crsf-token');
   if (crsf === null) {
@@ -69,42 +61,16 @@ const LoginPage = () => {
           Login
         </Typography>
         <br />
-        <LoginCard title={'Login'} description={'Login to your account.'} buttonLabel={'Login'} onClick={onLogin} />
+        <LoginCard title={'Login'} description={'Login to your account.'} onClick={onLogin} />
         <MessageBox title={error} description={message} type={'error'} isOpen={open} onClose={onClose} />
         <Typography variant="h6" fontWeight="bold" color={'primary'} padding={2}>
           Or
         </Typography>
         <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID ?? ''}>
           <GoogleLogin
-            onSuccess={async (credentialResponse) => {
-              try {
-                await axios.post(
-                  'https://api-area-dev.alexandrejublot.com/auth/google/login',
-                  {
-                    code: credentialResponse.credential ?? '',
-                  },
-                  {
-                    withCredentials: true,
-                    headers: {
-                      'crsf-token': crsf ?? '',
-                    },
-                  },
-                );
-              } catch (err: any) {
-                setError(err);
-                if (err.response.status === 400) {
-                  setMessage(err.response.data.message[0]);
-                } else {
-                  setMessage(err.response.data.message);
-                }
-                setOpen(true);
-                return;
-              }
-              window.location.href = '/services';
-
-            }}
+            onSuccess={async (credentialResponse) => onSsoLogin(credentialResponse.credential ?? '')}
             onError={() => {
-              setError('Unauthorized');
+              setError('Unable to login with google!');
               setMessage("Can't log in with google");
               setOpen(true);
             }}

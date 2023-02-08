@@ -1,5 +1,4 @@
-// Login Card
-import React from 'react';
+import { useState } from 'react';
 import { Card, CardContent, Typography } from '@mui/material';
 import InputBar from './InputBar';
 import Button from './Button';
@@ -7,24 +6,17 @@ import Button from './Button';
 export interface ILoginCardProps {
   title: string;
   description: string;
-  buttonLabel: string;
   onClick: (username: string, password: string) => void;
 }
 
-function LoginCard({ title, description, buttonLabel, onClick }: ILoginCardProps) {
-  const [email, setEmail] = React.useState('');
-  const [password, setPassword] = React.useState('');
+function LoginCard({ title, description, onClick }: ILoginCardProps) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   return (
     <Card
+      className={'login-card'}
       sx={{
-        borderRadius: '8px',
-        boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.30)',
-        justifyContent: 'center',
-        alignItems: 'center',
-        display: 'flex',
-        flexDirection: 'column',
-        // beautiful gradient based on 718CDE to a darker blue
         backgroundImage: 'linear-gradient(180deg, #2757C9 0%, #718CDE 100%)',
       }}
     >
@@ -38,27 +30,29 @@ function LoginCard({ title, description, buttonLabel, onClick }: ILoginCardProps
         <br />
         <InputBar
           onChange={setEmail}
-          defaultDummyValue="Email"
+          placeholder="Email"
           textColor="black"
           backgroundColor="#EAF1FF"
           borderColor="#EAF1FF"
           isPassword={false}
           autoComplete="username"
+          onSubmit={() => {}}
         />
         <br />
         <InputBar
           onChange={setPassword}
-          defaultDummyValue="Password"
+          placeholder="Password"
           textColor="black"
           backgroundColor="#EAF1FF"
           borderColor="#EAF1FF"
           isPassword={true}
           autoComplete="current-password"
+          onSubmit={() => onClick(email, password)}
         />
         <br />
         <Button
           color="primary"
-          text={buttonLabel}
+          text={'Login'}
           onClick={() => {
             onClick(email, password);
           }}

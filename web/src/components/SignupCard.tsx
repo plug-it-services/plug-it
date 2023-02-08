@@ -1,4 +1,4 @@
-import React from 'react';
+import { useState } from 'react';
 import { Card, CardContent, Typography } from '@mui/material';
 import InputBar from './InputBar';
 import Button from './Button';
@@ -6,26 +6,19 @@ import Button from './Button';
 export interface ISignupCardProps {
   title: string;
   description: string;
-  buttonLabel: string;
   onClick: (username: string, password: string, firstname: string, lastname: string) => void;
 }
 
-function SignupCard({ title, description, buttonLabel, onClick }: ISignupCardProps) {
-  const [email, setEmail] = React.useState('');
-  const [firstname, setFirstname] = React.useState('');
-  const [lastname, setLastname] = React.useState('');
-  const [password, setPassword] = React.useState('');
+function SignupCard({ title, description, onClick }: ISignupCardProps) {
+  const [email, setEmail] = useState('');
+  const [firstname, setFirstname] = useState('');
+  const [lastname, setLastname] = useState('');
+  const [password, setPassword] = useState('');
 
   return (
     <Card
+      className={'login-card'}
       sx={{
-        borderRadius: '8px',
-        boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.30)',
-        justifyContent: 'center',
-        alignItems: 'center',
-        display: 'flex',
-        flexDirection: 'column',
-        // beautiful gradient based on 718CDE to a darker blue
         backgroundImage: 'linear-gradient(180deg, #2757C9 0%, #718CDE 100%)',
       }}
     >
@@ -39,47 +32,51 @@ function SignupCard({ title, description, buttonLabel, onClick }: ISignupCardPro
         <br />
         <InputBar
           onChange={setFirstname}
-          defaultDummyValue="Firstname"
+          placeholder="Firstname"
           textColor="black"
           backgroundColor="#EAF1FF"
           borderColor="#EAF1FF"
           isPassword={false}
           autoComplete="given-name"
+          onSubmit={() => {}}
         />
         <br />
         <InputBar
           onChange={setLastname}
-          defaultDummyValue="Lastname"
+          placeholder="Lastname"
           textColor="black"
           backgroundColor="#EAF1FF"
           borderColor="#EAF1FF"
           isPassword={false}
           autoComplete="family-name"
+          onSubmit={() => {}}
         />
         <br />
         <InputBar
           onChange={setEmail}
-          defaultDummyValue="Email"
+          placeholder="Email"
           textColor="black"
           backgroundColor="#EAF1FF"
           borderColor="#EAF1FF"
           isPassword={false}
           autoComplete="username"
+          onSubmit={() => {}}
         />
         <br />
         <InputBar
           onChange={setPassword}
-          defaultDummyValue="Password"
+          placeholder="Password"
           textColor="black"
           backgroundColor="#EAF1FF"
           borderColor="#EAF1FF"
           isPassword={true}
           autoComplete="new-password"
+          onSubmit={() => {}}
         />
         <br />
         <Button
           color="primary"
-          text={buttonLabel}
+          text={'Sign Up'}
           onClick={() => {
             onClick(email, password, firstname, lastname);
           }}

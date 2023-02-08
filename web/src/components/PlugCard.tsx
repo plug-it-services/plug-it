@@ -1,30 +1,16 @@
 import React from 'react';
 import { Typography, CardActions } from '@mui/material';
 import Button from './Button';
-import { Plug, setPlugEnable } from '../utils/api';
+import { Plug } from '../utils/api';
 
 export interface IAreaCardProps {
   plug: Plug;
+  onClickButton?: () => void;
 }
 
-function PlugCard({ plug }: IAreaCardProps) {
-  const onClick = () => {
-    setPlugEnable(!plug.enabled, plug.id);
-  };
-
+function PlugCard({ plug, onClickButton }: IAreaCardProps) {
   return (
-    <div
-      style={{
-        backgroundColor: '#718CDE',
-        width: 320,
-        borderRadius: '8px',
-        boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.30)',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        padding: '10px',
-      }}
-    >
+    <div className={'plug-card'}>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between' }}>
         <Typography variant="body1" component="div" color={'white'}>
           {plug.name}
@@ -32,24 +18,13 @@ function PlugCard({ plug }: IAreaCardProps) {
       </div>
       <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
         {plug.icons.map((icon) => (
-          <div
-            key={icon}
-            style={{
-              width: '30px',
-              height: '30px',
-              borderRadius: '50%',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              margin: '8px',
-            }}
-          >
+          <div key={icon} className={'plug-card-icon'}>
             <img src={icon} alt="icon" style={{ maxWidth: '20px', maxHeight: '20px' }} />
           </div>
         ))}
       </div>
       <CardActions style={{ display: 'flex', justifyContent: 'center' }}>
-        <Button color="primary" text={plug.enabled ? 'Disable' : 'Enable'} onClick={onClick} />
+        <Button color="primary" text={plug.enabled ? 'Disable' : 'Enable'} onClick={onClickButton} />
       </CardActions>
     </div>
   );

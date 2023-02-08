@@ -1,5 +1,5 @@
 import React from 'react';
-import { AppBar, Typography } from '@mui/material';
+import { AppBar, Link, Typography } from '@mui/material';
 import Button from './Button';
 import AccountTile from './AccountTile';
 
@@ -8,8 +8,7 @@ export interface IHeaderProps {
   area: string;
 }
 
-function Header({ title, area }: IHeaderProps) {
-  // AppBar with a title at the left and a button at the right
+function Header({ title }: IHeaderProps) {
   return (
     <AppBar position="static" style={{ backgroundColor: '#EAF1FF' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', height: '80px', verticalAlign: 'middle' }}>
@@ -19,7 +18,7 @@ function Header({ title, area }: IHeaderProps) {
           color={'primary'}
           style={{ marginLeft: '20px', display: 'flex', alignItems: 'center' }}
         >
-          {title}
+          <Link href="/">{title}</Link>
         </Typography>
         <div style={{ marginRight: '20px', display: 'flex', alignItems: 'center', gap: '20px' }}>
           <Button

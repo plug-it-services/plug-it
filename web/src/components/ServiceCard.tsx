@@ -3,7 +3,7 @@ import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import Typography from '@mui/material/Typography';
 import Button from './Button';
-import api, { Service } from '../utils/api';
+import { authOAuth2, authService, disconnectService, Service } from '../utils/api';
 import MessageBox from './MessageBox';
 import InputBar from './InputBar';
 
@@ -17,111 +17,66 @@ function ServiceCard({ service }: IServiceCardProps) {
     setOpen(false);
   };
   const [key, setKey] = useState('');
-
-  const onSubmit = async () => {
-    try {
-      await api.post(
-        `/service/${service.name}/apiKey`,
-        {
-          apiKey: key,
-        },
-        {
-          headers: {
-            'crsf-token': localStorage.getItem('crsf-token'),
-          },
-          withCredentials: true,
-        },
-      );
-    } catch (err) {
-      console.log(err);
+  const handleOnClick = async () => {
+    if (service.connected) {
+      await disconnectService(service);
       return;
     }
-    setOpen(false);
+    if (service.authType === 'apiKey') {
+      setOpen(true);
+    } else if (service.authType === 'oauth2') {
+      const authUrl = await authOAuth2(service);
+      if (authUrl.length > 0) {
+        window.location.href = authUrl;
+      }
+    }
   };
 
   return (
     <Card
+      className={'service-card'}
       sx={{
         backgroundColor: `#718CDE`,
-        width: 320,
-        height: 170,
-        borderRadius: '8px',
-        boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.30)',
       }}
     >
       <div style={{ display: 'flex', flexDirection: 'row', gap: '10px', padding: '10px' }}>
         <img
           src={service.icon}
           alt="service"
-          style={{ maxWidth: '100px', maxHeight: '75px', objectFit: 'contain', margin: '10px' }}
+          style={{ maxWidth: '25%', maxHeight: '75px', objectFit: 'contain', margin: '10px' }}
         />
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
           <Typography variant="h5" component="div" color={'white'}>
             {service.name}
           </Typography>
-          <Typography variant="body2" color={'white'}>
-            {'This is a description'}
-          </Typography>
         </div>
       </div>
       <CardActions style={{ display: 'flex', justifyContent: 'center' }}>
-        <Button
-          color="primary"
-          text={service.connected ? 'Disconnect' : 'Connect'}
-          onClick={async () => {
-            if (service.connected) {
-              try {
-                await api.post(
-                  `/service/${service.name}/disconnect`,
-                  {},
-                  {
-                    headers: {
-                      'crsf-token': localStorage.getItem('crsf-token'),
-                    },
-                    withCredentials: true,
-                  },
-                );
-              } catch (err) {
-                console.log(err);
-              }
-              return;
-            }
-            if (service.authType === 'apiKey') {
-              setOpen(true);
-            } else if (service.authType === 'oauth2') {
-              let res: any;
-              try {
-                res = await api.post(
-                  `/service/${service.name}/oauth2`,
-                  {
-                    redirectUrl: `${process.env.REACT_APP_BASE_URL}/services`,
-                  },
-                  {
-                    headers: {
-                      'crsf-token': localStorage.getItem('crsf-token'),
-                    },
-                    withCredentials: true,
-                  },
-                );
-              } catch (err) {
-                console.log(err);
-                return;
-              }
-              window.location.href = res.data.url;
-            }
-          }}
-        />
-        <MessageBox title={'Login '} description={'Cheh'} type={'info'} isOpen={open} onClose={onClose}>
+        <Button color="primary" text={service.connected ? 'Disconnect' : 'Connect'} onClick={handleOnClick} />
+        <MessageBox
+          title={'Login'}
+          description={'Please log in to your account.'}
+          type={'info'}
+          isOpen={open}
+          onClose={onClose}
+        >
           <InputBar
             onChange={setKey}
-            defaultDummyValue="apiKey"
+            placeholder="apiKey"
             textColor="black"
             backgroundColor="#EAF1FF"
             borderColor="#EAF1FF"
             isPassword={false}
+            onSubmit={() => {}}
           />
           <br />
-          <Button text={'Submit'} onClick={onSubmit} />
+          <Button
+            text={'Submit'}
+            onClick={async () => {
+              await authService(service, key);
+              setOpen(false);
+            }}
+          />
         </MessageBox>
       </CardActions>
     </Card>

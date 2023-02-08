@@ -24,20 +24,7 @@ function MessageBox({ title, description, type, isOpen, onClose, children }: IMe
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
-        <Card
-          sx={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            p: 1,
-            transform: 'translate(-50%, -50%)',
-            width: 400,
-            maxWidth: 800,
-            borderRadius: '8px',
-            boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.30)',
-            backgroundColor: '#FFFFFF',
-          }}
-        >
+        <Card className={'message-box'}>
           <CardContent>
             <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
               {type === 'error' && <CancelIcon sx={{ color: '#F44336' }} />}

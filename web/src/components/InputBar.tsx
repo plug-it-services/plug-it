@@ -1,49 +1,49 @@
-// SearchBar.tsx
-import React from 'react';
 import { Box, InputBase } from '@mui/material';
 
 export interface IInputBarProps {
-  defaultDummyValue: string;
+  placeholder: string;
   textColor: string;
   backgroundColor: string;
   borderColor: string;
   isPassword: boolean;
   onChange: (value: string) => void;
+  onSubmit: () => void;
   autoComplete?: string;
 }
 
 function InputBar({
-  defaultDummyValue,
+  placeholder,
   textColor,
   backgroundColor,
   borderColor,
   isPassword,
   onChange,
+  onSubmit,
   autoComplete,
 }: IInputBarProps) {
+
   return (
     <Box
       component="form"
+      className="input-bar"
       sx={{
-        p: '2px 4px',
-        display: 'flex',
-        alignItems: 'center',
-        width: 400,
-        height: 40,
-        border: '1px solid',
         borderColor,
-        borderRadius: '10px',
-        boxShadow: '0px 4px 10px 0px rgba(0,0,0,0.30)',
         backgroundColor,
       }}
     >
       <InputBase
         sx={{ ml: 1, flex: 1 }}
-        placeholder={defaultDummyValue}
-        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        onChange={(e) => {
+          onChange(e.target.value);
+        }}
         style={{ color: textColor }}
         type={isPassword ? 'password' : 'text'}
         autoComplete={autoComplete}
+        onSubmit={(e) => {
+          e.preventDefault();
+          onSubmit();
+        }}
       />
     </Box>
   );
