@@ -8,6 +8,7 @@ export interface IInputBarProps {
   borderColor: string;
   isPassword: boolean;
   onChange: (value: string) => void;
+  onSubmit: (value: string) => void;
   autoComplete?: string;
 }
 
@@ -18,8 +19,11 @@ function InputBar({
   borderColor,
   isPassword,
   onChange,
+  onSubmit,
   autoComplete,
 }: IInputBarProps) {
+  const [searched, setSearched] = React.useState('');
+
   return (
     <Box
       component="form"
@@ -32,10 +36,17 @@ function InputBar({
       <InputBase
         sx={{ ml: 1, flex: 1 }}
         placeholder={placeholder}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => {
+          setSearched(e.target.value);
+          onChange(searched);
+        }}
         style={{ color: textColor }}
         type={isPassword ? 'password' : 'text'}
         autoComplete={autoComplete}
+        onSubmit={(e) => {
+          e.preventDefault();
+          onSubmit(searched);
+        }}
       />
     </Box>
   );
