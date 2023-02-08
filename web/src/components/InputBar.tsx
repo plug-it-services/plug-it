@@ -1,4 +1,4 @@
-import React from 'react';
+import { useState } from 'react';
 import { Box, InputBase } from '@mui/material';
 
 export interface IInputBarProps {
@@ -22,7 +22,7 @@ function InputBar({
   onSubmit,
   autoComplete,
 }: IInputBarProps) {
-  const [searched, setSearched] = React.useState('');
+  const [searched, setSearched] = useState('');
 
   return (
     <Box
