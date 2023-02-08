@@ -1,5 +1,4 @@
-// Login Card
-import React from 'react';
+import { useState } from 'react';
 import { Card, CardContent, Typography } from '@mui/material';
 import InputBar from './InputBar';
 import Button from './Button';
@@ -11,8 +10,8 @@ export interface ILoginCardProps {
 }
 
 function LoginCard({ title, description, onClick }: ILoginCardProps) {
-  const [email, setEmail] = React.useState('');
-  const [password, setPassword] = React.useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   return (
     <Card

@@ -16,7 +16,7 @@ const LoginPage = () => {
   const onClose = () => {
     setOpen(false);
   };
-  
+
   const onLogin = async (email: string, password: string) => {
     let crsf = localStorage.getItem('crsf-token');
 

@@ -7,11 +7,12 @@ import MessageBox from '../components/MessageBox';
 
 const SignupPage = () => {
   const [open, setOpen] = useState(false);
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState("Can't signup");
+
   const onClose = () => {
     setOpen(false);
   };
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState("Can't signup");
 
   const onSignup = async (email: string, password: string, firstname: string, lastname: string) => {
     try {
@@ -37,7 +38,6 @@ const SignupPage = () => {
   };
 
   return (
-    // Title and LoginCard
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <Typography variant="h2" fontWeight="bold" color={'primary'}>
