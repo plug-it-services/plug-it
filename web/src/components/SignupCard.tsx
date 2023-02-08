@@ -1,4 +1,4 @@
-import React from 'react';
+import { useState } from 'react';
 import { Card, CardContent, Typography } from '@mui/material';
 import InputBar from './InputBar';
 import Button from './Button';
@@ -10,10 +10,10 @@ export interface ISignupCardProps {
 }
 
 function SignupCard({ title, description, onClick }: ISignupCardProps) {
-  const [email, setEmail] = React.useState('');
-  const [firstname, setFirstname] = React.useState('');
-  const [lastname, setLastname] = React.useState('');
-  const [password, setPassword] = React.useState('');
+  const [email, setEmail] = useState('');
+  const [firstname, setFirstname] = useState('');
+  const [lastname, setLastname] = useState('');
+  const [password, setPassword] = useState('');
 
   return (
     <Card
@@ -38,6 +38,7 @@ function SignupCard({ title, description, onClick }: ISignupCardProps) {
           borderColor="#EAF1FF"
           isPassword={false}
           autoComplete="given-name"
+          onSubmit={() => {}}
         />
         <br />
         <InputBar
@@ -48,6 +49,7 @@ function SignupCard({ title, description, onClick }: ISignupCardProps) {
           borderColor="#EAF1FF"
           isPassword={false}
           autoComplete="family-name"
+          onSubmit={() => {}}
         />
         <br />
         <InputBar
@@ -58,6 +60,7 @@ function SignupCard({ title, description, onClick }: ISignupCardProps) {
           borderColor="#EAF1FF"
           isPassword={false}
           autoComplete="username"
+          onSubmit={() => {}}
         />
         <br />
         <InputBar
@@ -68,6 +71,7 @@ function SignupCard({ title, description, onClick }: ISignupCardProps) {
           borderColor="#EAF1FF"
           isPassword={true}
           autoComplete="new-password"
+          onSubmit={() => {}}
         />
         <br />
         <Button

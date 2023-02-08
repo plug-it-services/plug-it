@@ -60,6 +60,7 @@ const PlugCreatePage = () => {
           onChange={(value) => {
             setPlugName(value);
           }}
+          onSubmit={() => {}}
         />
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginTop: 30 }}>

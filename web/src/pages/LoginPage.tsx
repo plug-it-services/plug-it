@@ -10,12 +10,13 @@ import MessageBox from '../components/MessageBox';
 
 const LoginPage = () => {
   const [open, setOpen] = useState(false);
-  const onClose = () => {
-    setOpen(false);
-  };
   const [message, setMessage] = useState('');
   const [error, setError] = useState("Can't login");
 
+  const onClose = () => {
+    setOpen(false);
+  };
+  
   const onLogin = async (email: string, password: string) => {
     let crsf = localStorage.getItem('crsf-token');
 
@@ -76,7 +77,7 @@ const LoginPage = () => {
         </Typography>
         <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID ?? ''}>
           <GoogleLogin
-            onSuccess={async (credentialResponse) => {
+            onSuccess={async (credentialResponse) => { // TODO move this logic in a proper function above
               try {
                 await axios.post(
                   'https://api-area-dev.alexandrejublot.com/auth/google/login',
@@ -101,7 +102,6 @@ const LoginPage = () => {
                 return;
               }
               window.location.href = '/services';
-
             }}
             onError={() => {
               setError('Unauthorized');

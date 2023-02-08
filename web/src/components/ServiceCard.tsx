@@ -70,6 +70,7 @@ function ServiceCard({ service }: IServiceCardProps) {
             backgroundColor="#EAF1FF"
             borderColor="#EAF1FF"
             isPassword={false}
+            onSubmit={() => {}}
           />
           <br />
           <Button

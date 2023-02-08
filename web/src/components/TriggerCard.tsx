@@ -183,6 +183,7 @@ function TriggerCard({ selected, onSelectedChange, backgroundColor }: ITriggerCa
               isPassword={false}
               onChange={(val) => onFieldChange(field.key, val)}
               key={field.key}
+              onSubmit={() => {}}
             />
           ))}
         </CardContent>
