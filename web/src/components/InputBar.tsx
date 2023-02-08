@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Box, InputBase } from '@mui/material';
 
 export interface IInputBarProps {
@@ -8,7 +7,7 @@ export interface IInputBarProps {
   borderColor: string;
   isPassword: boolean;
   onChange: (value: string) => void;
-  onSubmit: (value: string) => void;
+  onSubmit: () => void;
   autoComplete?: string;
 }
 
@@ -22,7 +21,6 @@ function InputBar({
   onSubmit,
   autoComplete,
 }: IInputBarProps) {
-  const [searched, setSearched] = useState('');
 
   return (
     <Box
@@ -37,15 +35,14 @@ function InputBar({
         sx={{ ml: 1, flex: 1 }}
         placeholder={placeholder}
         onChange={(e) => {
-          setSearched(e.target.value);
-          onChange(searched);
+          onChange(e.target.value);
         }}
         style={{ color: textColor }}
         type={isPassword ? 'password' : 'text'}
         autoComplete={autoComplete}
         onSubmit={(e) => {
           e.preventDefault();
-          onSubmit(searched);
+          onSubmit();
         }}
       />
     </Box>

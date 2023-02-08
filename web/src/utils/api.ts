@@ -99,7 +99,7 @@ async function makeRequest(method: 'get' | 'post' | 'put', endpoint: string, dat
   try {
     if (method === 'get')
       return (
-        await api.get('/services', {
+        await api.get(endpoint, {
           withCredentials: true,
           headers: {
             'crsf-token': localStorage.getItem('crsf-token') ?? '',
@@ -108,7 +108,7 @@ async function makeRequest(method: 'get' | 'post' | 'put', endpoint: string, dat
       ).data;
     if (method === 'post')
       return (
-        await api.post('/services', data, {
+        await api.post(endpoint, data, {
           withCredentials: true,
           headers: {
             'crsf-token': localStorage.getItem('crsf-token') ?? '',
@@ -117,7 +117,7 @@ async function makeRequest(method: 'get' | 'post' | 'put', endpoint: string, dat
       ).data;
     if (method === 'put')
       return (
-        await api.put('/services', data, {
+        await api.put(endpoint, data, {
           withCredentials: true,
           headers: {
             'crsf-token': localStorage.getItem('crsf-token') ?? '',
@@ -168,6 +168,25 @@ export const disconnectService = async (service: Service): Promise<boolean> =>
 export const authOAuth2 = async (service: Service): Promise<string> =>
   makeRequest('post', `/service/${service.name}/oauth2`, {
     redirectUrl: `${process.env.REACT_APP_BASE_URL}/services`,
+  });
+
+export const googleLogin = async (code: string): Promise<boolean> =>
+  makeRequest('post', `/auth/google/login`, {
+    code,
+  });
+
+export const signupAccount = async (email: string, password: string, firstname: string, lastname: string) =>
+  makeRequest('post', '/auth/signup', {
+    email,
+    password,
+    firstname,
+    lastname,
+  });
+
+export const loginAccount = async (email: string, password: string) =>
+  makeRequest('post', '/auth/login', {
+    email,
+    password,
   });
 
 /*   END POST   */

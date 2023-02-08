@@ -23,6 +23,7 @@ import {
   getServiceEvents,
   getServiceActions,
 } from '../utils/api';
+import MessageBox from './MessageBox';
 
 export enum TriggerCardType {
   EVENT,
@@ -43,6 +44,9 @@ export interface ITriggerCardProps {
 }
 
 function TriggerCard({ selected, onSelectedChange, backgroundColor }: ITriggerCardProps) {
+  const [open, setOpen] = useState(false);
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState("Cannot fetch events/actions'");
   const [servicesPreviews, setServicesPreviews] = useState<Service[]>([]);
   const [steps, setSteps] = useState<ServiceAction[] | ServiceEvent[]>([]);
   const [step, setStep] = useState<ServiceAction | ServiceEvent | null>();
@@ -51,11 +55,17 @@ function TriggerCard({ selected, onSelectedChange, backgroundColor }: ITriggerCa
     const service = servicesPreviews.find((el) => el.name === serviceName);
 
     if (!service) return;
-    if (selected.type === TriggerCardType.EVENT) setSteps(await getServiceEvents(serviceName));
-    else setSteps(await getServiceActions(serviceName));
-    // eslint-disable-next-line no-param-reassign
-    selected.serviceName = serviceName;
-    onSelectedChange(selected);
+    try {
+      if (selected.type === TriggerCardType.EVENT) setSteps(await getServiceEvents(serviceName));
+      else setSteps(await getServiceActions(serviceName));
+      // eslint-disable-next-line no-param-reassign
+      selected.serviceName = serviceName;
+      onSelectedChange(selected);
+    } catch (err: any) {
+      setError('Cannot fetch events/actions');
+      setMessage(err.message);
+      setOpen(true);
+    }
   }
 
   async function onStepSelected(stepId: string) {
@@ -144,51 +154,57 @@ function TriggerCard({ selected, onSelectedChange, backgroundColor }: ITriggerCa
   }
 
   useEffect(() => {
-    async function fetchServicesPreviews() {
-      setServicesPreviews(await getServices());
-    }
-    fetchServicesPreviews();
+    getServices()
+      .then(setServicesPreviews)
+      .catch((err) => {
+        setError('Cannot get services');
+        setMessage(err.message);
+        setOpen(true);
+      });
   }, []);
 
   return (
-    <Card className={'trigger-card'} sx={{ backgroundColor }}>
-      <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        <div style={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>
-          <TipsAndUpdatesIcon style={{ color: 'white', fontSize: '30px' }} />
-          <Typography variant="h5" component="div" color={'white'}>
-            {'Trigger'}
-          </Typography>
-        </div>
-      </CardContent>
-      <Accordion style={{ backgroundColor }}>
-        <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">
-          <Typography color={'white'}>{'Action'}</Typography>
-        </AccordionSummary>
+    <>
+      <MessageBox title={error} description={message} type={'error'} isOpen={open} onClose={() => setOpen(false)} />
+      <Card className={'trigger-card'} sx={{ backgroundColor }}>
         <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          {getActionServices()}
-          {getReactionsOptions()}
+          <div style={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>
+            <TipsAndUpdatesIcon style={{ color: 'white', fontSize: '30px' }} />
+            <Typography variant="h5" component="div" color={'white'}>
+              {'Trigger'}
+            </Typography>
+          </div>
         </CardContent>
-      </Accordion>
-      <Accordion style={{ backgroundColor }}>
-        <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">
-          <Typography color={'white'}>{'Values'}</Typography>
-        </AccordionSummary>
-        <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          {step?.fields.map((field) => (
-            <InputBar
-              placeholder={field.displayName}
-              textColor="black"
-              backgroundColor="#EAF1FF"
-              borderColor="#EAF1FF"
-              isPassword={false}
-              onChange={(val) => onFieldChange(field.key, val)}
-              key={field.key}
-              onSubmit={() => {}}
-            />
-          ))}
-        </CardContent>
-      </Accordion>
-    </Card>
+        <Accordion style={{ backgroundColor }}>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">
+            <Typography color={'white'}>{'Action'}</Typography>
+          </AccordionSummary>
+          <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {getActionServices()}
+            {getReactionsOptions()}
+          </CardContent>
+        </Accordion>
+        <Accordion style={{ backgroundColor }}>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">
+            <Typography color={'white'}>{'Values'}</Typography>
+          </AccordionSummary>
+          <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {step?.fields.map((field) => (
+              <InputBar
+                placeholder={field.displayName}
+                textColor="black"
+                backgroundColor="#EAF1FF"
+                borderColor="#EAF1FF"
+                isPassword={false}
+                onChange={(val) => onFieldChange(field.key, val)}
+                key={field.key}
+                onSubmit={() => {}}
+              />
+            ))}
+          </CardContent>
+        </Accordion>
+      </Card>
+    </>
   );
 }
 

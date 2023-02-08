@@ -36,9 +36,7 @@ function LoginCard({ title, description, onClick }: ILoginCardProps) {
           borderColor="#EAF1FF"
           isPassword={false}
           autoComplete="username"
-          onSubmit={() => {
-            alert('TODO');
-          }}
+          onSubmit={() => {}}
         />
         <br />
         <InputBar
@@ -49,7 +47,7 @@ function LoginCard({ title, description, onClick }: ILoginCardProps) {
           borderColor="#EAF1FF"
           isPassword={true}
           autoComplete="current-password"
-          onSubmit={() => {}}
+          onSubmit={() => onClick(email, password)}
         />
         <br />
         <Button

@@ -1,5 +1,5 @@
 import React from 'react';
-import {AppBar, Link, Typography} from '@mui/material';
+import { AppBar, Link, Typography } from '@mui/material';
 import Button from './Button';
 import AccountTile from './AccountTile';
 
@@ -9,7 +9,6 @@ export interface IHeaderProps {
 }
 
 function Header({ title }: IHeaderProps) {
-  // AppBar with a title at the left and a button at the right
   return (
     <AppBar position="static" style={{ backgroundColor: '#EAF1FF' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', height: '80px', verticalAlign: 'middle' }}>

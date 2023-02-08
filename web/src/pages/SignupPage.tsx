@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 import { Typography } from '@mui/material';
 import SignupCard from '../components/SignupCard';
-import api from '../utils/api';
+import { signupAccount } from '../utils/api';
 import MessageBox from '../components/MessageBox';
 
 const SignupPage = () => {
@@ -16,21 +16,10 @@ const SignupPage = () => {
 
   const onSignup = async (email: string, password: string, firstname: string, lastname: string) => {
     try {
-      await api.post('/auth/signup', {
-        email,
-        password,
-        firstname,
-        lastname,
-      });
-    } catch (err: any) {
-      if (err.response.data.error) {
-        setError(err.response.data.error);
-      }
-      if (err.response.status === 400) {
-        setMessage(err.response.data.message[0]);
-      } else {
-        setMessage(err.response.data.message);
-      }
+      await signupAccount(email, password, firstname, lastname);
+    } catch (errorEx: any) {
+      setError(`Can't signup`);
+      setMessage(errorEx.message);
       setOpen(true);
       return;
     }
