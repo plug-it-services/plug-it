@@ -102,13 +102,13 @@ class PlugApi {
   }
 
   static Future OAuth2(String serviceName) async {
-    Response result = await dio.post("$apiUrl/service/$serviceName/oauth2", data: {'redirectUrl': 'plug-it'}, options: getHeaders());
+    Response result = await dio.post("$apiUrl/service/$serviceName/oauth2", data: {'redirectUrl': 'plugit://app'}, options: getHeaders());
     String authUrl = result.data['url'] ?? "";
-    return FlutterWebAuth2.authenticate(url: authUrl, callbackUrlScheme: 'plug-it', preferEphemeral: true);
-    /* return launchUrl(
+
+    return launchUrl(
         Uri.parse(authUrl),
-        mode: LaunchMode.
-    ); */
+        mode: LaunchMode.externalApplication
+    );
   }
 
   static Future OAuthApiKey(String serviceName, String apiKey) async {
