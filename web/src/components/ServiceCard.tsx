@@ -17,6 +17,20 @@ function ServiceCard({ service }: IServiceCardProps) {
     setOpen(false);
   };
   const [key, setKey] = useState('');
+  const handleOnClick = async () => {
+    if (service.connected) {
+      await disconnectService(service);
+      return;
+    }
+    if (service.authType === 'apiKey') {
+      setOpen(true);
+    } else if (service.authType === 'oauth2') {
+      const authUrl = await authOAuth2(service);
+      if (authUrl.length > 0) {
+        window.location.href = authUrl;
+      }
+    }
+  };
 
   return (
     <Card
@@ -38,24 +52,7 @@ function ServiceCard({ service }: IServiceCardProps) {
         </div>
       </div>
       <CardActions style={{ display: 'flex', justifyContent: 'center' }}>
-        <Button
-          color="primary"
-          text={service.connected ? 'Disconnect' : 'Connect'}
-          onClick={async () => {
-            if (service.connected) {
-              await disconnectService(service);
-              return;
-            }
-            if (service.authType === 'apiKey') {
-              setOpen(true);
-            } else if (service.authType === 'oauth2') {
-              const authUrl = await authOAuth2(service);
-              if (authUrl.length > 0) {
-                window.location.href = authUrl;
-              }
-            }
-          }}
-        />
+        <Button color="primary" text={service.connected ? 'Disconnect' : 'Connect'} onClick={handleOnClick} />
         <MessageBox
           title={'Login'}
           description={'Please log in to your account.'}
