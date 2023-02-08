@@ -38,7 +38,7 @@ class _NavBarState extends State<NavBar> {
   @override
   Widget build(BuildContext context) {
     final pages = [
-      Home(),
+      const Home(),
       const Services(),
       Plugs(selectedPlug: selectedPlug),
       Navigate(onPlugSelected: (plug) => {

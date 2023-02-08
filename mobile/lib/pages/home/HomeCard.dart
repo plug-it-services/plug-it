@@ -4,8 +4,8 @@ import '../../models/service/Service.dart';
 
 
 class HomeCard extends StatefulWidget {
-  String title;
-  String description;
+  Text title;
+  List<Text> description;
   HomeCard({super.key, required this.title, required this.description});
 
   @override
@@ -28,11 +28,10 @@ class _HomeCardState extends State<HomeCard> {
                     borderRadius: const BorderRadius.all(Radius.circular(5))
                   ),
                   height: 120,
-                  child: Expanded(
-                      child:Column(
+                  child: Column(
                         children: [
                           Center(
-                              child: Text(widget.title, style: const TextStyle(fontSize:20, fontWeight: FontWeight.w600))
+                              child: widget.title
                           ),
                           const Center(
                               child: Padding(
@@ -40,11 +39,15 @@ class _HomeCardState extends State<HomeCard> {
                                   child:Divider(color: Colors.black, thickness: 1,)
                               )
                           ),
-                          Center(child: Text(widget.description, style: const TextStyle(fontSize:17, fontWeight: FontWeight.w300))),
+                          const SizedBox(height: 5,),
+                          Center(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children:widget.description.map((e) => Center(child:e)).toList())
+                            ),
                         ],
                       )
                   )
-              )
           );
-}
+  }
 }
