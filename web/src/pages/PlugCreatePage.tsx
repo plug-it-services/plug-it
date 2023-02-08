@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
 import { Typography } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import TriggerCard, { StepInfo, TriggerCardType } from '../components/TriggerCard';
 import Button from '../components/Button';
-import { PlugDetail, postPlug, ServiceAction, ServiceEvent } from '../utils/api';
+import { PlugDetail, postPlug } from '../utils/api';
 import InputBar from '../components/InputBar';
-
-type ServiceDetail = {
-  events: ServiceEvent[] | null;
-  actions: ServiceAction[] | null;
-};
+import MessageBox from '../components/MessageBox';
 
 const PlugCreatePage = () => {
+  const [open, setOpen] = useState(false);
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('Cannot create plug');
+  const navigate = useNavigate();
   const [selections, setSelections] = useState<StepInfo[]>([
     { serviceName: '', stepId: '', type: TriggerCardType.EVENT, fields: [] },
     { serviceName: '', stepId: '', type: TriggerCardType.ACTION, fields: [] },
@@ -39,13 +40,20 @@ const PlugCreatePage = () => {
       ],
     };
     // Post Plug
-    postPlug(plugDetail).then((res) => {
-      console.log(res);
-    });
+    postPlug(plugDetail)
+      .then((res) => {
+        navigate('/plugs');
+      })
+      .catch((err) => {
+        setError('Cannot create plug');
+        setMessage(err.message);
+        setOpen(true);
+      });
   };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <MessageBox title={error} description={message} type={'error'} isOpen={open} onClose={() => setOpen(false)} />
       <Header title="Plug-It" area="Plugs" />
       <Typography variant="h4" fontWeight="bold" color={'primary'} style={{ marginTop: 30 }}>
         Create a new PLUG :D

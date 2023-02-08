@@ -10,7 +10,7 @@ export interface ISearchBarProps {
   onChange: (value: string) => void;
   onSearch: (value: string) => void;
 }
-// with shadow
+
 function SearchBar({ placeholder, textColor, backgroundColor, borderColor, onChange, onSearch }: ISearchBarProps) {
   const [searched, setSearched] = useState('');
 
