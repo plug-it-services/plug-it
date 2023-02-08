@@ -1,4 +1,9 @@
-import { BadRequestException, HttpException, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import mongoose, { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Plug, PlugDocument } from './schemas/plug.schema';
@@ -299,8 +304,8 @@ export class PlugsService {
         );
         throw new HttpException('Invalid field value', 400);
       }
-      if (field.value.startsWith('$')) {
-        await this.validateVariableReference(
+      if (field.value.includes('${')) {
+        await this.validateFieldWithVariables(
           field.value,
           variables,
           actionField,
@@ -335,13 +340,36 @@ export class PlugsService {
     return field;
   }
 
+  private async validateFieldWithVariables(
+    value: string,
+    variables: Map<string, Variable[]>,
+    field: Field,
+  ): Promise<boolean> {
+    let idx = value.indexOf('${');
+    let found = false;
+
+    while (idx !== -1) {
+      found = true;
+      const endIdx = value.indexOf('}', idx + 2);
+      if (endIdx === -1) {
+        this.logger.log(
+          `Invalid variable reference in ${field.key} field while validating action`,
+        );
+        throw new HttpException('Invalid variable reference', 400);
+      }
+      const variable = value.substring(idx + 2, endIdx);
+      await this.validateVariableReference(variable, variables, field);
+      idx = value.indexOf('$', endIdx);
+    }
+    return found;
+  }
+
   private async validateVariableReference(
     variable: string,
     variables: Map<string, Variable[]>,
     field: Field,
   ) {
-    const completeVariable = variable.substring(1); // remove $
-    const [provider, key] = completeVariable.split('.');
+    const [provider, key] = variable.split('.');
 
     if (!variables.has(provider)) {
       this.logger.log(
@@ -355,6 +383,7 @@ export class PlugsService {
       this.logger.log(
         `Requested variable ${variable} in ${field.key} field not found while validating action`,
       );
+      console.log('definition');
       throw new HttpException('Requested variable not found', 400);
     }
 
