@@ -24,12 +24,13 @@ export class EventsConnectorController {
   ) {}
 
   private async findPlugByEvent(event: EventFiredDto) {
-    const plug = await this.plugsService.findOwnedByEvent(
-      event.userId,
-      event.serviceName,
-      event.eventId,
-    );
-    if (!plug) {
+    const plug = await this.plugsService.findById(event.plugId);
+    if (
+      !plug ||
+      plug.owner !== event.userId ||
+      plug.event.id !== event.eventId ||
+      plug.event.serviceName !== event.serviceName
+    ) {
       this.logger.log(
         'No plug found for the event ' +
           event.eventId +
