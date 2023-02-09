@@ -23,8 +23,10 @@ export class UsersService {
 
   async removeCrsfToken(userId: number, crsfToken: string) {
     const user = await this.findOneById(userId);
-    const crsfTokens = user.crsfTokens.filter((el) => el.token !== crsfToken);
-    await this.usersRepository.update(userId, { crsfTokens });
+    await this.crsfTokenRepository.delete({
+      user: user,
+      token: crsfToken,
+    });
   }
 
   private async removeOldCrsfTokens(userId: number) {
