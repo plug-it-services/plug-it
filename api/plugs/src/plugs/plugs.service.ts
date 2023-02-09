@@ -96,7 +96,7 @@ export class PlugsService {
     return this.formatAll(plugs) as any[];
   }
 
-  async findById(id: string): Promise<Plug | null> {
+  async findById(id: string): Promise<PlugWithId | null> {
     const oid = new mongoose.Types.ObjectId(id);
     const plug = await this.plugsModel
       .aggregate([
@@ -167,7 +167,7 @@ export class PlugsService {
     return this.format(plug);
   }
 
-  async create(owner: number, plug: PlugSubmitDto): Promise<Plug> {
+  async create(owner: number, plug: PlugSubmitDto): Promise<PlugWithId> {
     const toCreate = plug as any as Plug;
     toCreate.owner = owner;
     const createdPlug = await this.plugsModel.create(plug);

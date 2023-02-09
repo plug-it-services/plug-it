@@ -5,6 +5,8 @@ export class ActionFinishedDto {
 
   actionId: string;
 
+  plugId: string;
+
   userId: number;
 
   runId: string;

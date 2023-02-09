@@ -52,6 +52,7 @@ export class PublicController {
     await this.eventConnectorService.emitEventInitialize(
       created.event.serviceName,
       {
+        plugId: created.id,
         eventId: created.event.id,
         userId: user.id,
         fields: created.event.fields,
