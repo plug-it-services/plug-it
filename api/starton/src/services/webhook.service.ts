@@ -5,7 +5,7 @@ import { Repository } from 'typeorm';
 
 @Injectable()
 export class WebHookService {
-  private logger = new Logger(WebhookService.name);
+  private logger = new Logger(WebHookService.name);
 
   constructor(
     @InjectRepository(WebHookEntity)

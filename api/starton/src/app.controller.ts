@@ -1,18 +1,15 @@
 import { Controller, Logger } from '@nestjs/common';
-import { AppService } from './app.service';
 import { StartonService } from './services/starton.service';
 import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 import { UserService } from './services/user.service';
 import { WebHookService } from './services/webhook.service';
 import { ConfigService } from '@nestjs/config';
-import { randomBytes } from 'crypto';
 import { v4 as uuidv4 } from 'uuid';
 
 @Controller()
 export class AppController {
   private logger = new Logger(AppController.name);
   constructor(
-    private readonly appService: AppService,
     private readonly startonService: StartonService,
     private readonly userService: UserService,
     private readonly configService: ConfigService,
@@ -51,7 +48,7 @@ export class AppController {
         const watcherType = 'ADDRESS_RECEIVED_NATIVE_CURRENCY';
         const uuid = uuidv4();
 
-        await this.userService.create(uuid, uid);
+        await this.webhookService.create(uuid, uid);
 
         const webhookUrl = `${this.configService.getOrThrow(
           'WEBHOOK_BASE_URL',

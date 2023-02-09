@@ -12,7 +12,7 @@ import { ConfigService } from '@nestjs/config';
 import { ApiKeyDto } from '../dto/ApiKeyDto';
 import { AmqpService } from '../services/amqp.service';
 import { UserService } from '../services/user.service';
-import { WebHookService } from '../services/user.service';
+import { WebHookService } from '../services/webhook.service';
 import { BN } from 'bn.js';
 import axios from 'axios';
 
@@ -64,13 +64,13 @@ export class PublicController {
   }
 
   @Post(':uuid')
-  async onTrigger(@Body() body: any, @Param('uuid') uid: string) {
+  async onTrigger(@Body() body: any, @Param('uuid') uuid: string) {
     this.logger.log(`Received transaction for webhook ${uuid}`);
     const from = body.data.transaction.from;
     const to = body.data.transaction.to;
     const value = body.data.transaction.value.hex;
     const valueString = new BN(value.substr(2), 16).toString(10);
-    const { uid } = this.webhookService.getWebhookById(uuid);
+    const { uid } = await this.webhookService.getWebhookById(uuid);
 
     const variables = [
       {
@@ -90,7 +90,7 @@ export class PublicController {
     await this.amqpService.publish(
       'plugs_events',
       'addressReceivedNativeTokens',
-      parseInt(uid),
+      uid,
       variables,
     );
     this.logger.log(`Published event for transaction of user ${uid}`);
