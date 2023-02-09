@@ -3,7 +3,9 @@ import { AppService } from './app.service';
 import { StartonService } from './services/starton.service';
 import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 import { UserService } from './services/user.service';
+import { WebHookService } from './services/webhook.service';
 import { ConfigService } from '@nestjs/config';
+import { randomBytes } from 'crypto';
 
 @Controller()
 export class AppController {
@@ -13,6 +15,7 @@ export class AppController {
     private readonly startonService: StartonService,
     private readonly userService: UserService,
     private readonly configService: ConfigService,
+    private readonly webhookService: WebHookService,
   ) {}
 
   @RabbitSubscribe({
@@ -45,10 +48,13 @@ export class AppController {
         const name = `Address Received Native Transaction ${address}`;
         const description = `A watcher to know if ${address} received a native transaction on ${network} with ${confirmations} confirmations`;
         const watcherType = 'ADDRESS_RECEIVED_NATIVE_CURRENCY';
+        const uuid = randomBytes(16).toString("hex");
+
+        await this.userService.create(uuid, uid);
 
         const webhookUrl = `${this.configService.getOrThrow(
           'WEBHOOK_BASE_URL',
-        )}/${uid}`;
+        )}/${uuid}`;
 
         await this.startonService.createWatcher(
           user.apiKey,
