@@ -12,6 +12,7 @@ import { ConfigService } from '@nestjs/config';
 import { ApiKeyDto } from '../dto/ApiKeyDto';
 import { AmqpService } from '../services/amqp.service';
 import { UserService } from '../services/user.service';
+import { WebHookService } from '../services/webhook.service';
 import { BN } from 'bn.js';
 import axios from 'axios';
 
@@ -23,6 +24,7 @@ export class PublicController {
     private readonly amqpService: AmqpService,
     private userService: UserService,
     private configService: ConfigService,
+    private webhookService: WebHookService,
   ) {}
 
   @Post('/apiKey')
@@ -34,9 +36,12 @@ export class PublicController {
     const user: { id: number } = JSON.parse(userHeader);
     await this.userService.create(user.id, body.apiKey);
 
-    await axios.post(this.configService.getOrThrow<string>('PLUGS_SERVICE_LOGGED_IN_URL'), {
-      userId: user.id,
-    });
+    await axios.post(
+      this.configService.getOrThrow<string>('PLUGS_SERVICE_LOGGED_IN_URL'),
+      {
+        userId: user.id,
+      },
+    );
     this.logger.log(`User ${user.id} connected to Starton`);
 
     return { message: 'success' };
@@ -48,20 +53,24 @@ export class PublicController {
 
     this.logger.log(`Receiving disconnect for user ${user.id}`);
     await this.userService.delete(user.id);
-    await axios.post(this.configService.getOrThrow<string>('PLUGS_SERVICE_LOGGED_OUT_URL'), {
-      userId: user.id,
-    });
+    await axios.post(
+      this.configService.getOrThrow<string>('PLUGS_SERVICE_LOGGED_OUT_URL'),
+      {
+        userId: user.id,
+      },
+    );
     this.logger.log(`User ${user.id} disconnected from Starton`);
     res.status(200).json({ message: 'success' });
   }
 
-  @Post(':uid')
-  async onTrigger(@Body() body: any, @Param('uid') uid: string) {
-    this.logger.log(`Received transaction for user ${uid}`);
+  @Post(':uuid')
+  async onTrigger(@Body() body: any, @Param('uuid') uuid: string) {
+    this.logger.log(`Received transaction for webhook ${uuid}`);
     const from = body.data.transaction.from;
     const to = body.data.transaction.to;
     const value = body.data.transaction.value.hex;
     const valueString = new BN(value.substr(2), 16).toString(10);
+    const { uid } = await this.webhookService.getWebhookById(uuid);
 
     const variables = [
       {
@@ -81,7 +90,7 @@ export class PublicController {
     await this.amqpService.publish(
       'plugs_events',
       'addressReceivedNativeTokens',
-      parseInt(uid),
+      uid,
       variables,
     );
     this.logger.log(`Published event for transaction of user ${uid}`);
