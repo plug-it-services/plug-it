@@ -35,21 +35,29 @@ export class VariablesService {
 
   fillFields(fields: Field[], variables: Variable[][]) {
     return fields.map((field) => {
-      if (!field.value.startsWith('$')) {
-        return field;
-      }
-      const completeVariable = field.value.substring(1); // remove $
-      const [provider, key] = completeVariable.split('.');
-      const variable = variables[provider].find((v) => v.key === key);
-      if (!variable) {
-        this.logger.warn(
-          `Variable ${field.value} not found in variables for field ${field.key}`,
-        );
-        throw new Nack();
+      let idx = field.value.indexOf('$');
+
+      while (idx !== -1) {
+        const rest = field.value.substring(idx + 2); // get rest of string
+        const endVariableIdx = rest.indexOf('}'); // get end of variable
+
+        if (endVariableIdx !== -1) {
+          const completeVariable = rest.substring(0, endVariableIdx); // get complete variable
+          const [provider, key] = completeVariable.split('.');
+          const variable = variables[provider].find((v) => v.key === key);
+
+          if (variable) {
+            field.value = field.value.replace(
+              '${' + completeVariable + '}',
+              variable.value,
+            );
+          }
+        }
+        idx = field.value.indexOf('$', idx + 1);
       }
       return {
         key: field.key,
-        value: variable.value,
+        value: field.value,
       };
     });
   }

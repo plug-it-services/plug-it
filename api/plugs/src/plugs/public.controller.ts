@@ -10,7 +10,7 @@ import {
   Param,
   Post,
   Put,
-  Query
+  Query,
 } from '@nestjs/common';
 import { PlugsService } from './plugs.service';
 import UserHeaderDto from '../dto/UserHeader.dto';

@@ -68,7 +68,7 @@ export class PublicController {
     const result = await this.authService.login(userDto.email);
     res.cookie('access_token', result.access_token, {
       sameSite: 'none',
-      secure: true,
+      secure: false,
       path: '/',
     });
     res.status(200).send({ message: 'success' });
@@ -147,7 +147,7 @@ export class PublicController {
     await this.userService.saveCrsfToken(result.id, crsfToken);
     res.cookie('access_token', result.access_token, {
       sameSite: 'none',
-      secure: true,
+      secure: false,
       path: '/',
     });
     res.status(200).send({ message: 'success' });
