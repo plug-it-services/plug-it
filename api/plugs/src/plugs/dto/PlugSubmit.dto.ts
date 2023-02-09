@@ -1,12 +1,14 @@
-import { IsBoolean, IsString, ValidateNested } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsString, ValidateNested } from 'class-validator';
 import { Step } from './Step.dto';
 import { Type } from 'class-transformer';
 
 export class PlugSubmitDto {
   @IsString()
+  @IsNotEmpty()
   name: string;
 
   @IsBoolean()
+  @IsNotEmpty()
   enabled: boolean;
 
   @ValidateNested()
