@@ -6,6 +6,7 @@ import { UserService } from './services/user.service';
 import { WebHookService } from './services/webhook.service';
 import { ConfigService } from '@nestjs/config';
 import { randomBytes } from 'crypto';
+import { v4 as uuidv4 } from 'uuid';
 
 @Controller()
 export class AppController {
@@ -41,14 +42,14 @@ export class AppController {
     switch (msg.eventId) {
       case 'addressReceivedNativeTokens':
         const address = msg.fields.find((v) => v.key === 'address').value;
-        const confirmations = parseInt(msg.fields.find(
-          (v) => v.key === 'confirmations',
-        ).value);
+        const confirmations = parseInt(
+          msg.fields.find((v) => v.key === 'confirmations').value,
+        );
         const network = msg.fields.find((v) => v.key === 'network').value;
         const name = `Address Received Native Transaction ${address}`;
         const description = `A watcher to know if ${address} received a native transaction on ${network} with ${confirmations} confirmations`;
         const watcherType = 'ADDRESS_RECEIVED_NATIVE_CURRENCY';
-        const uuid = randomBytes(16).toString("hex");
+        const uuid = uuidv4();
 
         await this.userService.create(uuid, uid);
 

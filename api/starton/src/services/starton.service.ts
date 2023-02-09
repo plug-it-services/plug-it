@@ -37,8 +37,6 @@ export class StartonService {
       console.error(e);
       console.error(e.response.data);
       console.error(e.response.data.message);
-
-      
     }
   }
 }

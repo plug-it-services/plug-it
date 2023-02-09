@@ -19,7 +19,9 @@ export class AmqpService {
       variables,
     };
 
-    this.logger.log(`Publishing to ${queue} with message ${JSON.stringify(msg)}`);
+    this.logger.log(
+      `Publishing to ${queue} with message ${JSON.stringify(msg)}`,
+    );
     await this.amqpConnection.publish('amq.direct', queue, msg);
     this.logger.log(`Published to ${queue}`);
   }

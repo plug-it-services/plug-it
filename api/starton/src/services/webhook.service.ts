@@ -20,7 +20,7 @@ export class WebHookService {
     this.logger.log(`Creating webhook for user ${uid}`);
     return this.webhookRepository.save({
       uuid,
-      uid
+      uid,
     });
   }
 

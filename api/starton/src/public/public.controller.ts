@@ -36,9 +36,12 @@ export class PublicController {
     const user: { id: number } = JSON.parse(userHeader);
     await this.userService.create(user.id, body.apiKey);
 
-    await axios.post(this.configService.getOrThrow<string>('PLUGS_SERVICE_LOGGED_IN_URL'), {
-      userId: user.id,
-    });
+    await axios.post(
+      this.configService.getOrThrow<string>('PLUGS_SERVICE_LOGGED_IN_URL'),
+      {
+        userId: user.id,
+      },
+    );
     this.logger.log(`User ${user.id} connected to Starton`);
 
     return { message: 'success' };
@@ -50,9 +53,12 @@ export class PublicController {
 
     this.logger.log(`Receiving disconnect for user ${user.id}`);
     await this.userService.delete(user.id);
-    await axios.post(this.configService.getOrThrow<string>('PLUGS_SERVICE_LOGGED_OUT_URL'), {
-      userId: user.id,
-    });
+    await axios.post(
+      this.configService.getOrThrow<string>('PLUGS_SERVICE_LOGGED_OUT_URL'),
+      {
+        userId: user.id,
+      },
+    );
     this.logger.log(`User ${user.id} disconnected from Starton`);
     res.status(200).json({ message: 'success' });
   }
