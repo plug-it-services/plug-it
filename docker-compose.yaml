@@ -87,9 +87,12 @@ services:
       - traefik_network
     labels:
       - traefik.http.routers.users.rule=PathPrefix(`/auth`)
+      - traefik.http.routers.me.rule=Path(`/me`)
+      - traefik.http.middlewares.add-public.addprefix.prefix=/public
       - traefik.http.middlewares.auth-replacepathregex.replacepathregex.regex=^/auth/(.*)
       - traefik.http.middlewares.auth-replacepathregex.replacepathregex.replacement=/public/$$1
       - traefik.http.routers.users.middlewares=auth-replacepathregex
+      - traefik.http.routers.me.middlewares=add-public
       - traefik.enable=true
     ports:
       - ${USER_PORT}:80
