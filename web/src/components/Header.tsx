@@ -1,7 +1,9 @@
 import React from 'react';
 import { AppBar, Link, Typography } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import Button from './Button';
 import AccountTile from './AccountTile';
+import { logout } from '../utils/api';
 
 export interface IHeaderProps {
   title: string;
@@ -9,6 +11,15 @@ export interface IHeaderProps {
 }
 
 function Header({ title }: IHeaderProps) {
+  const navigate = useNavigate();
+
+  function onDisconnect() {
+    logout().finally(() => {
+      localStorage.removeItem('crsf-token');
+      navigate('/login');
+    });
+  }
+
   return (
     <AppBar position="static" style={{ backgroundColor: '#EAF1FF' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', height: '80px', verticalAlign: 'middle' }}>
@@ -35,7 +46,7 @@ function Header({ title }: IHeaderProps) {
               window.location.href = '/plugs';
             }}
           />
-          <AccountTile name="Jean Michel" email="jeanmichel@plugit.org" />
+          <AccountTile name="Jean Michel" email="jeanmichel@plugit.org" onDisconnect={onDisconnect} />
         </div>
       </div>
     </AppBar>

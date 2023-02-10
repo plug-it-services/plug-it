@@ -189,6 +189,8 @@ export const loginAccount = async (email: string, password: string) =>
     password,
   });
 
+export const logout = async (): Promise<void> => makeRequest('post', '/auth/logout');
+
 /*   END POST   */
 
 export default api;
