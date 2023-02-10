@@ -1,15 +1,21 @@
 FROM node:16-alpine as build
 
 WORKDIR /app
-COPY . .
+COPY yarn.lock package.json ./
 
 RUN yarn install
+
+COPY . .
+
 RUN yarn build
+
 
 FROM nginx:latest as run
 
+WORKDIR /mobile
+
 RUN sed -i 's/location \/ {/location \/ {\ntry_files $uri \/index.html;/' /etc/nginx/conf.d/default.conf
 
-RUN rm -rf /usr/share/nginx/html/*
+COPY --from=build /app/build/ /usr/share/nginx/html
 
-COPY --from=build /app/build /usr/share/nginx/html
+RUN ln -sf /mobile/client.apk /usr/share/nginx/html/client.apk
