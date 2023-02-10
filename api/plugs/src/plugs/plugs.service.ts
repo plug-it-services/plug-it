@@ -176,7 +176,7 @@ export class PlugsService {
     return this.format(created.toJSON());
   }
 
-  async update(id: string, plug: PlugSubmitDto): Promise<Plug> {
+  async update(id: string, plug: PlugSubmitDto): Promise<PlugWithId> {
     const updated = await this.plugsModel
       .findByIdAndUpdate(id, plug)
       .lean()
