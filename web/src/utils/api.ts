@@ -45,6 +45,13 @@ export interface ServiceEvent {
   }[];
 }
 
+export interface UserInfos {
+  id: number;
+  email: string;
+  firstname: string;
+  lastname: string;
+}
+
 export interface ServiceAction {
   id: string;
   name: string;
@@ -141,6 +148,8 @@ export const verify = async (): Promise<boolean> => {
 };
 
 export const getServices = async (): Promise<Service[]> => makeRequest('get', '/services');
+
+export const getUserInfos = async (): Promise<UserInfos> => makeRequest('get', '/me');
 
 export const getServiceEvents = async (serviceName: string): Promise<ServiceEvent[]> =>
   makeRequest('get', `/service/${serviceName}/events`);

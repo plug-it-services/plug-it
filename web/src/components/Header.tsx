@@ -1,9 +1,9 @@
-import React from 'react';
+import { useEffect, useState } from 'react';
 import { AppBar, Link, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import Button from './Button';
 import AccountTile from './AccountTile';
-import { logout } from '../utils/api';
+import {getUserInfos, logout, UserInfos} from '../utils/api';
 
 export interface IHeaderProps {
   title: string;
@@ -12,6 +12,7 @@ export interface IHeaderProps {
 
 function Header({ title }: IHeaderProps) {
   const navigate = useNavigate();
+  const [user, setUser] = useState<UserInfos | null>(null);
 
   function onDisconnect() {
     logout().finally(() => {
@@ -19,6 +20,12 @@ function Header({ title }: IHeaderProps) {
       navigate('/login');
     });
   }
+
+  useEffect(() => {
+    getUserInfos().then((userInfos) => {
+      setUser(userInfos);
+    });
+  }, []);
 
   return (
     <AppBar position="static" style={{ backgroundColor: '#EAF1FF' }}>
@@ -46,7 +53,13 @@ function Header({ title }: IHeaderProps) {
               window.location.href = '/plugs';
             }}
           />
-          <AccountTile name="Jean Michel" email="jeanmichel@plugit.org" onDisconnect={onDisconnect} />
+          <AccountTile
+            name={user?.lastname || ''}
+            firstName={user?.firstname || ''}
+            id={user?.id || -1}
+            email={user?.email || ''}
+            onDisconnect={onDisconnect}
+          />
         </div>
       </div>
     </AppBar>
