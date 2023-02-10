@@ -68,7 +68,7 @@ export class PublicController {
     const result = await this.authService.login(userDto.email);
     res.cookie('access_token', result.access_token, {
       sameSite: 'none',
-      secure: false,
+      secure: true,
       path: '/',
     });
     res.status(200).send({ message: 'success' });
@@ -147,9 +147,15 @@ export class PublicController {
     await this.userService.saveCrsfToken(result.id, crsfToken);
     res.cookie('access_token', result.access_token, {
       sameSite: 'none',
-      secure: false,
+      secure: true,
       path: '/',
     });
     res.status(200).send({ message: 'success' });
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  async me(@Request() req) {
+    return req.user;
   }
 }
