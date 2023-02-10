@@ -156,6 +156,13 @@ export class PublicController {
   @UseGuards(JwtAuthGuard)
   @Get('me')
   async me(@Request() req) {
-    return req.user;
+    const user = await this.userService.findOneById(req.user.id);
+
+    return {
+      id: user?.id,
+      email: user?.email,
+      firstname: user?.firstname,
+      lastname: user?.lastname,
+    };
   }
 }
