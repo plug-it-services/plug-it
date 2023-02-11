@@ -2,6 +2,7 @@ export const twitter = {
   name: 'twitter',
   authType: 'oauth2',
   icon: '/images/twitter_icon.png',
+  color: '#1da0f2',
   events: [],
   actions: [
     {

@@ -1,7 +1,7 @@
 import {
   IsArray,
   IsBoolean,
-  IsEnum,
+  IsEnum, IsNotEmpty,
   IsString,
   ValidateNested,
 } from 'class-validator';
@@ -23,12 +23,14 @@ export enum ElementType {
 
 export class Variable {
   @IsString()
+  @IsNotEmpty()
   key: string;
 
   @IsEnum(ElementType)
   type: ElementType;
 
   @IsString()
+  @IsNotEmpty()
   displayName: string;
 
   @IsString()
@@ -37,12 +39,14 @@ export class Variable {
 
 export class Field {
   @IsString()
+  @IsNotEmpty()
   key: string;
 
   @IsEnum(ElementType)
   type: ElementType;
 
   @IsString()
+  @IsNotEmpty()
   displayName: string;
 
   @IsBoolean()
@@ -51,9 +55,11 @@ export class Field {
 
 export class EventDescription {
   @IsString()
+  @IsNotEmpty()
   id: string;
 
   @IsString()
+  @IsNotEmpty()
   name: string;
 
   @IsString()
@@ -72,9 +78,11 @@ export class EventDescription {
 
 export class ActionDescription {
   @IsString()
+  @IsNotEmpty()
   id: string;
 
   @IsString()
+  @IsNotEmpty()
   name: string;
 
   @IsString()
@@ -93,13 +101,19 @@ export class ActionDescription {
 
 export class InitializeRequestDto {
   @IsString()
+  @IsNotEmpty()
   name: string;
 
   @IsEnum(AuthType)
   authType: AuthType;
 
   @IsString()
+  @IsNotEmpty()
   icon: string;
+
+  @IsString()
+  @IsNotEmpty()
+  color: string;
 
   @IsArray()
   @ValidateNested()
