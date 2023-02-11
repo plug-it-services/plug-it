@@ -100,7 +100,26 @@ export class PublicController {
       throw new BadRequestException('Plug must have at least one event/action');
     await this.plugsService.validateSteps(plug);
     await this.plugsService.verifyServicesConnected(user.id, plug);
-    await this.plugsService.update(id, plug);
+    const updated = await this.plugsService.update(id, plug);
+    await this.eventConnectorService.emitPlugDisabling(
+      current.event.serviceName,
+      {
+        plugId: current.id,
+        eventId: current.event.id,
+        userId: user.id,
+      },
+    );
+    // wait 5 seconds to make sure the event is disabled
+    await new Promise((resolve) => setTimeout(resolve, 5000));
+    await this.eventConnectorService.emitEventInitialize(
+      updated.event.serviceName,
+      {
+        plugId: updated.id,
+        eventId: updated.event.id,
+        userId: user.id,
+        fields: updated.event.fields,
+      },
+    );
     return { message: 'success' };
   }
 
@@ -121,6 +140,25 @@ export class PublicController {
     if (current.owner !== user.id)
       throw new ForbiddenException('Cannot edit a plug that is not yours');
     await this.plugsService.editEnabled(id, enabledBool);
+    if (enabledBool)
+      await this.eventConnectorService.emitEventInitialize(
+        current.event.serviceName,
+        {
+          plugId: current.id,
+          eventId: current.event.id,
+          userId: user.id,
+          fields: current.event.fields,
+        },
+      );
+    else
+      await this.eventConnectorService.emitPlugDisabling(
+        current.event.serviceName,
+        {
+          plugId: current.id,
+          eventId: current.event.id,
+          userId: user.id,
+        },
+      );
     return { message: 'success' };
   }
 }
