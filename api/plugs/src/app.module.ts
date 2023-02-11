@@ -4,6 +4,7 @@ import { ServicesModule } from './services/services.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { PlugsModule } from './plugs/plugs.module';
 import { EventsConnectorModule } from './events-connector/events-connector.module';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -21,7 +22,7 @@ import { EventsConnectorModule } from './events-connector/events-connector.modul
     PlugsModule,
     EventsConnectorModule,
   ],
-  controllers: [],
+  controllers: [AppController],
   providers: [],
 })
 export class AppModule {}
