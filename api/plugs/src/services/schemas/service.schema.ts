@@ -21,6 +21,9 @@ export class Service {
   icon: string;
 
   @Prop({ required: true })
+  color: string;
+
+  @Prop({ required: true })
   events: EventDescription[];
 
   @Prop({ required: true })
