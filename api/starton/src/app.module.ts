@@ -63,5 +63,6 @@ export class AppModule {
   async onModuleInit() {
     await this.createQueue('plug_event_starton_initialize');
     await this.createQueue('plug_action_starton_triggers');
+    await this.createQueue('plug_event_starton_disabled');
   }
 }

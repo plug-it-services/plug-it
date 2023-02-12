@@ -12,19 +12,42 @@ export class WebHookService {
     private webhookRepository: Repository<WebHookEntity>,
   ) {}
 
-  async getWebhookById(uuid: string): Promise<WebHookEntity | null> {
+  async getWebhookByState(uuid: string): Promise<WebHookEntity | null> {
     return this.webhookRepository.findOneBy({ uuid });
   }
 
-  async create(uuid: string, uid: number): Promise<WebHookEntity> {
-    this.logger.log(`Creating webhook for user ${uid}`);
-    return this.webhookRepository.save({
-      uuid,
-      uid,
+  async find(userId: number, plugId: string, eventId: string) {
+    return this.webhookRepository.findOneBy({
+      userId,
+      plugId,
+      eventId,
     });
   }
 
-  async delete(uuid: string) {
+  async create(
+    uuid: string,
+    userId: number,
+    plugId: string,
+    eventId: string,
+  ): Promise<WebHookEntity> {
+    this.logger.log(`Creating webhook for user ${userId}`);
+    return this.webhookRepository.save({
+      uuid,
+      userId,
+      plugId,
+      eventId,
+    });
+  }
+
+  async addWebhookId(uuid: string, webhookId: string) {
+    await this.webhookRepository.update({ uuid }, { webhookId });
+  }
+
+  async deleteByState(uuid: string) {
     await this.webhookRepository.delete({ uuid });
+  }
+
+  async deleteById(webhookId: string) {
+    await this.webhookRepository.delete({ webhookId });
   }
 }
