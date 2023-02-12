@@ -5,7 +5,7 @@ import {
   Delete,
   ForbiddenException,
   Get,
-  Headers,
+  Headers, Logger,
   NotFoundException,
   Param,
   Post,
@@ -19,6 +19,7 @@ import { EventsConnectorService } from '../events-connector/services/events-conn
 
 @Controller('public/plugs')
 export class PublicController {
+  logger = new Logger(PublicController.name);
   constructor(
     private plugsService: PlugsService,
     private eventConnectorService: EventsConnectorService,
@@ -49,6 +50,7 @@ export class PublicController {
     await this.plugsService.validateSteps(plug);
     await this.plugsService.verifyServicesConnected(user.id, plug);
     const created = await this.plugsService.create(user.id, plug);
+    this.logger.log(`Created plug ${created.id}`);
     await this.eventConnectorService.emitEventInitialize(
       created.event.serviceName,
       {
