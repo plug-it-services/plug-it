@@ -18,7 +18,9 @@ export class StartonService {
     const to = body.data.transaction.to;
     const value = body.data.transaction.value.hex;
     const valueString = new BN(value.substr(2), 16).toString(10);
-    const { userId } = await this.webhookService.getWebhookByState(uuid);
+    const { userId, plugId } = await this.webhookService.getWebhookByState(
+      uuid,
+    );
 
     const variables = [
       {
@@ -38,6 +40,7 @@ export class StartonService {
     await this.amqpService.publish(
       'plugs_events',
       'addressSentNativeTokens',
+      plugId,
       userId,
       variables,
     );
@@ -52,7 +55,9 @@ export class StartonService {
     const to = body.data.transaction.to;
     const value = body.data.transaction.value.hex;
     const valueString = new BN(value.substr(2), 16).toString(10);
-    const { userId } = await this.webhookService.getWebhookByState(uuid);
+    const { userId, plugId } = await this.webhookService.getWebhookByState(
+      uuid,
+    );
 
     const variables = [
       {
@@ -72,6 +77,7 @@ export class StartonService {
     await this.amqpService.publish(
       'plugs_events',
       'addressReceivedNativeTokens',
+      plugId,
       userId,
       variables,
     );
@@ -85,7 +91,9 @@ export class StartonService {
     const to = body.data.transaction.to;
     const value = body.data.transaction.value.hex;
     const valueString = new BN(value.substr(2), 16).toString(10);
-    const { userId } = await this.webhookService.getWebhookByState(uuid);
+    const { userId, plugId } = await this.webhookService.getWebhookByState(
+      uuid,
+    );
 
     const variables = [
       {
@@ -105,6 +113,7 @@ export class StartonService {
     await this.amqpService.publish(
       'plugs_events',
       'addressActivity',
+      plugId,
       userId,
       variables,
     );
@@ -119,7 +128,9 @@ export class StartonService {
     const contractAddress = body.data.approval.contractAddress;
     const value = body.data.approval.value.hex;
     const valueString = new BN(value.substr(2), 16).toString(10);
-    const { userId } = await this.webhookService.getWebhookByState(uuid);
+    const { userId, plugId } = await this.webhookService.getWebhookByState(
+      uuid,
+    );
 
     const variables = [
       {
@@ -143,6 +154,7 @@ export class StartonService {
     await this.amqpService.publish(
       'plugs_events',
       'eventApproval',
+      plugId,
       userId,
       variables,
     );
@@ -156,7 +168,9 @@ export class StartonService {
     const contractAddress = body.data.mint.contractAddress;
     const value = body.data.mint.value.hex;
     const valueString = new BN(value.substr(2), 16).toString(10);
-    const { userId } = await this.webhookService.getWebhookByState(uuid);
+    const { userId, plugId } = await this.webhookService.getWebhookByState(
+      uuid,
+    );
 
     const variables = [
       {
@@ -176,6 +190,7 @@ export class StartonService {
     await this.amqpService.publish(
       'plugs_events',
       'eventMint',
+      plugId,
       userId,
       variables,
     );
@@ -188,7 +203,9 @@ export class StartonService {
     const contractAddress = body.data.transfer.contractAddress;
     const value = body.data.transfer.value.hex;
     const valueString = new BN(value.substr(2), 16).toString(10);
-    const { userId } = await this.webhookService.getWebhookByState(uuid);
+    const { userId, plugId } = await this.webhookService.getWebhookByState(
+      uuid,
+    );
 
     const variables = [
       {
@@ -212,6 +229,7 @@ export class StartonService {
     await this.amqpService.publish(
       'plugs_events',
       'eventTransfer',
+      plugId,
       userId,
       variables,
     );
@@ -226,7 +244,9 @@ export class StartonService {
     const contractAddress = body.data.transfer.contractAddress;
     const tokenId = body.data.transfer.tokenId.hex;
     const tokenIdString = new BN(tokenId.substr(2), 16).toString(10);
-    const { userId } = await this.webhookService.getWebhookByState(uuid);
+    const { userId, plugId } = await this.webhookService.getWebhookByState(
+      uuid,
+    );
 
     const variables = [
       {
@@ -250,6 +270,7 @@ export class StartonService {
     await this.amqpService.publish(
       'plugs_events',
       'erc721EventTransfer',
+      plugId,
       userId,
       variables,
     );
@@ -270,7 +291,9 @@ export class StartonService {
     const tokenIdString = new BN(tokenId.substr(2), 16).toString(10);
     const value = body.data.transferSingle.value.hex;
     const valueString = new BN(value.substr(2), 16).toString(10);
-    const { userId } = await this.webhookService.getWebhookByState(uuid);
+    const { userId, plugId } = await this.webhookService.getWebhookByState(
+      uuid,
+    );
 
     const variables = [
       {
@@ -302,6 +325,7 @@ export class StartonService {
     await this.amqpService.publish(
       'plugs_events',
       'eventTransfer',
+      plugId,
       userId,
       variables,
     );

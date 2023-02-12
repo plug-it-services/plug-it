@@ -38,6 +38,9 @@ export class AppController {
 
       await this.startonService.deleteWatcher(user.apiKey, webhook.webhookId);
 
+      this.logger.log(
+        `Deleting webhook ${webhook.webhookId} for user ${user.id}`,
+      );
       await this.webhookService.deleteById(webhook.webhookId);
     } catch (e) {
       this.logger.error(`Error while disabling event : ${e}`);
