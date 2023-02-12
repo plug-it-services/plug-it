@@ -112,6 +112,7 @@ export class EventsConnectorController {
         },
       );
     } catch (e) {
+      this.logger.error(`Error while handling event : ${e}`);
       return new Nack();
     }
   }
