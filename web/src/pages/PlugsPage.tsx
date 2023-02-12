@@ -71,7 +71,12 @@ const PlugsPage = () => {
         <Grid container spacing={2} columns={3} style={{ paddingTop: '20px' }}>
           {searchedPlugs.map((plug) => (
             <Grid item key={plug.id}>
-              <PlugCard plug={plug} onClickButton={() => setPlugEnable(!plug.enabled, plug.id)} />
+              <PlugCard
+                plug={plug}
+                onStateClickButton={() => setPlugEnable(!plug.enabled, plug.id)}
+                onDeleteClickButton={() => {}}
+                onEditClickButton={() => {}}
+              />
             </Grid>
           ))}
         </Grid>
