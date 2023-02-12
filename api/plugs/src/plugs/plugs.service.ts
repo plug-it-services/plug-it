@@ -61,21 +61,61 @@ export class PlugsService {
           },
         },
         {
+          $unwind: '$actions',
+        },
+        {
           $lookup: {
             from: 'services',
-            let: {
-              names: '$actions.serviceName',
+            localField: 'actions.serviceName',
+            foreignField: 'name',
+            as: 'linked_services',
+          },
+        },
+        {
+          $group: {
+            _id: '$_id',
+            otherFields: { $first: '$$ROOT' },
+            actions: { $push: '$actions' },
+            linked_services: {
+              $push: '$linked_services',
             },
-            pipeline: [
-              {
-                $match: {
-                  $expr: {
-                    $in: ['$name', '$$names'],
-                  },
+          },
+        },
+        {
+          $addFields: {
+            icons: {
+              $map: {
+                input: '$linked_services',
+                as: 'service',
+                in: '$$service.icon',
+              },
+            },
+          },
+        },
+        {
+          $addFields: {
+            allIcons: {
+              $reduce: {
+                input: '$icons',
+                initialValue: [],
+                in: {
+                  $concatArrays: ['$$value', '$$this'],
                 },
               },
-            ],
-            as: 'actionsIcons',
+            },
+          },
+        },
+        {
+          $replaceRoot: {
+            newRoot: {
+              $mergeObjects: [
+                '$otherFields',
+                {
+                  actions: '$actions',
+                  allIcons: '$allIcons',
+                },
+              ],
+            },
           },
         },
         {
@@ -86,7 +126,7 @@ export class PlugsService {
             event: 1,
             actions: 1,
             icons: {
-              $concatArrays: ['$icons.icon', '$actionsIcons.icon'],
+              $concatArrays: ['$icons.icon', '$allIcons'],
             },
           },
         },
@@ -114,21 +154,61 @@ export class PlugsService {
           },
         },
         {
+          $unwind: '$actions',
+        },
+        {
           $lookup: {
             from: 'services',
-            let: {
-              names: '$actions.serviceName',
+            localField: 'actions.serviceName',
+            foreignField: 'name',
+            as: 'linked_services',
+          },
+        },
+        {
+          $group: {
+            _id: '$_id',
+            otherFields: { $first: '$$ROOT' },
+            actions: { $push: '$actions' },
+            linked_services: {
+              $push: '$linked_services',
             },
-            pipeline: [
-              {
-                $match: {
-                  $expr: {
-                    $in: ['$name', '$$names'],
-                  },
+          },
+        },
+        {
+          $addFields: {
+            icons: {
+              $map: {
+                input: '$linked_services',
+                as: 'service',
+                in: '$$service.icon',
+              },
+            },
+          },
+        },
+        {
+          $addFields: {
+            allIcons: {
+              $reduce: {
+                input: '$icons',
+                initialValue: [],
+                in: {
+                  $concatArrays: ['$$value', '$$this'],
                 },
               },
-            ],
-            as: 'actionsIcons',
+            },
+          },
+        },
+        {
+          $replaceRoot: {
+            newRoot: {
+              $mergeObjects: [
+                '$otherFields',
+                {
+                  actions: '$actions',
+                  allIcons: '$allIcons',
+                },
+              ],
+            },
           },
         },
         {
@@ -139,7 +219,7 @@ export class PlugsService {
             event: 1,
             actions: 1,
             icons: {
-              $concatArrays: ['$icons.icon', '$actionsIcons.icon'],
+              $concatArrays: ['$icons.icon', '$allIcons'],
             },
           },
         },
