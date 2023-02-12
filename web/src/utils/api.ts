@@ -102,7 +102,7 @@ const throwApiError = (error: any) => {
   throw new ApiError(-1, 'Unknown error');
 };
 
-async function makeRequest(method: 'get' | 'post' | 'put', endpoint: string, data?: any): Promise<any> {
+async function makeRequest(method: 'get' | 'post' | 'put' | 'delete', endpoint: string, data?: any): Promise<any> {
   try {
     if (method === 'get')
       return (
@@ -125,6 +125,15 @@ async function makeRequest(method: 'get' | 'post' | 'put', endpoint: string, dat
     if (method === 'put')
       return (
         await api.put(endpoint, data, {
+          withCredentials: true,
+          headers: {
+            'crsf-token': localStorage.getItem('crsf-token') ?? '',
+          },
+        })
+      ).data;
+    if (method === 'delete')
+      return (
+        await api.delete(endpoint, {
           withCredentials: true,
           headers: {
             'crsf-token': localStorage.getItem('crsf-token') ?? '',
@@ -165,6 +174,8 @@ export const postPlug = async (plug: PlugDetail): Promise<PlugDetail> => makeReq
 
 export const setPlugEnable = async (enable: boolean, id: string) =>
   makeRequest('put', `/plugs/${id}/enabled?enabled=${enable}`);
+
+export const deletePlug = async (id: string) => makeRequest('delete', `/plugs/${id}`);
 
 export const authService = async (service: Service, key: string): Promise<boolean> =>
   makeRequest('post', `/service/${service.name}/apiKey`, {
