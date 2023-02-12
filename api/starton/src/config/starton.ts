@@ -2,7 +2,7 @@ export default {
   name: 'starton',
   authType: 'apiKey',
   icon: '/images/starton_icon.png',
-  color: '#060228',
+  color: '#01E6CD',
   events: [
     {
       id: 'addressReceivedNativeTokens',
