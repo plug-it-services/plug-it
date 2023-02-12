@@ -61,21 +61,13 @@ export class AppController {
 
       switch (msg.eventId) {
         case 'addressReceivedNativeTokens':
-          await this.addressTokensEvent(
-            user,
-            msg,
-            'native transaction received',
-          );
+          await this.addressTokensEvent(user, msg, 'native currency received');
           break;
         case 'addressSentNativeCurrency':
-          await this.addressTokensEvent(user, msg, 'native transaction sent');
+          await this.addressTokensEvent(user, msg, 'native currency sent');
           break;
         case 'addressActivity':
-          await this.addressTokensEvent(
-            user,
-            msg,
-            'native transaction activity',
-          );
+          await this.addressTokensEvent(user, msg, 'native currency activity');
           break;
         case 'eventApproval':
           await this.addressTokensEvent(user, msg, 'approval event');
@@ -103,9 +95,9 @@ export class AppController {
     user: UserEntity,
     msg: any,
     type:
-      | 'native transaction sent'
-      | 'native transaction received'
-      | 'native transaction activity'
+      | 'native currency sent'
+      | 'native currency received'
+      | 'native currency activity'
       | 'approval event'
       | 'mint event'
       | 'transfer event'

@@ -354,9 +354,9 @@ export class StartonService {
     address: string,
     confirmations: number,
     type:
-      | 'native transaction sent'
-      | 'native transaction received'
-      | 'native transaction activity'
+      | 'native currency sent'
+      | 'native currency received'
+      | 'native currency activity'
       | 'approval event'
       | 'mint event'
       | 'transfer event'
@@ -365,9 +365,9 @@ export class StartonService {
     webhook: string,
   ): Promise<string> {
     const convertion = {
-      'native transaction sent': 'ADDRESS_SENT_NATIVE_TRANSACTION',
-      'native transaction received': 'ADDRESS_RECEIVED_NATIVE_TRANSACTION',
-      'native transaction activity': 'ADDRESS_ACTIVITY',
+      'native currency sent': 'ADDRESS_RECEIVED_NATIVE_CURRENCY',
+      'native currency received': 'ADDRESS_RECEIVED_NATIVE_CURRENCY',
+      'native currency activity': 'ADDRESS_ACTIVITY',
       'approval event': 'EVENT_APPROVAL',
       'mint event': 'EVENT_MINT',
       'transfer event': 'EVENT_TRANSFER',
@@ -404,6 +404,7 @@ export class StartonService {
       console.error(e);
       console.error(e.response.data);
       console.error(e.response.data.message);
+      throw e;
     }
   }
 }
