@@ -8,8 +8,8 @@ export class AmqpService {
 
   async publish(
     queue: string,
-    plugId: string,
     stepId: string,
+    plugId: string,
     userId: number,
     variables: { key: string; value: string }[],
   ) {

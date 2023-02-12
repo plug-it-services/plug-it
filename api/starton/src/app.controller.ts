@@ -121,7 +121,7 @@ export class AppController {
     )}`;
     const uuid = uuidv4();
 
-    await this.webhookService.create(uuid, user.id, msg.eventId, msg.plugId);
+    await this.webhookService.create(uuid, user.id, msg.plugId, msg.eventId);
 
     const webhookUrl = `${this.configService.getOrThrow(
       'WEBHOOK_BASE_URL',
