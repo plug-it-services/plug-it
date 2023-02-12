@@ -389,7 +389,7 @@ export class StartonService {
     webhook: string,
   ): Promise<string> {
     const convertion = {
-      'native currency sent': 'ADDRESS_RECEIVED_NATIVE_CURRENCY',
+      'native currency sent': 'ADDRESS_SENT_NATIVE_CURRENCY',
       'native currency received': 'ADDRESS_RECEIVED_NATIVE_CURRENCY',
       'native currency activity': 'ADDRESS_ACTIVITY',
       'approval event': 'EVENT_APPROVAL',

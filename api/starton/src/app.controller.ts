@@ -81,7 +81,7 @@ export class AppController {
         case 'eventTransfer':
           await this.addressTokensEvent(user, msg, 'transfer event');
           break;
-        case 'erc721eventTransfer':
+        case 'erc721EventTransfer':
           await this.addressTokensEvent(user, msg, 'ERC721 transfer');
           break;
         case 'erc1155EventTransferSingle':
