@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import TriggerCard, { StepInfo, TriggerCardType } from '../components/TriggerCard';
 import Button from '../components/Button';
-import { PlugDetail, postPlug } from '../utils/api';
+import { PlugDetail, postPlug, Variable } from '../utils/api';
 import InputBar from '../components/InputBar';
 import MessageBox from '../components/MessageBox';
 
@@ -14,8 +14,8 @@ const PlugCreatePage = () => {
   const [error, setError] = useState('Cannot create plug');
   const navigate = useNavigate();
   const [selections, setSelections] = useState<StepInfo[]>([
-    { serviceName: '', stepId: '', type: TriggerCardType.EVENT, fields: [] },
-    { serviceName: '', stepId: '', type: TriggerCardType.ACTION, fields: [] },
+    { serviceName: '', stepId: '', type: TriggerCardType.EVENT, fields: [], variables: [] },
+    { serviceName: '', stepId: '', type: TriggerCardType.ACTION, fields: [], variables: [] },
   ]);
 
   const [plugName, setPlugName] = useState<string>('');
@@ -31,13 +31,11 @@ const PlugCreatePage = () => {
         id: selections[0].stepId,
         fields: selections[0].fields,
       },
-      actions: [
-        {
-          serviceName: selections[1].serviceName,
-          id: selections[1].stepId,
-          fields: selections[1].fields,
-        },
-      ],
+      actions: selections.slice(1).map((selection) => ({
+        serviceName: selection.serviceName,
+        id: selection.stepId,
+        fields: selection.fields,
+      })),
     };
     // Post Plug
     postPlug(plugDetail)
@@ -54,7 +52,7 @@ const PlugCreatePage = () => {
   const addStep = (previousIdx: number) => {
     const newSelections = [
       ...selections.slice(0, previousIdx + 1),
-      { serviceName: '', stepId: '', type: TriggerCardType.ACTION, fields: [] },
+      { serviceName: '', stepId: '', type: TriggerCardType.ACTION, fields: [], variables: [] },
       ...selections.slice(previousIdx + 1),
     ];
     setSelections(newSelections);
@@ -91,6 +89,10 @@ const PlugCreatePage = () => {
             <TriggerCard
               key={selectionIdx}
               selected={selection}
+              availableVariables={selections
+                .slice(0, selectionIdx + 1)
+                .map((el) => el.variables)
+                .reduce<Variable[]>((arr, el) => arr.concat(el), [])}
               onSelectedChange={(selected: StepInfo) => {
                 setSelections(selections.map((elem, idx) => (idx === selectionIdx ? selected : elem)));
               }}

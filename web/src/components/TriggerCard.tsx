@@ -20,11 +20,13 @@ import {
   ServiceEvent,
   ServiceAction,
   FieldValue,
+  Variable,
   getServices,
   getServiceEvents,
   getServiceActions,
 } from '../utils/api';
 import MessageBox from './MessageBox';
+import { FieldEditor } from './FieldEditor';
 
 export enum TriggerCardType {
   EVENT,
@@ -36,16 +38,18 @@ export type StepInfo = {
   serviceName: string;
   stepId: string;
   fields: FieldValue[];
+  variables: Variable[];
 };
 
 export interface ITriggerCardProps {
   selected: StepInfo;
+  availableVariables: Variable[];
   onSelectedChange: (infos: StepInfo) => void;
   onDelete: () => void;
   backgroundColor: string;
 }
 
-function TriggerCard({ selected, onSelectedChange, onDelete, backgroundColor }: ITriggerCardProps) {
+function TriggerCard({ selected, availableVariables, onSelectedChange, onDelete, backgroundColor }: ITriggerCardProps) {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState("Cannot fetch events/actions'");
@@ -81,6 +85,8 @@ function TriggerCard({ selected, onSelectedChange, onDelete, backgroundColor }: 
       key: field.key,
       value: '',
     }));
+    // eslint-disable-next-line no-param-reassign
+    selected.variables = found.variables;
     setStep(found);
     onSelectedChange(selected);
   }
@@ -173,7 +179,12 @@ function TriggerCard({ selected, onSelectedChange, onDelete, backgroundColor }: 
   useEffect(() => {
     const found = steps.find((el) => el.id === selected.stepId);
 
-    if (found) setStep(found);
+    if (found) {
+      // eslint-disable-next-line no-param-reassign
+      selected.variables = found.variables;
+      setStep(found);
+      onSelectedChange(selected);
+    }
   }, [steps]);
 
   return (
@@ -208,16 +219,11 @@ function TriggerCard({ selected, onSelectedChange, onDelete, backgroundColor }: 
           </AccordionSummary>
           <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {step?.fields.map((field) => (
-              <InputBar
-                placeholder={field.displayName}
-                textColor="black"
-                backgroundColor="#EAF1FF"
-                borderColor="#EAF1FF"
-                isPassword={false}
+              <FieldEditor
+                fieldKey={field.key}
                 onChange={(val) => onFieldChange(field.key, val)}
                 value={selected.fields.filter((el) => el.key === field.key)[0]?.value ?? ''}
-                key={field.key}
-                onSubmit={() => {}}
+                variables={availableVariables}
               />
             ))}
           </CardContent>
