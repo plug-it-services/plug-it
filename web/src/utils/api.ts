@@ -167,6 +167,8 @@ export const getServiceActions = async (serviceName: string): Promise<ServiceAct
   makeRequest('get', `/service/${serviceName}/actions`);
 
 export const getPlugs = async (): Promise<Plug[]> => makeRequest('get', '/plugs');
+
+export const getPlugDetail = async (id: string): Promise<PlugDetail> => makeRequest('get', `/plugs/${id}`);
 /*   END GET   */
 
 /*    POST    */

@@ -7,10 +7,9 @@ export interface IAreaCardProps {
   plug: Plug;
   onStateClickButton: () => void;
   onEditClickButton: () => void;
-  onDeleteClickButton: () => void;
 }
 
-function PlugCard({ plug, onStateClickButton, onEditClickButton, onDeleteClickButton }: IAreaCardProps) {
+function PlugCard({ plug, onStateClickButton, onEditClickButton }: IAreaCardProps) {
   return (
     <div className={'plug-card'}>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -26,7 +25,6 @@ function PlugCard({ plug, onStateClickButton, onEditClickButton, onDeleteClickBu
         ))}
       </div>
       <CardActions style={{ display: 'flex', justifyContent: 'center' }}>
-        <Button color="error" text="Delete" onClick={onDeleteClickButton} />
         <Button color="primary" text="Edit" onClick={onEditClickButton} />
         <Button color="primary" text={plug.enabled ? 'Disable' : 'Enable'} onClick={onStateClickButton} />
       </CardActions>

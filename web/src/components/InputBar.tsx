@@ -9,6 +9,7 @@ export interface IInputBarProps {
   onChange: (value: string) => void;
   onSubmit: () => void;
   autoComplete?: string;
+  value?: string;
 }
 
 function InputBar({
@@ -20,6 +21,7 @@ function InputBar({
   onChange,
   onSubmit,
   autoComplete,
+  value,
 }: IInputBarProps) {
   return (
     <Box
@@ -38,6 +40,7 @@ function InputBar({
         }}
         style={{ color: textColor }}
         type={isPassword ? 'password' : 'text'}
+        value={value}
         autoComplete={autoComplete}
         onSubmit={(e) => {
           e.preventDefault();
