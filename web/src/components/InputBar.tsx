@@ -21,7 +21,6 @@ function InputBar({
   onSubmit,
   autoComplete,
 }: IInputBarProps) {
-
   return (
     <Box
       component="form"

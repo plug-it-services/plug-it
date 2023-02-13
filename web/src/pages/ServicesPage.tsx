@@ -11,16 +11,31 @@ const ServicesPage = () => {
   const [message, setMessage] = useState('');
   const [error, setError] = useState("Can't get services");
   const [services, setServices] = useState<Service[]>([]);
+  const [searchedServices, setSearchedServices] = useState<Service[]>([]);
+
+  const initServices = (serviceList: Service[]) => {
+    setServices(serviceList);
+    setSearchedServices(serviceList);
+  };
 
   useEffect(() => {
     getServices()
-      .then(setServices)
+      .then(initServices)
       .catch((err) => {
         setError('Cannot get services');
         setMessage(err.message);
         setOpen(true);
       });
   }, []);
+
+  const filterResearchedServices = (searchedService: string) => {
+    if (searchedService === '' || searchedService === undefined) {
+      setSearchedServices(services);
+    } else {
+      const filtered = services.filter((service) => service.name.toLowerCase().includes(searchedService.toLowerCase()));
+      setSearchedServices(filtered);
+    }
+  };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -32,8 +47,8 @@ const ServicesPage = () => {
       </Typography>
       <br />
       <SearchBar
-        onChange={() => {}}
-        onSearch={() => {}}
+        onChange={(value) => filterResearchedServices(value)}
+        onSearch={(value) => filterResearchedServices(value)}
         placeholder="Search a service"
         textColor="black"
         backgroundColor="#EAF1FF"
@@ -42,7 +57,7 @@ const ServicesPage = () => {
       <br />
       <div style={{ display: 'flex', flexDirection: 'row', gap: '20px' }}>
         <Grid container spacing={2} columns={3} style={{ paddingTop: '20px' }}>
-          {services.map((service) => (
+          {searchedServices.map((service) => (
             <Grid item key={service.name}>
               <ServiceCard service={service} />
             </Grid>

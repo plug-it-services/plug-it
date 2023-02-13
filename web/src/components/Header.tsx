@@ -3,7 +3,7 @@ import { AppBar, Link, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import Button from './Button';
 import AccountTile from './AccountTile';
-import {getUserInfos, logout, UserInfos} from '../utils/api';
+import { getUserInfos, logout, UserInfos } from '../utils/api';
 
 export interface IHeaderProps {
   title: string;
