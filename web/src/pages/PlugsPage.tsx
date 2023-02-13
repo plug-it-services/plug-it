@@ -5,7 +5,7 @@ import Header from '../components/Header';
 import Button from '../components/Button';
 import SearchBar from '../components/SearchBar';
 import PlugCard from '../components/PlugCard';
-import {getPlugs, setPlugEnable, Plug, Service} from '../utils/api';
+import { getPlugs, setPlugEnable, Plug } from '../utils/api';
 import MessageBox from '../components/MessageBox';
 
 const PlugsPage = () => {
