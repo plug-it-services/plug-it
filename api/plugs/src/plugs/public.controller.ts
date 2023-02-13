@@ -110,16 +110,18 @@ export class PublicController {
       },
     );
     // wait 5 seconds to make sure the event is disabled
-    await new Promise((resolve) => setTimeout(resolve, 5000));
-    await this.eventConnectorService.emitEventInitialize(
-      updated.event.serviceName,
-      {
-        plugId: updated.id,
-        eventId: updated.event.id,
-        userId: user.id,
-        fields: updated.event.fields,
-      },
-    );
+    const delay = new Promise((resolve) => setTimeout(resolve, 5000));
+    delay.then(() => {
+      this.eventConnectorService.emitEventInitialize(
+        updated.event.serviceName,
+        {
+          plugId: updated.id,
+          eventId: updated.event.id,
+          userId: user.id,
+          fields: updated.event.fields,
+        },
+      );
+    });
     return { message: 'success' };
   }
 
