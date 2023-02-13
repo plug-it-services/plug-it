@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Grid, Typography } from '@mui/material';
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Button from '../components/Button';
 import SearchBar from '../components/SearchBar';
 import PlugCard from '../components/PlugCard';
-import { getPlugs, setPlugEnable, Plug } from '../utils/api';
+import {getPlugs, setPlugEnable, Plug, Service} from '../utils/api';
 import MessageBox from '../components/MessageBox';
 
 const PlugsPage = () => {
@@ -14,16 +14,29 @@ const PlugsPage = () => {
   const [error, setError] = useState("Can't login");
   const navigate = useNavigate();
   const [plugs, setPlugs] = useState<Plug[]>([]);
+  const [searchedPlugs, setSearchedPlugs] = useState<Plug[]>([]);
+
+  const initPlugs = (plugList: Plug[]) => {
+    setPlugs(plugList);
+    setSearchedPlugs(plugList);
+  };
 
   useEffect(() => {
     getPlugs()
-      .then(setPlugs)
+      .then(initPlugs)
       .catch((err) => {
         setError('Cannot retrieve plugs');
         setMessage(err.message);
         setOpen(true);
       });
   }, []);
+
+  const filterResearchedPlugs = (searchedPlug: string) => {
+    if (searchedPlug === '' || searchedPlug === undefined) {
+      return plugs;
+    }
+    return plugs.filter((plug) => plug.name.toLowerCase().includes(searchedPlug.toLowerCase()));
+  };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -36,8 +49,8 @@ const PlugsPage = () => {
       <br />
       <div style={{ display: 'flex', flexDirection: 'row', gap: '20px', paddingTop: '20px' }}>
         <SearchBar
-          onChange={() => {}}
-          onSearch={() => {}}
+          onChange={(value) => setSearchedPlugs(filterResearchedPlugs(value))}
+          onSearch={(value) => setSearchedPlugs(filterResearchedPlugs(value))}
           placeholder="Search a plug"
           textColor="black"
           backgroundColor="#EAF1FF"
@@ -54,7 +67,7 @@ const PlugsPage = () => {
       <br />
       <div style={{ display: 'flex', flexDirection: 'row', gap: '20px' }}>
         <Grid container spacing={2} columns={3} style={{ paddingTop: '20px' }}>
-          {plugs.map((plug) => (
+          {searchedPlugs.map((plug) => (
             <Grid item key={plug.id}>
               <PlugCard plug={plug} onClickButton={() => setPlugEnable(!plug.enabled, plug.id)} />
             </Grid>
