@@ -86,6 +86,7 @@ function TriggerCard({ selected, onSelectedChange, onDelete, backgroundColor }: 
   }
 
   function getActionServices() {
+    if (!servicesPreviews.length) return <></>;
     return (
       <FormControl fullWidth>
         <InputLabel id={'service'} style={{ color: 'white' }}>
@@ -114,6 +115,7 @@ function TriggerCard({ selected, onSelectedChange, onDelete, backgroundColor }: 
   }
 
   function getReactionsOptions() {
+    if (!steps.length) return <></>
     return (
       <>
         {selected.serviceName !== '' && (
@@ -164,6 +166,16 @@ function TriggerCard({ selected, onSelectedChange, onDelete, backgroundColor }: 
       });
   }, []);
 
+  useEffect(() => {
+    onServiceSelected(selected.serviceName);
+  }, [servicesPreviews]);
+
+  useEffect(() => {
+    const found = steps.find((el) => el.id === selected.stepId);
+
+    if (found) setStep(found);
+  }, [steps]);
+
   return (
     <>
       <MessageBox title={error} description={message} type={'error'} isOpen={open} onClose={() => setOpen(false)} />
@@ -203,6 +215,7 @@ function TriggerCard({ selected, onSelectedChange, onDelete, backgroundColor }: 
                 borderColor="#EAF1FF"
                 isPassword={false}
                 onChange={(val) => onFieldChange(field.key, val)}
+                value={selected.fields.filter((el) => el.key === field.key)[0]?.value ?? ''}
                 key={field.key}
                 onSubmit={() => {}}
               />

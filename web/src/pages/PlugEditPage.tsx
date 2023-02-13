@@ -1,22 +1,22 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import { Typography } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
 import Header from '../components/Header';
 import TriggerCard, { StepInfo, TriggerCardType } from '../components/TriggerCard';
 import Button from '../components/Button';
-import { deletePlug, getPlugDetail, PlugDetail } from '../utils/api';
+import {deletePlug, editPlug, getPlugDetail, PlugDetail} from '../utils/api';
 import InputBar from '../components/InputBar';
 import MessageBox from '../components/MessageBox';
 
 const PlugEditPage = () => {
-  const { plugId } = useParams();
+  const {plugId} = useParams();
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('Cannot create plug');
   const navigate = useNavigate();
   const [selections, setSelections] = useState<StepInfo[]>([
-    { serviceName: '', stepId: '', type: TriggerCardType.EVENT, fields: [] },
-    { serviceName: '', stepId: '', type: TriggerCardType.ACTION, fields: [] },
+    {serviceName: '', stepId: '', type: TriggerCardType.EVENT, fields: []},
+    {serviceName: '', stepId: '', type: TriggerCardType.ACTION, fields: []},
   ]);
   const [plugDetail, setPlugDetail] = useState<PlugDetail>();
   const [plugName, setPlugName] = useState<string>('');
@@ -24,7 +24,7 @@ const PlugEditPage = () => {
   const addStep = (previousIdx: number) => {
     const newSelections = [
       ...selections.slice(0, previousIdx + 1),
-      { serviceName: '', stepId: '', type: TriggerCardType.ACTION, fields: [] },
+      {serviceName: '', stepId: '', type: TriggerCardType.ACTION, fields: []},
       ...selections.slice(previousIdx + 1),
     ];
     setSelections(newSelections);
@@ -46,6 +46,35 @@ const PlugEditPage = () => {
     }
   };
 
+  const plugEdit = async () => {
+    if (!plugId) return;
+    try {
+      const editedPlugDetail: PlugDetail = {
+        name: plugName,
+        id: plugId,
+        enabled: true,
+        event: {
+          serviceName: selections[0].serviceName,
+          id: selections[0].stepId,
+          fields: selections[0].fields,
+        },
+        actions: [
+          {
+            serviceName: selections[1].serviceName,
+            id: selections[1].stepId,
+            fields: selections[1].fields,
+          },
+        ],
+      };
+      await editPlug(editedPlugDetail);
+      navigate('/plugs');
+    } catch (err: any) {
+      setError('Cannot edit plug');
+      setMessage(err.message);
+      setOpen(true);
+    }
+  };
+
   useEffect(() => {
     const getPlug = async () => {
       if (!plugId) return;
@@ -53,7 +82,7 @@ const PlugEditPage = () => {
         const plug = await getPlugDetail(plugId);
         setPlugDetail(plug);
         setPlugName(plug.name);
-        setSelections([
+        const cards = [
           {
             serviceName: plug.event.serviceName,
             stepId: plug.event.id,
@@ -66,7 +95,8 @@ const PlugEditPage = () => {
             type: TriggerCardType.ACTION,
             fields: plug.actions[0].fields,
           },
-        ]);
+        ];
+        setSelections(cards);
       } catch (err: any) {
         setError('Cannot get plug');
         setMessage(err.message);
@@ -81,7 +111,7 @@ const PlugEditPage = () => {
       <MessageBox title={error} description={message} type={'error'} isOpen={open} onClose={() => setOpen(false)} />
       <Header title="Plug-It" area="Plugs" />
       <Typography variant="h4" fontWeight="bold" color={'primary'} style={{ marginTop: 30 }}>
-        Create a new PLUG :D
+        Edit a PLUG
       </Typography>
       <div style={{ display: 'flex', flexDirection: 'row', gap: '20px', marginTop: 30 }}>
         <InputBar
@@ -109,7 +139,7 @@ const PlugEditPage = () => {
               onDelete={() => deleteStep(selectionIdx)}
               backgroundColor={'#2757C9'}
             />
-            <Button text={'Add Step'} color={'secondary'} onClick={() => addStep(selectionIdx)} />
+            <Button key={-selectionIdx} text={'Add Step'} color={'secondary'} onClick={() => addStep(selectionIdx)} />
           </>
         ))}
       </div>
@@ -131,7 +161,7 @@ const PlugEditPage = () => {
             window.location.href = '/plugs';
           }}
         />
-        <Button color="primary" text={'Save'} onClick={() => {}} />
+        <Button color="primary" text={'Save'} onClick={plugEdit} />
       </div>
     </div>
   );

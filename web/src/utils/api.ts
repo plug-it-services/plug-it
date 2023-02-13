@@ -174,6 +174,8 @@ export const getPlugDetail = async (id: string): Promise<PlugDetail> => makeRequ
 /*    POST    */
 export const postPlug = async (plug: PlugDetail): Promise<PlugDetail> => makeRequest('post', '/plugs', plug);
 
+export const editPlug = async (plug: PlugDetail): Promise<PlugDetail> => makeRequest('put', `/plugs/${plug.id}`, plug);
+
 export const setPlugEnable = async (enable: boolean, id: string) =>
   makeRequest('put', `/plugs/${id}/enabled?enabled=${enable}`);
 
