@@ -5,7 +5,7 @@ import Header from '../components/Header';
 import Button from '../components/Button';
 import SearchBar from '../components/SearchBar';
 import PlugCard from '../components/PlugCard';
-import { getPlugs, setPlugEnable, Plug } from '../utils/api';
+import { getPlugs, setPlugEnable, Plug, deletePlug, ApiError } from '../utils/api';
 import MessageBox from '../components/MessageBox';
 
 const PlugsPage = () => {
@@ -40,6 +40,18 @@ const PlugsPage = () => {
     }
   };
 
+  const plugDelete = async (plugId: string) => {
+    try {
+      await deletePlug(plugId);
+    } catch (err: any) {
+      setError('Cannot delete plug');
+      setMessage(err.message);
+      setOpen(true);
+    }
+    const newPlugs = plugs.filter((p) => p.id !== plugId);
+    setPlugs(newPlugs);
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <MessageBox title={error} description={message} type={'error'} isOpen={open} onClose={() => setOpen(false)} />
@@ -71,7 +83,12 @@ const PlugsPage = () => {
         <Grid container spacing={2} columns={3} style={{ paddingTop: '20px' }}>
           {searchedPlugs.map((plug) => (
             <Grid item key={plug.id}>
-              <PlugCard plug={plug} onClickButton={() => setPlugEnable(!plug.enabled, plug.id)} />
+              <PlugCard
+                plug={plug}
+                onStateClickButton={() => setPlugEnable(!plug.enabled, plug.id)}
+                onDeleteClickButton={() => plugDelete(plug.id)}
+                onEditClickButton={() => {}}
+              />
             </Grid>
           ))}
         </Grid>
