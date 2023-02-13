@@ -167,10 +167,14 @@ export const getServiceActions = async (serviceName: string): Promise<ServiceAct
   makeRequest('get', `/service/${serviceName}/actions`);
 
 export const getPlugs = async (): Promise<Plug[]> => makeRequest('get', '/plugs');
+
+export const getPlugDetail = async (id: string): Promise<PlugDetail> => makeRequest('get', `/plugs/${id}`);
 /*   END GET   */
 
 /*    POST    */
 export const postPlug = async (plug: PlugDetail): Promise<PlugDetail> => makeRequest('post', '/plugs', plug);
+
+export const editPlug = async (plug: PlugDetail): Promise<PlugDetail> => makeRequest('put', `/plugs/${plug.id}`, plug);
 
 export const setPlugEnable = async (enable: boolean, id: string) =>
   makeRequest('put', `/plugs/${id}/enabled?enabled=${enable}`);

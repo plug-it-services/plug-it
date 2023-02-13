@@ -6,6 +6,7 @@ import PlugsPage from '../pages/PlugsPage';
 import SignupPage from '../pages/SignupPage';
 import HomePage from '../pages/HomePage';
 import PlugCreatePage from '../pages/PlugCreatePage';
+import PlugEditPage from '../pages/PlugEditPage';
 
 const Router = () => (
   <BrowserRouter>
@@ -16,6 +17,7 @@ const Router = () => (
       <Route path="/services" element={<ServicesPage />} />
       <Route path="/plugs" element={<PlugsPage />} />
       <Route path="/plugs/create" element={<PlugCreatePage />} />
+      <Route path="/plugs/edit/:plugId" element={<PlugEditPage />} />
       <Route path="*" element={<Navigate to={'/'} replace />} />
     </Routes>
   </BrowserRouter>
