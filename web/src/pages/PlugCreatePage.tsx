@@ -51,6 +51,20 @@ const PlugCreatePage = () => {
       });
   };
 
+  const addStep = (previousIdx: number) => {
+    const newSelections = [
+      ...selections.slice(0, previousIdx + 1),
+      { serviceName: '', stepId: '', type: TriggerCardType.ACTION, fields: [] },
+      ...selections.slice(previousIdx + 1),
+    ];
+    setSelections(newSelections);
+  };
+
+  const deleteStep = (idx: number) => {
+    const newSelections = [...selections.slice(0, idx), ...selections.slice(idx + 1)];
+    setSelections(newSelections);
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <MessageBox title={error} description={message} type={'error'} isOpen={open} onClose={() => setOpen(false)} />
@@ -80,8 +94,10 @@ const PlugCreatePage = () => {
               onSelectedChange={(selected: StepInfo) => {
                 setSelections(selections.map((elem, idx) => (idx === selectionIdx ? selected : elem)));
               }}
+              onDelete={() => deleteStep(selectionIdx)}
               backgroundColor={'#2757C9'}
             />
+            <Button text={'Add Step'} color={'secondary'} onClick={() => addStep(selectionIdx)} />
           </>
         ))}
       </div>
