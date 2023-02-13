@@ -14,7 +14,6 @@ import {
 import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import InputBar from './InputBar';
 import {
   Service,
   ServiceEvent,
@@ -26,24 +25,12 @@ import {
   getServiceActions,
 } from '../utils/api';
 import MessageBox from './MessageBox';
-import { FieldEditor } from './FieldEditor';
-
-export enum TriggerCardType {
-  EVENT,
-  ACTION,
-}
-
-export type StepInfo = {
-  type: TriggerCardType;
-  serviceName: string;
-  stepId: string;
-  fields: FieldValue[];
-  variables: Variable[];
-};
+import { FieldEditor, VariableReference } from './FieldEditor';
+import { StepInfo, StepType } from './StepInfo.type';
 
 export interface ITriggerCardProps {
   selected: StepInfo;
-  availableVariables: Variable[];
+  availableVariables: VariableReference[];
   onSelectedChange: (infos: StepInfo) => void;
   onDelete: () => void;
   backgroundColor: string;
@@ -62,7 +49,7 @@ function TriggerCard({ selected, availableVariables, onSelectedChange, onDelete,
 
     if (!service) return;
     try {
-      if (selected.type === TriggerCardType.EVENT) setSteps(await getServiceEvents(serviceName));
+      if (selected.type === StepType.EVENT) setSteps(await getServiceEvents(serviceName));
       else setSteps(await getServiceActions(serviceName));
       // eslint-disable-next-line no-param-reassign
       selected.serviceName = serviceName;
@@ -126,8 +113,8 @@ function TriggerCard({ selected, availableVariables, onSelectedChange, onDelete,
       <>
         {selected.serviceName !== '' && (
           <FormControl fullWidth>
-            <InputLabel id={selected.type === TriggerCardType.ACTION ? 'Action' : 'Event'} style={{ color: 'white' }}>
-              {selected.type === TriggerCardType.ACTION ? 'Action' : 'Event'}
+            <InputLabel id={selected.type === StepType.ACTION ? 'Action' : 'Event'} style={{ color: 'white' }}>
+              {selected.type === StepType.ACTION ? 'Action' : 'Event'}
             </InputLabel>
             <Select
               labelId={'step'}
@@ -199,7 +186,7 @@ function TriggerCard({ selected, availableVariables, onSelectedChange, onDelete,
                 {'Trigger'}
               </Typography>
             </div>
-            {selected.type === TriggerCardType.ACTION && (
+            {selected.type === StepType.ACTION && (
               <DeleteForeverIcon style={{ color: 'white', fontSize: '25px' }} onClick={onDelete} />
             )}
           </div>

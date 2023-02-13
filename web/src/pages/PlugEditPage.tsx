@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { Typography } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
 import Header from '../components/Header';
-import TriggerCard, { StepInfo, TriggerCardType } from '../components/TriggerCard';
+import TriggerCard from '../components/TriggerCard';
 import Button from '../components/Button';
 import { deletePlug, editPlug, getPlugDetail, PlugDetail, Variable } from '../utils/api';
 import InputBar from '../components/InputBar';
 import MessageBox from '../components/MessageBox';
+import { StepInfo, StepType } from '../components/StepInfo.type';
 
 const PlugEditPage = () => {
   const { plugId } = useParams();
@@ -15,8 +16,8 @@ const PlugEditPage = () => {
   const [error, setError] = useState('Cannot create plug');
   const navigate = useNavigate();
   const [selections, setSelections] = useState<StepInfo[]>([
-    {serviceName: '', stepId: '', type: TriggerCardType.EVENT, fields: [], variables: []},
-    {serviceName: '', stepId: '', type: TriggerCardType.ACTION, fields: [], variables: []},
+    {serviceName: '', stepId: '', type: StepType.EVENT, fields: [], variables: []},
+    {serviceName: '', stepId: '', type: StepType.ACTION, fields: [], variables: []},
   ]);
   const [plugDetail, setPlugDetail] = useState<PlugDetail>();
   const [plugName, setPlugName] = useState<string>('');
@@ -24,7 +25,7 @@ const PlugEditPage = () => {
   const addStep = (previousIdx: number) => {
     const newSelections = [
       ...selections.slice(0, previousIdx + 1),
-      {serviceName: '', stepId: '', type: TriggerCardType.ACTION, fields: [], variables: []},
+      {serviceName: '', stepId: '', type: StepType.ACTION, fields: [], variables: []},
       ...selections.slice(previousIdx + 1),
     ];
     setSelections(newSelections);
@@ -84,14 +85,14 @@ const PlugEditPage = () => {
           {
             serviceName: plug.event.serviceName,
             stepId: plug.event.id,
-            type: TriggerCardType.EVENT,
+            type: StepType.EVENT,
             fields: plug.event.fields,
             variables: [],
           },
           ...plug.actions.map((action) => ({
             serviceName: action.serviceName,
             stepId: action.id,
-            type: TriggerCardType.ACTION,
+            type: StepType.ACTION,
             fields: action.fields,
             variables: [],
           })),
@@ -134,9 +135,9 @@ const PlugEditPage = () => {
               key={selectionIdx}
               selected={selection}
               availableVariables={selections
-                .slice(0, selectionIdx + 1)
-                .map((el) => el.variables)
-                .reduce<Variable[]>((arr, el) => arr.concat(el), [])}
+                .slice(0, selectionIdx)
+                .map((step, idx) => step.variables.map((variable) => ({ step, variable, idx })))
+                .flat()}
               onSelectedChange={(selected: StepInfo) => {
                 setSelections(selections.map((elem, idx) => (idx === selectionIdx ? selected : elem)));
               }}
