@@ -58,13 +58,11 @@ const PlugEditPage = () => {
           id: selections[0].stepId,
           fields: selections[0].fields,
         },
-        actions: [
-          {
-            serviceName: selections[1].serviceName,
-            id: selections[1].stepId,
-            fields: selections[1].fields,
-          },
-        ],
+        actions: selections.slice(1).map((selection) => ({
+          serviceName: selection.serviceName,
+          id: selection.stepId,
+          fields: selection.fields,
+        })),
       };
       await editPlug(editedPlugDetail);
       navigate('/plugs');
@@ -89,12 +87,12 @@ const PlugEditPage = () => {
             type: TriggerCardType.EVENT,
             fields: plug.event.fields,
           },
-          {
-            serviceName: plug.actions[0].serviceName,
-            stepId: plug.actions[0].id,
+          ...plug.actions.map((action) => ({
+            serviceName: action.serviceName,
+            stepId: action.id,
             type: TriggerCardType.ACTION,
-            fields: plug.actions[0].fields,
-          },
+            fields: action.fields,
+          })),
         ];
         setSelections(cards);
       } catch (err: any) {
