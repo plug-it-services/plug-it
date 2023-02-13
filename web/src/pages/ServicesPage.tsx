@@ -30,9 +30,11 @@ const ServicesPage = () => {
 
   const filterResearchedServices = (searchedService: string) => {
     if (searchedService === '' || searchedService === undefined) {
-      return services;
+      setSearchedServices(services);
+    } else {
+      const filtered = services.filter((service) => service.name.toLowerCase().includes(searchedService.toLowerCase()));
+      setSearchedServices(filtered);
     }
-    return services.filter((service) => service.name.toLowerCase().includes(searchedService.toLowerCase()));
   };
 
   return (
@@ -45,8 +47,8 @@ const ServicesPage = () => {
       </Typography>
       <br />
       <SearchBar
-        onChange={(value) => setSearchedServices(filterResearchedServices(value))}
-        onSearch={(value) => setSearchedServices(filterResearchedServices(value))}
+        onChange={(value) => filterResearchedServices(value)}
+        onSearch={(value) => filterResearchedServices(value)}
         placeholder="Search a service"
         textColor="black"
         backgroundColor="#EAF1FF"

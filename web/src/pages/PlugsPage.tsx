@@ -33,9 +33,11 @@ const PlugsPage = () => {
 
   const filterResearchedPlugs = (searchedPlug: string) => {
     if (searchedPlug === '' || searchedPlug === undefined) {
-      return plugs;
+      setSearchedPlugs(plugs);
+    } else {
+      const filtered = plugs.filter((plug) => plug.name.toLowerCase().includes(searchedPlug.toLowerCase()));
+      setSearchedPlugs(filtered);
     }
-    return plugs.filter((plug) => plug.name.toLowerCase().includes(searchedPlug.toLowerCase()));
   };
 
   return (
@@ -49,8 +51,8 @@ const PlugsPage = () => {
       <br />
       <div style={{ display: 'flex', flexDirection: 'row', gap: '20px', paddingTop: '20px' }}>
         <SearchBar
-          onChange={(value) => setSearchedPlugs(filterResearchedPlugs(value))}
-          onSearch={(value) => setSearchedPlugs(filterResearchedPlugs(value))}
+          onChange={(value) => filterResearchedPlugs(value)}
+          onSearch={(value) => filterResearchedPlugs(value)}
           placeholder="Search a plug"
           textColor="black"
           backgroundColor="#EAF1FF"
