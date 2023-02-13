@@ -12,6 +12,7 @@ import {
   AccordionSummary,
 } from '@mui/material';
 import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import InputBar from './InputBar';
 import {
@@ -40,10 +41,11 @@ export type StepInfo = {
 export interface ITriggerCardProps {
   selected: StepInfo;
   onSelectedChange: (infos: StepInfo) => void;
+  onDelete: () => void;
   backgroundColor: string;
 }
 
-function TriggerCard({ selected, onSelectedChange, backgroundColor }: ITriggerCardProps) {
+function TriggerCard({ selected, onSelectedChange, onDelete, backgroundColor }: ITriggerCardProps) {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState("Cannot fetch events/actions'");
@@ -69,7 +71,6 @@ function TriggerCard({ selected, onSelectedChange, backgroundColor }: ITriggerCa
   }
 
   async function onStepSelected(stepId: string) {
-    console.log(stepId);
     const found = steps.find((el) => el.id === stepId);
 
     if (!found) return;
@@ -168,11 +169,16 @@ function TriggerCard({ selected, onSelectedChange, backgroundColor }: ITriggerCa
       <MessageBox title={error} description={message} type={'error'} isOpen={open} onClose={() => setOpen(false)} />
       <Card className={'trigger-card'} sx={{ backgroundColor }}>
         <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          <div style={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>
-            <TipsAndUpdatesIcon style={{ color: 'white', fontSize: '30px' }} />
-            <Typography variant="h5" component="div" color={'white'}>
-              {'Trigger'}
-            </Typography>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>
+              <TipsAndUpdatesIcon style={{ color: 'white', fontSize: '30px' }} />
+              <Typography variant="h5" component="div" color={'white'}>
+                {'Trigger'}
+              </Typography>
+            </div>
+            {selected.type === TriggerCardType.ACTION && (
+              <DeleteForeverIcon style={{ color: 'white', fontSize: '25px' }} onClick={onDelete} />
+            )}
           </div>
         </CardContent>
         <Accordion style={{ backgroundColor }}>
