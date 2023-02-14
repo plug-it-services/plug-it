@@ -108,7 +108,7 @@ function TriggerCard({ selected, availableVariables, onSelectedChange, onDelete,
   }
 
   function getReactionsOptions() {
-    if (!steps.length) return <></>
+    if (!steps.length) return <></>;
     return (
       <>
         {selected.serviceName !== '' && (

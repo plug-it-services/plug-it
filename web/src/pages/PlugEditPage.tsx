@@ -16,8 +16,8 @@ const PlugEditPage = () => {
   const [error, setError] = useState('Cannot create plug');
   const navigate = useNavigate();
   const [selections, setSelections] = useState<StepInfo[]>([
-    {serviceName: '', stepId: '', type: StepType.EVENT, fields: [], variables: []},
-    {serviceName: '', stepId: '', type: StepType.ACTION, fields: [], variables: []},
+    { serviceName: '', stepId: '', type: StepType.EVENT, fields: [], variables: [] },
+    { serviceName: '', stepId: '', type: StepType.ACTION, fields: [], variables: [] },
   ]);
   const [plugDetail, setPlugDetail] = useState<PlugDetail>();
   const [plugName, setPlugName] = useState<string>('');
@@ -25,7 +25,7 @@ const PlugEditPage = () => {
   const addStep = (previousIdx: number) => {
     const newSelections = [
       ...selections.slice(0, previousIdx + 1),
-      {serviceName: '', stepId: '', type: StepType.ACTION, fields: [], variables: []},
+      { serviceName: '', stepId: '', type: StepType.ACTION, fields: [], variables: [] },
       ...selections.slice(previousIdx + 1),
     ];
     setSelections(newSelections);

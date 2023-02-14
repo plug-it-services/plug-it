@@ -1,4 +1,4 @@
-import { Autocomplete, createFilterOptions, TextField } from '@mui/material';
+import { Autocomplete, TextField } from '@mui/material';
 import { useState } from 'react';
 import InputBar from './InputBar';
 import { Variable } from '../utils/api';
@@ -33,12 +33,27 @@ export function FieldEditor({
     );
 
   return (
-    <>
+    <div
+      tabIndex={0}
+      onBlur={({ currentTarget, relatedTarget }) => {
+        if (currentTarget.contains(relatedTarget)) return;
+        setSelectionVisible(false);
+      }}
+      onFocus={() => setSelectionVisible(true)}
+    >
       {selectionVisible && (
         <Autocomplete
           id={fieldKey}
           renderInput={(params) => (
-            <TextField {...params} label="Test de fou" value={value} onFocus={() => setSelectionVisible(true)} />
+            <div ref={params.InputProps.ref}>
+              <TextField {...params} label="Select variable" value={value} />
+            </div>
+          )}
+          renderGroup={(params) => (
+            <div>
+              <strong>{params.group}</strong>
+              {params.children}
+            </div>
           )}
           filterOptions={filterOptions}
           getOptionLabel={(option) => `${option.variable.displayName} (${option.variable.description})`}
@@ -51,8 +66,12 @@ export function FieldEditor({
               onChange(`${value}\${${newValue.idx}.${newValue.variable.key}}`);
             }
           }}
-          onFocus={() => setSelectionVisible(true)}
-          onBlur={() => setSelectionVisible(false)}
+          color={'#2757C9'}
+          sx={{
+            '& .MuiAutocomplete-option': {
+              color: '#2757C9',
+            },
+          }}
         />
       )}
 
@@ -60,14 +79,12 @@ export function FieldEditor({
         placeholder={'Write the wanted value and use variables if needed!'}
         backgroundColor={'#2757C9'}
         borderColor={'#2757C9'}
+        textColor={'white'}
         isPassword={false}
         value={value}
         onChange={onChange}
         onSubmit={() => {}}
-        onBlur={() => setSelectionVisible(false)}
-        onFocus={() => setSelectionVisible(true)}
-        textColor="black"
       />
-    </>
+    </div>
   );
 }
