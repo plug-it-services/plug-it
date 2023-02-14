@@ -11,6 +11,7 @@ import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:uuid/uuid.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_web_auth_2/flutter_web_auth_2.dart';
 
 class PlugError {
   var error;
@@ -101,9 +102,13 @@ class PlugApi {
   }
 
   static Future OAuth2(String serviceName) async {
-    Response result = await dio.post("$apiUrl/service/$serviceName/oauth2", data: {'redirectUrl': 'area.plug-it.app:/oauth2redirect'}, options: getHeaders());
+    Response result = await dio.post("$apiUrl/service/$serviceName/oauth2", data: {'redirectUrl': 'plugit://app'}, options: getHeaders());
     String authUrl = result.data['url'] ?? "";
-    return launch(authUrl, forceWebView: false, enableJavaScript: true, enableDomStorage: true);
+
+    return launchUrl(
+        Uri.parse(authUrl),
+        mode: LaunchMode.externalApplication
+    );
   }
 
   static Future OAuthApiKey(String serviceName, String apiKey) async {

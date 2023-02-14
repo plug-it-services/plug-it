@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/PlugApi.dart';
 
@@ -23,6 +24,8 @@ class _NavigateState extends State<Navigate> {
   Map<Plug, PlugDetails> filteredPlugs = {};
   List<Service>? filteredServices;
   String filter = "";
+  bool showPlugs = true;
+  bool showServices = true;
 
   final controller = TextEditingController();
 
@@ -31,14 +34,17 @@ class _NavigateState extends State<Navigate> {
     PlugApi.getPlugs().then((plugsData) => setState(() {
       for (Plug plug in plugsData!) {
         PlugApi.getPlug(plug.id).then((value) {
-          print("Found plug with id: '${value!.name}'");
-          setState(() {
-            plugs[plug] = value;
-            filteredPlugs = plugs;
-          });
+          if (value == null) {
+              print("Error fetching plug: ${plug.name}");
+          } else {
+            setState(() {
+              plugs[plug] = value;
+              filteredPlugs = plugs;
+            });
+          }
         });
-      }
 
+      }
     }));
     PlugApi.getServices().then((value) => setState(() {
       services = value;
@@ -56,25 +62,22 @@ class _NavigateState extends State<Navigate> {
         .where((element) =>
         element.name.toLowerCase().contains(filter)
     ).toList();
-
     setState(() {
       filteredServices = filtered;
     });
-    print("Found ${filtered.length} services with filter: '$filter'!");
   }
 
   void setFilteredPlugs(String filter)
   {
     filter = filter.toLowerCase();
-    print("Searching in ${plugs.length} plugs ...");
-    plugs.forEach((plug, details) => {
+    filteredPlugs = {};
+    plugs.forEach((plug, details) {
       if (plug.name.toLowerCase().contains(filter) || details.containsFilter(filter)) {
         setState(() {
           filteredPlugs[plug] = details;
-        })
+        });
       }
     });
-    print("Found ${filteredPlugs.length} plugs with filter: '$filter'!");
   }
 
   onFilter(value) {
@@ -83,7 +86,7 @@ class _NavigateState extends State<Navigate> {
   }
 
   List<Widget> getFilterService(data ) {
-    if (data == null || data!.isEmpty) {
+    if (data == null || data!.isEmpty || !showServices) {
       return [];
     }
     var services = [];
@@ -106,7 +109,7 @@ class _NavigateState extends State<Navigate> {
   }
 
   List<Widget> getFilterPlugs(Map<Plug, PlugDetails> data) {
-    if (data.isEmpty) {
+    if (data.isEmpty || !showPlugs) {
       return [];
     }
     var plugCards = [];
@@ -138,17 +141,30 @@ class _NavigateState extends State<Navigate> {
             Container(
               margin: const EdgeInsets.fromLTRB(16, 16, 16, 16),
               child: TextField(
-                controller: controller,
-                decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.search),
-                  hintText: 'Search for ...',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color:PlugItStyle.primaryColor),
-                  )
+                  controller: controller,
+                  decoration: InputDecoration(
+                      prefixIcon: const Icon(Icons.search),
+                      hintText: 'Search for ...',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color:PlugItStyle.primaryColor),
+                      )
+                  ),
+                  onChanged: onFilter,
                 ),
-                onChanged: onFilter,
-              )
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Checkbox(value: showPlugs, onChanged: (value) => {
+                  setState(() => showPlugs = !showPlugs)
+                }),
+                const Text("Show Plugs", style: PlugItStyle.smallStyle),
+                Checkbox(value: showServices, onChanged: (value) => {
+                  setState(() => showServices = !showServices)
+                }),
+                const Text("Show Services", style: PlugItStyle.smallStyle),
+              ],
             ),
             ...getFilterPlugs(filteredPlugs),
             ...getFilterService(filteredServices),
