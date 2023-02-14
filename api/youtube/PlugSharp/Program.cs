@@ -28,14 +28,12 @@ static async Task<bool> RegisterPlug()
 {
     string plugDataJsonString = PlugData.ToJson(BuildPlugData());
 
-    Console.WriteLine(plugDataJsonString);
-    
     try {
         var client = new HttpClient();
         var request = new HttpRequestMessage(HttpMethod.Post, "http://plugs:80/service/initialize");
         request.Content = new StringContent(plugDataJsonString, Encoding.UTF8, "application/json");
         var response = await client.SendAsync(request);
-        return response.StatusCode == System.Net.HttpStatusCode.OK;
+        return response.StatusCode == System.Net.HttpStatusCode.Created;
     } catch (HttpRequestException ex) {
         Console.WriteLine("An error occured while sending plug registration: " + ex.Message);
         return false;
