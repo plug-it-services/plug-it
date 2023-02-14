@@ -95,6 +95,7 @@ class _LoginState extends State<Login> {
   }
 
   void onGoogleAuth() {
+    print("Successfully logged in with google");
     widget.onLogged(User(id:"1", email:"jean.michel@plug-it.com", username: "Jean Michel Plug It", token:"123456789ABCDEFG"));
   }
 

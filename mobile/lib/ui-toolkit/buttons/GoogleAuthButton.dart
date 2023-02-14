@@ -1,4 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:mobile/PlugApi.dart';
+
+GoogleSignIn _googleSignIn = GoogleSignIn(
+  // The OAuth client id of your app. This is required.
+  // clientId: "280724198431-ss853orb3f45s3k7qbu1eh6kbeerqta1.apps.googleusercontent.com",
+  scopes: [
+    'email',
+    'profile',
+  ]
+  // If you need to authenticate to a backend server, specify its OAuth client. This is optional.
+);
 
 class GoogleAuthButton extends StatefulWidget {
   final void Function()? callback;
@@ -10,6 +22,7 @@ class GoogleAuthButton extends StatefulWidget {
 }
 class _StateGoogleAuthButton extends State<GoogleAuthButton>{
   bool pressed = false;
+  String? error;
 
   void onTap() {
     setState(() {
@@ -18,9 +31,25 @@ class _StateGoogleAuthButton extends State<GoogleAuthButton>{
   }
 
   void onEnd() {
+    if (!pressed) {
+        return;
+    }
     setState(() {
       pressed = false;
-      widget.callback!();
+    });
+    print('trying google sso');
+    _googleSignIn.signIn().then((account) {
+      account?.authentication.then((result) {
+        print('success google sso');
+        print('GOOGLE ID: ${result.accessToken!}');
+        PlugApi.ssoLogin("google", result.accessToken!).then((result) => {
+          widget.callback!()
+        });
+      });
+    }).catchError((err) {
+      print('failed google sso');
+      error = err.toString();
+      print(err);
     });
   }
 

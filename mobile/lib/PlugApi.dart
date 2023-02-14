@@ -201,7 +201,7 @@ class PlugApi {
   }
 
   static Future<bool> ssoLogin(String serviceName, String code) async {
-    Response result = await dio.post("$apiUrl/auth/$serviceName/login", data:{"code":code}, options: getHeaders());
+    Response result = await dio.post("$apiUrl/auth/$serviceName/login", data:{"code":code, "codeType": "accessToken"}, options: getHeaders());
     token = result.headers.map['Set-Cookie']?[0];
     return handleResponseCheck(result);
   }
