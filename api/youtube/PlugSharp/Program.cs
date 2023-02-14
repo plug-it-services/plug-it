@@ -30,21 +30,23 @@ static async Task<bool> RegisterPlug()
 
     Console.WriteLine(plugDataJsonString);
     
-    var client = new HttpClient();
-    var request = new HttpRequestMessage(HttpMethod.Get, "http://plugs:80/service/initialize");
-    request.Content = new StringContent(plugDataJsonString, Encoding.UTF8, "application/json");
-    var response = await client.SendAsync(request);
-
-    return response.StatusCode == System.Net.HttpStatusCode.OK;
-}
-
-static async Task Main(string[] args)
-{
-    bool plugRegistration = await RegisterPlug();
-
-    if (!plugRegistration)
-    {
-        Console.WriteLine("Unable to register plug!");
-        return;
+    try {
+        var client = new HttpClient();
+        var request = new HttpRequestMessage(HttpMethod.Get, "http://plugs:80/service/initialize");
+        request.Content = new StringContent(plugDataJsonString, Encoding.UTF8, "application/json");
+        var response = await client.SendAsync(request);
+        return response.StatusCode == System.Net.HttpStatusCode.OK;
+    } catch (HttpRequestException ex) {
+        Console.WriteLine("An error occured while sending plug registration: " + ex.Message);
+        return false;
     }
 }
+
+bool plugRegistration = await RegisterPlug();
+
+if (!plugRegistration)
+{
+    Console.WriteLine("Unable to register plug!");
+    return;
+}
+Console.WriteLine("Plug should be registered!");
