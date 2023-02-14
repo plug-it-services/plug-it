@@ -287,7 +287,7 @@ export class StartonService {
     const to = body.data.transferSingle.to;
     const operator = body.data.transferSingle.operator;
     const contractAddress = body.data.transferSingle.contractAddress;
-    const tokenId = body.data.transferSingle.tokenId.hex;
+    const tokenId = body.data.transferSingle.id.hex;
     const tokenIdString = new BN(tokenId.substr(2), 16).toString(10);
     const value = body.data.transferSingle.value.hex;
     const valueString = new BN(value.substr(2), 16).toString(10);
