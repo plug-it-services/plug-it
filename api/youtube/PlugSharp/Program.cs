@@ -32,7 +32,7 @@ static async Task<bool> RegisterPlug()
     
     try {
         var client = new HttpClient();
-        var request = new HttpRequestMessage(HttpMethod.Get, "http://plugs:80/service/initialize");
+        var request = new HttpRequestMessage(HttpMethod.Post, "http://plugs:80/service/initialize");
         request.Content = new StringContent(plugDataJsonString, Encoding.UTF8, "application/json");
         var response = await client.SendAsync(request);
         return response.StatusCode == System.Net.HttpStatusCode.OK;
