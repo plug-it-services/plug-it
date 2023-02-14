@@ -9,12 +9,14 @@ export class AmqpService {
   async publish(
     queue: string,
     stepId: string,
+    plugId: string,
     userId: number,
     variables: { key: string; value: string }[],
   ) {
     const msg = {
       serviceName: 'starton',
       eventId: stepId,
+      plugId,
       userId,
       variables,
     };

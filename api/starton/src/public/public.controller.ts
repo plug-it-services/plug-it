@@ -10,21 +10,18 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ApiKeyDto } from '../dto/ApiKeyDto';
-import { AmqpService } from '../services/amqp.service';
 import { UserService } from '../services/user.service';
-import { WebHookService } from '../services/webhook.service';
-import { BN } from 'bn.js';
 import axios from 'axios';
+import { StartonService } from 'src/services/starton.service';
 
 @Controller('public')
 export class PublicController {
   private logger = new Logger(PublicController.name);
 
   constructor(
-    private readonly amqpService: AmqpService,
     private userService: UserService,
     private configService: ConfigService,
-    private webhookService: WebHookService,
+    private startonService: StartonService,
   ) {}
 
   @Post('/apiKey')
@@ -66,34 +63,33 @@ export class PublicController {
   @Post(':uuid')
   async onTrigger(@Body() body: any, @Param('uuid') uuid: string) {
     this.logger.log(`Received transaction for webhook ${uuid}`);
-    const from = body.data.transaction.from;
-    const to = body.data.transaction.to;
-    const value = body.data.transaction.value.hex;
-    const valueString = new BN(value.substr(2), 16).toString(10);
-    const { uid } = await this.webhookService.getWebhookById(uuid);
 
-    const variables = [
-      {
-        key: 'from',
-        value: from,
-      },
-      {
-        key: 'to',
-        value: to,
-      },
-      {
-        key: 'value',
-        value: valueString,
-      },
-    ];
-
-    await this.amqpService.publish(
-      'plugs_events',
-      'addressReceivedNativeTokens',
-      uid,
-      variables,
-    );
-    this.logger.log(`Published event for transaction of user ${uid}`);
+    switch (body.event) {
+      case 'ADDRESS_RECEIVED_NATIVE_CURRENCY':
+        this.startonService.addressReceivedNativeCurrencyParse(body, uuid);
+        break;
+      case 'ADDRESS_SENT_NATIVE_CURRENCY':
+        this.startonService.addressSentNativeCurrencyParse(body, uuid);
+        break;
+      case 'ADDRESS_ACTIVITY':
+        this.startonService.addressActivityParse(body, uuid);
+        break;
+      case 'EVENT_APPROVAL':
+        this.startonService.eventApprovalParse(body, uuid);
+        break;
+      case 'EVENT_MINT':
+        this.startonService.eventMintParse(body, uuid);
+        break;
+      case 'EVENT_TRANSFER':
+        this.startonService.eventTransferParse(body, uuid);
+        break;
+      case 'ERC721_EVENT_TRANSFER':
+        this.startonService.erc721EventTransferParse(body, uuid);
+        break;
+      case 'ERC1155_EVENT_TRANSFER_SINGLE':
+        this.startonService.erc1155EventTransferSingleParse(body, uuid);
+        break;
+    }
     return { message: 'success' };
   }
 }
