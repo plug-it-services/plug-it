@@ -14,38 +14,29 @@ import {
 import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import InputBar from './InputBar';
 import {
   Service,
   ServiceEvent,
   ServiceAction,
   FieldValue,
+  Variable,
   getServices,
   getServiceEvents,
   getServiceActions,
 } from '../utils/api';
 import MessageBox from './MessageBox';
-
-export enum TriggerCardType {
-  EVENT,
-  ACTION,
-}
-
-export type StepInfo = {
-  type: TriggerCardType;
-  serviceName: string;
-  stepId: string;
-  fields: FieldValue[];
-};
+import { FieldEditor, VariableReference } from './FieldEditor';
+import { StepInfo, StepType } from './StepInfo.type';
 
 export interface ITriggerCardProps {
   selected: StepInfo;
+  availableVariables: VariableReference[];
   onSelectedChange: (infos: StepInfo) => void;
   onDelete: () => void;
   backgroundColor: string;
 }
 
-function TriggerCard({ selected, onSelectedChange, onDelete, backgroundColor }: ITriggerCardProps) {
+function TriggerCard({ selected, availableVariables, onSelectedChange, onDelete, backgroundColor }: ITriggerCardProps) {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState("Cannot fetch events/actions'");
@@ -58,7 +49,7 @@ function TriggerCard({ selected, onSelectedChange, onDelete, backgroundColor }: 
 
     if (!service) return;
     try {
-      if (selected.type === TriggerCardType.EVENT) setSteps(await getServiceEvents(serviceName));
+      if (selected.type === StepType.EVENT) setSteps(await getServiceEvents(serviceName));
       else setSteps(await getServiceActions(serviceName));
       // eslint-disable-next-line no-param-reassign
       selected.serviceName = serviceName;
@@ -81,6 +72,8 @@ function TriggerCard({ selected, onSelectedChange, onDelete, backgroundColor }: 
       key: field.key,
       value: '',
     }));
+    // eslint-disable-next-line no-param-reassign
+    selected.variables = found.variables;
     setStep(found);
     onSelectedChange(selected);
   }
@@ -115,13 +108,13 @@ function TriggerCard({ selected, onSelectedChange, onDelete, backgroundColor }: 
   }
 
   function getReactionsOptions() {
-    if (!steps.length) return <></>
+    if (!steps.length) return <></>;
     return (
       <>
         {selected.serviceName !== '' && (
           <FormControl fullWidth>
-            <InputLabel id={selected.type === TriggerCardType.ACTION ? 'Action' : 'Event'} style={{ color: 'white' }}>
-              {selected.type === TriggerCardType.ACTION ? 'Action' : 'Event'}
+            <InputLabel id={selected.type === StepType.ACTION ? 'Action' : 'Event'} style={{ color: 'white' }}>
+              {selected.type === StepType.ACTION ? 'Action' : 'Event'}
             </InputLabel>
             <Select
               labelId={'step'}
@@ -173,7 +166,12 @@ function TriggerCard({ selected, onSelectedChange, onDelete, backgroundColor }: 
   useEffect(() => {
     const found = steps.find((el) => el.id === selected.stepId);
 
-    if (found) setStep(found);
+    if (found) {
+      // eslint-disable-next-line no-param-reassign
+      selected.variables = found.variables;
+      setStep(found);
+      onSelectedChange(selected);
+    }
   }, [steps]);
 
   return (
@@ -188,7 +186,7 @@ function TriggerCard({ selected, onSelectedChange, onDelete, backgroundColor }: 
                 {'Trigger'}
               </Typography>
             </div>
-            {selected.type === TriggerCardType.ACTION && (
+            {selected.type === StepType.ACTION && (
               <DeleteForeverIcon style={{ color: 'white', fontSize: '25px' }} onClick={onDelete} />
             )}
           </div>
@@ -208,16 +206,11 @@ function TriggerCard({ selected, onSelectedChange, onDelete, backgroundColor }: 
           </AccordionSummary>
           <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {step?.fields.map((field) => (
-              <InputBar
-                placeholder={field.displayName}
-                textColor="black"
-                backgroundColor="#EAF1FF"
-                borderColor="#EAF1FF"
-                isPassword={false}
+              <FieldEditor
+                fieldKey={field.key}
                 onChange={(val) => onFieldChange(field.key, val)}
                 value={selected.fields.filter((el) => el.key === field.key)[0]?.value ?? ''}
-                key={field.key}
-                onSubmit={() => {}}
+                variables={availableVariables}
               />
             ))}
           </CardContent>

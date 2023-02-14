@@ -20,6 +20,13 @@ export type FieldValue = {
   value: string;
 };
 
+export type Variable = {
+  type: 'string' | 'number' | 'date';
+  key: string;
+  displayName: string;
+  description: string;
+};
+
 export interface Service {
   name: string;
   authType: 'none' | 'apiKey' | 'clientSecret' | 'oauth2';
@@ -31,12 +38,7 @@ export interface ServiceEvent {
   id: string;
   name: string;
   description: string;
-  variables: {
-    key: string;
-    type: string;
-    displayName: string;
-    description: string;
-  }[];
+  variables: Variable[];
   fields: {
     type: string;
     key: string;
@@ -56,12 +58,7 @@ export interface ServiceAction {
   id: string;
   name: string;
   description: string;
-  variables: {
-    key: string;
-    type: string;
-    displayName: string;
-    description: string;
-  }[];
+  variables: Variable[];
   fields: {
     type: string;
     key: string;

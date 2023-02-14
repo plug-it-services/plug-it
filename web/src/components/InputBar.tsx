@@ -9,6 +9,8 @@ export interface IInputBarProps {
   onChange: (value: string) => void;
   onSubmit: () => void;
   autoComplete?: string;
+  onBlur?: () => void;
+  onFocus?: () => void;
   value?: string;
 }
 
@@ -22,6 +24,8 @@ function InputBar({
   onSubmit,
   autoComplete,
   value,
+  onBlur,
+  onFocus,
 }: IInputBarProps) {
   return (
     <Box
@@ -46,6 +50,8 @@ function InputBar({
           e.preventDefault();
           onSubmit();
         }}
+        onBlur={onBlur}
+        onFocus={onFocus}
       />
     </Box>
   );
