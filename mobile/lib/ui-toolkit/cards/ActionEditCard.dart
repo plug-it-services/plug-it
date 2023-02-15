@@ -41,6 +41,31 @@ class _StateActionEditCard extends State<ActionEditCard>{
   bool selectEventDeployed = true;
   bool editEventDeployed = false;
 
+
+  Event? getEventFromPlugEvent(PlugEvent ev) {
+    for (Event event in events ?? []) {
+      if (event.id == ev.id) {
+        return event;
+      }
+    }
+    return null;
+  }
+
+  List<Event> getEventList()
+  {
+    List<Event> eventList = [];
+
+    if (widget.plug.event != null && (widget.plug.event!.id != "" && widget.plug.event!.serviceName != "")) {
+      eventList.add(getEventFromPlugEvent(widget.plug.event!)!);
+    }
+    for (PlugEvent action in widget.plug.actions) {
+      if ((action.id != "" && action.serviceName != "")) {
+        eventList.add(getEventFromPlugEvent(action)!);
+      }
+    }
+    return eventList;
+  }
+
   void onServiceSelected(value) {
     setState(() {
       selectedService = value;
@@ -138,6 +163,8 @@ class _StateActionEditCard extends State<ActionEditCard>{
           },
           selectedEvent: selectedEvent,
           editedEvent: getEditedEvent(),
+          selectedPlugEvents: getEventList(),
+          eventIdx: widget.actionIdx,
         )
       ];
     }

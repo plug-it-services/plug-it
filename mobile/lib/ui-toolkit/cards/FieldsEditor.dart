@@ -1,6 +1,7 @@
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/PlugApi.dart';
+import 'package:mobile/models/field/Variable.dart';
 
 import 'package:mobile/models/plug/Plug.dart';
 import 'package:mobile/models/plug/PlugDetails.dart';
@@ -11,11 +12,14 @@ import 'package:mobile/ui-toolkit/PlugItStyle.dart';
 import 'package:mobile/ui-toolkit/buttons/IconButtonSwitch.dart';
 import 'package:mobile/ui-toolkit/buttons/ScreenWidthButton.dart';
 import 'package:mobile/models/Event.dart';
+import 'package:mobile/ui-toolkit/cards/variable_menu.dart';
 import 'package:mobile/ui-toolkit/input/InputField.dart';
 
 
 class FieldsEditor extends StatefulWidget {
   final List<Service> services;
+  final List<Event> selectedPlugEvents;
+  final int eventIdx;
   final bool isOpen;
   final void Function(bool ) onCardDeploy;
   final Event? selectedEvent;
@@ -27,12 +31,15 @@ class FieldsEditor extends StatefulWidget {
     required this.onCardDeploy,
     required this.selectedEvent,
     required this.editedEvent,
+    required this.selectedPlugEvents,
+    required this.eventIdx,
   });
 
   @override
   State createState() => _StateFieldsEditor();
 }
 class _StateFieldsEditor extends State<FieldsEditor>{
+
 
   List<Widget> getActionFields() {
     List<Widget> fields = [];
@@ -48,6 +55,15 @@ class _StateFieldsEditor extends State<FieldsEditor>{
           Row(
             children: [
               Text(field.displayName.capitalize(), style: PlugItStyle.smallStyle),
+              (widget.eventIdx != -1) ? VariableMenu(
+                onVariableSelected: (Event event , Variable variable, int idx) {
+                  setState(() => {
+                    widget.editedEvent!.fields[idx].value += "\${$idx.${variable.key}}"
+                  });
+                },
+                selectedPlugEvents: widget.selectedPlugEvents,
+                eventIdx: widget.eventIdx,
+              ) : SizedBox(width: 0,),
               Expanded(
                   child: InputField(
                     hint: 'Enter ${field.type.capitalize()}',
