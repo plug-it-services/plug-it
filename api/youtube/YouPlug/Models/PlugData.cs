@@ -6,7 +6,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace PlugSharp
+
+namespace YouPlug.Models
 {
     internal class PlugData
     {
@@ -36,7 +37,7 @@ namespace PlugSharp
                 Description = description;
                 Required = required;
             }
-        } 
+        }
 
         internal class PlugEvent
         {
@@ -89,7 +90,7 @@ namespace PlugSharp
                 Fields = fields;
             }
         }
-        
+
         [JsonPropertyName("name")] public string Name { get; set; }
         [JsonPropertyName("authType")] public PlugAuthType AuthType { get; set; }
         [JsonPropertyName("icon")] public string Icon { get; set; }

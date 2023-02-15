@@ -1,5 +1,5 @@
-﻿using PlugSharp;
 using System.Text;
+using YouPlug.Models;
 
 static PlugData BuildPlugData()
 {
@@ -28,13 +28,16 @@ static async Task<bool> RegisterPlug()
 {
     string plugDataJsonString = PlugData.ToJson(BuildPlugData());
 
-    try {
+    try
+    {
         var client = new HttpClient();
         var request = new HttpRequestMessage(HttpMethod.Post, "http://plugs:80/service/initialize");
         request.Content = new StringContent(plugDataJsonString, Encoding.UTF8, "application/json");
         var response = await client.SendAsync(request);
         return response.StatusCode == System.Net.HttpStatusCode.Created;
-    } catch (HttpRequestException ex) {
+    }
+    catch (HttpRequestException ex)
+    {
         Console.WriteLine("An error occured while sending plug registration: " + ex.Message);
         return false;
     }
@@ -45,6 +48,31 @@ bool plugRegistration = await RegisterPlug();
 if (!plugRegistration)
 {
     Console.WriteLine("Unable to register plug!");
-    return;
+    //return;
 }
 Console.WriteLine("Plug should be registered!");
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+builder.Services.AddControllers();
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseHttpsRedirection();
+
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();
