@@ -6,12 +6,16 @@ import 'package:mobile/ui-toolkit/buttons/IconButtonSwitch.dart';
 class CardTitle extends StatefulWidget {
   final String label;
   final bool state;
+  final TextStyle style;
+  final List<Widget> children;
   final void Function()? onPressed;
 
   const CardTitle({super.key,
     this.label = "",
     this.onPressed,
-    this.state = true
+    this.children = const [],
+    this.state = true,
+    this.style = PlugItStyle.subtitleStyle
   });
 
   @override
@@ -38,38 +42,49 @@ class _StateCardTitle extends State<CardTitle>{
   }
   @override
   void initState() {
-    super.initState();
     deployed = widget.state;
+    super.initState();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    var height = MediaQuery.of(context).size.height;
+  Widget getCardTitle(height)
+  {
     return GestureDetector(
-          onTap: () => onTap(!widget.state),
-          child: AnimatedContainer(
+        onTap: () => onTap(!widget.state),
+        child: AnimatedContainer(
             height: height * 0.07,
             duration: const Duration(milliseconds: 200),
             onEnd: onEnd,
             decoration: BoxDecoration(
-                color: (!pressed) ? PlugItStyle.cardColor : PlugItStyle.buttonColorPressed,
-                borderRadius: BorderRadius.circular(8)
+                color: (!pressed) ? PlugItStyle.primaryColor : PlugItStyle.buttonColorPressed,
+                borderRadius: BorderRadius.circular(4),
+                border: Border.all(color: Colors.black12),
             ),
             child: Row(
               children: [
                 Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child:Text(widget.label, style: PlugItStyle.subtitleStyle)
+                    child:Text(widget.label, style: widget.style)
                 ),
-                IconButtonSwitch(
-                    falseIcon: const Icon(Icons.keyboard_arrow_down_rounded),
-                    trueIcon: const Icon(Icons.keyboard_arrow_up_rounded),
-                    state: deployed,
-                    onChange: onTap,
-                )
+                (widget.state)
+                    ? const Icon(Icons.keyboard_arrow_up_rounded)
+                    : const Icon(Icons.keyboard_arrow_down_rounded),
               ],
             )
-          )
-      );
+        )
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var height = MediaQuery.of(context).size.height;
+    return Column(
+          children:
+            (widget.state) ? [
+              getCardTitle(height),
+              ...widget.children
+            ] : [
+              getCardTitle(height)
+            ]
+   );
   }
 }

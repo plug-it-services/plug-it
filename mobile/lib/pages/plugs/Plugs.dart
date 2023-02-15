@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:mobile/PlugApi.dart';
+import 'package:mobile/models/Event.dart';
 
 
 import 'package:mobile/models/service/Service.dart';
@@ -30,11 +31,38 @@ class _PlugsState extends State<Plugs> {
   PlugDetails? plugEdited;
   bool editing = false;
   bool creating = false;
+  bool cardOpen = true;
+  int cardIdxOpen = -1;
   List<Plug>? plugs;
   List<Service>? services;
+  List<Event?> selectedPlugEvents = [];
+
+  void setEventList()
+  {
+    setState(() {
+      selectedPlugEvents = List.filled(1 + plugEdited!.actions.length, null);
+    });
+
+    if (plugEdited!.event != null && (plugEdited!.event!.id != "" && plugEdited!.event!.serviceName != "")) {
+      setEventFromPlugEvent(plugEdited!.event!, true, 0);
+    }
+    int idx = 1;
+    for (PlugEvent action in plugEdited!.actions) {
+      if ((action.id != "" && action.serviceName != "")) {
+        setEventFromPlugEvent(action, false, idx);
+      }
+      idx++;
+    }
+  }
+  void setEventFromPlugEvent(PlugEvent ev, bool isTrigger, int idx) {
+    PlugApi.getEvent(ev.serviceName, ev.id, isTrigger: isTrigger).then((value) {
+      setState(() {
+        selectedPlugEvents[idx] = value;
+      });
+    });
+  }
 
   void _createOrEditPlug(Plug? plug) {
-    
     if (plug != null) {
       PlugApi.getPlug(plug.id).then((res) =>
       {
@@ -42,6 +70,7 @@ class _PlugsState extends State<Plugs> {
           creating = false;
           editing = true;
           plugEdited = res;
+          setEventList();
         })
       });
     }
@@ -56,6 +85,7 @@ class _PlugsState extends State<Plugs> {
           enabled: true,
           actions: [],
         );
+        setEventList();
       });
     }
   }
@@ -125,17 +155,60 @@ class _PlugsState extends State<Plugs> {
         onChanged: (value) => plugEdited!.name = value,
     ));
     widgets.add(const SizedBox(height: 20,));
-    widgets.add(ActionEditCard(services: services ?? [], isOpen: false, onCardDeploy: () => {}, plug: plugEdited!, actionIdx: -1));
+    widgets.add(ActionEditCard(
+        services: services ?? [],
+        isOpen: (cardIdxOpen == -1 && cardOpen),
+        onCardDeploy: () {
+          if (cardIdxOpen == -1) {
+            setState(() {
+              cardOpen = !cardOpen;
+            });
+          } else {
+            setState(() {
+              cardIdxOpen = -1;
+              cardOpen = true;
+            });
+          }
+        },
+        plug: plugEdited!,
+        actionIdx: -1,
+        selectedPlugEvents: selectedPlugEvents,
+        onEventSelected: () => {
+          setEventList()
+        }
+    ));
+
     widgets.add(const SizedBox(height: 2,));
     widgets.add(IconButton(onPressed: _addAction, icon: Icon(Icons.add_rounded),));
     widgets.add(const SizedBox(height: 2,));
-    int idx = 0;
     for (var action in plugEdited!.actions) {
-      widgets.add(ActionEditCard(services: services ?? [], isOpen: false, onCardDeploy: () => {}, plug: plugEdited!, actionIdx: idx));
+      widgets.add(ActionEditCard(
+          services: services ?? [],
+          isOpen: (cardIdxOpen == plugEdited!.actions.indexOf(action) && cardOpen),
+          onCardDeploy: () {
+            if (cardIdxOpen == plugEdited!.actions.indexOf(action)) {
+              print("Changing state of card ${plugEdited!.actions.indexOf(action)} to ${!cardOpen}, actual cardIdx: $cardIdxOpen");
+              setState(() {
+                cardOpen = !cardOpen;
+              });
+            } else {
+              print("Closing card $cardIdxOpen to open ${plugEdited!.actions.indexOf(action)}");
+              setState(() {
+                cardIdxOpen = plugEdited!.actions.indexOf(action);
+                cardOpen = true;
+              });
+            }
+          },
+          plug: plugEdited!,
+          actionIdx: plugEdited!.actions.indexOf(action),
+          selectedPlugEvents: selectedPlugEvents,
+          onEventSelected: () => {
+            setEventList()
+          }
+      ));
       widgets.add(const SizedBox(height: 2,));
       widgets.add(IconButton(onPressed: _addAction, icon: Icon(Icons.add_rounded),));
       widgets.add(const SizedBox(height: 2,));
-      idx++;
     }
     widgets.add(const SizedBox(height: 2,));
     widgets.add(Row(

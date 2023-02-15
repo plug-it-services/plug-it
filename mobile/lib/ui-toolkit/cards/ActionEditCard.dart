@@ -1,18 +1,16 @@
-import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
+
 import 'package:mobile/PlugApi.dart';
 
 import 'package:mobile/models/plug/PlugDetails.dart';
 import 'package:mobile/models/plug/PlugEvent.dart';
 import 'package:mobile/models/service/Service.dart';
-import 'package:mobile/models/field/Field.dart';
-import 'package:mobile/ui-toolkit/PlugItStyle.dart';
-import 'package:mobile/ui-toolkit/buttons/IconButtonSwitch.dart';
 import 'package:mobile/models/Event.dart';
+
+import 'package:mobile/ui-toolkit/PlugItStyle.dart';
 import 'package:mobile/ui-toolkit/cards/CardTitle.dart';
 import 'package:mobile/ui-toolkit/cards/EventSelection.dart';
 import 'package:mobile/ui-toolkit/cards/FieldsEditor.dart';
-import 'package:mobile/ui-toolkit/input/InputField.dart';
 
 
 class ActionEditCard extends StatefulWidget {
@@ -21,13 +19,17 @@ class ActionEditCard extends StatefulWidget {
   final void Function() onCardDeploy;
   final PlugDetails plug;
   final int actionIdx;
+  final List<Event?> selectedPlugEvents;
+  final void Function() onEventSelected;
 
   const ActionEditCard({super.key,
     required this.services,
     required this.isOpen,
     required this.onCardDeploy,
     required this.plug,
-    required this.actionIdx
+    required this.actionIdx,
+    required this.onEventSelected,
+    required this.selectedPlugEvents
   });
 
   @override
@@ -41,38 +43,13 @@ class _StateActionEditCard extends State<ActionEditCard>{
   bool selectEventDeployed = true;
   bool editEventDeployed = false;
 
-
-  Event? getEventFromPlugEvent(PlugEvent ev) {
-    for (Event event in events ?? []) {
-      if (event.id == ev.id) {
-        return event;
-      }
-    }
-    return null;
-  }
-
-  List<Event> getEventList()
-  {
-    List<Event> eventList = [];
-
-    if (widget.plug.event != null && (widget.plug.event!.id != "" && widget.plug.event!.serviceName != "")) {
-      eventList.add(getEventFromPlugEvent(widget.plug.event!)!);
-    }
-    for (PlugEvent action in widget.plug.actions) {
-      if ((action.id != "" && action.serviceName != "")) {
-        eventList.add(getEventFromPlugEvent(action)!);
-      }
-    }
-    return eventList;
-  }
-
   void onServiceSelected(value) {
     setState(() {
       selectedService = value;
       if (widget.actionIdx != -1) {
-        PlugApi.getServiceActions(selectedService!.name).then((events) =>
+        PlugApi.getServiceActions(selectedService!.name).then((events)
         {
-          _setEvents(events ?? [])
+          _setEvents(events ?? []);
         });
       }
       else {
@@ -88,6 +65,16 @@ class _StateActionEditCard extends State<ActionEditCard>{
   void onEventSelected(value) {
     setState(() {
       selectedEvent = value;
+      if (value == null) {
+        if (widget.actionIdx == -1) {
+          widget.plug.event = null;
+        }
+        else {
+          widget.plug.actions[widget.actionIdx] = PlugEvent(id: '', serviceName: '', fields: [],);
+        }
+        widget.onEventSelected();
+        return;
+      }
       var ev = PlugEvent.fromEventService(event: value, serviceName: selectedService!.name);
       if (widget.actionIdx == -1) {
         widget.plug.event = ev;
@@ -96,6 +83,7 @@ class _StateActionEditCard extends State<ActionEditCard>{
         widget.plug.actions[widget.actionIdx] = ev;
       }
     });
+    widget.onEventSelected();
   }
 
   String getLabel() {
@@ -132,9 +120,10 @@ class _StateActionEditCard extends State<ActionEditCard>{
     });
   }
   List<Widget> getBody() {
-    if (deployed) {
+    if (widget.isOpen) {
       return [
-        const Divider(color: Colors.black),
+        //const Divider(color: Colors.black),
+        SizedBox(height: 20,),
         EventSelection(
           services: widget.services,
           isOpen: selectEventDeployed,
@@ -152,6 +141,7 @@ class _StateActionEditCard extends State<ActionEditCard>{
           selectedService: selectedService,
           events: events,
         ),
+        SizedBox(height: 20,),
         FieldsEditor(
           services: widget.services,
           isOpen: editEventDeployed,
@@ -163,9 +153,10 @@ class _StateActionEditCard extends State<ActionEditCard>{
           },
           selectedEvent: selectedEvent,
           editedEvent: getEditedEvent(),
-          selectedPlugEvents: getEventList(),
+          selectedPlugEvents: widget.selectedPlugEvents,
           eventIdx: widget.actionIdx,
-        )
+        ),
+        SizedBox(height: 20,)
       ];
     }
     return [];
@@ -173,15 +164,13 @@ class _StateActionEditCard extends State<ActionEditCard>{
 
   @override
   void initState() {
-
-    super.initState();
     if (widget.actionIdx == -1 && widget.plug.event != null && widget.plug.event!.id != "" && widget.plug.event!.serviceName != "") {
       getCurrentData(widget.plug.event!.serviceName, widget.plug.event!.id);
     }
     if (widget.actionIdx != -1 && widget.plug.actions[widget.actionIdx].id != "" && widget.plug.actions[widget.actionIdx].serviceName != "") {
       getCurrentData(widget.plug.actions[widget.actionIdx].serviceName, widget.plug.actions[widget.actionIdx].id);
     }
-
+    super.initState();
   }
 
   @override
@@ -194,20 +183,16 @@ class _StateActionEditCard extends State<ActionEditCard>{
                 color: PlugItStyle.cardColor,
                 borderRadius: BorderRadius.circular(8)
             ),
-            child: Column(
+            child: CardTitle(
+              label: "${getLabel()} ${(selectedService != null) ? "- ${selectedService!.name.capitalize()}" : ""}",
+              state: widget.isOpen,
+              onPressed: () {
+                widget.onCardDeploy();
+              },
               children: [
-                CardTitle(
-                  label: "${getLabel()} ${(selectedService != null) ? "- ${selectedService!.name.capitalize()}" : ""}",
-                  state: deployed,
-                  onPressed: () => {
-                    setState(() {
-                      deployed = !deployed;
-                    })
-                  },
-                ),
                 ...getBody(),
               ],
-            )
+            ),
         )
     );
 
