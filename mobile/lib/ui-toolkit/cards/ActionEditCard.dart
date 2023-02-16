@@ -8,6 +8,7 @@ import 'package:mobile/models/service/Service.dart';
 import 'package:mobile/models/Event.dart';
 
 import 'package:mobile/ui-toolkit/PlugItStyle.dart';
+import 'package:mobile/ui-toolkit/buttons/ScreenWidthButton.dart';
 import 'package:mobile/ui-toolkit/cards/CardTitle.dart';
 import 'package:mobile/ui-toolkit/cards/EventSelection.dart';
 import 'package:mobile/ui-toolkit/cards/FieldsEditor.dart';
@@ -21,6 +22,7 @@ class ActionEditCard extends StatefulWidget {
   final int actionIdx;
   final List<Event?> selectedPlugEvents;
   final void Function() onEventSelected;
+  final void Function(int actionIdx) onActionDeleted;
 
   const ActionEditCard({super.key,
     required this.services,
@@ -29,6 +31,7 @@ class ActionEditCard extends StatefulWidget {
     required this.plug,
     required this.actionIdx,
     required this.onEventSelected,
+    required this.onActionDeleted,
     required this.selectedPlugEvents
   });
 
@@ -119,11 +122,12 @@ class _StateActionEditCard extends State<ActionEditCard>{
       });
     });
   }
+
+
   List<Widget> getBody() {
     if (widget.isOpen) {
       return [
-        //const Divider(color: Colors.black),
-        SizedBox(height: 20,),
+        const SizedBox(height: 20,),
         EventSelection(
           services: widget.services,
           isOpen: selectEventDeployed,
@@ -141,7 +145,7 @@ class _StateActionEditCard extends State<ActionEditCard>{
           selectedService: selectedService,
           events: events,
         ),
-        SizedBox(height: 20,),
+        const SizedBox(height: 20,),
         FieldsEditor(
           services: widget.services,
           isOpen: editEventDeployed,
@@ -156,7 +160,19 @@ class _StateActionEditCard extends State<ActionEditCard>{
           selectedPlugEvents: widget.selectedPlugEvents,
           eventIdx: widget.actionIdx,
         ),
-        SizedBox(height: 20,)
+        const SizedBox(height: 20,),
+        (widget.actionIdx != -1) ?
+            ScreenWidthButton(
+              label:"Delete Action",
+              color: Colors.red,
+              pressedColor: Colors.redAccent,
+              callback: () {
+                widget.onActionDeleted(widget.actionIdx);
+              },
+            ) : const SizedBox(),
+        (widget.actionIdx != -1)
+            ? const SizedBox(height: 20,)
+            : const SizedBox(height: 0,)
       ];
     }
     return [];
