@@ -9,12 +9,13 @@ FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 COPY ["YouPlug/YouPlug.csproj", "YouPlug/"]
 RUN dotnet restore "YouPlug/YouPlug.csproj"
-COPY ./YouPlug .
 WORKDIR "/src/YouPlug"
-RUN dotnet build "YouPlug/YouPlug.csproj" -c Release -o /app/build
+COPY ./YouPlug .
+RUN ls -la
+RUN dotnet build "YouPlug.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "YouPlug/YouPlug.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "YouPlug.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app

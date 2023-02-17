@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
+using System.Collections;
 using System.Text;
 using YouPlug;
 using YouPlug.Models;
@@ -22,10 +23,17 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 Console.WriteLine("Configuring database connection...");
-string? host = Environment.GetEnvironmentVariable("POSTGRES_HOST");
-string? userName = Environment.GetEnvironmentVariable("POSTGRES_USER");
-string? password = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD");
-string? databaseName = Environment.GetEnvironmentVariable("POSTGRES_DB");
+
+// Print all env variables to console for debugging purposes (.NET 6, without DictionaryEntry)
+foreach (DictionaryEntry envVariable in Environment.GetEnvironmentVariables())
+{
+    Console.WriteLine($"{envVariable.Key}={envVariable.Value}");
+}
+
+string? host = Environment.GetEnvironmentVariable("POSTGRES_HOST", EnvironmentVariableTarget.Process);
+string? userName = Environment.GetEnvironmentVariable("POSTGRES_USER", EnvironmentVariableTarget.Process);
+string? password = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD", EnvironmentVariableTarget.Process);
+string? databaseName = Environment.GetEnvironmentVariable("POSTGRES_DB", EnvironmentVariableTarget.Process);
 
 // throw exception if any of the required configuration values are missing
 if (string.IsNullOrWhiteSpace(host) || string.IsNullOrWhiteSpace(userName)
@@ -34,11 +42,13 @@ if (string.IsNullOrWhiteSpace(host) || string.IsNullOrWhiteSpace(userName)
     throw new Exception("Missing configuration values to setup database connection!");
 }
 
-string connectionString = string.Format("Host={0};user id={1},password={2},database={3}",
+string connectionString = string.Format("Host={0};Username={1};Password={2};Database={3}",
     host, userName, password, databaseName);
 
+Console.WriteLine($"Connection string: {connectionString}");
+
 builder.Services.AddDbContext<PlugDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString(connectionString))
+    options.UseNpgsql(connectionString, b => b.MigrationsAssembly("YouPlug"))
 );
 
 // Check
