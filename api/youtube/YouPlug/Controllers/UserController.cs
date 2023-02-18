@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Sprache;
 using YouPlug.Models;
 
 namespace YouPlug.Controllers
@@ -13,6 +12,10 @@ namespace YouPlug.Controllers
         private readonly ILogger<UserController> _logger;
         private readonly IConfiguration _config;
         private readonly PlugDbContext _plugDbContext;
+        public class OAuth2Redirect
+        {
+            public string url { get; set; }
+        }
 
         public UserController(ILogger<UserController> logger, IConfiguration config, PlugDbContext plugDbContext)
         {
@@ -58,6 +61,29 @@ namespace YouPlug.Controllers
 
             OAuth2Redirect oAuth2Redirect = new() { url = oauth2Callback };
             return oAuth2Redirect;
+        }
+        
+        public async Task<UserModel?> GetUserById(uint id)
+        {
+            return await _plugDbContext.Users.FindAsync(id);
+        }
+
+        public async Task<UserModel?> CreateUser(uint id, string apiKey)
+        {
+            UserModel user = new();
+            user.id = id;
+            user.apiKey = apiKey;
+
+            return (await _plugDbContext.Users.AddAsync(user))?.Entity;
+        }
+
+        public async Task<Boolean> DeleteUser(uint id)
+        {
+            UserModel? user = await GetUserById(id);
+            if (user == null)
+                return false;
+            _plugDbContext.Users.Remove(user);
+            return true;
         }
     }
 }

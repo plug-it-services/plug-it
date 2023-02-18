@@ -10,5 +10,6 @@ namespace YouPlug
         }
 
         public DbSet<UserModel> Users { get; set; }
+        public DbSet<WebHookModel> WebHooks { get; set; }
     }
 }

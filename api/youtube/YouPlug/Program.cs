@@ -39,7 +39,8 @@ string? databaseName = Environment.GetEnvironmentVariable("POSTGRES_DB", Environ
 if (string.IsNullOrWhiteSpace(host) || string.IsNullOrWhiteSpace(userName)
     || string.IsNullOrWhiteSpace(password) || string.IsNullOrWhiteSpace(databaseName))
 {
-    throw new Exception("Missing configuration values to setup database connection!");
+    Console.WriteLine("Missing configuration values for database connection!");
+    return;
 }
 
 string connectionString = string.Format("Host={0};Username={1};Password={2};Database={3}",
@@ -51,7 +52,6 @@ builder.Services.AddDbContext<PlugDbContext>(options =>
     options.UseNpgsql(connectionString, b => b.MigrationsAssembly("YouPlug"))
 );
 
-// Check
 using (var context = new PlugDbContext(builder.Services.BuildServiceProvider().GetService<DbContextOptions<PlugDbContext>>()))
 {
     context.Database.EnsureCreated();
