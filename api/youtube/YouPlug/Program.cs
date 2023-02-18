@@ -5,14 +5,14 @@ using System.Text;
 using YouPlug;
 using YouPlug.Models;
 
-/*bool plugRegistration = await RegisterPlug();
+bool plugRegistration = await PlugRegistration.RegisterPlug();
 
 if (!plugRegistration)
 {
     Console.WriteLine("Unable to register plug!");
-    //return;
+    return;
+}
 Console.WriteLine("Plug should be registered!");
-}*/
 
 var builder = WebApplication.CreateBuilder(args);
 

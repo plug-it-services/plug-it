@@ -7,7 +7,7 @@ namespace YouPlug
     {
         static PlugData BuildPlugData()
         {
-            PlugData plugData = new PlugData("Youtube", PlugData.PlugAuthType.None, "/images/youtube_icon.png", "#FF0000");
+            PlugData plugData = new PlugData("Youtube", PlugData.PlugAuthType.OAuth2, "/images/youtube_icon.png", "#FF0000");
             plugData.AddEvent(
                 "videoPublished",
                 "Video Published",
@@ -28,7 +28,7 @@ namespace YouPlug
             return plugData;
         }
 
-        static async Task<bool> RegisterPlug()
+        public static async Task<bool> RegisterPlug()
         {
             string plugDataJsonString = PlugData.ToJson(BuildPlugData());
 
