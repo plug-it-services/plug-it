@@ -8,8 +8,8 @@ namespace YouPlug
         public PlugDbContext(DbContextOptions<PlugDbContext> options) : base(options)
         {
         }
-
-        public DbSet<UserModel> Users { get; set; }
+        
+        public DbSet<YouPlugAuth> Auths { get; set; }
         public DbSet<WebHookModel> WebHooks { get; set; }
     }
 }
