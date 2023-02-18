@@ -6,4 +6,6 @@ export type Profile = {
 
 export interface SsoService {
   getUserProfile(token: string): Promise<Profile>;
+
+  getUserProfileFromAccessToken(token: string): Promise<Profile>;
 }

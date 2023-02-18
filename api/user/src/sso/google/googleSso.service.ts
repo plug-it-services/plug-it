@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { OAuth2Client } from 'google-auth-library';
 import { ConfigService } from '@nestjs/config';
 import { SsoService, Profile } from '../sso.service';
+import axios from 'axios';
 
 @Injectable()
 export class GoogleSsoService implements SsoService {
@@ -23,6 +24,19 @@ export class GoogleSsoService implements SsoService {
 
     return {
       firstName: profileInfos.name,
+      lastName: profileInfos.family_name,
+      email: profileInfos.email,
+    };
+  }
+
+  async getUserProfileFromAccessToken(token: string): Promise<Profile> {
+    const response = await axios.get(
+      `https://www.googleapis.com/oauth2/v3/userinfo?access_token=${token}`,
+    );
+    const profileInfos = response.data;
+
+    return {
+      firstName: profileInfos.givenName,
       lastName: profileInfos.family_name,
       email: profileInfos.email,
     };
