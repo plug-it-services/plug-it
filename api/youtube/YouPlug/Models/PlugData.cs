@@ -13,7 +13,7 @@ namespace YouPlug.Models
     {
         internal enum PlugAuthType
         {
-            None, ApiKey, ClientSecret, OAuth2
+            None, ApiKey, ClientSecret, oauth2
         }
 
         internal enum VariableType

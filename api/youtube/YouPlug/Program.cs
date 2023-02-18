@@ -52,6 +52,16 @@ builder.Services.AddDbContext<PlugDbContext>(options =>
     options.UseNpgsql(connectionString, b => b.MigrationsAssembly("YouPlug"))
 );
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(builder =>
+    {
+        builder.AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
+});
+
 using (var context = new PlugDbContext(builder.Services.BuildServiceProvider().GetService<DbContextOptions<PlugDbContext>>()))
 {
     context.Database.EnsureCreated();

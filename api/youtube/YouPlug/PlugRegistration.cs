@@ -7,7 +7,7 @@ namespace YouPlug
     {
         static PlugData BuildPlugData()
         {
-            PlugData plugData = new PlugData("Youtube", PlugData.PlugAuthType.OAuth2, "/images/youtube_icon.png", "#FF0000");
+            PlugData plugData = new PlugData("youtube", PlugData.PlugAuthType.oauth2, "/images/youtube_icon.png", "#FF0000");
             plugData.AddEvent(
                 "videoPublished",
                 "Video Published",
@@ -38,6 +38,10 @@ namespace YouPlug
                 var request = new HttpRequestMessage(HttpMethod.Post, "http://plugs:80/service/initialize");
                 request.Content = new StringContent(plugDataJsonString, Encoding.UTF8, "application/json");
                 var response = await client.SendAsync(request);
+                if (response.StatusCode != System.Net.HttpStatusCode.Created)
+                {
+                    Console.WriteLine("An error occured while sending plug registration: " + response.StatusCode);
+                }
                 return response.StatusCode == System.Net.HttpStatusCode.Created;
             }
             catch (HttpRequestException ex)
