@@ -1,8 +1,8 @@
 ﻿using System.Text.Json;
 
-namespace YouPlug.Models
+namespace YouPlug.Dto
 {
-    public class OAuthResponse
+    public class OAuthResponseDto
     {
         public string access_token { get; set; }
         public uint expires_in { get; set; }
@@ -10,9 +10,9 @@ namespace YouPlug.Models
         public string scope { get; set; }
         public string token_type { get; set; }
 
-        public static OAuthResponse? FromJson(string content)
+        public static OAuthResponseDto? FromJson(string content)
         {
-            return JsonSerializer.Deserialize<OAuthResponse>(content);
+            return JsonSerializer.Deserialize<OAuthResponseDto>(content);
         }
     }
 }

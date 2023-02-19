@@ -1,4 +1,4 @@
-﻿namespace YouPlug.Models
+﻿namespace YouPlug.Dto
 {
     public class OAuth2Start
     {

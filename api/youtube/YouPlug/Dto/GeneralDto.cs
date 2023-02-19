@@ -1,6 +1,6 @@
-﻿namespace YouPlug.Models
+﻿namespace YouPlug.Dto
 {
-    public class GeneralModels
+    public class GeneralDto
     {
         public class ErrorMessage
         {

@@ -7,9 +7,9 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 
-namespace YouPlug.Models
+namespace YouPlug.Dto
 {
-    internal class PlugData
+    internal class PlugDataDto
     {
         internal enum PlugAuthType
         {
@@ -98,7 +98,7 @@ namespace YouPlug.Models
         [JsonPropertyName("events")] public List<PlugEvent> Events { get; set; }
         [JsonPropertyName("actions")] public List<PlugAction> Actions { get; set; }
 
-        public PlugData(string name, PlugAuthType authType, string icon, string color)
+        public PlugDataDto(string name, PlugAuthType authType, string icon, string color)
         {
             Name = name;
             AuthType = authType;
@@ -121,12 +121,12 @@ namespace YouPlug.Models
             };
         }
 
-        public static PlugData? FromJson(string content)
+        public static PlugDataDto? FromJson(string content)
         {
-            return JsonSerializer.Deserialize<PlugData>(content, GetJsonSerializerOptions());
+            return JsonSerializer.Deserialize<PlugDataDto>(content, GetJsonSerializerOptions());
         }
 
-        public static string ToJson(PlugData data)
+        public static string ToJson(PlugDataDto data)
         {
             return JsonSerializer.Serialize(data, GetJsonSerializerOptions());
         }
