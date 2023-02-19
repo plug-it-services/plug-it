@@ -6,6 +6,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AmqpConnection, RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DiscordAuthEntity } from './entities/discordAuth.entity';
+import { DiscordAuthService } from './discord/discordAuth.service';
 
 @Module({
   imports: [
@@ -45,7 +46,7 @@ import { DiscordAuthEntity } from './entities/discordAuth.entity';
     TypeOrmModule.forFeature([DiscordAuthEntity]),
   ],
   controllers: [AppController, PublicController],
-  providers: [DiscordService],
+  providers: [DiscordService, DiscordAuthService],
 })
 export class AppModule {
   constructor(
