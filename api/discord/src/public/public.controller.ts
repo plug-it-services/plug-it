@@ -35,7 +35,10 @@ export class PublicController {
 
     const url = new URL('https://discord.com/api/oauth2/authorize');
 
-    url.searchParams.append('client_id', this.discordService.token);
+    url.searchParams.append(
+      'client_id',
+      this.configService.getOrThrow<string>('DISCORD_CLIENT_ID'),
+    );
     url.searchParams.append('permissions', '403727002688');
     url.searchParams.append('scope', 'bot');
     url.searchParams.append('state', state);
