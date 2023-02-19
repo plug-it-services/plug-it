@@ -11,6 +11,9 @@ namespace YouPlug.Services
     {
         private YouTubeService youtubeService;
 
+        private List<ChannelDto> channels = new();
+        private List<VideoDto> videos = new();
+
         public TubeFetcher(string apiKey)
         {
             youtubeService = new YouTubeService(new BaseClientService.Initializer()
@@ -18,9 +21,10 @@ namespace YouPlug.Services
                 ApiKey = apiKey,
                 ApplicationName = GetType().ToString()
             });
+            
         }
 
-        public List<ChannelDto> GetSubscriptions(string channelId)
+        private List<ChannelDto> GetSubscriptions(string channelId)
         {
             List<ChannelDto> channels = new();
             var request = youtubeService.Subscriptions.List("snippet");
@@ -44,7 +48,7 @@ namespace YouPlug.Services
             return channels;
         }
 
-        public List<VideoDto> GetVideos(string channelId)
+        private List<VideoDto> GetVideos(string channelId)
         {
             List<VideoDto> videos = new();
             var request = youtubeService.Search.List("snippet");

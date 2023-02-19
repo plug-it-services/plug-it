@@ -98,6 +98,7 @@ namespace YouPlug.Controllers
                 {
                     message = "Internal server error occurred: " + error
                 };
+                Console.WriteLine("Error from UserController.Callback: " + error);
                 return StatusCode(400, errorMessage);
             }
 
@@ -107,6 +108,7 @@ namespace YouPlug.Controllers
                 {
                     message = "Internal server error occurred: Missing code!"
                 };
+                Console.WriteLine("Error from UserController.Callback: Missing code!");
                 return StatusCode(400, errorMessage);
             }
 
@@ -118,10 +120,21 @@ namespace YouPlug.Controllers
                 {
                     message = "Internal server error occurred: Missing/missmatch auth!"
                 };
+                Console.WriteLine("Error from UserController.Callback: Missing/missmatch auth!");
                 return StatusCode(400, errorMessage);
             }
 
             var response = await TokenService.ExchangeAuthCode(_config, state, code);
+
+            if (response == null || string.IsNullOrWhiteSpace(response.refresh_token))
+            {
+                GeneralDto.ErrorMessage errorMessage = new()
+                {
+                    message = "Internal server error occurred: Missing response or refresh token!"
+                };
+                Console.WriteLine("Error from UserController.Callback: Missing response or refresh token!");
+                return StatusCode(400, errorMessage);
+            }
 
             var updatedPlugAuth = _plugDbContext.Auths.Update(new YouPlugAuthModel()
             {

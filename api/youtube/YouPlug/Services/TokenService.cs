@@ -39,9 +39,9 @@ namespace YouPlug.Services
             string content = await response.Content.ReadAsStringAsync();
             OAuthResponseDto? authResponse = OAuthResponseDto.FromJson(content);
 
-            if (authResponse == null)
+            if (authResponse == null || authResponse.access_token == null)
             {
-                Console.WriteLine("Error (ExchangeAuthCode) : " + "AuthResponse is null");
+                Console.WriteLine("Error (ExchangeAuthCode) : " + "AuthResponse or access_token is null");
                 return null;
             }
 

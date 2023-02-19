@@ -1,6 +1,6 @@
 ﻿namespace YouPlug.Dto
 {
-    public class OAuth2Start
+    public class OAuthStart
     {
         public string redirectUrl { get; set; }
     }
