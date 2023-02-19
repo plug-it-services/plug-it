@@ -40,7 +40,7 @@ export class PublicController {
       this.configService.getOrThrow<string>('DISCORD_CLIENT_ID'),
     );
     url.searchParams.append('permissions', '403727002688');
-    url.searchParams.append('scope', 'bot');
+    url.searchParams.append('scope', 'bot identify');
     url.searchParams.append('state', state);
     url.searchParams.append(
       'redirect_uri',
