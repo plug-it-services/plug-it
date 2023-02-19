@@ -4,6 +4,8 @@ import { PublicController } from './public/public.controller';
 import { DiscordService } from './discord/discord.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AmqpConnection, RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { DiscordAuthEntity } from './entities/discordAuth.entity';
 
 @Module({
   imports: [
@@ -24,6 +26,23 @@ import { AmqpConnection, RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
         };
       },
     }),
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => {
+        return {
+          type: 'postgres',
+          host: configService.get<string>('POSTGRES_HOST'),
+          port: configService.get<number>('POSTGRES_PORT'),
+          username: configService.get<string>('POSTGRES_USER'),
+          password: configService.get<string>('POSTGRES_PASSWORD'),
+          database: configService.get<string>('POSTGRES_DB'),
+          // TODO need to remove it in production
+          synchronize: true,
+          entities: [DiscordAuthEntity],
+        };
+      },
+    }),
+    TypeOrmModule.forFeature([DiscordAuthEntity]),
   ],
   controllers: [AppController, PublicController],
   providers: [DiscordService],

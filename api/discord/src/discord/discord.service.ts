@@ -4,11 +4,12 @@ import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class DiscordService {
+  public token: string;
   private client: Client;
   private logger = new Logger(DiscordService.name);
 
   constructor(private configService: ConfigService) {
-    const token = this.configService.get<string>('DISCORD_TOKEN');
+    this.token = this.configService.getOrThrow<string>('DISCORD_TOKEN');
     this.client = new Client({
       intents: ['Guilds'],
     });
@@ -17,7 +18,7 @@ export class DiscordService {
       this.logger.log('Bot Online!');
     });
 
-    this.client.login(token);
+    this.client.login(this.token);
   }
 
   async sendPrivateMessage(userId: string, message: string): Promise<void> {
@@ -35,5 +36,10 @@ export class DiscordService {
     } else {
       this.logger.error(`Channel ${channelId} not found`);
     }
+  }
+
+  async disconnectFromServer(serverId: string): Promise<void> {
+    const guild = await this.client.guilds.fetch(serverId);
+    await guild.leave();
   }
 }
