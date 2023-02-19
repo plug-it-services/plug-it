@@ -31,17 +31,24 @@ export class PublicController {
     @Body(new ValidationPipe()) body: Oauth2StartDto,
   ) {
     const user: UserHeaderDto = JSON.parse(userHeader);
-    const token = this.discordService.token;
     const state = uuidv4();
-    const redirectUri = `${this.configService.getOrThrow<string>(
-      'API_URL',
-    )}/service/discord/callback`;
+
+    const url = new URL('https://discord.com/api/oauth2/authorize');
+
+    url.searchParams.append('client_id', this.discordService.token);
+    url.searchParams.append('permissions', '403727002688');
+    url.searchParams.append('scope', 'bot');
+    url.searchParams.append('state', state);
+    url.searchParams.append(
+      'redirect_uri',
+      `${this.configService.getOrThrow<string>(
+        'API_URL',
+      )}/service/discord/callback`,
+    );
 
     await this.discordAuthService.saveState(user.id, body.redirectUrl, state);
 
-    return {
-      url: `https://discord.com/api/oauth2/authorize?client_id=${token}&permissions=403727002688&scope=bot&state=${state}&redirect_uri=${redirectUri}`,
-    };
+    return { url };
   }
 
   @Post('disconnect')
