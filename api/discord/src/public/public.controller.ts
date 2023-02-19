@@ -40,7 +40,8 @@ export class PublicController {
       this.configService.getOrThrow<string>('DISCORD_CLIENT_ID'),
     );
     url.searchParams.append('permissions', '403727002688');
-    url.searchParams.append('scope', 'bot identify');
+    url.searchParams.append('scope', 'bot');
+    url.searchParams.append('response_type', 'code');
     url.searchParams.append('state', state);
     url.searchParams.append(
       'redirect_uri',
@@ -69,12 +70,21 @@ export class PublicController {
     @Body() body: any,
     @Query('state') state: string,
   ) {
-    // TODO remove this log
-    this.logger.log(body);
-    this.logger.log(state);
-
     const user = await this.discordAuthService.retrieveByState(state);
-    // TODO: Save server id
+    const server = await this.discordService.getLatestJoinedServer();
+
+    this.logger.log(
+      `User: ${JSON.stringify(user)} connect to server: ${server.id}`,
+    );
+
+    if (server) {
+      await this.discordAuthService.saveState(
+        user.userId,
+        body.redirectUrl,
+        state,
+        server.id,
+      );
+    }
 
     res.redirect(user.redirectUrl);
   }
