@@ -30,7 +30,8 @@ export class DiscordService {
     const channel = this.client.channels.cache.get(channelId);
     if (
       channel &&
-      (channel.type === ChannelType.GuildText || channel.type === ChannelType.GuildAnnouncement)
+      (channel.type === ChannelType.GuildText ||
+        channel.type === ChannelType.GuildAnnouncement)
     ) {
       await channel.send(message);
     } else {

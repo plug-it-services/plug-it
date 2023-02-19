@@ -78,16 +78,15 @@ export class PublicController {
     @Query('code') code: string,
   ) {
     try {
-      await axios.post('https://discord.com/api/oauth2/token',
-      `client_id=${this.configService.getOrThrow<string>('DISCORD_CLIENT_ID')}
-      &client_secret=${this.configService.getOrThrow<string>(
-        'DISCORD_CLIENT_SECRET',
-      )}
-      &grant_type=authorization_code
-      &code=${code}
-      &redirect_uri=${this.configService.getOrThrow<string>(
-        'API_URL',
-      )}/service/discord/callback`
+      await axios.post(
+        'https://discord.com/api/oauth2/token',
+        `client_id=${this.configService.getOrThrow<string>(
+          'DISCORD_CLIENT_ID',
+        )}&client_secret=${this.configService.getOrThrow<string>(
+          'DISCORD_CLIENT_SECRET',
+        )}&grant_type=authorization_code&code=${code}&redirect_uri=${this.configService.getOrThrow<string>(
+          'API_URL',
+        )}/service/discord/callback`,
       );
     } catch (e) {
       console.error(e);
