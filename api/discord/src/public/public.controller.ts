@@ -75,6 +75,7 @@ export class PublicController {
     @Body() body: any,
     @Query('state') state: string,
     @Query('guild_id') server: string,
+    @Query('code') code: string,
   ) {
     const url = new URL('https://discord.com/api/oauth2/token');
 
@@ -87,7 +88,7 @@ export class PublicController {
       this.configService.getOrThrow<string>('DISCORD_CLIENT_SECRET'),
     );
     url.searchParams.append('grant_type', 'authorization_code');
-    url.searchParams.append('code', body.code);
+    url.searchParams.append('code', code);
     url.searchParams.append(
       'redirect_uri',
       `${this.configService.getOrThrow<string>(
