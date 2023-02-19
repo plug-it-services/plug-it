@@ -2,8 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using System.Collections;
 using System.Text;
-using YouPlug;
+using YouPlug.Db;
 using YouPlug.Models;
+using YouPlug.Services;
 
 bool plugRegistration = await PlugRegistration.RegisterPlug();
 
@@ -76,6 +77,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseCors();
 // app.UseHttpsRedirection();
 
 app.UseAuthorization();

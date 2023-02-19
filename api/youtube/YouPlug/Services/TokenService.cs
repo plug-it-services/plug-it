@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using YouPlug.Db;
+using YouPlug.Dto;
 using YouPlug.Models;
 
 namespace YouPlug.Services
@@ -6,7 +8,7 @@ namespace YouPlug.Services
     public class TokenService
     {
 
-        public static async Task<OAuthResponse?> ExchangeAuthCode(IConfiguration config, string state, string code)
+        public static async Task<OAuthResponseDto?> ExchangeAuthCode(IConfiguration config, string state, string code)
         {
             string googleTokenUrl = "https://oauth2.googleapis.com/token";
             googleTokenUrl += "?client_id=" + config.GetValue<string>("CLIENT_ID");
@@ -24,31 +26,22 @@ namespace YouPlug.Services
 
                 if (response == null)
                 {
-                    GeneralModels.ErrorMessage errorMessage = new()
-                    {
-                        message = "Internal server error occurred: Missing response!"
-                    };
+                    Console.WriteLine("Error (ExchangeAuthCode) : " + "Response is null");
                     return null;
                 }
             }
             catch (HttpRequestException ex)
             {
-                GeneralModels.ErrorMessage errorMessage = new()
-                {
-                    message = "Internal server error occurred: " + ex.Message
-                };
+                Console.WriteLine("Error (ExchangeAuthCode) : " + ex.Message);
                 return null;
             }
 
             string content = await response.Content.ReadAsStringAsync();
-            OAuthResponse? authResponse = OAuthResponse.FromJson(content);
+            OAuthResponseDto? authResponse = OAuthResponseDto.FromJson(content);
 
             if (authResponse == null)
             {
-                GeneralModels.ErrorMessage errorMessage = new()
-                {
-                    message = "Internal server error occurred: Missing auth response!"
-                };
+                Console.WriteLine("Error (ExchangeAuthCode) : " + "AuthResponse is null");
                 return null;
             }
 
@@ -57,14 +50,11 @@ namespace YouPlug.Services
 
         public static async Task<string?> GetAccessToken(PlugDbContext plugDbContext, IConfiguration config, uint userId)
         {
-            YouPlugAuth? auth = plugDbContext.Auths.Where(a => a.userId == userId).FirstOrDefault();
+            YouPlugAuthModel? auth = plugDbContext.Auths.Where(a => a.userId == userId).FirstOrDefault();
 
             if (auth == null)
             {
-                GeneralModels.ErrorMessage errorMessage = new()
-                {
-                    message = "Internal server error occurred: Missing auth!"
-                };
+                Console.WriteLine("Error (GetAccessToken) : " + "Auth is null");
                 return null;
             }
 
@@ -84,18 +74,25 @@ namespace YouPlug.Services
                     response = await client.SendAsync(request);
 
                     if (response == null)
+                    {
+                        Console.WriteLine("Error (GetAccessToken) : " + "Response is null");
                         return null;
+                    }
                 }
-                catch (HttpRequestException)
+                catch (HttpRequestException ex)
                 {
+                    Console.WriteLine("Error (GetAccessToken) : " + ex.Message);
                     return null;
                 }
 
                 string content = await response.Content.ReadAsStringAsync();
-                OAuthResponse? authResponse = OAuthResponse.FromJson(content);
+                OAuthResponseDto? authResponse = OAuthResponseDto.FromJson(content);
 
-                if (authResponse == null)
+                if (authResponse == null || authResponse.refresh_token == null)
+                {
+                    Console.WriteLine("Error (GetAccessToken) : " + "AuthResponse or .RefreshToken is null");
                     return null;
+                }
 
                 auth.accessToken = authResponse.access_token;
                 auth.expiresAt = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds() + authResponse.expires_in;
