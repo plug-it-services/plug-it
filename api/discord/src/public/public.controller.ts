@@ -77,27 +77,19 @@ export class PublicController {
     @Query('guild_id') server: string,
     @Query('code') code: string,
   ) {
-    const url = new URL('https://discord.com/api/oauth2/token');
-
-    url.searchParams.append(
-      'client_id',
-      this.configService.getOrThrow<string>('DISCORD_CLIENT_ID'),
-    );
-    url.searchParams.append(
-      'client_secret',
-      this.configService.getOrThrow<string>('DISCORD_CLIENT_SECRET'),
-    );
-    url.searchParams.append('grant_type', 'authorization_code');
-    url.searchParams.append('code', code);
-    url.searchParams.append(
-      'redirect_uri',
-      `${this.configService.getOrThrow<string>(
-        'API_URL',
-      )}/service/discord/callback`,
-    );
-
     try {
-      await axios.post(url.toString(), {
+      await axios.post('https://discord.com/api/oauth2/token', {
+        body: {
+          client_id: this.configService.getOrThrow<string>('DISCORD_CLIENT_ID'),
+          client_secret: this.configService.getOrThrow<string>(
+            'DISCORD_CLIENT_SECRET',
+          ),
+          grant_type: 'authorization_code',
+          code,
+          redirect_uri: `${this.configService.getOrThrow<string>(
+            'API_URL',
+          )}/service/discord/callback`,
+        },
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
