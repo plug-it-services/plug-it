@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Client } from 'discord.js';
+import { ChannelType, Client } from 'discord.js';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
@@ -23,5 +23,17 @@ export class DiscordService {
   async sendPrivateMessage(userId: string, message: string): Promise<void> {
     const user = await this.client.users.fetch(userId);
     user.send(message);
+  }
+
+  async sendChannelMessage(channelId: string, message: string): Promise<void> {
+    const channel = this.client.channels.cache.get(channelId);
+    if (
+      channel &&
+      (channel.type === ChannelType.GuildText || channel.type === ChannelType.GuildAnnouncement)
+    ) {
+      await channel.send(message);
+    } else {
+      this.logger.error(`Channel ${channelId} not found`);
+    }
   }
 }

@@ -27,5 +27,27 @@ export default {
         },
       ],
     },
+    {
+      id: 'channel_message',
+      name: 'Post a message inside a channel',
+      description: 'Post a message inside a channel',
+      variables: [],
+      fields: [
+        {
+          key: 'id',
+          type: 'string',
+          displayName: 'Channel ID',
+          description: 'The ID of the channel to send the message to',
+          required: true,
+        },
+        {
+          key: 'content',
+          type: 'string',
+          displayName: 'Message content',
+          description: 'The content that will be sent inside the channel',
+          required: true,
+        },
+      ],
+    },
   ],
 };
