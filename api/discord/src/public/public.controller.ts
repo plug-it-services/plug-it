@@ -74,6 +74,7 @@ export class PublicController {
     @Response() res,
     @Body() body: any,
     @Query('state') state: string,
+    @Query('guild_id') server: string,
   ) {
     const url = new URL('https://discord.com/api/oauth2/token');
 
@@ -94,17 +95,20 @@ export class PublicController {
       )}/service/discord/callback`,
     );
 
-    const response = await axios.post(url.toString(), {
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-    });
+    try {
+      await axios.post(url.toString(), {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      });
+    } catch (e) {
+      this.logger.error(e.message);
+    }
 
     const user = await this.discordAuthService.retrieveByState(state);
-    const server = await this.discordService.getLatestJoinedServer();
 
     this.logger.log(
-      `User: ${JSON.stringify(user)} connect to server: ${server.id}`,
+      `User: ${JSON.stringify(user)} connect to server: ${server}`,
     );
 
     if (server) {
@@ -112,7 +116,7 @@ export class PublicController {
         user.userId,
         body.redirectUrl,
         state,
-        server.id,
+        server,
       );
     }
 
