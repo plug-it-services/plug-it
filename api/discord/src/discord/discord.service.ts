@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ChannelType, Client } from 'discord.js';
+import { ChannelType, Client, Guild } from 'discord.js';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
@@ -41,5 +41,9 @@ export class DiscordService {
   async disconnectFromServer(serverId: string): Promise<void> {
     const guild = await this.client.guilds.fetch(serverId);
     await guild.leave();
+  }
+
+  async getLatestJoinedServer(): Promise<Guild | undefined> {
+    return this.client.guilds.cache.last();
   }
 }
