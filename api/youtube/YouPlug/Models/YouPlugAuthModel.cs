@@ -5,7 +5,7 @@ using System.Text.Json;
 namespace YouPlug.Models
 {
     [Index(nameof(id), nameof(userId), nameof(accessToken), IsUnique = true)]
-    public class YouPlugAuth
+    public class YouPlugAuthModel
     {
         [Key]
         public string id { get; set; }
@@ -20,9 +20,9 @@ namespace YouPlug.Models
 
         public string refreshToken { get; set; }
 
-        public static YouPlugAuth? FromJson(string content)
+        public static YouPlugAuthModel? FromJson(string content)
         {
-            return JsonSerializer.Deserialize<YouPlugAuth>(content);
+            return JsonSerializer.Deserialize<YouPlugAuthModel>(content);
         }
     }
 }

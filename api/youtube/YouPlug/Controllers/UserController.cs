@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
+using YouPlug.Db;
+using YouPlug.Dto;
 using YouPlug.Models;
 using YouPlug.Services;
 using static System.Net.WebRequestMethods;
@@ -28,7 +30,7 @@ namespace YouPlug.Controllers
         }
 
         [HttpPost("oauth2", Name = "OAuth2")]
-        public ActionResult<OAuth2Redirect> OAuth2([FromHeader] string user, [FromBody] OAuth2Start body)
+        public ActionResult<OAuth2Redirect> OAuth2([FromHeader] string user, [FromBody] OAuthStart body)
         {
             string redirUri = _config.GetValue<string>("OAUTH2_CALLBACK");
             string clientId = _config.GetValue<string>("CLIENT_ID");
@@ -37,7 +39,7 @@ namespace YouPlug.Controllers
 
             if (userModel == null)
             {
-                GeneralModels.ErrorMessage errorMessage = new()
+                GeneralDto.ErrorMessage errorMessage = new()
                 {
                     message = "Internal server error occurred: Missing user data!"
                 };
@@ -46,7 +48,7 @@ namespace YouPlug.Controllers
 
             if (string.IsNullOrWhiteSpace(redirUri) || string.IsNullOrWhiteSpace(clientId))
             {
-                GeneralModels.ErrorMessage errorMessage = new() {
+                GeneralDto.ErrorMessage errorMessage = new() {
                     message = "Internal server error occurred: Missing configuration!"
                 };
                 return StatusCode(400, errorMessage);
@@ -56,7 +58,7 @@ namespace YouPlug.Controllers
 
             if (_plugDbContext.Auths.Find(guid.ToString()) != null)
             {
-                _plugDbContext.Auths.Update(new YouPlugAuth()
+                _plugDbContext.Auths.Update(new YouPlugAuthModel()
                 {
                     id = guid.ToString(),
                     userId = userModel.id,
@@ -66,7 +68,7 @@ namespace YouPlug.Controllers
             }
             else
             {
-                _plugDbContext.Auths.Add(new YouPlugAuth()
+                _plugDbContext.Auths.Add(new YouPlugAuthModel()
                 {
                     id = guid.ToString(),
                     userId = userModel.id,
@@ -92,7 +94,7 @@ namespace YouPlug.Controllers
         {
             if (!string.IsNullOrWhiteSpace(error))
             {
-                GeneralModels.ErrorMessage errorMessage = new()
+                GeneralDto.ErrorMessage errorMessage = new()
                 {
                     message = "Internal server error occurred: " + error
                 };
@@ -101,18 +103,18 @@ namespace YouPlug.Controllers
 
             if (string.IsNullOrWhiteSpace(code))
             {
-                GeneralModels.ErrorMessage errorMessage = new()
+                GeneralDto.ErrorMessage errorMessage = new()
                 {
                     message = "Internal server error occurred: Missing code!"
                 };
                 return StatusCode(400, errorMessage);
             }
 
-            YouPlugAuth? auth = _plugDbContext.Auths.Find(state);
+            YouPlugAuthModel? auth = _plugDbContext.Auths.Find(state);
 
             if (auth == null)
             {
-                GeneralModels.ErrorMessage errorMessage = new()
+                GeneralDto.ErrorMessage errorMessage = new()
                 {
                     message = "Internal server error occurred: Missing/missmatch auth!"
                 };
@@ -121,7 +123,7 @@ namespace YouPlug.Controllers
 
             var response = await TokenService.ExchangeAuthCode(_config, state, code);
 
-            var updatedPlugAuth = _plugDbContext.Auths.Update(new YouPlugAuth()
+            var updatedPlugAuth = _plugDbContext.Auths.Update(new YouPlugAuthModel()
             {
                 id = state,
                 accessToken = response.access_token,
@@ -135,7 +137,7 @@ namespace YouPlug.Controllers
         [HttpPost("disconnect", Name = "Disconnect")]
         public ActionResult Disconnect([FromHeader] string user)
         {
-            GeneralModels.ErrorMessage msg = new() { message = "Successfully disconnected!" };
+            GeneralDto.ErrorMessage msg = new() { message = "Successfully disconnected!" };
             return StatusCode(200, msg);
         }
     }
