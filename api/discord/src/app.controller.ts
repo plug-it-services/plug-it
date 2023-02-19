@@ -13,14 +13,24 @@ export class AppController {
   async triggerAction(msg: any) {
     this.logger.log(`Received event trigger: ${JSON.stringify(msg)}`);
     const { actionId, userId } = msg;
+    let content;
+    let id;
+
     switch (actionId) {
       case 'pm':
-        const content = msg.fields.find(
+        content = msg.fields.find(
           (field: any) => field.key === 'content',
         ).value;
-        const id = msg.fields.find((field: any) => field.key === 'id').value;
+        id = msg.fields.find((field: any) => field.key === 'id').value;
 
         await this.discordService.sendPrivateMessage(id, content);
+      case 'channel_message':
+        content = msg.fields.find(
+          (field: any) => field.key === 'content',
+        ).value;
+        id = msg.fields.find((field: any) => field.key === 'id').value;
+
+        await this.discordService.sendChannelMessage(id, content);
     }
     return new Nack(false);
   }
