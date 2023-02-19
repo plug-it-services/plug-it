@@ -10,6 +10,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import axios from 'axios';
 import { DiscordService } from 'src/discord/discord.service';
 import { DiscordAuthService } from 'src/discord/discordAuth.service';
 import Oauth2StartDto from 'src/dto/Oauth2Start.dto';
@@ -38,6 +39,10 @@ export class PublicController {
     url.searchParams.append(
       'client_id',
       this.configService.getOrThrow<string>('DISCORD_CLIENT_ID'),
+    );
+    url.searchParams.append(
+      'client_secret',
+      this.configService.getOrThrow<string>('DISCORD_CLIENT_SECRET'),
     );
     url.searchParams.append('permissions', '403727002688');
     url.searchParams.append('scope', 'bot');
@@ -70,6 +75,31 @@ export class PublicController {
     @Body() body: any,
     @Query('state') state: string,
   ) {
+    const url = new URL('https://discord.com/api/oauth2/token');
+
+    url.searchParams.append(
+      'client_id',
+      this.configService.getOrThrow<string>('DISCORD_CLIENT_ID'),
+    );
+    url.searchParams.append(
+      'client_secret',
+      this.configService.getOrThrow<string>('DISCORD_CLIENT_SECRET'),
+    );
+    url.searchParams.append('grant_type', 'authorization_code');
+    url.searchParams.append('code', body.code);
+    url.searchParams.append(
+      'redirect_uri',
+      `${this.configService.getOrThrow<string>(
+        'API_URL',
+      )}/service/discord/callback`,
+    );
+
+    const response = await axios.post(url.toString(), {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    });
+
     const user = await this.discordAuthService.retrieveByState(state);
     const server = await this.discordService.getLatestJoinedServer();
 
