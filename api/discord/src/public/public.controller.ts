@@ -102,6 +102,7 @@ export class PublicController {
         },
       });
     } catch (e) {
+      console.error(e);
       this.logger.error(e.message);
     }
 
