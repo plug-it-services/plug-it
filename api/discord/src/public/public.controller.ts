@@ -35,7 +35,7 @@ export class PublicController {
     const state = uuidv4();
     const redirectUri = `${this.configService.getOrThrow<string>(
       'API_URL',
-    )}/discord/callback`;
+    )}/service/discord/callback`;
 
     await this.discordAuthService.saveState(user.id, body.redirectUrl, state);
 
