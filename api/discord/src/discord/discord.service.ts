@@ -70,9 +70,11 @@ export class DiscordService {
     let thread: AnyThreadChannel | undefined;
 
     for (const [, channel] of guild.channels.cache) {
+      this.logger.log(channel.id);
       if (channel.type === ChannelType.GuildText) {
         const message = await channel.messages.fetch(messageId);
         if (message) {
+          this.logger.log(message.id);
           thread = await message.startThread({
             name,
             reason,
