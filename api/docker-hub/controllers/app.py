@@ -7,6 +7,7 @@ from models.Connection import Connection
 from services.connections import ConnectionsService
 from services.hub import HubService
 from services.webhooks import WebhooksService
+from listener import ListenerController
 
 app = Flask(__name__)
 connections_service = ConnectionsService()
@@ -78,6 +79,19 @@ class AppController:
         response.raise_for_status()
         app.logger.info("Plugs service notified.")
         return {'message': 'success'}
+
+    @staticmethod
+    @app.route('/public/<webhook_id>', methods=['POST'])
+    def webhook(webhook_id):
+        webhook = webhooks_service.get(webhook_id)
+        if webhook is None:
+            app.logger.info("Webhook {0} not found.".format(webhook_id))
+            return {'message': 'not found'}, 404
+        app.logger.info("Webhook {0} found. Notifying plugs service...".format(webhook_id))
+        ListenerController.fire_event('repositoryUpdate', webhook.plug_id, webhook.user_id, request.get_json())
+        app.logger.info("Plugs service notified.")
+        return {'message': 'success'}
+
 
     @staticmethod
     def run():
