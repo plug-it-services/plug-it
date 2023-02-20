@@ -128,6 +128,22 @@ export class DiscordService {
     }
   }
 
+  async deleteMessage(serverId: string, messageId: string): Promise<void> {
+    const guild = await this.client.guilds.fetch(serverId);
+
+    guild.channels.cache.forEach(async (channel) => {
+      if (
+        channel.type === ChannelType.GuildText ||
+        channel.type === ChannelType.GuildAnnouncement
+      ) {
+        const message = await channel.messages.fetch(messageId);
+        if (message) {
+          await message.delete();
+        }
+      }
+    });
+  }
+
   async sendMessageInThread(
     serverId: string,
     threadId: string,
