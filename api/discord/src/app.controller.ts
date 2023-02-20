@@ -1,5 +1,6 @@
 import { RabbitSubscribe, Nack } from '@golevelup/nestjs-rabbitmq';
 import { Controller, Logger } from '@nestjs/common';
+import { AmqpService } from './amqp/amqp.service';
 import { DiscordService } from './discord/discord.service';
 import { DiscordAuthService } from './discord/discordAuth.service';
 
@@ -9,6 +10,7 @@ export class AppController {
   constructor(
     private discordService: DiscordService,
     private discordAuthService: DiscordAuthService,
+    private readonly amqpService: AmqpService,
   ) {}
 
   @RabbitSubscribe({
@@ -16,8 +18,9 @@ export class AppController {
   })
   async triggerAction(msg: any) {
     this.logger.log(`Received event trigger: ${JSON.stringify(msg)}`);
-    const { actionId, userId } = msg;
+    const { actionId, userId, plugId, runId } = msg;
     const { serverId } = await this.discordAuthService.retrieveByUserId(userId);
+    let variables = [];
 
     switch (actionId) {
       case 'pm':
@@ -59,7 +62,7 @@ export class AppController {
           (field: any) => field.key === 'rate_limit_per_user',
         )?.value;
 
-        await this.discordService.createPublicThread(
+        const thread = await this.discordService.createPublicThread(
           serverId,
           messageId,
           name,
@@ -68,7 +71,12 @@ export class AppController {
           rate_limit_per_user,
         );
 
-      // TOOO: publish the thread id
+        variables = [
+          {
+            key: 'thread_id',
+            value: thread.id,
+          },
+        ];
       case 'private_thread_create':
         const channelId2 = msg.fields.find(
           (field: any) => field.key === 'channel_id',
@@ -83,7 +91,7 @@ export class AppController {
           (field: any) => field.key === 'rate_limit_per_user',
         )?.value;
 
-        await this.discordService.createPrivateThread(
+        const thread2 = await this.discordService.createPrivateThread(
           serverId,
           channelId2,
           name2,
@@ -91,7 +99,13 @@ export class AppController {
           rate_limit_per_user2,
         );
 
-      // TODO: publish the thread id
+        variables = [
+          {
+            key: 'thread_id',
+            value: thread2.id,
+          },
+        ];
+
       case 'thread_delete':
         const threadId = msg.fields.find(
           (field: any) => field.key === 'thread_id',
@@ -200,6 +214,13 @@ export class AppController {
 
         await this.discordService.deleteMessage(serverId, messageId5);
     }
+    await this.amqpService.publishAction(
+      actionId,
+      plugId,
+      runId,
+      userId,
+      variables,
+    );
     return new Nack(false);
   }
 
