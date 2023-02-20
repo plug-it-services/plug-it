@@ -187,9 +187,11 @@ export const disconnectService = async (service: Service): Promise<boolean> =>
   makeRequest('post', `/service/${service.name}/disconnect`, {});
 
 export const authOAuth2 = async (service: Service): Promise<string> =>
-  makeRequest('post', `/service/${service.name}/oauth2`, {
-    redirectUrl: `${process.env.REACT_APP_BASE_URL}/services`,
-  });
+  (
+    await makeRequest('post', `/service/${service.name}/oauth2`, {
+      redirectUrl: `${process.env.REACT_APP_BASE_URL}/services`,
+    })
+  ).url;
 
 export const googleLogin = async (code: string): Promise<boolean> =>
   makeRequest('post', `/auth/google/login`, {
