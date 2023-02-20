@@ -1,6 +1,6 @@
 import json
 import os
-
+from flask_cors import CORS
 import requests
 from flask import Flask, request
 from models.Connection import Connection
@@ -10,6 +10,7 @@ from services.webhooks import WebhooksService
 from controllers.listener import ListenerController
 
 app = Flask(__name__)
+CORS(app, origins=['http://localhost:3000', os.environ.get('CORS_ORIGIN')], supports_credentials=True)
 connections_service = ConnectionsService()
 hub_service = HubService()
 webhooks_service = WebhooksService()
