@@ -67,25 +67,24 @@ export class DiscordService {
     rateLimitPerUser?: number,
   ): Promise<AnyThreadChannel | undefined> {
     const guild = await this.client.guilds.fetch(serverId);
-    let thread: AnyThreadChannel | undefined;
 
     for (const [, channel] of guild.channels.cache) {
       if (channel.type === ChannelType.GuildText) {
         const message = await channel.messages.fetch(messageId);
         if (message) {
           this.logger.log(`try to create a thread for the message ${message.id}`);
-          thread = await message.startThread({
+          const thread = await message.startThread({
             name,
             reason,
             autoArchiveDuration,
             rateLimitPerUser,
           });
           this.logger.log(`Created a new thread with id: ${thread.id}`);
+          return thread;
         }
       }
     }
-    this.logger.log("CREATED THREAD");
-    return thread;
+    return;
   }
 
   async createPrivateThread(
@@ -117,16 +116,16 @@ export class DiscordService {
     threadId: string,
   ): Promise<AnyThreadChannel | undefined> {
     const guild = await this.client.guilds.fetch(serverId);
-    let thread: AnyThreadChannel | null;
 
     for (const [, channel] of guild.channels.cache) {
       if (channel.type === ChannelType.GuildText) {
-        thread = await channel.threads.fetch(threadId);
+        const thread = await channel.threads.fetch(threadId);
+        if (thread) {
+          return thread;
+        }
       }
     }
-    if (thread) {
-      return thread;
-    }
+    return;
   }
 
   async deleteThread(serverId: string, threadId: string): Promise<void> {
@@ -191,7 +190,6 @@ export class DiscordService {
     content: string,
   ): Promise<Message | undefined> {
     const guild = await this.client.guilds.fetch(serverId);
-    let newMessage: Message | undefined;
 
     for (const [, channel] of guild.channels.cache) {
       if (
@@ -200,11 +198,12 @@ export class DiscordService {
       ) {
         const message = await channel.messages.fetch(messageId);
         if (message) {
-          newMessage = await message.reply(content);
+          const newMessage = await message.reply(content);
+          return newMessage;
         }
       }
     }
-    return newMessage;
+    return;
   }
 
   async addMemberToThread(
