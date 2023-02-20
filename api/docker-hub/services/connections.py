@@ -26,7 +26,7 @@ class ConnectionsService:
     def get(self, user_id: int):
         with Session(self.conn) as session:
             stmt = sqlalchemy.select(Connection).where(Connection.user_id == user_id)
-            return session.execute(stmt).first()
+            return session.scalars(stmt).first()
 
     def update(self, user_id, connection: Connection):
         with Session(self.conn) as session:

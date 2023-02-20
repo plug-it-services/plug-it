@@ -18,6 +18,7 @@ class HubService:
     @staticmethod
     def setup_webhook(username, repository, webhook_id, jwt) -> str | None:
         url = "https://hub.docker.com/v2/repositories/{0}/{1}/webhook_pipeline".format(username, repository)
+        print("Creating webhook for {0}/{1} (url: {2})...".format(username, repository, url), flush=True)
         response = requests.post(url, json={
             'name': "Plug it",
             "expect_final_callback": False,
@@ -32,6 +33,7 @@ class HubService:
                 'Authorization': 'Bearer {0}'.format(jwt)
          })
         if response.status_code != 200:
+            print("Error while creating webhook: {0}".format(response.text), flush=True)
             return None
         return response.json()['slug']
 

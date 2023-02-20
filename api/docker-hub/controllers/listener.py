@@ -1,6 +1,8 @@
 import json
 import os
 import uuid
+from time import sleep
+
 import pika
 
 from models.Webhook import Webhook
@@ -23,11 +25,13 @@ class ListenerController:
     def initialize_event(chan, method, properties, body):
         try:
             msg = json.loads(body)
+            print('Initializing event {0} for user {1}...'.format(msg['eventId'], msg['userId']), flush=True)
             if msg['eventId'] == 'repositoryUpdate':
                 ListenerController.setup_repository_update(msg)
+            print('Initialized event {0} for user {1}.'.format(msg['eventId'], msg['userId']), flush=True)
             chan.basic_ack(delivery_tag=method.delivery_tag)
         except Exception as e:
-            print(e)
+            print(repr(e), flush=True)
             chan.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
 
     @staticmethod
@@ -48,15 +52,21 @@ class ListenerController:
 
     @staticmethod
     def setup_repository_update(msg):
+        print('Setting up repository update for user {0}...'.format(msg['userId']), flush=True)
+        print(msg['fields'], flush=True)
+        repository = list(filter(lambda e: e['key'] == 'repository', msg['fields']))[0]['value']
         conn = connections_service.get(msg['userId'])
         if conn is None:
             raise Exception("No connection found for user {0}".format(msg['userId']))
+        print('Authenticating user {0}...'.format(msg['userId']), flush=True)
         jwt = hub_service.authenticate(conn.username, conn.token)
         if jwt is None:
             raise Exception("Failed to authenticate user {0}".format(msg['userId']))
         webhook_id = uuid.uuid4()
-        slug = hub_service.setup_webhook(conn.username, msg['repository'], webhook_id, jwt)
+        slug = hub_service.setup_webhook(conn.username, repository, webhook_id, jwt)
+        print("Slug: {0}".format(slug), flush=True)
         if slug is None:
             raise Exception("Failed to setup webhook for user {0}".format(msg['userId']))
-        webhooks_service.save(Webhook(id=webhook_id, slug=slug, user_id=msg['userId'], repository=msg['repository'], plug_id=msg['plugId']))
+
+        webhooks_service.save(Webhook(id=webhook_id, slug=slug, user_id=msg['userId'], repository=repository, plug_id=msg['plugId']))
 

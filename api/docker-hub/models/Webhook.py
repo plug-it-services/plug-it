@@ -1,3 +1,5 @@
+from typing import Any
+
 from sqlalchemy import Column, Integer, String
 from models.Base import Base
 
@@ -10,3 +12,10 @@ class Webhook(Base):
     user_id = Column(Integer, foreign_key=True)
     slug = Column(String)
     repository = Column(String)
+
+    def __init__(self, id, plug_id, user_id, slug, repository):
+        self.id = id
+        self.plug_id = plug_id
+        self.user_id = user_id
+        self.slug = slug
+        self.repository = repository
