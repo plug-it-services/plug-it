@@ -202,7 +202,7 @@ class PlugEditState extends State<PlugEdit> {
       child: Column(
         children: [
 
-          const SizedBox(height: 5,),
+          const SizedBox(height: 20,),
           InputField(
             hint: "Enter Plug Name",
             value: plugEdited!.name,
@@ -248,6 +248,7 @@ class PlugEditState extends State<PlugEdit> {
                   ) : const SizedBox(width: 0,),
               ],
           ),
+          const SizedBox(height: 20,)
         ],
       ),
     );

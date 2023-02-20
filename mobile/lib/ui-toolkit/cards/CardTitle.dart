@@ -9,13 +9,19 @@ class CardTitle extends StatefulWidget {
   final TextStyle style;
   final List<Widget> children;
   final void Function()? onPressed;
+  final void Function()? onIconPressed;
+  final bool isIconButtonPresent;
+  final Icon iconButton;
 
   const CardTitle({super.key,
     this.label = "",
     this.onPressed,
     this.children = const [],
     this.state = true,
-    this.style = PlugItStyle.subtitleStyle
+    this.style = PlugItStyle.subtitleStyle,
+    this.isIconButtonPresent = false,
+    this.iconButton = const Icon(Icons.delete),
+    this.onIconPressed,
   });
 
   @override
@@ -68,6 +74,14 @@ class _StateCardTitle extends State<CardTitle>{
                 (widget.state)
                     ? const Icon(Icons.keyboard_arrow_up_rounded)
                     : const Icon(Icons.keyboard_arrow_down_rounded),
+                (widget.isIconButtonPresent)
+                    ? const SizedBox(width: 50,)
+                    : const SizedBox(width: 0,),
+                (widget.isIconButtonPresent)
+                    ? IconButton(
+                      onPressed: widget.onIconPressed!,
+                      icon: widget.iconButton)
+                    : const SizedBox(width: 0,),
               ],
             )
         )

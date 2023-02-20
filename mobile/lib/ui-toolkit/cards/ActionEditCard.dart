@@ -127,18 +127,6 @@ class _StateActionEditCard extends State<ActionEditCard>{
           plug: widget.plug,
         ),
         const SizedBox(height: 20,),
-        (!widget.isTrigger) ?
-            ScreenWidthButton(
-              label:"Delete Action",
-              color: Colors.red,
-              pressedColor: Colors.redAccent,
-              callback: () {
-                widget.onActionDeleted();
-              },
-            ) : const SizedBox(),
-        (!widget.isTrigger)
-            ? const SizedBox(height: 20,)
-            : const SizedBox(height: 0,)
       ];
     }
     return [];
@@ -193,6 +181,8 @@ class _StateActionEditCard extends State<ActionEditCard>{
                   onPressed: () {
                     widget.onCardDeploy();
                   },
+                  isIconButtonPresent: (!widget.isTrigger),
+                  onIconPressed: widget.onActionDeleted,
                   children: [
                     ...getBody(),
                   ],

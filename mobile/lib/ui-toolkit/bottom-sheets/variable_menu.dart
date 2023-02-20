@@ -66,16 +66,21 @@ class _StateVariableMenu extends State<VariableMenu>{
             list.add(Text(event.name, style: PlugItStyle.subtitleStyle,));
             list.add(const Divider(color: Colors.black));
 
-            int var_idx = 1;
             for (Variable variable in event.variables) {
               list.add(ElevatedButton(
                 onPressed: () {
                   Navigator.pop(context);
                   widget.onVariableSelected(event, variable, widget.plug.actions.indexOf(widget.event));
                 },
-                child: Text("$var_idx - ${variable.displayName}", style: PlugItStyle.smallStyle),
+                child:
+                Column(
+                  children: [
+                    Text("${variable.displayName}", style: PlugItStyle.subtitleStyle),
+                    const Divider(color: Colors.black,),
+                    Text("${variable.description}", style: PlugItStyle.smallStyle),
+                  ],
+                ),
               ));
-              ++var_idx;
             }
             ++idx;
           }
