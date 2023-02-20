@@ -22,6 +22,7 @@ export class AppController {
     const { serverId } = await this.discordAuthService.retrieveByUserId(userId);
     let variables = [];
 
+    try {
     switch (actionId) {
       case 'pm':
         const messageContent = msg.fields.find(
@@ -238,6 +239,10 @@ export class AppController {
 
         await this.discordService.deleteMessage(serverId, messageId5);
     }
+  } catch (err) {
+    this.logger.log("Can't execute an action in discord", err);
+    return new Nack(false);
+  }
     await this.amqpService.publishAction(
       actionId,
       plugId,
@@ -245,7 +250,6 @@ export class AppController {
       userId,
       variables,
     );
-    return new Nack(false);
   }
 
   @RabbitSubscribe({
