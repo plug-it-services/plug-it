@@ -26,13 +26,21 @@ export class DiscordService {
     user.send(message);
   }
 
-  async sendChannelMessage(channelId: string, message: string): Promise<void> {
+  async sendChannelMessage(
+    serverId: string,
+    channelId: string,
+    message: string,
+  ): Promise<void> {
     const channel = this.client.channels.cache.get(channelId);
     if (
       channel &&
       (channel.type === ChannelType.GuildText ||
         channel.type === ChannelType.GuildAnnouncement)
     ) {
+      if (channel.guildId != serverId) {
+        this.logger.error(`Channel ${channelId} is not in server ${serverId}`);
+        return;
+      }
       await channel.send(message);
     } else {
       this.logger.error(`Channel ${channelId} not found`);
