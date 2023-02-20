@@ -172,7 +172,7 @@ export default {
           key: 'thread_id',
           type: 'string',
           displayName: 'Thread ID',
-          description: 'The ID of the thread to delete',
+          description: 'The ID of the thread to send the message to',
           required: true,
         },
         {
@@ -305,7 +305,22 @@ export default {
       ],
     },
     {
-      id: 'add_memeber_to_thread',
+      id: 'delete_message',
+      name: 'Delete a message',
+      description: 'Delete a message inside a channel',
+      variables: [],
+      fields: [
+        {
+          key: 'message_id',
+          type: 'string',
+          displayName: 'Message ID',
+          description: 'The ID of the message to delete',
+          required: true,
+        },
+      ],
+    },
+    {
+      id: 'add_member_to_thread',
       name: 'Add a member to a thread',
       description: 'Add a member to a thread',
       variables: [],
@@ -327,7 +342,7 @@ export default {
       ],
     },
     {
-      id: 'remove_memeber_from_thread',
+      id: 'remove_member_from_thread',
       name: 'Remove a member from a thread',
       description: 'Remove a member from a thread',
       variables: [],
