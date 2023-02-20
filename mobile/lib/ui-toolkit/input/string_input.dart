@@ -107,7 +107,7 @@ class _StringInputFieldState extends State<StringInputField> {
               Text("${widget.templateField.displayName}: ", style: PlugItStyle.subtitleStyle),
               (!widget.isTrigger) ? VariableMenu(
                 onVariableSelected: (Event event , Variable variable, int idx) {
-                  onChange(controller!.text += "\${$idx.${variable.key}}");
+                  onChange(controller!.text += "\${${idx}.${variable.key}}");
                 },
                 plug: widget.plug,
                 event: widget.event,

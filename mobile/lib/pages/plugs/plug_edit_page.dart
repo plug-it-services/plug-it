@@ -216,24 +216,6 @@ class PlugEditState extends State<PlugEdit> {
             ),
             shrinkWrap: true,
             children: cards,
-            /*itemBuilder: (BuildContext context2, int index) {
-              //if (index != 0)
-                //print("Adding card idx: '${index-1}', with event: ${plugEdited!.actions[index-1].serviceName}");
-              return ActionEditCard(
-                  services: widget.services,
-                  isOpen: cardIdxOpen == index && cardOpen,
-                  onCardDeploy: () => deployCard(index),
-                  plug: plugEdited!,
-                  actionIdx: index - 1,
-                  onEventSelected: () {
-                    setEventList();
-                  },
-                  selectedPlugEvents: selectedPlugEvents,
-                  onActionDeleted: () => _deleteAction(index),
-                  onActionAdded: () => _addAction(index),
-              );
-            },
-            itemCount: plugEdited!.actions.length + 1,*/
           ),
 
 

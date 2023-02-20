@@ -71,12 +71,13 @@ class _StateVariableMenu extends State<VariableMenu>{
               list.add(ElevatedButton(
                 onPressed: () {
                   Navigator.pop(context);
-                  widget.onVariableSelected(event, variable, idx);
+                  widget.onVariableSelected(event, variable, widget.plug.actions.indexOf(widget.event));
                 },
                 child: Text("$var_idx - ${variable.displayName}", style: PlugItStyle.smallStyle),
               ));
-              ++idx;
+              ++var_idx;
             }
+            ++idx;
           }
           return ListView(
             children: list,
