@@ -9,7 +9,14 @@ export default {
       id: 'pm',
       name: 'Post a private message',
       description: 'Post a private message to a user',
-      variables: [],
+      variables: [
+        {
+          key: 'message_id',
+          type: 'string',
+          displayName: 'Message ID',
+          description: 'The ID of the message that was sent',
+        },
+      ],
       fields: [
         {
           key: 'id',
@@ -31,7 +38,14 @@ export default {
       id: 'channel_message',
       name: 'Post a message inside a channel',
       description: 'Post a message inside a channel',
-      variables: [],
+      variables: [
+        {
+          key: 'message_id',
+          type: 'string',
+          displayName: 'Message ID',
+          description: 'The ID of the message that was sent',
+        },
+      ],
       fields: [
         {
           key: 'id',
@@ -172,7 +186,14 @@ export default {
       id: 'send_message_thread',
       name: 'Send a message inside a thread',
       description: 'Send a message inside a thread',
-      variables: [],
+      variables: [
+        {
+          key: 'message_id',
+          type: 'string',
+          displayName: 'Message ID',
+          description: 'The ID of the message that was sent',
+        },
+      ],
       fields: [
         {
           key: 'thread_id',
@@ -254,7 +275,14 @@ export default {
       id: 'reply_message',
       name: 'Reply to a message',
       description: 'Reply to a message',
-      variables: [],
+      variables: [
+        {
+          key: 'message_id',
+          type: 'string',
+          displayName: 'Message ID',
+          description: 'The ID of the message that was sent',
+        },
+      ],
       fields: [
         {
           key: 'message_id',

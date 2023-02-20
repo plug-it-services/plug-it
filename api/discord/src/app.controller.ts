@@ -31,7 +31,13 @@ export class AppController {
           (field: any) => field.key === 'id',
         ).value;
 
-        await this.discordService.sendPrivateMessage(userId2, messageContent);
+        const message = await this.discordService.sendPrivateMessage(userId2, messageContent);
+        variables = [
+          {
+            key: 'message_id',
+            value: message.id,
+          },
+        ];
       case 'channel_message':
         const messageContent2 = msg.fields.find(
           (field: any) => field.key === 'content',
@@ -40,11 +46,17 @@ export class AppController {
           (field: any) => field.key === 'id',
         ).value;
 
-        await this.discordService.sendChannelMessage(
+        const message2 = await this.discordService.sendChannelMessage(
           serverId,
           channelId,
           messageContent2,
         );
+        variables = [
+          {
+            key: 'message_id',
+            value: message2.id,
+          },
+        ];
       case 'public_thread_create':
         const messageId = msg.fields.find(
           (field: any) => field.key === 'message_id',
@@ -120,11 +132,17 @@ export class AppController {
           (field: any) => field.key === 'content',
         ).value;
 
-        await this.discordService.sendMessageInThread(
+        const message3 = await this.discordService.sendMessageInThread(
           serverId,
           threadId2,
           messageContent3,
         );
+        variables = [
+          {
+            key: 'message_id',
+            value: message3.id,
+          },
+        ];
       case 'archive_thread':
         const threadId3 = msg.fields.find(
           (field: any) => field.key === 'thread_id',
@@ -157,11 +175,17 @@ export class AppController {
           (field: any) => field.key === 'message',
         ).value;
 
-        await this.discordService.replyToChannelMessage(
+        const message4 = await this.discordService.replyToChannelMessage(
           serverId,
           messageId2,
           messageContent4,
         );
+        variables = [
+          {
+            key: 'message_id',
+            value: message4.id,
+          },
+        ];
       case 'react_to_message':
         const messageId3 = msg.fields.find(
           (field: any) => field.key === 'message_id',
