@@ -8,7 +8,7 @@ part 'PlugDetails.g.dart';
 class PlugDetails {
   String id, name;
   bool enabled;
-  PlugEvent? event;
+  PlugEvent event;
   List<PlugEvent> actions;
 
   PlugDetails({required this.id, required this.name, required this.event, required this.enabled, required this.actions});
@@ -19,7 +19,7 @@ class PlugDetails {
 
 
   bool containsFilter(String filter) {
-    if (event != null && event!.serviceName.toLowerCase().contains(filter)) {
+    if (event.serviceName.toLowerCase().contains(filter)) {
       return true;
     }
     for (var action in actions) {

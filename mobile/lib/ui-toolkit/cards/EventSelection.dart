@@ -1,5 +1,6 @@
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile/PlugApi.dart';
 
 import 'package:mobile/models/plug/PlugDetails.dart';
 import 'package:mobile/models/plug/PlugEvent.dart';
@@ -22,7 +23,7 @@ class EventSelection extends StatefulWidget {
   final Service? selectedService;
   final Event? selectedEvent;
   final PlugEvent? editedEvent;
-  final List<Event>? events;
+  final bool isTrigger;
 
 
 
@@ -36,7 +37,7 @@ class EventSelection extends StatefulWidget {
     this.selectedService,
     this.selectedEvent,
     required this.editedEvent,
-    required this.events,
+    required this.isTrigger,
   });
 
   @override
@@ -56,8 +57,6 @@ class _StateEventSelection extends State<EventSelection>{
       widget.onEventSelected(value);
     });
   }
-
-
 
 
   @override
@@ -88,7 +87,7 @@ class _StateEventSelection extends State<EventSelection>{
         onEventSelected: onEventSelected,
         selectedService: widget.selectedService,
         selectedEvent: widget.selectedEvent,
-        events: widget.events ?? []
+        isTrigger: widget.isTrigger,
     ));
     fields.add(const SizedBox(height: 15,));
 
@@ -106,24 +105,24 @@ class _StateEventSelection extends State<EventSelection>{
                 borderRadius: BorderRadius.circular(4),
             ),
             child: CardTitle(
-                    label: "1 ${(widget.selectedEvent != null) ? "- ${widget.selectedEvent!.name.capitalize()}" : "- Select an Action "}",
-                    style: PlugItStyle.smallStyle,
-                    state: widget.isOpen,
-                    onPressed: () {
-                      setState(() {
-                        if (widget.isOpen) {
-                          widget.onCardDeploy(false);
-                        } else {
-                          widget.onCardDeploy(true);
-                        }
-                      });
-                    },
-                    children: [
-                      SizedBox(height: (widget.isOpen) ? 10 : 0,),
-                      ...getServiceSelection(),
-                    ],
-                  ),
-                ),
+                label: "1 ${(widget.selectedEvent != null) ? "- ${widget.selectedEvent!.name.capitalize()}" : "- Select an Action "}",
+                style: PlugItStyle.smallStyle,
+                state: widget.isOpen,
+                onPressed: () {
+                  setState(() {
+                    if (widget.isOpen) {
+                      widget.onCardDeploy(false);
+                    } else {
+                      widget.onCardDeploy(true);
+                    }
+                  });
+                },
+                children: [
+                  SizedBox(height: (widget.isOpen) ? 10 : 0,),
+                  ...getServiceSelection(),
+                ],
+            ),
+        ),
     );
 
   }

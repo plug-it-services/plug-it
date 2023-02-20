@@ -17,22 +17,26 @@ import 'package:mobile/ui-toolkit/cards/FieldsEditor.dart';
 class ActionEditCard extends StatefulWidget {
   final List<Service> services;
   final bool isOpen;
+  final bool isTrigger;
   final void Function() onCardDeploy;
   final PlugDetails plug;
-  final int actionIdx;
-  final List<Event?> selectedPlugEvents;
-  final void Function() onEventSelected;
-  final void Function(int actionIdx) onActionDeleted;
+  final PlugEvent editedEvent;
+  final void Function(Event? selected, Service service) onEventSelected;
+  final void Function(Service service) onServiceSelected;
+  final void Function() onActionDeleted;
+  final void Function() onActionAdded;
 
   const ActionEditCard({super.key,
+    required this.isTrigger,
     required this.services,
     required this.isOpen,
     required this.onCardDeploy,
     required this.plug,
-    required this.actionIdx,
     required this.onEventSelected,
+    required this.onServiceSelected,
     required this.onActionDeleted,
-    required this.selectedPlugEvents
+    required this.onActionAdded,
+    required this.editedEvent,
   });
 
   @override
@@ -42,85 +46,47 @@ class _StateActionEditCard extends State<ActionEditCard>{
   Service? selectedService;
   Event? selectedEvent;
   List<Event>? events;
-  bool deployed = false;
+
   bool selectEventDeployed = true;
   bool editEventDeployed = false;
 
   void onServiceSelected(value) {
     setState(() {
       selectedService = value;
-      if (widget.actionIdx != -1) {
-        PlugApi.getServiceActions(selectedService!.name).then((events)
-        {
-          _setEvents(events ?? []);
-        });
-      }
-      else {
-        PlugApi.getServiceEvents(selectedService!.name).then((events) =>
-        {
-          _setEvents(events ?? [])
-        });
-
-      }
+      widget.onServiceSelected(value);
     });
   }
 
   void onEventSelected(value) {
     setState(() {
       selectedEvent = value;
-      if (value == null) {
-        if (widget.actionIdx == -1) {
-          widget.plug.event = null;
-        }
-        else {
-          widget.plug.actions[widget.actionIdx] = PlugEvent(id: '', serviceName: '', fields: [],);
-        }
-        widget.onEventSelected();
-        return;
-      }
-      var ev = PlugEvent.fromEventService(event: value, serviceName: selectedService!.name);
-      if (widget.actionIdx == -1) {
-        widget.plug.event = ev;
-      }
-      else {
-        widget.plug.actions[widget.actionIdx] = ev;
-      }
+      widget.onEventSelected(value, selectedService!);
     });
-    widget.onEventSelected();
   }
 
   String getLabel() {
-    if (widget.actionIdx == -1) {
+    if (widget.isTrigger) {
       return "1 --| Trigger";
     }
-    return "${widget.actionIdx + 2} --| Action";
+    return "${widget.plug.actions.indexOf(widget.editedEvent) + 2} --| Action";
   }
 
-  PlugEvent? getEditedEvent() {
-    if (widget.actionIdx == -1) {
-      return (widget.plug.event == null ||(widget.plug.event!.id == "" && widget.plug.event!.serviceName == "")) ? null : widget.plug.event!;
-    }
-    else {
-      return (widget.plug.actions[widget.actionIdx].id == "" && widget.plug.actions[widget.actionIdx].serviceName == "") ? null : widget.plug.actions[widget.actionIdx];
-    }
-  }
 
-  void _setEvents(List<Event> events) {
-    setState(() {
-      this.events = events;
-    });
-  }
   void getCurrentData(String serviceName, String eventId) {
-    PlugApi.getServiceByName(serviceName).then((value) {
-      setState(() {
-        selectedService = value;
+    if (serviceName != '' && (selectedService == null || selectedService!.name != serviceName)) {
+      PlugApi.getServiceByName(serviceName).then((value) {
+        setState(() {
+          selectedService = value;
+        });
       });
-    });
-    PlugApi.getEvent(serviceName, eventId, isTrigger: widget.actionIdx == -1).then((value) {
-      setState(() {
-        selectedEvent = value;
+    }
+    if (eventId != '' && (selectedEvent == null || selectedEvent!.id != eventId)) {
+      PlugApi.getEvent(serviceName, eventId, isTrigger: widget.isTrigger).then((value) {
+        setState(() {
+          selectedEvent = value;
+        });
       });
-    });
+    }
   }
 
 
@@ -140,10 +106,10 @@ class _StateActionEditCard extends State<ActionEditCard>{
           onEventSelected: onEventSelected,
           onServiceSelected: onServiceSelected,
           plug: widget.plug,
-          editedEvent: getEditedEvent(),
+          editedEvent: widget.editedEvent,
           selectedEvent: selectedEvent,
           selectedService: selectedService,
-          events: events,
+          isTrigger: widget.isTrigger,
         ),
         const SizedBox(height: 20,),
         FieldsEditor(
@@ -156,21 +122,21 @@ class _StateActionEditCard extends State<ActionEditCard>{
             })
           },
           selectedEvent: selectedEvent,
-          editedEvent: getEditedEvent(),
-          selectedPlugEvents: widget.selectedPlugEvents,
-          eventIdx: widget.actionIdx,
+          editedEvent: widget.editedEvent,
+          isTrigger: widget.isTrigger,
+          plug: widget.plug,
         ),
         const SizedBox(height: 20,),
-        (widget.actionIdx != -1) ?
+        (!widget.isTrigger) ?
             ScreenWidthButton(
               label:"Delete Action",
               color: Colors.red,
               pressedColor: Colors.redAccent,
               callback: () {
-                widget.onActionDeleted(widget.actionIdx);
+                widget.onActionDeleted();
               },
             ) : const SizedBox(),
-        (widget.actionIdx != -1)
+        (!widget.isTrigger)
             ? const SizedBox(height: 20,)
             : const SizedBox(height: 0,)
       ];
@@ -180,17 +146,37 @@ class _StateActionEditCard extends State<ActionEditCard>{
 
   @override
   void initState() {
-    if (widget.actionIdx == -1 && widget.plug.event != null && widget.plug.event!.id != "" && widget.plug.event!.serviceName != "") {
-      getCurrentData(widget.plug.event!.serviceName, widget.plug.event!.id);
-    }
-    if (widget.actionIdx != -1 && widget.plug.actions[widget.actionIdx].id != "" && widget.plug.actions[widget.actionIdx].serviceName != "") {
-      getCurrentData(widget.plug.actions[widget.actionIdx].serviceName, widget.plug.actions[widget.actionIdx].id);
-    }
+    clearData();
+    getCurrentData(widget.editedEvent.serviceName, widget.editedEvent.id);
     super.initState();
   }
 
   @override
+  void dispose()
+  {
+    clearData();
+    super.dispose();
+  }
+
+  void clearData()
+  {
+      if (widget.editedEvent.serviceName == '' && selectedService != null) {
+        setState(() {
+          selectedService = null;
+        });
+      }
+      if (widget.editedEvent.id == '' && selectedEvent != null) {
+        setState(() {
+          selectedEvent = null;
+        });
+      }
+  }
+
+
+  @override
   Widget build(BuildContext context) {
+    clearData();
+    getCurrentData(widget.editedEvent.serviceName, widget.editedEvent.id);
     return Padding(
         padding: const EdgeInsets.all(10),
         child: AnimatedContainer(
@@ -199,16 +185,24 @@ class _StateActionEditCard extends State<ActionEditCard>{
                 color: PlugItStyle.cardColor,
                 borderRadius: BorderRadius.circular(8)
             ),
-            child: CardTitle(
-              label: "${getLabel()} ${(selectedService != null) ? "- ${selectedService!.name.capitalize()}" : ""}",
-              state: widget.isOpen,
-              onPressed: () {
-                widget.onCardDeploy();
-              },
+            child: Column(
               children: [
-                ...getBody(),
-              ],
-            ),
+                CardTitle(
+                  label: "${getLabel()} ${(selectedService != null) ? "- ${selectedService!.name.capitalize()}" : ""}",
+                  state: widget.isOpen,
+                  onPressed: () {
+                    widget.onCardDeploy();
+                  },
+                  children: [
+                    ...getBody(),
+                  ],
+                ),
+                IconButton(
+                  onPressed: widget.onActionAdded,
+                  icon: const Icon(Icons.add_rounded),
+                ),
+              ]
+            )
         )
     );
 

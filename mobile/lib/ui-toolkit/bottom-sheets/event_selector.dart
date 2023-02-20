@@ -11,14 +11,14 @@ import 'package:mobile/ui-toolkit/PlugItStyle.dart';
 class EventMenu extends StatefulWidget {
   final Service? selectedService;
   final Event? selectedEvent;
-  final List<Event> events;
+  final bool isTrigger;
   final void Function(Event service) onEventSelected;
 
   const EventMenu({super.key,
     required this.onEventSelected,
     required this.selectedService,
     required this.selectedEvent,
-    required this.events,
+    required this.isTrigger,
   });
 
   @override
@@ -28,11 +28,40 @@ class _StateEventMenu extends State<EventMenu>{
   List<Event>? filteredEvents;
   String filter = "";
   final controller = TextEditingController();
+  List<Event> events = [];
+
+  void _setEvents(List<Event> events) {
+    setState(() {
+      this.events = events;
+      filteredEvents = events;
+    });
+  }
+
+  void getEvents()
+  {
+    if (widget.selectedService != null && events.isEmpty) {
+      print("Fetching events");
+      if (!widget.isTrigger) {
+        PlugApi.getServiceActions(widget.selectedService!.name).then((events)
+        {
+          _setEvents(events ?? []);
+        });
+      }
+      else {
+        PlugApi.getServiceEvents(widget.selectedService!.name).then((events) =>
+        {
+          _setEvents(events ?? [])
+        });
+      }
+    } else {
+      print("Already have '${events.length}' events ...");
+    }
+  }
 
   void setFilteredEvents(String filter)
   {
     filter = filter.toLowerCase();
-    final filtered = widget.events
+    final filtered = events
         .where((element) =>
         element.name.toLowerCase().contains(filter) || element.description.toLowerCase().contains(filter)
     ).toList();
@@ -93,11 +122,12 @@ class _StateEventMenu extends State<EventMenu>{
   @override
   void initState()
   {
-    filteredEvents = widget.events;
+    getEvents();
     super.initState();
   }
   @override
   Widget build(BuildContext context) {
+    getEvents();
     return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 5),
         child: ElevatedButton(

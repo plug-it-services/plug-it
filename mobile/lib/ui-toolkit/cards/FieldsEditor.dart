@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/models/plug/PlugDetails.dart';
 
 import 'package:mobile/models/plug/PlugEvent.dart';
 import 'package:mobile/models/service/Service.dart';
@@ -12,12 +13,12 @@ import 'package:mobile/ui-toolkit/input/string_input.dart';
 
 class FieldsEditor extends StatefulWidget {
   final List<Service> services;
-  final List<Event?> selectedPlugEvents;
-  final int eventIdx;
+  final PlugDetails plug;
   final bool isOpen;
+  final bool isTrigger;
   final void Function(bool ) onCardDeploy;
   final Event? selectedEvent;
-  final PlugEvent? editedEvent;
+  final PlugEvent editedEvent;
 
   const FieldsEditor({super.key,
     required this.services,
@@ -25,8 +26,8 @@ class FieldsEditor extends StatefulWidget {
     required this.onCardDeploy,
     required this.selectedEvent,
     required this.editedEvent,
-    required this.selectedPlugEvents,
-    required this.eventIdx,
+    required this.plug,
+    required this.isTrigger,
   });
 
   @override
@@ -38,7 +39,7 @@ class _StateFieldsEditor extends State<FieldsEditor>{
   List<Widget> getActionFields() {
     List<Widget> fields = [];
 
-    if (!widget.isOpen || widget.selectedEvent == null || widget.editedEvent == null) {
+    if (!widget.isOpen || widget.selectedEvent == null) {
       return fields;
     }
     for (Field field in widget.selectedEvent!.fields) {
@@ -47,11 +48,12 @@ class _StateFieldsEditor extends State<FieldsEditor>{
       fields.add(const SizedBox(height: 5));
       int idx = widget.selectedEvent!.fields.indexOf(field);
       fields.add(StringInputField(
-        editedField: widget.editedEvent!.fields[idx],
+        editedField: widget.editedEvent.fields[idx],
         templateField: field,
-        selectedPlugEvents: widget.selectedPlugEvents,
-        eventIdx: widget.eventIdx,
+        plug: widget.plug,
         hint: '',
+        isTrigger: widget.isTrigger,
+        event: widget.editedEvent,
       ));
     }
     return fields;

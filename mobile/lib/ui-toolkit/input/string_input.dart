@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/models/plug/PlugDetails.dart';
+import 'package:mobile/models/plug/PlugEvent.dart';
 
 import 'package:rich_text_controller/rich_text_controller.dart';
 
@@ -16,16 +18,18 @@ class StringInputField extends StatefulWidget {
   final Field templateField;
   final String hint;
   final void Function(bool focus)? onChangedFocus;
-  final List<Event?> selectedPlugEvents;
-  final int eventIdx;
+  final PlugDetails plug;
+  final PlugEvent event;
+  final bool isTrigger;
 
   const StringInputField({super.key,
     required this.hint,
     this.onChangedFocus,
     required this.editedField,
     required this.templateField,
-    required this.selectedPlugEvents,
-    required this.eventIdx,
+    required this.plug,
+    required this.event,
+    required this.isTrigger,
   });
 
 
@@ -101,12 +105,12 @@ class _StringInputFieldState extends State<StringInputField> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text("${widget.templateField.displayName}: ", style: PlugItStyle.subtitleStyle),
-              (widget.eventIdx != -1) ? VariableMenu(
+              (!widget.isTrigger) ? VariableMenu(
                 onVariableSelected: (Event event , Variable variable, int idx) {
                   onChange(controller!.text += "\${$idx.${variable.key}}");
                 },
-                selectedPlugEvents: widget.selectedPlugEvents,
-                eventIdx: widget.eventIdx,
+                plug: widget.plug,
+                event: widget.event,
               ) : const SizedBox(width: 0,),
             ],
           ),

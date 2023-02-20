@@ -1,70 +1,90 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/PlugApi.dart';
 
 import 'package:mobile/models/field/Variable.dart';
 import 'package:mobile/models/Event.dart';
+import 'package:mobile/models/plug/PlugDetails.dart';
+import 'package:mobile/models/plug/PlugEvent.dart';
 
 import 'package:mobile/ui-toolkit/PlugItStyle.dart';
 
 
+
 class VariableMenu extends StatefulWidget {
-  final List<Event?> selectedPlugEvents;
-  final int eventIdx;
+  final PlugDetails plug;
+  final PlugEvent event;
   final void Function(Event, Variable, int idx) onVariableSelected;
 
   const VariableMenu({super.key,
     required this.onVariableSelected,
-    required this.selectedPlugEvents,
-    required this.eventIdx,
+    required this.plug,
+    required this.event,
   });
 
   @override
   State createState() => _StateVariableMenu();
 }
 class _StateVariableMenu extends State<VariableMenu>{
+
   bool active = false;
 
-  List<Widget> getEventVariables(int i, BuildContext context) {
-    List<Widget> list = [];
-
-    if (widget.selectedPlugEvents[i] == null || widget.selectedPlugEvents[i]!.variables.isEmpty) {
-      return [];
+  Future<List<Event?>> setEventList() async
+  {
+    List<Event?> selectedPlugEvents = [];
+    selectedPlugEvents = List.filled(1 + widget.plug.actions.length, null);
+    if (widget.plug.event.id != "") {
+      await setEventFromPlugEvent(widget.plug.event, true, 0, selectedPlugEvents);
     }
-    list.add(const SizedBox(height: 5,));
-    list.add(Text(widget.selectedPlugEvents[i]!.name, style: PlugItStyle.subtitleStyle,));
-    list.add(const Divider(color: Colors.black));
     int idx = 1;
-    for (Variable variable in widget.selectedPlugEvents[i]!.variables) {
-      list.add(ElevatedButton(
-        onPressed: () {
-          Navigator.pop(context);
-          widget.onVariableSelected(widget.selectedPlugEvents[i]!, variable, i);
-        },
-        child: Text("$idx - ${variable.displayName}", style: PlugItStyle.smallStyle),
-      ));
-      ++idx;
+    for (PlugEvent action in widget.plug.actions) {
+      if (action.id != "") {
+        await setEventFromPlugEvent(action, false, idx, selectedPlugEvents);
+      }
+      idx++;
     }
-    return list;
+    return selectedPlugEvents;
+  }
+  Future setEventFromPlugEvent(PlugEvent ev, bool isTrigger, int idx, List<Event?> selectedPlugEvents) async {
+    print("Fetching event data: ${ev.id}");
+    selectedPlugEvents[idx] = await PlugApi.getEvent(ev.serviceName, ev.id, isTrigger: isTrigger);
+    print("Fetched event data: ${ev.id}, and stored at $idx");
   }
 
   void displayMenu(BuildContext context) {
-    if (widget.eventIdx == -1) {
-      return;
-    }
-    
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context2) {
-        List<Widget> list = [];
-        for (int i = 0; i < (widget.eventIdx + 1); ++i) {
-          list.addAll(getEventVariables(i, context2));
-        }
+    setEventList().then((selectedPlugEvents) {
+      showModalBottomSheet(
+        context: context,
+        builder: (BuildContext context2) {
+          List<Widget> list = [];
+          int idx = 0;
+          for (var event in selectedPlugEvents) {
+            if (idx != 0 && idx == widget.plug.actions.indexOf(widget.event))
+              break;
+            if (event == null || event.variables.isEmpty)
+              continue;
+            list.add(const SizedBox(height: 5,));
+            list.add(Text(event.name, style: PlugItStyle.subtitleStyle,));
+            list.add(const Divider(color: Colors.black));
 
-        return ListView(
-          children: list,
-        );
-      },
+            int var_idx = 1;
+            for (Variable variable in event.variables) {
+              list.add(ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  widget.onVariableSelected(event, variable, idx);
+                },
+                child: Text("$var_idx - ${variable.displayName}", style: PlugItStyle.smallStyle),
+              ));
+              ++idx;
+            }
+          }
+          return ListView(
+            children: list,
+          );
+        },
+      );
+    });
 
-    );
   }
 
   @override
