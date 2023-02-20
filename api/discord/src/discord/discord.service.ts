@@ -84,6 +84,7 @@ export class DiscordService {
         }
       }
     }
+    this.logger.log("CREATED THREAD");
     return thread;
   }
 
