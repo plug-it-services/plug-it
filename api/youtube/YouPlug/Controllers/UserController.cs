@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
 using YouPlug.Db;
@@ -8,7 +9,7 @@ using static System.Net.WebRequestMethods;
 
 namespace YouPlug.Controllers
 {
-
+    
     [ApiController]
     [Route("public")]
     public class UserController : ControllerBase
@@ -28,7 +29,7 @@ namespace YouPlug.Controllers
             _config = config;
             _plugDbContext = plugDbContext;
         }
-
+        
         [HttpPost("oauth2", Name = "OAuth2")]
         public ActionResult<OAuth2Redirect> OAuth2([FromHeader] string user, [FromBody] OAuthStart body)
         {

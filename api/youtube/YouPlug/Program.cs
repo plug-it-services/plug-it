@@ -1,9 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
 using System.Collections;
-using System.Text;
 using YouPlug.Db;
-using YouPlug.Models;
 using YouPlug.Services;
 
 bool plugRegistration = await PlugRegistration.RegisterPlug();
@@ -22,6 +19,17 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(builder =>
+    {
+        builder.WithOrigins("http://localhost:3000");
+        builder.AllowCredentials();
+        builder.AllowAnyHeader();
+        builder.AllowAnyMethod();
+    });
+});
 
 Console.WriteLine("Configuring database connection...");
 
@@ -52,16 +60,6 @@ Console.WriteLine($"Connection string: {connectionString}");
 builder.Services.AddDbContext<PlugDbContext>(options =>
     options.UseNpgsql(connectionString, b => b.MigrationsAssembly("YouPlug"))
 );
-
-builder.Services.AddCors(options =>
-{
-    options.AddDefaultPolicy(builder =>
-    {
-        builder.AllowAnyOrigin()
-            .AllowAnyMethod()
-            .AllowAnyHeader();
-    });
-});
 
 using (var context = new PlugDbContext(builder.Services.BuildServiceProvider().GetService<DbContextOptions<PlugDbContext>>()))
 {
