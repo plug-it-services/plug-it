@@ -81,6 +81,7 @@ export default {
           type: 'string',
           displayName: 'Thread reason',
           description: 'The reason for creating the thread',
+          required: false,
         },
         {
           key: 'auto_archive_duration',
@@ -88,6 +89,7 @@ export default {
           displayName: 'Thread auto archive duration',
           description:
             'The duration in minutes to automatically archive the thread after recent activity, can be set to: 60, 1440, 4320, 10080',
+          required: false,
         },
         {
           key: 'rate_limit_per_user',
@@ -95,6 +97,7 @@ export default {
           displayName: 'Thread rate limit per user',
           description:
             'Amount of seconds a user has to wait before sending another message (0-21600)',
+          required: false,
         },
       ],
     },
@@ -130,6 +133,7 @@ export default {
           type: 'string',
           displayName: 'Thread reason',
           description: 'The reason for creating the thread',
+          required: false,
         },
         {
           key: 'auto_archive_duration',
@@ -137,6 +141,7 @@ export default {
           displayName: 'Thread auto archive duration',
           description:
             'The duration in minutes to automatically archive the thread after recent activity, can be set to: 60, 1440, 4320, 10080',
+          required: false,
         },
         {
           key: 'rate_limit_per_user',
@@ -144,6 +149,7 @@ export default {
           displayName: 'Thread rate limit per user',
           description:
             'Amount of seconds a user has to wait before sending another message (0-21600)',
+          required: false,
         },
       ],
     },
