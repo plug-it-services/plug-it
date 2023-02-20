@@ -256,6 +256,7 @@ export class AppController {
         break;
     }
   } catch (err) {
+    console.error(err);
     this.logger.log("Can't execute an action in discord", err);
     return new Nack(false);
   }
