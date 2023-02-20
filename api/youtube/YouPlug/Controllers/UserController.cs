@@ -33,13 +33,15 @@ namespace YouPlug.Controllers
         [HttpPost("oauth2", Name = "OAuth2")]
         public ActionResult<OAuth2Redirect> OAuth2([FromHeader] string user, [FromBody] OAuthStart body)
         {
-            string redirUri = _config.GetValue<string>("OAUTH2_CALLBACK");
-            string clientId = _config.GetValue<string>("CLIENT_ID");
+            Console.WriteLine("Received request from UserController.OAuth2");
+            string? redirUri = Environment.GetEnvironmentVariable("OAUTH2_CALLBACK", EnvironmentVariableTarget.Process);
+            string? clientId = Environment.GetEnvironmentVariable("CLIENT_ID", EnvironmentVariableTarget.Process);
 
             UserModel? userModel = UserModel.FromJson(user);
 
             if (userModel == null)
             {
+                Console.WriteLine("Missing user data!");
                 GeneralDto.ErrorMessage errorMessage = new()
                 {
                     message = "Internal server error occurred: Missing user data!"
@@ -49,6 +51,30 @@ namespace YouPlug.Controllers
 
             if (string.IsNullOrWhiteSpace(redirUri) || string.IsNullOrWhiteSpace(clientId))
             {
+
+                Console.WriteLine("A");
+                Console.WriteLine("B");
+                Console.WriteLine("C");
+                Console.WriteLine("D");
+                Console.WriteLine("E");
+                Console.WriteLine("F");
+
+                if (string.IsNullOrWhiteSpace(redirUri))
+                {
+                    Console.WriteLine("A");
+                } else
+                {
+                    Console.WriteLine("AH!");
+                }
+
+                if (string.IsNullOrWhiteSpace(clientId))
+                {
+                    Console.WriteLine("B");
+                } else
+                {
+                    Console.WriteLine("Cabane");
+                }
+                
                 GeneralDto.ErrorMessage errorMessage = new() {
                     message = "Internal server error occurred: Missing configuration!"
                 };
