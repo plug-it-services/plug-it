@@ -81,6 +81,7 @@ class _StateVariableMenu extends State<VariableMenu>{
                   ],
                 ),
               ));
+              list.add(const SizedBox(height:10));
             }
             ++idx;
           }
