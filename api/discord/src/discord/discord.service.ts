@@ -3,8 +3,8 @@ import {
   ChannelType,
   Client,
   AnyThreadChannel,
-  PublicThreadChannel,
   ThreadChannel,
+  Message,
 } from 'discord.js';
 import { ConfigService } from '@nestjs/config';
 
@@ -27,16 +27,19 @@ export class DiscordService {
     this.client.login(this.token);
   }
 
-  async sendPrivateMessage(userId: string, message: string): Promise<void> {
+  async sendPrivateMessage(
+    userId: string,
+    message: string,
+  ): Promise<Message | undefined> {
     const user = await this.client.users.fetch(userId);
-    user.send(message);
+    return await user.send(message);
   }
 
   async sendChannelMessage(
     serverId: string,
     channelId: string,
     message: string,
-  ): Promise<void> {
+  ): Promise<Message | undefined> {
     const guild = await this.client.guilds.fetch(serverId);
     const channel = guild.channels.cache.get(channelId);
     if (
@@ -44,7 +47,7 @@ export class DiscordService {
       (channel.type === ChannelType.GuildText ||
         channel.type === ChannelType.GuildAnnouncement)
     ) {
-      await channel.send(message);
+      return await channel.send(message);
     } else {
       this.logger.error(`Channel ${channelId} not found`);
     }
@@ -62,14 +65,15 @@ export class DiscordService {
     reason?: string,
     autoArchiveDuration?: number,
     rateLimitPerUser?: number,
-  ): Promise<PublicThreadChannel | undefined> {
+  ): Promise<AnyThreadChannel | undefined> {
     const guild = await this.client.guilds.fetch(serverId);
+    let thread: AnyThreadChannel | undefined;
 
-    guild.channels.cache.forEach(async (channel) => {
+    for (const [, channel] of guild.channels.cache) {
       if (channel.type === ChannelType.GuildText) {
         const message = await channel.messages.fetch(messageId);
         if (message) {
-          return await message.startThread({
+          thread = await message.startThread({
             name,
             reason,
             autoArchiveDuration,
@@ -77,8 +81,8 @@ export class DiscordService {
           });
         }
       }
-    });
-    return;
+    }
+    return thread;
   }
 
   async createPrivateThread(
@@ -91,9 +95,10 @@ export class DiscordService {
   ): Promise<ThreadChannel | undefined> {
     const guild = await this.client.guilds.fetch(serverId);
     const channel = guild.channels.cache.get(channelId);
+    let thread: ThreadChannel | undefined;
 
     if (channel && channel.type === ChannelType.GuildText) {
-      return await channel.threads.create({
+      thread = await channel.threads.create({
         name,
         reason,
         autoArchiveDuration,
@@ -101,7 +106,7 @@ export class DiscordService {
         type: ChannelType.PrivateThread,
       });
     }
-    return;
+    return thread;
   }
 
   private async getThread(
@@ -109,16 +114,16 @@ export class DiscordService {
     threadId: string,
   ): Promise<AnyThreadChannel | undefined> {
     const guild = await this.client.guilds.fetch(serverId);
+    let thread: AnyThreadChannel | null;
 
-    guild.channels.cache.forEach(async (channel) => {
+    for (const [, channel] of guild.channels.cache) {
       if (channel.type === ChannelType.GuildText) {
-        const thread = await channel.threads.fetch(threadId);
-        if (thread) {
-          return thread;
-        }
+        thread = await channel.threads.fetch(threadId);
       }
-    });
-    return;
+    }
+    if (thread) {
+      return thread;
+    }
   }
 
   async deleteThread(serverId: string, threadId: string): Promise<void> {
@@ -148,10 +153,10 @@ export class DiscordService {
     serverId: string,
     threadId: string,
     message: string,
-  ): Promise<void> {
+  ): Promise<Message | undefined> {
     const thread = await this.getThread(serverId, threadId);
     if (thread) {
-      await thread.send(message);
+      return await thread.send(message);
     }
   }
 
@@ -181,20 +186,22 @@ export class DiscordService {
     serverId: string,
     messageId: string,
     content: string,
-  ): Promise<void> {
+  ): Promise<Message | undefined> {
     const guild = await this.client.guilds.fetch(serverId);
+    let newMessage: Message | undefined;
 
-    guild.channels.cache.forEach(async (channel) => {
+    for (const [, channel] of guild.channels.cache) {
       if (
         channel.type === ChannelType.GuildText ||
         channel.type === ChannelType.GuildAnnouncement
       ) {
         const message = await channel.messages.fetch(messageId);
         if (message) {
-          await message.reply(content);
+          newMessage = await message.reply(content);
         }
       }
-    });
+    }
+    return newMessage;
   }
 
   async addMemberToThread(
