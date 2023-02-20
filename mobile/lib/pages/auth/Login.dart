@@ -192,7 +192,7 @@ class _LoginState extends State<Login> {
                   InputField(
                       hint: "Email or Username",
                       onChanged: (value) => {username = value},
-                      onExitFocus: () => checkEmail(),
+                      onChangedFocus: (value) => checkEmail(),
                       iconColor: Colors.black,
                       icon: const Icon(Icons.account_circle),
                       value:username,
@@ -206,7 +206,7 @@ class _LoginState extends State<Login> {
                       hint: "Password",
                       obscured: true,
                       onChanged: (value) => password = value,
-                      onExitFocus: () => checkPassword(),
+                      onChangedFocus: (value) => checkPassword(),
                       iconColor: Colors.black,
                       icon: const Icon(Icons.lock),
                       value: password

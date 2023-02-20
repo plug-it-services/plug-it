@@ -17,6 +17,7 @@ class PlugItStyle {
 
   static const inputHintStyle = TextStyle(fontStyle: FontStyle.italic, fontWeight: FontWeight.normal, color: Colors.black);
   static const inputTextStyle = TextStyle(fontStyle: FontStyle.normal, fontWeight: FontWeight.normal, color: Colors.black);
+  static const inputTextStyleWhite = TextStyle(fontStyle: FontStyle.normal, fontWeight: FontWeight.normal, color: Colors.white);
   static const titleStyle = TextStyle(fontWeight: FontWeight.bold, fontSize: 52);
   static const biggerSubtitleStyle = TextStyle(fontWeight: FontWeight.w500, fontSize: 30);
   static const subtitleStyle = TextStyle(fontWeight: FontWeight.w500, fontSize: 20);

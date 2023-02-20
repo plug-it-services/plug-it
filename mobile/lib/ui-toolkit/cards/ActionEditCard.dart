@@ -1,33 +1,42 @@
-import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
+
 import 'package:mobile/PlugApi.dart';
 
 import 'package:mobile/models/plug/PlugDetails.dart';
 import 'package:mobile/models/plug/PlugEvent.dart';
 import 'package:mobile/models/service/Service.dart';
-import 'package:mobile/models/field/Field.dart';
-import 'package:mobile/ui-toolkit/PlugItStyle.dart';
-import 'package:mobile/ui-toolkit/buttons/IconButtonSwitch.dart';
 import 'package:mobile/models/Event.dart';
+
+import 'package:mobile/ui-toolkit/PlugItStyle.dart';
+import 'package:mobile/ui-toolkit/buttons/ScreenWidthButton.dart';
 import 'package:mobile/ui-toolkit/cards/CardTitle.dart';
 import 'package:mobile/ui-toolkit/cards/EventSelection.dart';
 import 'package:mobile/ui-toolkit/cards/FieldsEditor.dart';
-import 'package:mobile/ui-toolkit/input/InputField.dart';
 
 
 class ActionEditCard extends StatefulWidget {
   final List<Service> services;
   final bool isOpen;
+  final bool isTrigger;
   final void Function() onCardDeploy;
   final PlugDetails plug;
-  final int actionIdx;
+  final PlugEvent editedEvent;
+  final void Function(Event? selected, Service service) onEventSelected;
+  final void Function(Service service) onServiceSelected;
+  final void Function() onActionDeleted;
+  final void Function() onActionAdded;
 
   const ActionEditCard({super.key,
+    required this.isTrigger,
     required this.services,
     required this.isOpen,
     required this.onCardDeploy,
     required this.plug,
-    required this.actionIdx
+    required this.onEventSelected,
+    required this.onServiceSelected,
+    required this.onActionDeleted,
+    required this.onActionAdded,
+    required this.editedEvent,
   });
 
   @override
@@ -37,79 +46,54 @@ class _StateActionEditCard extends State<ActionEditCard>{
   Service? selectedService;
   Event? selectedEvent;
   List<Event>? events;
-  bool deployed = false;
+
   bool selectEventDeployed = true;
   bool editEventDeployed = false;
 
   void onServiceSelected(value) {
     setState(() {
       selectedService = value;
-      if (widget.actionIdx != -1) {
-        PlugApi.getServiceActions(selectedService!.name).then((events) =>
-        {
-          _setEvents(events ?? [])
-        });
-      }
-      else {
-        PlugApi.getServiceEvents(selectedService!.name).then((events) =>
-        {
-          _setEvents(events ?? [])
-        });
-
-      }
+      widget.onServiceSelected(value);
     });
   }
 
   void onEventSelected(value) {
     setState(() {
       selectedEvent = value;
-      var ev = PlugEvent.fromEventService(event: value, serviceName: selectedService!.name);
-      if (widget.actionIdx == -1) {
-        widget.plug.event = ev;
-      }
-      else {
-        widget.plug.actions[widget.actionIdx] = ev;
-      }
+      widget.onEventSelected(value, selectedService!);
     });
   }
 
   String getLabel() {
-    if (widget.actionIdx == -1) {
+    if (widget.isTrigger) {
       return "1 --| Trigger";
     }
-    return "${widget.actionIdx + 2} --| Action";
+    return "${widget.plug.actions.indexOf(widget.editedEvent) + 2} --| Action";
   }
 
-  PlugEvent? getEditedEvent() {
-    if (widget.actionIdx == -1) {
-      return (widget.plug.event == null ||(widget.plug.event!.id == "" && widget.plug.event!.serviceName == "")) ? null : widget.plug.event!;
-    }
-    else {
-      return (widget.plug.actions[widget.actionIdx].id == "" && widget.plug.actions[widget.actionIdx].serviceName == "") ? null : widget.plug.actions[widget.actionIdx];
-    }
-  }
 
-  void _setEvents(List<Event> events) {
-    setState(() {
-      this.events = events;
-    });
-  }
   void getCurrentData(String serviceName, String eventId) {
-    PlugApi.getServiceByName(serviceName).then((value) {
-      setState(() {
-        selectedService = value;
+    if (serviceName != '' && (selectedService == null || selectedService!.name != serviceName)) {
+      PlugApi.getServiceByName(serviceName).then((value) {
+        setState(() {
+          selectedService = value;
+        });
       });
-    });
-    PlugApi.getEvent(serviceName, eventId, isTrigger: widget.actionIdx == -1).then((value) {
-      setState(() {
-        selectedEvent = value;
+    }
+    if (eventId != '' && (selectedEvent == null || selectedEvent!.id != eventId)) {
+      PlugApi.getEvent(serviceName, eventId, isTrigger: widget.isTrigger).then((value) {
+        setState(() {
+          selectedEvent = value;
+        });
       });
-    });
+    }
   }
+
+
   List<Widget> getBody() {
-    if (deployed) {
+    if (widget.isOpen) {
       return [
-        const Divider(color: Colors.black),
+        const SizedBox(height: 20,),
         EventSelection(
           services: widget.services,
           isOpen: selectEventDeployed,
@@ -122,11 +106,12 @@ class _StateActionEditCard extends State<ActionEditCard>{
           onEventSelected: onEventSelected,
           onServiceSelected: onServiceSelected,
           plug: widget.plug,
-          editedEvent: getEditedEvent(),
+          editedEvent: widget.editedEvent,
           selectedEvent: selectedEvent,
           selectedService: selectedService,
-          events: events,
+          isTrigger: widget.isTrigger,
         ),
+        const SizedBox(height: 20,),
         FieldsEditor(
           services: widget.services,
           isOpen: editEventDeployed,
@@ -137,8 +122,11 @@ class _StateActionEditCard extends State<ActionEditCard>{
             })
           },
           selectedEvent: selectedEvent,
-          editedEvent: getEditedEvent(),
-        )
+          editedEvent: widget.editedEvent,
+          isTrigger: widget.isTrigger,
+          plug: widget.plug,
+        ),
+        const SizedBox(height: 20,),
       ];
     }
     return [];
@@ -146,19 +134,37 @@ class _StateActionEditCard extends State<ActionEditCard>{
 
   @override
   void initState() {
-
+    clearData();
+    getCurrentData(widget.editedEvent.serviceName, widget.editedEvent.id);
     super.initState();
-    if (widget.actionIdx == -1 && widget.plug.event != null && widget.plug.event!.id != "" && widget.plug.event!.serviceName != "") {
-      getCurrentData(widget.plug.event!.serviceName, widget.plug.event!.id);
-    }
-    if (widget.actionIdx != -1 && widget.plug.actions[widget.actionIdx].id != "" && widget.plug.actions[widget.actionIdx].serviceName != "") {
-      getCurrentData(widget.plug.actions[widget.actionIdx].serviceName, widget.plug.actions[widget.actionIdx].id);
-    }
-
   }
 
   @override
+  void dispose()
+  {
+    clearData();
+    super.dispose();
+  }
+
+  void clearData()
+  {
+      if (widget.editedEvent.serviceName == '' && selectedService != null) {
+        setState(() {
+          selectedService = null;
+        });
+      }
+      if (widget.editedEvent.id == '' && selectedEvent != null) {
+        setState(() {
+          selectedEvent = null;
+        });
+      }
+  }
+
+
+  @override
   Widget build(BuildContext context) {
+    clearData();
+    getCurrentData(widget.editedEvent.serviceName, widget.editedEvent.id);
     return Padding(
         padding: const EdgeInsets.all(10),
         child: AnimatedContainer(
@@ -171,15 +177,21 @@ class _StateActionEditCard extends State<ActionEditCard>{
               children: [
                 CardTitle(
                   label: "${getLabel()} ${(selectedService != null) ? "- ${selectedService!.name.capitalize()}" : ""}",
-                  state: deployed,
-                  onPressed: () => {
-                    setState(() {
-                      deployed = !deployed;
-                    })
+                  state: widget.isOpen,
+                  onPressed: () {
+                    widget.onCardDeploy();
                   },
+                  isIconButtonPresent: (!widget.isTrigger),
+                  onIconPressed: widget.onActionDeleted,
+                  children: [
+                    ...getBody(),
+                  ],
                 ),
-                ...getBody(),
-              ],
+                IconButton(
+                  onPressed: widget.onActionAdded,
+                  icon: const Icon(Icons.add_rounded),
+                ),
+              ]
             )
         )
     );

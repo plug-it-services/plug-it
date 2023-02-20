@@ -47,6 +47,7 @@ dependencies:
   shared_preferences: ^2.0.17
   flutter_web_auth_2: ^2.0.4
   google_sign_in: ^5.4.4
+  rich_text_controller: ^1.4.0
   #google_sign_in: ^4.0.16
 
 dev_dependencies:

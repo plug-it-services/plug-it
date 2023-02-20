@@ -9,7 +9,7 @@ class InputField extends StatefulWidget {
   final Icon? icon;
   final Color? iconColor;
   final void Function(String)? onChanged;
-  final void Function()? onExitFocus;
+  final void Function(bool focus)? onChangedFocus;
   final TextStyle? hintStyle;
   final TextStyle? valueStyle;
 
@@ -17,7 +17,7 @@ class InputField extends StatefulWidget {
     required this.hint,
     this.obscured = false,
     this.onChanged,
-    this.onExitFocus,
+    this.onChangedFocus,
     this.icon,
     this.iconColor,
     this.value,
@@ -31,6 +31,15 @@ class InputField extends StatefulWidget {
 }
 
 class _InputFieldState extends State<InputField> {
+  TextEditingController? controller;
+
+
+  @override
+  void initState() {
+    controller = TextEditingController(text:widget.value);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -42,18 +51,20 @@ class _InputFieldState extends State<InputField> {
                 ),
                 child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: TextFormField(
-                      controller: TextEditingController(text:widget.value),
-                      style: widget.valueStyle ?? PlugItStyle.inputTextStyle,
-                      onChanged: widget.onChanged,
-                      onEditingComplete: widget.onExitFocus,
-                      obscureText: widget.obscured,
-                      decoration: InputDecoration(
-                          icon: widget.icon,
-                          iconColor: widget.iconColor,
-                          border: InputBorder.none,
-                          hintText: widget.hint,
-                          hintStyle: widget.hintStyle ?? PlugItStyle.inputHintStyle
+                    child: Focus(
+                      onFocusChange: widget.onChangedFocus,
+                      child: TextFormField(
+                        controller: controller,
+                        style: widget.valueStyle ?? PlugItStyle.inputTextStyle,
+                        onChanged: widget.onChanged,
+                        obscureText: widget.obscured,
+                        decoration: InputDecoration(
+                            icon: widget.icon,
+                            iconColor: widget.iconColor,
+                            border: InputBorder.none,
+                            hintText: widget.hint,
+                            hintStyle: widget.hintStyle ?? PlugItStyle.inputHintStyle
+                        ),
                       ),
                     )
                 ),
