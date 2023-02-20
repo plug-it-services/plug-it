@@ -7,7 +7,7 @@ from models.Connection import Connection
 from services.connections import ConnectionsService
 from services.hub import HubService
 from services.webhooks import WebhooksService
-from listener import ListenerController
+from controllers.listener import ListenerController
 
 app = Flask(__name__)
 connections_service = ConnectionsService()

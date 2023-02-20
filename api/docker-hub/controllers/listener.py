@@ -1,7 +1,6 @@
 import json
 import os
 import uuid
-
 import pika
 
 from models.Webhook import Webhook
