@@ -8,6 +8,7 @@ import {
   Response,
   Query,
   Logger,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
@@ -66,6 +67,19 @@ export class PublicController {
     const discordUser = await this.discordAuthService.retrieveByUserId(user.id);
 
     await this.discordService.disconnectFromServer(discordUser.serverId);
+    try {
+      await axios.post(
+        this.configService.getOrThrow<string>('PLUGS_SERVICE_LOGGED_OUT_URL'),
+        {
+          userId: user.id,
+        },
+      );
+    } catch (e) {
+      this.logger.error(
+        'Cannot contact plugs microservice : JSON.stringify(e)',
+      );
+      throw new InternalServerErrorException('Cannot save disconnected state');
+    }
     return { message: 'success' };
   }
 
@@ -107,6 +121,13 @@ export class PublicController {
         server,
       );
     }
+
+    await axios.post(
+      this.configService.getOrThrow<string>('PLUGS_SERVICE_LOGGED_IN_URL'),
+      {
+        userId: user.userId,
+      },
+    );
 
     res.redirect(user.redirectUrl);
   }
