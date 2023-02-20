@@ -129,6 +129,7 @@ export class AppController {
         ).value;
 
         await this.discordService.deleteThread(serverId, threadId);
+        break;
       case 'send_message_thread':
         const threadId2 = msg.fields.find(
           (field: any) => field.key === 'thread_id',

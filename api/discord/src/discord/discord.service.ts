@@ -73,6 +73,7 @@ export class DiscordService {
       if (channel.type === ChannelType.GuildText) {
         const message = await channel.messages.fetch(messageId);
         if (message) {
+          this.logger.log(`try to create a thread for the message ${message.id}`);
           thread = await message.startThread({
             name,
             reason,
