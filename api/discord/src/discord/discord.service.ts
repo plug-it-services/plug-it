@@ -44,7 +44,7 @@ export class DiscordService {
           message.guild.id,
         );
         for (const { command, userId, plugId } of commands) {
-          if (message.content == command) {
+          if (message.content == `!${command}`) {
             const variables = [
               {
                 key: 'message_id',
