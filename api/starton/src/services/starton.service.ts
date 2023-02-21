@@ -413,7 +413,7 @@ export class StartonService {
     );
   }
 
-  async deleteWatcher(apiKey: string, webhookId?: string): Promise<void> {
+  async deleteWatcher(apiKey: string, webhookId: string): Promise<void> {
     const startonApi = axios.create({
       baseURL: 'https://api.starton.io',
       headers: {
