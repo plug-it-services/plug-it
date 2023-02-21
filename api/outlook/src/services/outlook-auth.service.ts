@@ -95,7 +95,6 @@ export class OutlookAuthService {
       'https://login.microsoftonline.com/901cb4ca-b862-4029-9306-e5cd0f6d9f86/oauth2/v2.0/token',
     );
 
-    url.searchParams.append('grant_type', 'authorization_code');
     url.searchParams.append('code', code);
     url.searchParams.append(
       'client_id',
@@ -112,7 +111,9 @@ export class OutlookAuthService {
     );
     return axios.post(
       url.toString(),
-      {},
+      {
+        'grant_type': 'authorization_code',
+      },
       {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
