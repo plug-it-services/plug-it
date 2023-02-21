@@ -66,7 +66,12 @@ export class PublicController {
     const user: UserHeaderDto = JSON.parse(userHeader);
     const discordUser = await this.discordAuthService.retrieveByUserId(user.id);
 
-    await this.discordService.disconnectFromServer(discordUser.serverId);
+    try {
+      await this.discordService.disconnectFromServer(discordUser.serverId);
+    } catch (e) {
+      this.logger.error('Guild not found');
+    }
+    await this.discordAuthService.deleteByServerId(discordUser.serverId);
     try {
       await axios.post(
         this.configService.getOrThrow<string>('PLUGS_SERVICE_LOGGED_OUT_URL'),
@@ -80,6 +85,7 @@ export class PublicController {
       );
       throw new InternalServerErrorException('Cannot save disconnected state');
     }
+    this.logger.log(`User ${user.id} disconnected from discord`);
     return { message: 'success' };
   }
 
