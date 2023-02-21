@@ -4,7 +4,15 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Header from '../components/Header';
 import TriggerCard from '../components/TriggerCard';
 import Button from '../components/Button';
-import { deletePlug, editPlug, getPlugDetail, PlugDetail, Variable } from '../utils/api';
+import {
+  deletePlug,
+  editPlug,
+  getPlugDetail,
+  getServiceActions, getServiceEvents,
+  PlugDetail,
+  ServiceAction, ServiceEvent,
+  Variable,
+} from '../utils/api';
 import InputBar from '../components/InputBar';
 import MessageBox from '../components/MessageBox';
 import { StepInfo, StepType } from '../components/StepInfo.type';
@@ -57,12 +65,22 @@ const PlugEditPage = () => {
         event: {
           serviceName: selections[0].serviceName,
           id: selections[0].stepId,
-          fields: selections[0].fields,
+          fields: selections[0].fields
+            .filter((el) => el.modified || el.required)
+            .map((el) => ({
+              key: el.key,
+              value: el.value,
+            })),
         },
         actions: selections.slice(1).map((selection) => ({
           serviceName: selection.serviceName,
           id: selection.stepId,
-          fields: selection.fields,
+          fields: selection.fields
+            .filter((el) => el.modified || el.required)
+            .map((el) => ({
+              key: el.key,
+              value: el.value,
+            })),
         })),
       };
       await editPlug(editedPlugDetail);
@@ -74,6 +92,41 @@ const PlugEditPage = () => {
     }
   };
 
+  async function fillFieldsInformations(steps: StepInfo[]): Promise<StepInfo[]> {
+    const servicesToFetch: string[] = [];
+    servicesToFetch.push(steps[0].serviceName);
+    steps.slice(1).forEach((step) => {
+      if (!servicesToFetch.includes(step.serviceName, 1)) servicesToFetch.push(step.serviceName);
+    });
+    const promises: Promise<ServiceEvent[] | ServiceAction[]>[] = [
+      getServiceEvents(servicesToFetch[0]),
+      ...servicesToFetch.slice(1).map((service) => getServiceActions(service)),
+    ];
+    const details: (ServiceEvent[] | ServiceAction[])[] = await Promise.all(promises);
+    return steps.map((el, idx) => {
+      const step = el;
+      const serviceDetails = details[idx];
+      if (!serviceDetails)
+        throw new Error(`Cannot find service ${step.serviceName} details`);
+      const stepDetails = serviceDetails.find((detail) => detail.id === step.stepId);
+      if (!stepDetails)
+        throw new Error(`Cannot find step ${step.stepId} in service ${step.serviceName} details`);
+      step.fields = step.fields.map((field) => {
+        const fieldDetails = stepDetails.fields.find((detail) => detail.key === field.key);
+        if (!fieldDetails)
+          throw new Error(
+            `Cannot find field ${field.key} in step ${step.stepId} in service ${step.serviceName} details`
+          );
+        return {
+          ...field,
+          required: fieldDetails.required,
+          modified: field.value !== '' || field.value != null || field.required,
+        };
+      });
+      return step;
+    });
+  }
+
   useEffect(() => {
     const getPlug = async () => {
       if (!plugId) return;
@@ -81,7 +134,7 @@ const PlugEditPage = () => {
         const plug = await getPlugDetail(plugId);
         setPlugDetail(plug);
         setPlugName(plug.name);
-        const cards = [
+        let cards: StepInfo[] = [
           {
             serviceName: plug.event.serviceName,
             stepId: plug.event.id,
@@ -97,6 +150,7 @@ const PlugEditPage = () => {
             variables: [],
           })),
         ];
+        cards = await fillFieldsInformations(cards);
         setSelections(cards);
       } catch (err: any) {
         setError('Cannot get plug');

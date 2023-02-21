@@ -15,6 +15,14 @@ export class ApiError extends Error {
 }
 
 /*   Interfaces   */
+export type FieldEdition = {
+  key: string;
+  value: string;
+  modified?: boolean;
+  required?: boolean;
+};
+
+/*   Interfaces   */
 export type FieldValue = {
   key: string;
   value: string;
@@ -32,6 +40,7 @@ export interface Service {
   authType: 'none' | 'apiKey' | 'clientSecret' | 'oauth2';
   connected: boolean;
   icon: string;
+  color: string;
 }
 
 export interface ServiceEvent {
