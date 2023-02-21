@@ -24,7 +24,7 @@ export class GoogleSsoService implements SsoService {
 
     return {
       firstName: profileInfos.name,
-      lastName: profileInfos.family_name,
+      lastName: profileInfos.family_name ?? '',
       email: profileInfos.email,
     };
   }
@@ -37,7 +37,7 @@ export class GoogleSsoService implements SsoService {
 
     return {
       firstName: profileInfos.givenName,
-      lastName: profileInfos.family_name,
+      lastName: profileInfos.family_name ?? '',
       email: profileInfos.email,
     };
   }
