@@ -13,6 +13,7 @@ import { ApiKeyDto } from '../dto/ApiKeyDto';
 import { UserService } from '../services/user.service';
 import axios from 'axios';
 import { StartonService } from 'src/services/starton.service';
+import { WebHookService } from 'src/services/webhook.service';
 
 @Controller('public')
 export class PublicController {
@@ -22,6 +23,7 @@ export class PublicController {
     private userService: UserService,
     private configService: ConfigService,
     private startonService: StartonService,
+    private webhookService: WebHookService,
   ) {}
 
   @Post('/apiKey')
@@ -49,7 +51,15 @@ export class PublicController {
     const user: { id: number } = JSON.parse(userHeader);
 
     this.logger.log(`Receiving disconnect for user ${user.id}`);
+
+    const { apiKey } = await this.userService.getUserById(user.id);
+    const webhooks = await this.webhookService.findAllByUserId(user.id);
+
+    for (const webhook of webhooks) {
+      await this.startonService.deleteWatcher(apiKey, webhook.webhookId);
+    }
     await this.userService.delete(user.id);
+
     await axios.post(
       this.configService.getOrThrow<string>('PLUGS_SERVICE_LOGGED_OUT_URL'),
       {
