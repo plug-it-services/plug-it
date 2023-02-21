@@ -1,7 +1,6 @@
 import json
 import os
 import uuid
-from time import sleep
 
 import pika
 
@@ -18,6 +17,8 @@ connection = pika.BlockingConnection(pika.connection.URLParameters(os.environ.ge
 channel = connection.channel()
 channel.queue_declare(queue=os.environ.get('EVENT_INITIALIZATION_QUEUE'))
 channel.queue_bind(exchange='amq.direct', queue=os.environ.get('EVENT_INITIALIZATION_QUEUE'), routing_key=os.environ.get('EVENT_INITIALIZATION_QUEUE'))
+channel.queue_declare(queue=os.environ.get('EVENT_DISABLED_QUEUE'))
+channel.queue_bind(exchange='amq.direct', queue=os.environ.get('EVENT_DISABLED_QUEUE'), routing_key=os.environ.get('EVENT_DISABLED_QUEUE'))
 
 
 class ListenerController:
@@ -35,6 +36,20 @@ class ListenerController:
             chan.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
 
     @staticmethod
+    def dispose_event(chan, method, properties, body):
+        try:
+            msg = json.loads(body)
+            print('Disposing event {0} for user {1}...'.format(msg['eventId'], msg['userId']), flush=True)
+            if msg['eventId'] == 'repositoryUpdate':
+                ListenerController.disable_repository_update(msg)
+            print('Disposed event {0} for user {1}.'.format(msg['eventId'], msg['userId']), flush=True)
+            chan.basic_ack(delivery_tag=method.delivery_tag)
+        except Exception as e:
+            print(repr(e), flush=True)
+            chan.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
+
+
+    @staticmethod
     def fire_event(event_id, plug_id, user_id, variables):
         msg = {
             'serviceName': 'docker-hub',
@@ -48,6 +63,7 @@ class ListenerController:
     @staticmethod
     def start():
         channel.basic_consume(queue=os.environ.get('EVENT_INITIALIZATION_QUEUE'), on_message_callback=ListenerController.initialize_event, auto_ack=False)
+        channel.basic_consume(queue=os.environ.get('EVENT_DISABLED_QUEUE'), on_message_callback=ListenerController.dispose_event, auto_ack=False)
         channel.start_consuming()
 
     @staticmethod
@@ -69,4 +85,18 @@ class ListenerController:
             raise Exception("Failed to setup webhook for user {0}".format(msg['userId']))
 
         webhooks_service.save(Webhook(id=webhook_id, slug=slug, user_id=msg['userId'], repository=repository, plug_id=msg['plugId']))
+
+    @staticmethod
+    def disable_repository_update(msg):
+        print('Disabling repository update for plug {0} of user {1}...'.format(msg['plugId'], msg['userId']), flush=True)
+        conn = connections_service.get(msg['userId'])
+        if conn is None:
+            raise Exception("No connection found for user {0}".format(msg['userId']))
+        print('Authenticating user {0}...'.format(msg['userId']), flush=True)
+        jwt = hub_service.authenticate(conn.username, conn.token)
+        if jwt is None:
+            raise Exception("Failed to authenticate user {0}".format(msg['userId']))
+        webhook = webhooks_service.get_by_plug_id(msg['plugId'])
+        hub_service.delete_webhook(conn.username, webhook.repository, webhook.slug, jwt)
+        webhooks_service.delete(webhook.id)
 
