@@ -6,5 +6,5 @@ export class SsoLoginDto {
 
   @IsString()
   @IsOptional()
-  codeType: 'idToken' | 'accessToken' = 'idToken';
+  codeType: 'idToken' | 'accessToken';
 }
