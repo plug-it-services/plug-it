@@ -152,7 +152,7 @@ export class DiscordService {
     const guild = await this.client.guilds.fetch(serverId);
 
     this.logger.log(`Try to delete message ${messageId}`);
-    guild.channels.cache.forEach(async (channel) => {
+    for (const [, channel] of guild.channels.cache) {
       if (
         channel.type === ChannelType.GuildText ||
         channel.type === ChannelType.GuildAnnouncement
@@ -161,9 +161,10 @@ export class DiscordService {
         if (message) {
           await message.delete();
           this.logger.log(`Deleted message ${messageId}`);
+          return;
         }
       }
-    });
+    }
   }
 
   async sendMessageInThread(
@@ -283,7 +284,7 @@ export class DiscordService {
     );
     const guild = await this.client.guilds.fetch(serverId);
 
-    guild.channels.cache.forEach(async (channel) => {
+    for (const [, channel] of guild.channels.cache) {
       if (
         channel.type === ChannelType.GuildText ||
         channel.type === ChannelType.GuildAnnouncement
@@ -294,9 +295,10 @@ export class DiscordService {
           this.logger.log(
             `Sent reaction ${reaction} to message ${messageId} from server ${serverId}`,
           );
+          return;
         }
       }
-    });
+    }
   }
 
   async publishMessage(serverId: string, messageId: string): Promise<void> {
@@ -305,7 +307,7 @@ export class DiscordService {
     );
     const guild = await this.client.guilds.fetch(serverId);
 
-    guild.channels.cache.forEach(async (channel) => {
+    for (const [, channel] of guild.channels.cache) {
       if (
         channel.type === ChannelType.GuildText ||
         channel.type === ChannelType.GuildAnnouncement
@@ -316,8 +318,9 @@ export class DiscordService {
           this.logger.log(
             `Published message ${messageId} from server ${serverId}`,
           );
+          return;
         }
       }
-    });
+    }
   }
 }

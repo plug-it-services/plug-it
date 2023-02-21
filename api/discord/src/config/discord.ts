@@ -228,8 +228,8 @@ export default {
     },
     {
       id: 'unarchive_thread',
-      name: 'UnArchive a thread',
-      description: 'UnArchive a thread',
+      name: 'Unarchive a thread',
+      description: 'Unarchive a thread',
       variables: [],
       fields: [
         {
@@ -258,8 +258,8 @@ export default {
     },
     {
       id: 'unlock_thread',
-      name: 'UnLock a thread',
-      description: 'UnLock a thread',
+      name: 'Unlock a thread',
+      description: 'Unlock a thread',
       variables: [],
       fields: [
         {
@@ -363,7 +363,7 @@ export default {
           key: 'thread_id',
           type: 'string',
           displayName: 'Thread ID',
-          description: 'The ID of the thread to unlock',
+          description: 'The ID of the thread to add the user to',
           required: true,
         },
         {
@@ -385,7 +385,7 @@ export default {
           key: 'thread_id',
           type: 'string',
           displayName: 'Thread ID',
-          description: 'The ID of the thread to unlock',
+          description: 'The ID of the thread to remove the user from',
           required: true,
         },
         {
