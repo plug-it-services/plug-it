@@ -32,7 +32,7 @@ class HubService:
             headers={
                 'Authorization': 'Bearer {0}'.format(jwt)
          })
-        if response.status_code != 200:
+        if response.status_code != 201:
             print("Error while creating webhook: {0}".format(response.text), flush=True)
             return None
         return response.json()['slug']
