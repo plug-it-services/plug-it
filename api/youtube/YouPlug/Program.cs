@@ -64,6 +64,7 @@ builder.Services.AddDbContext<PlugDbContext>(options =>
 using (var context = new PlugDbContext(builder.Services.BuildServiceProvider().GetService<DbContextOptions<PlugDbContext>>()))
 {
     context.Database.EnsureCreated();
+    context.Database.Migrate();
 }
 
 var app = builder.Build();

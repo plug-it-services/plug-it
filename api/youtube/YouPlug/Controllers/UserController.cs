@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Text;
 using YouPlug.Db;
 using YouPlug.Dto;
@@ -34,6 +35,7 @@ namespace YouPlug.Controllers
         public ActionResult<OAuth2Redirect> OAuth2([FromHeader] string user, [FromBody] OAuthStart body)
         {
             Console.WriteLine("Received request from UserController.OAuth2");
+            Console.WriteLine("Received request from UserController.OAuth2");
             string? redirUri = Environment.GetEnvironmentVariable("OAUTH2_CALLBACK", EnvironmentVariableTarget.Process);
             string? clientId = Environment.GetEnvironmentVariable("CLIENT_ID", EnvironmentVariableTarget.Process);
 
@@ -51,30 +53,9 @@ namespace YouPlug.Controllers
 
             if (string.IsNullOrWhiteSpace(redirUri) || string.IsNullOrWhiteSpace(clientId))
             {
+                Console.WriteLine("Missing configuration! " + $"redirUri[{redirUri}], clientId[{clientId}]");
+                Console.WriteLine("Missing configuration! " + $"redirUri[{redirUri}], clientId[{clientId}]");
 
-                Console.WriteLine("A");
-                Console.WriteLine("B");
-                Console.WriteLine("C");
-                Console.WriteLine("D");
-                Console.WriteLine("E");
-                Console.WriteLine("F");
-
-                if (string.IsNullOrWhiteSpace(redirUri))
-                {
-                    Console.WriteLine("A");
-                } else
-                {
-                    Console.WriteLine("AH!");
-                }
-
-                if (string.IsNullOrWhiteSpace(clientId))
-                {
-                    Console.WriteLine("B");
-                } else
-                {
-                    Console.WriteLine("Cabane");
-                }
-                
                 GeneralDto.ErrorMessage errorMessage = new() {
                     message = "Internal server error occurred: Missing configuration!"
                 };
@@ -83,26 +64,25 @@ namespace YouPlug.Controllers
 
             Guid guid = Guid.NewGuid();
 
-            if (_plugDbContext.Auths.Find(guid.ToString()) != null)
+            var plugAuthModel = _plugDbContext.Auths.Find(userModel.id);
+            if (plugAuthModel != null)
             {
-                _plugDbContext.Auths.Update(new YouPlugAuthModel()
-                {
-                    id = guid.ToString(),
-                    userId = userModel.id,
-                    redirectUrl = body.redirectUrl,
-                    accessToken = ""
-                });
+                Console.WriteLine($"Found existing auth for user {userModel.id} with guid {plugAuthModel.id}. Updating with new guid...");
+                Console.WriteLine($"Found existing auth for user {userModel.id} with guid {plugAuthModel.id}. Updating with new guid...");
+                plugAuthModel.id = guid.ToString();
             }
             else
             {
+                Console.WriteLine($"No existing auth for user {userModel.id}. Creating...");
+                Console.WriteLine($"No existing auth for user {userModel.id}. Creating...");
                 _plugDbContext.Auths.Add(new YouPlugAuthModel()
                 {
                     id = guid.ToString(),
                     userId = userModel.id,
-                    redirectUrl = body.redirectUrl,
-                    accessToken = ""
+                    redirectUrl = body.redirectUrl
                 });
             }
+            _plugDbContext.SaveChanges();
 
             var oauth2Callback = "https://accounts.google.com/o/oauth2/v2/auth";
             oauth2Callback += "?client_id=" + clientId;
@@ -112,19 +92,25 @@ namespace YouPlug.Controllers
             oauth2Callback += "&access_type=offline";
             oauth2Callback += "&state=" + guid.ToString();
 
+            Console.WriteLine("Generated callback: " + oauth2Callback);
+            Console.WriteLine("Generated callback: " + oauth2Callback);
+
             OAuth2Redirect oAuth2Redirect = new() { url = oauth2Callback };
             return oAuth2Redirect;
         }
 
         [HttpGet("callback", Name = "OAuth2Callback")]
-        public async Task<ActionResult> Callback([FromQuery] string error, [FromQuery] string code, [FromQuery] string state)
+        public async Task<ActionResult> Callback([FromQuery] string? error, [FromQuery] string code, [FromQuery] string state)
         {
+            Console.WriteLine("Received request from UserController.Callback");
+            Console.WriteLine("Received request from UserController.Callback");
             if (!string.IsNullOrWhiteSpace(error))
             {
                 GeneralDto.ErrorMessage errorMessage = new()
                 {
                     message = "Internal server error occurred: " + error
                 };
+                Console.WriteLine("Error from UserController.Callback: " + error);
                 Console.WriteLine("Error from UserController.Callback: " + error);
                 return StatusCode(400, errorMessage);
             }
@@ -136,17 +122,33 @@ namespace YouPlug.Controllers
                     message = "Internal server error occurred: Missing code!"
                 };
                 Console.WriteLine("Error from UserController.Callback: Missing code!");
+                Console.WriteLine("Error from UserController.Callback: Missing code!");
                 return StatusCode(400, errorMessage);
             }
 
-            YouPlugAuthModel? auth = _plugDbContext.Auths.Find(state);
-
+            YouPlugAuthModel? auth;
+            try
+            {
+                auth = _plugDbContext.Auths.Where(a => a.id == state).First();
+            }
+            catch (Exception e)
+            {
+                GeneralDto.ErrorMessage errorMessage = new()
+                {
+                    message = "Internal server error occurred: " + e.Message
+                };
+                Console.WriteLine("Error during DB research UserController.Callback: " + e.Message);
+                Console.WriteLine("Error during DB research UserController.Callback: " + e.Message);
+                return StatusCode(500, errorMessage);
+            }
+            
             if (auth == null)
             {
                 GeneralDto.ErrorMessage errorMessage = new()
                 {
                     message = "Internal server error occurred: Missing/missmatch auth!"
                 };
+                Console.WriteLine("Error from UserController.Callback: Missing/missmatch auth!");
                 Console.WriteLine("Error from UserController.Callback: Missing/missmatch auth!");
                 return StatusCode(400, errorMessage);
             }
@@ -160,18 +162,18 @@ namespace YouPlug.Controllers
                     message = "Internal server error occurred: Missing response or refresh token!"
                 };
                 Console.WriteLine("Error from UserController.Callback: Missing response or refresh token!");
+                Console.WriteLine("Error from UserController.Callback: Missing response or refresh token!");
                 return StatusCode(400, errorMessage);
             }
 
-            var updatedPlugAuth = _plugDbContext.Auths.Update(new YouPlugAuthModel()
-            {
-                id = state,
-                accessToken = response.access_token,
-                expiresAt = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds() + response.expires_in,
-                refreshToken = response.refresh_token
-            });
+            auth.accessToken = response.access_token;
+            auth.expiresAt = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds() + response.expires_in;
+            auth.refreshToken = response.refresh_token;
+            _plugDbContext.SaveChanges();
 
-            return Redirect(updatedPlugAuth.Entity.redirectUrl);
+            Console.WriteLine("Successfully updated auth for user " + auth.userId + $"redirecting to {auth.redirectUrl}");
+            Console.WriteLine("Successfully updated auth for user " + auth.userId + $"redirecting to {auth.redirectUrl}");
+            return Redirect(auth.redirectUrl);
         }
 
         [HttpPost("disconnect", Name = "Disconnect")]
