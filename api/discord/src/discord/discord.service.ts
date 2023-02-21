@@ -23,7 +23,7 @@ export class DiscordService {
   ) {
     this.token = this.configService.getOrThrow<string>('DISCORD_TOKEN');
     this.client = new Client({
-      intents: ['Guilds'],
+      intents: ['Guilds', 'GuildMessages', 'MessageContent'],
     });
 
     this.client.on('ready', async () => {
@@ -31,7 +31,6 @@ export class DiscordService {
     });
 
     this.client.on('messageCreate', async (message) => {
-      this.logger.log('WTF IS HTS SHOT');
       try {
         if (
           message.author.bot ||
