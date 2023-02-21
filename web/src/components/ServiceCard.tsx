@@ -36,7 +36,7 @@ function ServiceCard({ service }: IServiceCardProps) {
     <Card
       className={'service-card'}
       sx={{
-        backgroundColor: `#718CDE`,
+        backgroundColor: service.color,
       }}
     >
       <div style={{ display: 'flex', flexDirection: 'row', gap: '10px', padding: '10px' }}>
