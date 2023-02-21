@@ -4,31 +4,69 @@ using Google.Apis.YouTube.v3.Data;
 using Google.Apis.Services;
 using Microsoft.EntityFrameworkCore;
 using YouPlug.Dto.Youtube;
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Util.Store;
+using Google.Apis.Auth.OAuth2.Flows;
+using Google.Apis.Auth.OAuth2.Responses;
 
 namespace YouPlug.Services
 {
+    
     public class TubeFetcher
     {
+        public static string[] Scopes = new string[] { YouTubeService.Scope.YoutubeReadonly };
+        
         private YouTubeService youtubeService;
 
         private List<ChannelDto> channels = new();
         private List<VideoDto> videos = new();
 
-        public TubeFetcher(string apiKey)
-        {
-            youtubeService = new YouTubeService(new BaseClientService.Initializer()
-            {
-                ApiKey = apiKey,
-                ApplicationName = GetType().ToString()
-            });
-            
-        }
 
-        private List<ChannelDto> GetSubscriptions(string channelId)
+        public TubeFetcher(string accessToken, string refreshToken)
+        {
+            try
+            {
+                TokenResponse token = new TokenResponse
+                {
+                    AccessToken = accessToken,
+                    RefreshToken = refreshToken
+                };
+
+                var cred = new UserCredential
+                    (new GoogleAuthorizationCodeFlow(
+                        new GoogleAuthorizationCodeFlow.Initializer()
+                        {
+                            ClientSecrets = new ClientSecrets()
+                            {
+                                ClientId = Environment.GetEnvironmentVariable("CLIENT_ID"),
+                                ClientSecret = Environment.GetEnvironmentVariable("CLIENT_SECRET")
+                            }
+                        }
+                        ),
+                        "user",
+                        token
+                    );
+
+                youtubeService = new YouTubeService(new BaseClientService.Initializer()
+                {
+                    ApplicationName = this.GetType().ToString(),
+                    HttpClientInitializer = cred
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error (TubeFetcher) : " + ex.Message);
+            }
+            
+            if (youtubeService == null)
+                throw new Exception("YoutubeService is null");
+        }
+        
+
+        public List<ChannelDto> GetSubscriptions()
         {
             List<ChannelDto> channels = new();
             var request = youtubeService.Subscriptions.List("snippet");
-            request.ChannelId = channelId;
             request.Mine = true;
 
             var response = request.Execute();
@@ -48,13 +86,13 @@ namespace YouPlug.Services
             return channels;
         }
 
-        private List<VideoDto> GetVideos(string channelId)
+        public List<VideoDto> GetVideos(string channelId)
         {
             List<VideoDto> videos = new();
             var request = youtubeService.Search.List("snippet");
             request.ChannelId = channelId;
             request.Order = SearchResource.ListRequest.OrderEnum.Date;
-            request.MaxResults = 5; // No need to query a lot of videos
+            request.MaxResults = 10; // No need to query a lot of videos
 
             var response = request.Execute();
             var searchResults = response.Items;

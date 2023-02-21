@@ -1,3 +1,4 @@
+using Google.Apis.YouTube.v3;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -100,7 +101,7 @@ namespace YouPlug.Controllers
             oauth2Callback += "?client_id=" + clientId;
             oauth2Callback += "&redirect_uri=" + redirUri;
             oauth2Callback += "&response_type=code";
-            oauth2Callback += "&scope=https://www.googleapis.com/auth/youtube.readonly";
+            oauth2Callback += "&scope=" + YouTubeService.Scope.YoutubeReadonly;
             oauth2Callback += "&access_type=offline";
             oauth2Callback += "&state=" + guid.ToString();
 
