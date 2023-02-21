@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Box, InputBase, IconButton } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
+import { MDBIcon } from 'mdb-react-ui-kit';
 
 export interface ISearchBarProps {
   placeholder: string;
@@ -15,23 +16,22 @@ function SearchBar({ placeholder, textColor, backgroundColor, borderColor, onCha
   const [searched, setSearched] = useState('');
 
   return (
-    <Box
-      component="form"
+    <div
       className="input-bar"
-      sx={{
+      style={{
         borderColor,
         backgroundColor,
       }}
     >
-      <IconButton
+      <MDBIcon
         type="submit"
-        sx={{ p: '10px' }}
+        style={{ fontSize: '10px' }}
         aria-label="search"
         onClick={() => onSearch(searched)}
         color="primary"
       >
         <SearchIcon />
-      </IconButton>
+      </MDBIcon>
       <InputBase
         sx={{ ml: 1, flex: 1 }}
         placeholder={placeholder}
@@ -45,7 +45,7 @@ function SearchBar({ placeholder, textColor, backgroundColor, borderColor, onCha
         }}
         style={{ color: textColor }}
       />
-    </Box>
+    </div>
   );
 }
 
