@@ -29,16 +29,20 @@ export class DiscordService {
 
   async sendPrivateMessage(
     userId: string,
-    message: string,
+    content: string,
   ): Promise<Message | undefined> {
     const user = await this.client.users.fetch(userId);
-    return await user.send(message);
+    const message = await user.send(content);
+    this.logger.log(
+      `Sent a private message to ${userId} (${user.tag}) with ${content}`,
+    );
+    return message;
   }
 
   async sendChannelMessage(
     serverId: string,
     channelId: string,
-    message: string,
+    content: string,
   ): Promise<Message | undefined> {
     const guild = await this.client.guilds.fetch(serverId);
     const channel = guild.channels.cache.get(channelId);
@@ -47,7 +51,9 @@ export class DiscordService {
       (channel.type === ChannelType.GuildText ||
         channel.type === ChannelType.GuildAnnouncement)
     ) {
-      return await channel.send(message);
+      const message = await channel.send(content);
+      this.logger.log(`Sent a message to channel ${channelId} with ${content}`);
+      return message;
     } else {
       this.logger.error(`Channel ${channelId} not found`);
     }
@@ -56,6 +62,7 @@ export class DiscordService {
   async disconnectFromServer(serverId: string): Promise<void> {
     const guild = await this.client.guilds.fetch(serverId);
     await guild.leave();
+    this.logger.log(`Disconnected from server ${serverId}`);
   }
 
   async createPublicThread(
@@ -86,7 +93,6 @@ export class DiscordService {
         }
       }
     }
-    return;
   }
 
   async createPrivateThread(
@@ -102,6 +108,9 @@ export class DiscordService {
     let thread: ThreadChannel | undefined;
 
     if (channel && channel.type === ChannelType.GuildText) {
+      this.logger.log(
+        `Try to create a private thread for the channel ${channelId}`,
+      );
       thread = await channel.threads.create({
         name,
         reason,
@@ -109,6 +118,7 @@ export class DiscordService {
         rateLimitPerUser,
         type: ChannelType.PrivateThread,
       });
+      this.logger.log(`Created a new private thread with id: ${thread.id}`);
     }
     return thread;
   }
@@ -127,19 +137,21 @@ export class DiscordService {
         }
       }
     }
-    return;
   }
 
   async deleteThread(serverId: string, threadId: string): Promise<void> {
+    this.logger.log(`Try to delete thread ${threadId} from server ${serverId}`);
     const thread = await this.getThread(serverId, threadId);
     if (thread) {
       await thread.delete();
+      this.logger.log(`Deleted thread ${threadId} from server ${serverId}`);
     }
   }
 
   async deleteMessage(serverId: string, messageId: string): Promise<void> {
     const guild = await this.client.guilds.fetch(serverId);
 
+    this.logger.log(`Try to delete message ${messageId}`);
     guild.channels.cache.forEach(async (channel) => {
       if (
         channel.type === ChannelType.GuildText ||
@@ -148,6 +160,7 @@ export class DiscordService {
         const message = await channel.messages.fetch(messageId);
         if (message) {
           await message.delete();
+          this.logger.log(`Deleted message ${messageId}`);
         }
       }
     });
@@ -156,11 +169,18 @@ export class DiscordService {
   async sendMessageInThread(
     serverId: string,
     threadId: string,
-    message: string,
+    content: string,
   ): Promise<Message | undefined> {
+    this.logger.log(
+      `Try to send a message in thread ${threadId} from server ${serverId}`,
+    );
     const thread = await this.getThread(serverId, threadId);
     if (thread) {
-      return await thread.send(message);
+      const message = await thread.send(content);
+      this.logger.log(
+        `Sent a message in thread ${threadId} from server ${serverId} with content ${message}`,
+      );
+      return message;
     }
   }
 
@@ -169,9 +189,13 @@ export class DiscordService {
     threadId: string,
     archive: boolean,
   ): Promise<void> {
+    this.logger.log(
+      `Try to archive thread ${threadId} from server ${serverId}`,
+    );
     const thread = await this.getThread(serverId, threadId);
     if (thread) {
       await thread.setArchived(archive);
+      this.logger.log(`Archived thread ${threadId} from server ${serverId}`);
     }
   }
 
@@ -180,9 +204,11 @@ export class DiscordService {
     threadId: string,
     lock: boolean,
   ): Promise<void> {
+    this.logger.log(`Try to lock thread ${threadId} from server ${serverId}`);
     const thread = await this.getThread(serverId, threadId);
     if (thread) {
       await thread.setLocked(lock);
+      this.logger.log(`Locked thread ${threadId} from server ${serverId}`);
     }
   }
 
@@ -191,6 +217,9 @@ export class DiscordService {
     messageId: string,
     content: string,
   ): Promise<Message | undefined> {
+    this.logger.log(
+      `Try to reply to message ${messageId} from server ${serverId}`,
+    );
     const guild = await this.client.guilds.fetch(serverId);
 
     for (const [, channel] of guild.channels.cache) {
@@ -201,11 +230,13 @@ export class DiscordService {
         const message = await channel.messages.fetch(messageId);
         if (message) {
           const newMessage = await message.reply(content);
+          this.logger.log(
+            `Replied to message ${messageId} from server ${serverId} with content ${newMessage}`,
+          );
           return newMessage;
         }
       }
     }
-    return;
   }
 
   async addMemberToThread(
@@ -213,9 +244,15 @@ export class DiscordService {
     threadId: string,
     userId: string,
   ): Promise<void> {
+    this.logger.log(
+      `Try to add member ${userId} to thread ${threadId} from server ${serverId}`,
+    );
     const thread = await this.getThread(serverId, threadId);
     if (thread) {
       await thread.members.add(userId);
+      this.logger.log(
+        `Added member ${userId} to thread ${threadId} from server ${serverId}`,
+      );
     }
   }
 
@@ -224,9 +261,15 @@ export class DiscordService {
     threadId: string,
     userId: string,
   ): Promise<void> {
+    this.logger.log(
+      `Try to remove member ${userId} from thread ${threadId} from server ${serverId}`,
+    );
     const thread = await this.getThread(serverId, threadId);
     if (thread) {
       await thread.members.remove(userId);
+      this.logger.log(
+        `Removed member ${userId} from thread ${threadId} from server ${serverId}`,
+      );
     }
   }
 
@@ -235,6 +278,9 @@ export class DiscordService {
     messageId: string,
     reaction: string,
   ): Promise<void> {
+    this.logger.log(
+      `Try to send reaction ${reaction} to message ${messageId} from server ${serverId}`,
+    );
     const guild = await this.client.guilds.fetch(serverId);
 
     guild.channels.cache.forEach(async (channel) => {
@@ -245,12 +291,18 @@ export class DiscordService {
         const message = await channel.messages.fetch(messageId);
         if (message) {
           await message.react(reaction);
+          this.logger.log(
+            `Sent reaction ${reaction} to message ${messageId} from server ${serverId}`,
+          );
         }
       }
     });
   }
 
   async publishMessage(serverId: string, messageId: string): Promise<void> {
+    this.logger.log(
+      `Try to publish message ${messageId} from server ${serverId}`,
+    );
     const guild = await this.client.guilds.fetch(serverId);
 
     guild.channels.cache.forEach(async (channel) => {
@@ -261,6 +313,9 @@ export class DiscordService {
         const message = await channel.messages.fetch(messageId);
         if (message) {
           await message.crosspost();
+          this.logger.log(
+            `Published message ${messageId} from server ${serverId}`,
+          );
         }
       }
     });
