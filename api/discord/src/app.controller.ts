@@ -20,7 +20,9 @@ export class AppController {
     this.logger.log(`Received event trigger: ${JSON.stringify(msg)}`);
     try {
       const { actionId, userId, plugId, runId } = msg;
-      const { serverId } = await this.discordAuthService.retrieveByUserId(userId);
+      const { serverId } = await this.discordAuthService.retrieveByUserId(
+        userId,
+      );
       let variables = [];
 
       switch (actionId) {
