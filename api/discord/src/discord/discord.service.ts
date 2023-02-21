@@ -7,6 +7,8 @@ import {
   Message,
 } from 'discord.js';
 import { ConfigService } from '@nestjs/config';
+import { DiscordCommandService } from './discordCommand.service';
+import { AmqpService } from '../amqp/amqp.service';
 
 @Injectable()
 export class DiscordService {
@@ -14,7 +16,11 @@ export class DiscordService {
   private client: Client;
   private logger = new Logger(DiscordService.name);
 
-  constructor(private configService: ConfigService) {
+  constructor(
+    private configService: ConfigService,
+    private discordCommandService: DiscordCommandService,
+    private amqpService: AmqpService,
+  ) {
     this.token = this.configService.getOrThrow<string>('DISCORD_TOKEN');
     this.client = new Client({
       intents: ['Guilds'],
@@ -22,6 +28,49 @@ export class DiscordService {
 
     this.client.on('ready', async () => {
       this.logger.log('Bot Online!');
+    });
+
+    this.client.on('messageCreate', async (message) => {
+      try {
+        if (
+          message.author.bot ||
+          !message.guild ||
+          message.channel.type === ChannelType.DM
+        ) {
+          return;
+        }
+
+        const commands = await this.discordCommandService.findByServerId(
+          message.guild.id,
+        );
+        for (const { command, userId, plugId } of commands) {
+          if (message.content == command) {
+            const variables = [
+              {
+                key: 'message_id',
+                value: message.id,
+              },
+              {
+                key: 'author_id',
+                value: message.author.id,
+              },
+            ];
+
+            await this.amqpService.publishEvent(
+              'plugs_events',
+              'command',
+              plugId,
+              userId,
+              variables,
+            );
+            this.logger.log(`Published command for ${userId}`);
+          }
+        }
+      } catch (e) {
+        this.logger.error(
+          `Error when looking into this message ${JSON.stringify(message)}`,
+        );
+      }
     });
 
     this.client.login(this.token);

@@ -17,6 +17,7 @@ import { DiscordAuthService } from 'src/discord/discordAuth.service';
 import Oauth2StartDto from 'src/dto/Oauth2Start.dto';
 import UserHeaderDto from 'src/dto/UserHeader.dto';
 import { v4 as uuidv4 } from 'uuid';
+import { DiscordCommandService } from '../discord/discordCommand.service';
 
 @Controller('public')
 export class PublicController {
@@ -25,6 +26,7 @@ export class PublicController {
     private discordService: DiscordService,
     private discordAuthService: DiscordAuthService,
     private configService: ConfigService,
+    private discordCommandService: DiscordCommandService,
   ) {}
 
   @Post('oauth2')
@@ -72,6 +74,7 @@ export class PublicController {
       this.logger.error('Guild not found');
     }
     await this.discordAuthService.deleteByServerId(discordUser.serverId);
+    await this.discordCommandService.deleteAllCommandsByUserId(user.id);
     try {
       await axios.post(
         this.configService.getOrThrow<string>('PLUGS_SERVICE_LOGGED_OUT_URL'),
