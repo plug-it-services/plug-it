@@ -138,7 +138,7 @@ export class AppController {
             (field: any) => field.key === 'thread_id',
           ).value;
           const messageContent3 = msg.fields.find(
-            (field: any) => field.key === 'content',
+            (field: any) => field.key === 'message',
           ).value;
 
           const message3 = await this.discordService.sendMessageInThread(
