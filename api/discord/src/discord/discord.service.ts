@@ -72,14 +72,16 @@ export class DiscordService {
       if (channel.type === ChannelType.GuildText) {
         const message = await channel.messages.fetch(messageId);
         if (message) {
-          this.logger.log(`try to create a thread for the message ${message.id}`);
+          this.logger.log(
+            `Try to create a public thread for the message ${message.id}`,
+          );
           const thread = await message.startThread({
             name,
             reason,
             autoArchiveDuration,
             rateLimitPerUser,
           });
-          this.logger.log(`Created a new thread with id: ${thread.id}`);
+          this.logger.log(`Created a new public thread with id: ${thread.id}`);
           return thread;
         }
       }
