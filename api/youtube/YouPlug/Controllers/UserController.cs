@@ -185,10 +185,23 @@ namespace YouPlug.Controllers
 
             // Sending to plug that auth was successful
             PlugAuthUser plugAuthUser = new() { UserId = auth.userId };
+            string? plugAuthUserUrl = Environment.GetEnvironmentVariable("PLUGS_SERVICE_LOGGED_IN_URL", EnvironmentVariableTarget.Process);
+
+            if (string.IsNullOrWhiteSpace(plugAuthUserUrl))
+            {
+                GeneralDto.ErrorMessage errorMessage = new()
+                {
+                    message = "Internal server error occurred: Missing PLUGS_SERVICE_LOGGED_IN_URL env var!"
+                };
+                Console.WriteLine("Error from UserController.Callback: Missing PLUGS_SERVICE_LOGGED_IN_URL env var!");
+                Console.WriteLine("Error from UserController.Callback: Missing PLUGS_SERVICE_LOGGED_IN_URL env var!");
+                return StatusCode(500, errorMessage);
+            }
+
             try
             {
                 var client = new HttpClient();
-                var request = new HttpRequestMessage(HttpMethod.Post, Environment.GetEnvironmentVariable("PLUGS_SERVICE_LOGGED_IN_URL", EnvironmentVariableTarget.Process));
+                var request = new HttpRequestMessage(HttpMethod.Post, plugAuthUserUrl);
                 request.Content = new StringContent(plugAuthUser.ToJson(), Encoding.UTF8, "application/json");
                 var responsePlugLog = await client.SendAsync(request);
                 if (responsePlugLog.StatusCode != System.Net.HttpStatusCode.Created)
@@ -197,13 +210,12 @@ namespace YouPlug.Controllers
             }
             catch (HttpRequestException ex)
             {
-                Console.WriteLine("An error occured while sending plug registration: " + ex.Message);
                 GeneralDto.ErrorMessage errorMessage = new()
                 {
                     message = "Internal server error occurred: Error during plug login notify"
                 };
-                Console.WriteLine("Error from UserController.Callback: Error during plug login notify");
-                Console.WriteLine("Error from UserController.Callback: Error during plug login notify");
+                Console.WriteLine("An error occured while sending plug registration: " + ex.Message);
+                Console.WriteLine("An error occured while sending plug registration: " + ex.Message);
                 return StatusCode(500, errorMessage);
             }
 
@@ -213,10 +225,59 @@ namespace YouPlug.Controllers
         }
 
         [HttpPost("disconnect", Name = "Disconnect")]
-        public ActionResult Disconnect([FromHeader] string user)
+        public async Task<ActionResult> Disconnect([FromHeader] string user)
         {
-            GeneralDto.ErrorMessage msg = new() { message = "Successfully disconnected!" };
-            return StatusCode(200, msg);
+            Console.WriteLine("Received request from UserController.Disconnect" + $"user: {user}");
+            Console.WriteLine("Received request from UserController.Disconnect" + $"user: {user}");
+            UserModel? userModel = UserModel.FromJson(user);
+
+            if (userModel == null)
+            {
+                GeneralDto.ErrorMessage errorMessage = new()
+                {
+                    message = "Internal server error occurred: Missing user!"
+                };
+                Console.WriteLine("Error from UserController.Disconnect: Missing user!");
+                Console.WriteLine("Error from UserController.Disconnect: Missing user!");
+                return StatusCode(400, errorMessage);
+            }
+
+            PlugAuthUser plugAuthUser = new() { UserId = userModel.id };
+            string? plugAuthUserUrl = Environment.GetEnvironmentVariable("PLUGS_SERVICE_LOGGED_OUT_URL", EnvironmentVariableTarget.Process);
+
+            if (string.IsNullOrWhiteSpace(plugAuthUserUrl))
+            {
+                GeneralDto.ErrorMessage errorMessage = new()
+                {
+                    message = "Internal server error occurred: Missing PLUGS_SERVICE_LOGGED_IN_URL env var!"
+                };
+                Console.WriteLine("Error from UserController.Callback: Missing PLUGS_SERVICE_LOGGED_IN_URL env var!");
+                Console.WriteLine("Error from UserController.Callback: Missing PLUGS_SERVICE_LOGGED_IN_URL env var!");
+                return StatusCode(500, errorMessage);
+            }
+            
+            try
+            {
+                var client = new HttpClient();
+                var request = new HttpRequestMessage(HttpMethod.Post, plugAuthUserUrl);
+                request.Content = new StringContent(plugAuthUser.ToJson(), Encoding.UTF8, "application/json");
+                var responsePlugLog = await client.SendAsync(request);
+                if (responsePlugLog.StatusCode != System.Net.HttpStatusCode.Created)
+                    throw new HttpRequestException("Plug login notify failed, the returned status code don't match");
+
+            }
+            catch (HttpRequestException ex)
+            {
+                GeneralDto.ErrorMessage errorMessage = new()
+                {
+                    message = "Internal server error occurred: Error during plug login notify"
+                };
+                Console.WriteLine("An error occured while sending plug registration: " + ex.Message);
+                Console.WriteLine("An error occured while sending plug registration: " + ex.Message);
+                return StatusCode(500, errorMessage);
+            }
+
+            return Ok();
         }
     }
 }
