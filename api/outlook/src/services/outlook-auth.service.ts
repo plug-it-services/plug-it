@@ -95,24 +95,15 @@ export class OutlookAuthService {
       'https://login.microsoftonline.com/901cb4ca-b862-4029-9306-e5cd0f6d9f86/oauth2/v2.0/token',
     );
 
-    url.searchParams.append('code', code);
-    url.searchParams.append(
-      'client_id',
-      this.configService.getOrThrow<string>('CLIENT_ID'),
-    );
-    url.searchParams.append(
-      'client_secret',
-      this.configService.getOrThrow<string>('CLIENT_SECRET'),
-    );
-    url.searchParams.append('code_verifier', codeVerifier);
-    url.searchParams.append(
-      'redirect_uri',
-      this.configService.getOrThrow<string>('OAUTH2_CALLBACK'),
-    );
     return axios.post(
       url.toString(),
       {
         'grant_type': 'authorization_code',
+        'code': code,
+        'client_id': this.configService.getOrThrow<string>('CLIENT_ID'),
+        'client_secret': this.configService.getOrThrow<string>('CLIENT_SECRET'),
+        'code_verifier': codeVerifier,
+        'redirect_uri': this.configService.getOrThrow<string>('OAUTH2_CALLBACK'),
       },
       {
         headers: {
@@ -145,19 +136,13 @@ export class OutlookAuthService {
       'https://login.microsoftonline.com/901cb4ca-b862-4029-9306-e5cd0f6d9f86/oauth2/V2.0/token',
     );
 
-    url.searchParams.append('grant_type', 'refresh_token');
-    url.searchParams.append('refresh_token', auth.refreshToken);
-    url.searchParams.append(
-      'client_id',
-      this.configService.getOrThrow<string>('CLIENT_ID'),
-    );
-    url.searchParams.append(
-      'client_secret',
-      this.configService.getOrThrow<string>('CLIENT_SECRET'),
-    );
     const response = await axios.post(
       url.toString(),
-      {},
+      {
+        'grant_type': 'refresh_token',
+        'client_id': this.configService.getOrThrow<string>('CLIENT_ID'),
+        'client_secret': this.configService.getOrThrow<string>('CLIENT_SECRET'),
+      },
       {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
