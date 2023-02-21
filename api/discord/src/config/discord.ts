@@ -3,7 +3,36 @@ export default {
   authType: 'oauth2',
   icon: '/images/discord_icon.png',
   color: '#7289da',
-  events: [],
+  events: [
+    {
+      id: 'command',
+      name: 'Command',
+      description: 'Trigger when a command is sent like !hello',
+      variables: [
+        {
+          key: 'message_id',
+          type: 'string',
+          displayName: 'Message ID',
+          description: 'The ID of the message that used the command',
+        },
+        {
+          key: 'author_id',
+          type: 'string',
+          displayName: 'Author ID',
+          description: 'The ID of the user that used the command',
+        },
+      ],
+      fields: [
+        {
+          key: 'command',
+          type: 'string',
+          displayName: 'Command',
+          description: 'The command that will trigger the event',
+          required: true,
+        },
+      ],
+    },
+  ],
   actions: [
     {
       id: 'pm',

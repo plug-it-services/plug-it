@@ -33,12 +33,14 @@ export class AmqpService {
   async publishEvent(
     queue: string,
     stepId: string,
+    plugId: string,
     userId: number,
     variables: { key: string; value: string }[],
   ) {
     const msg = {
       serviceName: 'discord',
       eventId: stepId,
+      plugId,
       userId,
       variables,
     };

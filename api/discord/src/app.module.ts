@@ -8,6 +8,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DiscordAuthEntity } from './entities/discordAuth.entity';
 import { DiscordAuthService } from './discord/discordAuth.service';
 import { AmqpService } from './amqp/amqp.service';
+import { DiscordCommandEntity } from './entities/discordCommand.entity';
+import { DiscordCommandService } from './discord/discordCommand.service';
 
 @Module({
   imports: [
@@ -40,14 +42,19 @@ import { AmqpService } from './amqp/amqp.service';
           database: configService.get<string>('POSTGRES_DB'),
           // TODO need to remove it in production
           synchronize: true,
-          entities: [DiscordAuthEntity],
+          entities: [DiscordAuthEntity, DiscordCommandEntity],
         };
       },
     }),
-    TypeOrmModule.forFeature([DiscordAuthEntity]),
+    TypeOrmModule.forFeature([DiscordAuthEntity, DiscordCommandEntity]),
   ],
   controllers: [AppController, PublicController],
-  providers: [DiscordService, DiscordAuthService, AmqpService],
+  providers: [
+    DiscordService,
+    DiscordAuthService,
+    AmqpService,
+    DiscordCommandService,
+  ],
 })
 export class AppModule {
   constructor(

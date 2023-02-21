@@ -3,6 +3,7 @@ import { Controller, Logger } from '@nestjs/common';
 import { AmqpService } from './amqp/amqp.service';
 import { DiscordService } from './discord/discord.service';
 import { DiscordAuthService } from './discord/discordAuth.service';
+import { DiscordCommandService } from './discord/discordCommand.service';
 
 @Controller()
 export class AppController {
@@ -11,6 +12,7 @@ export class AppController {
     private discordService: DiscordService,
     private discordAuthService: DiscordAuthService,
     private readonly amqpService: AmqpService,
+    private discordCommandService: DiscordCommandService,
   ) {}
 
   @RabbitSubscribe({
@@ -278,9 +280,46 @@ export class AppController {
     queue: 'plug_event_discord_initialize',
   })
   async listenForEvents(msg: any) {
-    this.logger.log(`Received event initialize: ${JSON.stringify(msg)}`);
-    const uid = msg.userId;
+    try {
+      this.logger.log(`Received event initialize: ${JSON.stringify(msg)}`);
+      const { plugId, userId, eventId } = msg;
+      const user = await this.discordAuthService.retrieveByUserId(userId);
+      if (!user) {
+        this.logger.log(`User ${userId} not found`);
+        return new Nack(false);
+      }
 
-    // TODO: Implement
+      switch (eventId) {
+        case 'command':
+          const command = msg.fields.find(
+            (field: any) => field.key === 'command',
+          ).value;
+
+          await this.discordCommandService.registerCommand(
+            userId,
+            plugId,
+            command,
+            user.serverId!,
+          );
+          break;
+      }
+    } catch (e) {
+      this.logger.error(`Error while initializing event : ${e}`);
+      return new Nack(false);
+    }
+  }
+
+  @RabbitSubscribe({
+    queue: 'plug_event_discord_disabled',
+  })
+  async disableEvent(msg: any) {
+    try {
+      this.logger.log(`Received event disable: ${JSON.stringify(msg)}`);
+      const { plugId, userId, eventId } = msg;
+      await this.discordCommandService.deleteCommand(plugId);
+    } catch (e) {
+      this.logger.error(`Error while disabling event : ${e}`);
+      return new Nack(false);
+    }
   }
 }
