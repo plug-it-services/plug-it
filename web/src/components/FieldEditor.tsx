@@ -74,9 +74,8 @@ export function FieldEditor({
           }}
         />
       )}
-
       <InputBar
-        placeholder={'Write the wanted value and use variables if needed!'}
+        placeholder={fieldKey}
         backgroundColor={'#2757C9'}
         borderColor={'#2757C9'}
         textColor={'white'}
