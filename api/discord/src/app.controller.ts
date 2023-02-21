@@ -18,11 +18,11 @@ export class AppController {
   })
   async triggerAction(msg: any) {
     this.logger.log(`Received event trigger: ${JSON.stringify(msg)}`);
-    const { actionId, userId, plugId, runId } = msg;
-    const { serverId } = await this.discordAuthService.retrieveByUserId(userId);
-    let variables = [];
-
     try {
+      const { actionId, userId, plugId, runId } = msg;
+      const { serverId } = await this.discordAuthService.retrieveByUserId(userId);
+      let variables = [];
+
       switch (actionId) {
         case 'pm':
           const messageContent = msg.fields.find(
@@ -258,18 +258,18 @@ export class AppController {
           await this.discordService.deleteMessage(serverId, messageId5);
           break;
       }
+      await this.amqpService.publishAction(
+        actionId,
+        plugId,
+        runId,
+        userId,
+        variables,
+      );
     } catch (err) {
       console.error(err);
       this.logger.log("Can't execute an action in discord", err);
       return new Nack(false);
     }
-    await this.amqpService.publishAction(
-      actionId,
-      plugId,
-      runId,
-      userId,
-      variables,
-    );
   }
 
   @RabbitSubscribe({
