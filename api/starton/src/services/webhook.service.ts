@@ -24,6 +24,10 @@ export class WebHookService {
     });
   }
 
+  async findAllByUserId(userId: number): Promise<WebHookEntity[]> {
+    return this.webhookRepository.findBy({ userId });
+  }
+
   async create(
     uuid: string,
     userId: number,
