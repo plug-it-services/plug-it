@@ -31,6 +31,7 @@ export class DiscordService {
     });
 
     this.client.on('messageCreate', async (message) => {
+      this.logger.log('WTF IS HTS SHOT');
       try {
         if (
           message.author.bot ||
@@ -39,6 +40,9 @@ export class DiscordService {
         ) {
           return;
         }
+        this.logger.log(
+          `new message from ${message.author.id} with content ${message.content}`,
+        );
 
         const commands = await this.discordCommandService.findByServerId(
           message.guild.id,
