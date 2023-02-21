@@ -29,6 +29,7 @@ export class DiscordAuthService {
           serverId,
         },
       );
+      this.logger.log(`Updated discord auth for user ${userId}`);
     } else {
       await this.discordAuthRepository.save({
         id: state,
@@ -36,15 +37,21 @@ export class DiscordAuthService {
         redirectUrl,
         serverId,
       });
+      this.logger.log(`Saved discord auth for user ${userId}`);
     }
     return state;
   }
 
-  async retrieveByState(state: string) {
+  async retrieveByState(state: string): Promise<DiscordAuthEntity | null> {
     return this.discordAuthRepository.findOneBy({ id: state });
   }
 
-  async retrieveByUserId(userId: number) {
+  async retrieveByUserId(userId: number): Promise<DiscordAuthEntity | null> {
     return this.discordAuthRepository.findOneBy({ userId });
+  }
+
+  async deleteByServerId(serverId: string) {
+    await this.discordAuthRepository.delete({ serverId });
+    this.logger.log(`Deleted discord auth for server ${serverId}`);
   }
 }
