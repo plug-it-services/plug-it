@@ -1,29 +1,20 @@
 import React, { useEffect, useState } from 'react';
 
 import {
-  Select,
-  MenuItem,
-  InputLabel,
-  FormControl,
-  Card,
-  CardContent,
-  Typography,
   Accordion,
   AccordionSummary,
+  Card,
+  CardContent,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  Typography,
 } from '@mui/material';
 import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import {
-  Service,
-  ServiceEvent,
-  ServiceAction,
-  FieldValue,
-  Variable,
-  getServices,
-  getServiceEvents,
-  getServiceActions,
-} from '../utils/api';
+import { getServiceActions, getServiceEvents, getServices, Service, ServiceAction, ServiceEvent } from '../utils/api';
 import MessageBox from './MessageBox';
 import { FieldEditor, VariableReference } from './FieldEditor';
 import { StepInfo, StepType } from './StepInfo.type';
@@ -71,6 +62,8 @@ function TriggerCard({ selected, availableVariables, onSelectedChange, onDelete,
     selected.fields = found.fields.map((field) => ({
       key: field.key,
       value: '',
+      modified: false,
+      required: field.required ?? false,
     }));
     // eslint-disable-next-line no-param-reassign
     selected.variables = found.variables;
@@ -140,11 +133,12 @@ function TriggerCard({ selected, availableVariables, onSelectedChange, onDelete,
     );
   }
 
-  async function onFieldChange(key: string, value: string) {
+  async function onFieldChange(editedKey: string, newValue: string) {
     // eslint-disable-next-line no-param-reassign
-    selected.fields = selected.fields.map((field) => ({
-      key: field.key,
-      value: field.key === key ? value : field.value,
+    selected.fields = selected.fields.map(({ value, modified, ...rest }) => ({
+      value: rest.key === editedKey ? newValue : value,
+      modified: rest.key === editedKey ? true : modified,
+      ...rest,
     }));
     onSelectedChange(selected);
   }
@@ -183,7 +177,7 @@ function TriggerCard({ selected, availableVariables, onSelectedChange, onDelete,
             <div style={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>
               <TipsAndUpdatesIcon style={{ color: 'white', fontSize: '30px' }} />
               <Typography variant="h5" component="div" color={'white'}>
-                {'Trigger'}
+                {selected.type === StepType.EVENT ? 'Trigger' : 'Action'}
               </Typography>
             </div>
             {selected.type === StepType.ACTION && (

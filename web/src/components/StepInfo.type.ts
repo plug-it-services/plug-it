@@ -1,4 +1,4 @@
-import { FieldValue, Variable } from '../utils/api';
+import { FieldEdition, FieldValue, Variable } from '../utils/api';
 
 export enum StepType {
   EVENT,
@@ -9,6 +9,6 @@ export type StepInfo = {
   type: StepType;
   serviceName: string;
   stepId: string;
-  fields: FieldValue[];
+  fields: FieldEdition[];
   variables: Variable[];
 };

@@ -30,12 +30,22 @@ const PlugCreatePage = () => {
       event: {
         serviceName: selections[0].serviceName,
         id: selections[0].stepId,
-        fields: selections[0].fields,
+        fields: selections[0].fields
+          .filter((el) => el.modified || el.required)
+          .map((el) => ({
+            key: el.key,
+            value: el.value,
+          })),
       },
       actions: selections.slice(1).map((selection) => ({
         serviceName: selection.serviceName,
         id: selection.stepId,
-        fields: selection.fields,
+        fields: selection.fields
+          .filter((el) => el.modified || el.required)
+          .map((el) => ({
+            key: el.key,
+            value: el.value,
+          })),
       })),
     };
     // Post Plug
