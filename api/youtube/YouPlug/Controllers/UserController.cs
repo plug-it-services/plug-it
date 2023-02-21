@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using YouPlug.Db;
 using YouPlug.Dto;
 using YouPlug.Models;
@@ -22,6 +24,16 @@ namespace YouPlug.Controllers
         public class OAuth2Redirect
         {
             public string url { get; set; }
+        }
+
+        public class PlugAuthUser
+        {
+            [JsonPropertyName("userId")] public uint UserId { get; set; }
+
+            public string ToJson()
+            {
+                return JsonSerializer.Serialize(this);
+            }
         }
 
         public UserController(ILogger<UserController> logger, IConfiguration config, PlugDbContext plugDbContext)
@@ -170,6 +182,30 @@ namespace YouPlug.Controllers
             auth.expiresAt = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds() + response.expires_in;
             auth.refreshToken = response.refresh_token;
             _plugDbContext.SaveChanges();
+
+            // Sending to plug that auth was successful
+            PlugAuthUser plugAuthUser = new() { UserId = auth.userId };
+            try
+            {
+                var client = new HttpClient();
+                var request = new HttpRequestMessage(HttpMethod.Post, Environment.GetEnvironmentVariable("PLUGS_SERVICE_LOGGED_IN_URL", EnvironmentVariableTarget.Process));
+                request.Content = new StringContent(plugAuthUser.ToJson(), Encoding.UTF8, "application/json");
+                var responsePlugLog = await client.SendAsync(request);
+                if (responsePlugLog.StatusCode != System.Net.HttpStatusCode.Created)
+                    throw new HttpRequestException("Plug login notify failed, the returned status code don't match");
+
+            }
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine("An error occured while sending plug registration: " + ex.Message);
+                GeneralDto.ErrorMessage errorMessage = new()
+                {
+                    message = "Internal server error occurred: Error during plug login notify"
+                };
+                Console.WriteLine("Error from UserController.Callback: Error during plug login notify");
+                Console.WriteLine("Error from UserController.Callback: Error during plug login notify");
+                return StatusCode(500, errorMessage);
+            }
 
             Console.WriteLine("Successfully updated auth for user " + auth.userId + $"redirecting to {auth.redirectUrl}");
             Console.WriteLine("Successfully updated auth for user " + auth.userId + $"redirecting to {auth.redirectUrl}");
