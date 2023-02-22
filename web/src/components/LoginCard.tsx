@@ -26,7 +26,9 @@ function LoginCard({ title, description, onClick }: ILoginCardProps) {
           {title}
         </MDBTypography>
         <MDBTypography tag="p" color="white">
-          <a className={'text-white text-decoration-underline'} href={'/signup'}>Create account</a>
+          <a className={'text-white text-decoration-underline'} href={'/signup'}>
+            Create account
+          </a>
         </MDBTypography>
         <MDBRow className={'py-3'}>
           <InputBar
