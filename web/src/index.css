@@ -70,15 +70,15 @@ code {
 }
 
 .plug-card {
-  background-color: #718CDE;
-  width: 320px; /* TODO make this responsive */
-  height: 100%;
+  background-color: #718CDE!important;
+  /*width: 320px; /* TODO make this responsive
+  height: 100%;*/
   border-radius: 8px;
   box-shadow: 0 0 10px 0 rgba(0,0,0,0.30);
-  display: flex;
+  /*display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 10px;
+  padding: 10px;*/
 }
 
 .input-bar {
