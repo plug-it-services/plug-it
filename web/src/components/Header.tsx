@@ -15,7 +15,7 @@ import {
   MDBDropdownToggle,
   MDBDropdownMenu,
   MDBDropdownItem,
-  MDBCollapse,
+  MDBCollapse, MDBAccordionItem, MDBAccordion,
 } from 'mdb-react-ui-kit';
 import Button from './Button';
 import AccountTile from './AccountTile';
@@ -133,6 +133,32 @@ function Header({ title }: IHeaderProps) {
                   window.location.href = '/plugs';
                 }}
               />
+            </MDBNavbarItem>
+            <MDBNavbarItem className={'d-lg-none'}>
+              <MDBDropdown className={'m-0'}>
+                <MDBDropdownToggle tag='a' className='nav-link' role='button'>
+                  My account
+                </MDBDropdownToggle>
+                <MDBDropdownMenu>
+                  <MDBDropdownItem header>{`${user?.firstname} ${user?.lastname} (${user?.id})`}</MDBDropdownItem>
+                  <MDBDropdownItem link onClick={onDisconnect}>
+                    Disconnect
+                  </MDBDropdownItem>
+                </MDBDropdownMenu>
+              </MDBDropdown>
+            </MDBNavbarItem>
+            <MDBNavbarItem className={'d-none d-lg-block'}>
+              <MDBDropdown>
+                <MDBDropdownToggle tag='button' className='btn-primary ripple-surface py-2 px-3 border-0' style={{borderRadius: '4px', fontSize: '12px'}} role='button'>
+                  <MDBIcon fas icon='user' />
+                </MDBDropdownToggle>
+                <MDBDropdownMenu>
+                  <MDBDropdownItem header>{`${user?.firstname} ${user?.lastname} (${user?.id})`}</MDBDropdownItem>
+                  <MDBDropdownItem link onClick={onDisconnect}>
+                    Disconnect
+                  </MDBDropdownItem>
+                </MDBDropdownMenu>
+              </MDBDropdown>
             </MDBNavbarItem>
           </MDBNavbarNav>
         </MDBCollapse>
