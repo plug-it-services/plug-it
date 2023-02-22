@@ -13,8 +13,8 @@ const Router = () => (
   <BrowserRouter>
     <Routes>
       <Route path="/" element={<NavigablePage page={<HomePage />} />} />
-      <Route path="/login" element={<NavigablePage page={<LoginPage />} />} />
-      <Route path="/signup" element={<NavigablePage page={<SignupPage />} />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/signup" element={<SignupPage />} />
       <Route path="/services" element={<NavigablePage page={<ServicesPage />} />} />
       <Route path="/plugs" element={<NavigablePage page={<PlugsPage />} />} />
       <Route path="/plugs/create" element={<NavigablePage page={<PlugCreatePage />} />} />

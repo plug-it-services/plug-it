@@ -83,11 +83,11 @@ code {
 
 .input-bar {
   padding: 2px 4px;
-  display: flex;
+  /*display: flex;
   align-items: center;
   width: 80%;
   height: 100%;
-  border: 1px solid;
+  border: 1px solid;*/
   border-radius: 10px;
   box-shadow: 0 4px 10px 0 rgba(0,0,0,0.30);
 }
@@ -100,13 +100,13 @@ code {
 }
 
 .login-card {
-  width: 100%;
+  /*width: 100%;*/
   border-radius: 8px;
   box-shadow: 0 0 10px 0 rgba(0,0,0,0.30);
-  justify-content: center;
+  /*justify-content: center;
   align-items: center;
   display: flex;
-  flex-direction: column;
+  flex-direction: column;*/
 }
 
 .message-box {
