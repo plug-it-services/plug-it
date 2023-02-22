@@ -368,6 +368,53 @@ services:
         gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
         tag: "starton-postgres"
 
+  discord-postgres:
+    image: 'postgres:latest'
+    networks:
+      - discord_network
+    env_file:
+      - ./api/discord/.env
+    volumes:
+      - discord_data:/var/lib/postgresql/data
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "discord-potgres"
+
+  discord:
+    build: ./api/discord
+    networks:
+      - rabbit_network
+      - traefik_network
+      - discord_network
+    labels:
+      - traefik.http.routers.discord-oauth2-callback.rule=Path(`/service/discord/callback`)
+      - traefik.http.routers.discord.rule=Path(`/service/discord/oauth2`) || Path(`/service/discord/disconnect`)
+      - traefik.http.middlewares.discord-replacepathregex.replacepathregex.regex=^/service/discord/(.*)
+      - traefik.http.middlewares.discord-replacepathregex.replacepathregex.replacement=/public/$$1
+      - traefik.http.middlewares.test-auth.forwardauth.address=http://user/verify
+      - traefik.http.middlewares.test-auth.forwardauth.authResponseHeaders=user
+      - traefik.http.routers.discord.middlewares=discord-replacepathregex, test-auth
+      - traefik.http.routers.discord-oauth2-callback.middlewares=discord-replacepathregex
+      - traefik.enable=true
+    ports:
+      - ${DISCORD_PORT}:80
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      elk:
+        condition: service_started
+      discord-postgres:
+        condition: service_started
+      plugs:
+        condition: service_healthy
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "discord"
+
   adminer:
     image: adminer
     restart: always
@@ -388,6 +435,7 @@ volumes:
   plugs_mongo_data:
   twitter_data:
   github_data:
+  discord_data:
   starton_data:
   user_data:
   docker-hub_data:
@@ -402,3 +450,4 @@ networks:
   twitter_network:
   github_network:
   docker-hub_network:
+  discord_network:
