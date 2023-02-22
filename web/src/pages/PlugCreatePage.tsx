@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import Header from '../components/Header';
+import { MDBCol, MDBRow } from 'mdb-react-ui-kit';
 import TriggerCard from '../components/TriggerCard';
 import Button from '../components/Button';
 import { PlugDetail, postPlug, Variable } from '../utils/api';
@@ -75,28 +75,30 @@ const PlugCreatePage = () => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <>
       <MessageBox title={error} description={message} type={'error'} isOpen={open} onClose={() => setOpen(false)} />
-      <Header title="Plug-It" area="Plugs" />
-      <Typography variant="h4" fontWeight="bold" color={'primary'} style={{ marginTop: 30 }}>
+      <Typography variant="h4" fontWeight="bold" color={'primary'} className={'pt-3 text-center'}>
         Create a new PLUG :D
       </Typography>
-      <div style={{ display: 'flex', flexDirection: 'row', gap: '20px', marginTop: 30 }}>
-        <InputBar
-          placeholder={'Plug Name'}
-          textColor={'white'}
-          backgroundColor={'#2757C9'}
-          borderColor={'#2757C9'}
-          isPassword={false}
-          onChange={(value) => {
-            setPlugName(value);
-          }}
-          onSubmit={() => {}}
-        />
-      </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginTop: 30 }}>
-        {selections.map((selection, selectionIdx) => (
-          <>
+      <MDBRow className={'d-flex justify-content-center pb-3'}>
+        <div className={'col-12 col-md-8 col-lg-4 py-3'}>
+          <InputBar
+            placeholder={'Plug Name'}
+            textColor={'white'}
+            backgroundColor={'#2757C9'}
+            borderColor={'#2757C9'}
+            isPassword={false}
+            onChange={(value) => {
+              setPlugName(value);
+            }}
+            onSubmit={() => {}}
+          />
+        </div>
+      </MDBRow>
+
+      {selections.map((selection, selectionIdx) => (
+        <MDBRow className={'d-flex justify-content-center'}>
+          <div className={'col-12 col-md-8 col-lg-4'}>
             <TriggerCard
               key={selectionIdx}
               selected={selection}
@@ -110,35 +112,46 @@ const PlugCreatePage = () => {
               onDelete={() => deleteStep(selectionIdx)}
               backgroundColor={'#2757C9'}
             />
-            <Button text={'Add Step'} color={'secondary'} onClick={() => addStep(selectionIdx)} />
-          </>
-        ))}
-      </div>
-
-      <div style={{ display: 'flex', flexDirection: 'row', gap: '20px', marginTop: 30 }}>
-        <Button
-          color="secondary"
-          text={'Cancel'}
-          onClick={() => {
-            window.location.href = '/plugs';
-          }}
-        />
-        <Button
-          color="secondary"
-          text={'Delete'}
-          onClick={() => {
-            window.location.href = '/plugs';
-          }}
-        />
-        <Button
-          color="primary"
-          text={'Create'}
-          onClick={() => {
-            createPlug();
-          }}
-        />
-      </div>
-    </div>
+            <div className={'d-flex justify-content-center py-2'}>
+              <Button text={'Add Step'} color={'secondary'} onClick={() => addStep(selectionIdx)} />
+            </div>
+          </div>
+        </MDBRow>
+      ))}
+      <MDBRow className={'d-flex justify-content-center text-center'}>
+        <div className={'col-12 col-md-8 col-lg-4'}>
+          <MDBRow>
+            <MDBCol>
+              <Button
+                color="secondary"
+                text={'Cancel'}
+                onClick={() => {
+                  window.location.href = '/plugs';
+                }}
+              />
+            </MDBCol>
+            <MDBCol>
+              <Button
+                color="secondary"
+                text={'Delete'}
+                onClick={() => {
+                  window.location.href = '/plugs';
+                }}
+              />
+            </MDBCol>
+            <MDBCol>
+              <Button
+                color="primary"
+                text={'Create'}
+                onClick={() => {
+                  createPlug();
+                }}
+              />
+            </MDBCol>
+          </MDBRow>
+        </div>
+      </MDBRow>
+    </>
   );
 };
 

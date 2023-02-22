@@ -63,8 +63,8 @@ code {
 }
 
 .trigger-card {
-  width: 450px; /* TODO make this responsive */
-  height: 100%;
+  /*width: 450px; /* TODO make this responsive */
+  /*height: 100%;*/
   border-radius: 8px;
   box-shadow: 0 0 10px 0 rgba(0,0,0,0.30);
 }
