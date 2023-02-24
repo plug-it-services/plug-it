@@ -1,7 +1,10 @@
 ﻿using System.Text;
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using static YouPlug.Dto.Rabbit.RabbitDto;
 
 namespace YouPlug.Services
 {
@@ -13,14 +16,6 @@ namespace YouPlug.Services
         private string? queueInit;
         private string? queryDisable;
         private string? eventQueue;
-
-        class Message
-        {
-            public string serviceName = "youtube", eventId;
-            public object plugId, userId;
-            public string variables;
-            
-        }
 
         public RabbitService(Uri hostUri)
         {
@@ -45,16 +40,16 @@ namespace YouPlug.Services
             channel.QueueBind(queryDisable, "amq.direct", queryDisable);        
         }
 
-        private Message? ReadMessage(BasicDeliverEventArgs ea)
+        private T? ReadMessage<T>(BasicDeliverEventArgs ea)
         {
             var body = ea.Body.ToArray();
-            var message = JsonSerializer.Deserialize<Message>(body);
+            var message = JsonSerializer.Deserialize<T>(body);
 
             if (message == null)
             {
                 Console.WriteLine("Error (RabbitService) : " + "Unable to deserialize message");
                 Console.WriteLine("Error (RabbitService) : " + "Unable to deserialize message");
-                return null;
+                return default(T);
             }
 
             return message;
@@ -63,11 +58,11 @@ namespace YouPlug.Services
         private void OnInitConsume(object? sender, BasicDeliverEventArgs ea)
         {
             bool handled = false;
-            Message? message = null;
+            EventInitializeDto? message = null;
 
             try
             {
-                message = ReadMessage(ea);
+                message = ReadMessage<EventInitializeDto>(ea);
                 if (message == null)
                     throw new Exception("Unable to deserialize message");
 
@@ -106,11 +101,11 @@ namespace YouPlug.Services
         private void OnDisableConsume(object? sender, BasicDeliverEventArgs ea)
         {
             bool handled = false;
-            Message? message = null;
+            PlugDisabledDto? message = null;
 
             try
             {
-                message = ReadMessage(ea);
+                message = ReadMessage<PlugDisabledDto>(ea);
                 if (message == null)
                     throw new Exception("Unable to deserialize message");
 
@@ -146,7 +141,8 @@ namespace YouPlug.Services
             Console.WriteLine("Disabled event {0} for user {1}", message.eventId, message.userId);
         }
 
-        public FireEvent(string event_id, object plug_id, object user_id, string variables)
+
+        public void FireEvent(string eventId, string plugId, int userId, Variable[] variables)
         {
             if (channel == null) {
                 Console.WriteLine("Error (RabbitService) : " + "Channel is null");
@@ -154,19 +150,20 @@ namespace YouPlug.Services
                 return;
             }
 
-            var message = new Message()
+            EventFiredDto eventFiredDto = new()
             {
-                eventId = event_id,
-                plugId = plug_id,
-                userId = user_id,
+                serviceName = "YouTube",
+                eventId = eventId,
+                plugId = plugId,
+                userId = userId,
                 variables = variables
             };
 
-            var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(message));
+            var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(eventFiredDto));
             channel.BasicPublish("amq.direct", eventQueue, null, body);
         }
 
-        public Start()
+        public void Start()
         {
             if (channel == null) {
                 Console.WriteLine("Error (RabbitService) : " + "Channel is null");
