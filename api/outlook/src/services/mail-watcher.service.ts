@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { OutlookMailStateEntity } from 'src/schemas/outlookMailStateEntity';
-import { OutlookService } from './outlook.service';
-import { Repository} from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
+import { Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { OutlookMailStateEntity } from "src/schemas/outlookMailStateEntity";
+import { OutlookService } from "./outlook.service";
+import { Repository } from "typeorm";
+import { InjectRepository } from "@nestjs/typeorm";
 import { AmqpConnection } from "@golevelup/nestjs-rabbitmq";
 
 @Injectable()
@@ -66,29 +66,30 @@ export class MailWatcherService {
       );
       return;
     }
-    const latestMails = await this.getLatestMails(
+    const mails = await this.getLatestMails(
       state.latestMailReceived,
       state.userId,
       state.inboxWatched,
     );
-    for (const mail in latestMails) {
-      if (this.isFilteredMail(mail, state)) {
+    for (let i = 0; i < mails.length; ++i) {
+      if (this.isFilteredMail(mails[i], state)) {
         await this.publish(
           'plugs_events',
           'mailReceived',
           state.plugId,
           state.userId,
           [
-            { key:"sender", value: mail['sender'] },
-            { key:"subject", value: mail['subject'] },
-            { key:"body", value: mail['body']['content'] },
+            { key:"sender", value: mails[i].sender },
+            { key:"subject", value: mails[i].subject },
+            { key:"body", value: mails[i].body.content },
+            { key:"id", value: mails[i].body.content },
           ],
         );
       }
     }
-    if (latestMails.length != 0) {
-      await this.updateState(state.plugId, latestMails[0]['receivedDateTime']);
-      state.latestMailReceived = latestMails[0]['receivedDateTime'];
+    if (mails.length != 0) {
+      await this.updateState(state.plugId, mails[0].receivedDateTime);
+      state.latestMailReceived = mails[0].receivedDateTime;
     }
     setTimeout(() => {
       this.watchState(state);
@@ -97,9 +98,9 @@ export class MailWatcherService {
 
   private isFilteredMail(mail: any, state: OutlookMailStateEntity) {
     return (
-      mail['subject'].includes(state.mailSubjectFilter) &&
-      mail['sender'].includes(state.mailSenderFilter) &&
-      mail['body']['content'].includes(state.mailBodyFilter)
+      mail.subject.includes(state.mailSubjectFilter) &&
+      mail.sender.includes(state.mailSenderFilter) &&
+      mail.body.content.includes(state.mailBodyFilter)
     );
   }
 
@@ -116,14 +117,17 @@ export class MailWatcherService {
         inbox,
       );
       let actual = 0;
-      for (const mail in latestMails.data.value) {
+
+      const mails : any[] = latestMails.data.values;
+      for (let i = 0; i < mails.length; ++i) {
         if (actual <= actualIdxWatched) continue;
         const mailInfo = await this.outlookService.getMailInfo(
           userId,
-          mail['id'],
+          mails[i].id,
           inbox,
         );
-        if (mailInfo.data['receivedDateTime'] < latest) {
+        const date = new Date(mailInfo.data.receivedDateTime);
+        if (date.getTime() < latest) {
           return foundMails;
         }
         foundMails.push(mailInfo.data);

@@ -78,12 +78,6 @@ export const outlook = {
       name: 'Send',
       description: 'Sends an email.',
       variables: [
-        {
-          key: 'id',
-          type: 'string',
-          displayName: 'Sent Email id',
-          description: 'The id of the sent email.',
-        },
       ],
       fields: [
         {
@@ -94,10 +88,10 @@ export const outlook = {
           required: true,
         },
         {
-          key: 'object',
+          key: 'subject',
           type: 'string',
-          displayName: 'Object',
-          description: 'The object of the mail to send.',
+          displayName: 'Subject',
+          description: 'The subject of the mail to send.',
           required: false,
         },
         {
@@ -114,12 +108,6 @@ export const outlook = {
       name: 'Reply',
       description: 'Reply to a received email.',
       variables: [
-        {
-          key: 'id',
-          type: 'string',
-          displayName: 'Reply Email Id',
-          description: 'The id of reply email sent.',
-        },
       ],
       fields: [
         {

@@ -5,38 +5,8 @@ import axios from 'axios';
 @Injectable()
 export class OutlookService {
   constructor(private outlookAuthService: OutlookAuthService) {}
-  /*
-  private authClient: auth.OAuth2User;
 
-  private client: Client;
-
-  constructor(private configService: ConfigService) {
-    this.authClient = new auth.OAuth2User({
-      client_id: this.configService.getOrThrow<string>('CLIENT_ID'),
-      client_secret: this.configService.getOrThrow<string>('CLIENT_SECRET'),
-      callback: this.configService.getOrThrow<string>('OAUTH2_CALLBACK'),
-      scopes: ['tweet.read', 'users.read'],
-    });
-    this.client = new Client(this.authClient);
-  }
-
-  async getAuthUrl(userId: number) {
-    return this.authClient.generateAuthURL({
-      state: userId.toString(),
-      code_challenge_method: 's256',
-    });
-  }
-
-  async getAccessToken(code: string) {
-    try {
-      await this.authClient.requestAccessToken(code);
-    } catch (e) {
-      console.error(e);
-    }
-  }
-*/
-
-  async sendMail(message: any) : Promise<string> {
+  async sendMail(message: any) {
     const token = await this.outlookAuthService.getAccessToken(message.userId);
     const url = 'https://graph.microsoft.com/v1.0/me/sendMail';
 
@@ -48,7 +18,7 @@ export class OutlookService {
         (field: any) => field.key === 'body',
       ).value;
       const to = message.fields.find((field: any) => field.key === 'to').value;
-      const res = await axios.post(
+      await axios.post(
         url,
         {
           message: {
@@ -73,11 +43,9 @@ export class OutlookService {
           },
         },
       );
-      return res.data['id'];
     } catch (e) {
       console.error(e);
     }
-    return '';
     //console.log(response.data);
   }
 
@@ -86,7 +54,7 @@ export class OutlookService {
 
     try {
       const id = message.fields.find(
-        (field: any) => field.key === 'id',
+        (field: any) => field.key === 'reply_id',
       ).value;
       const url = 'https://graph.microsoft.com/v1.0/me/messages/' + id + '/reply';
       const body = message.fields.find(
@@ -109,7 +77,7 @@ export class OutlookService {
           },
         },
       );
-      return res.data['id'];
+      return res.data.id;
     } catch (e) {
       console.error(e);
     }

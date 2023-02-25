@@ -469,6 +469,7 @@ services:
       - traefik_network
       - user_network
       - plugs_network
+      - outlook_network
       - starton_network
       - twitter_network
     ports:

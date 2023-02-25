@@ -45,11 +45,13 @@ export class ListenerController {
       const inboxFilter = msg.fields.find(
         (field: any) => field.key === 'inbox',
       ).value;
+      const date = new Date();
+
       await this.outlookMailStateRepository.insert(
         {
           plugId: msg.plugId,
           userId: msg.userId,
-          latestMailReceived: Date.now(),
+          latestMailReceived: date.getTime(),
           mailBodyFilter: bodyFilter,
           mailSenderFilter: senderFilter,
           mailSubjectFilter: subjectFilter,
@@ -97,25 +99,25 @@ export class ListenerController {
     }
     switch (actionId) {
       case 'email':
-        const mail_id: string = await this.outlookService.sendMail(msg);
-        this.publish(
+        await this.outlookService.sendMail(msg);
+        await this.publish(
           'plug_action_finished',
           'email',
           plugId,
           userId,
           runId,
-          [{ 'key': 'id', 'value': mail_id }]
+          []
           )
         break;
       case 'reply_email':
-        const id: string = await this.outlookService.replyMail(msg);
-        this.publish(
+        await this.outlookService.replyMail(msg);
+        await this.publish(
           'plug_action_finished',
           'reply_email',
           plugId,
           userId,
           runId,
-          [{ 'key': 'id', 'value': id }]
+          []
         )
         break;
       case 'set_high':
