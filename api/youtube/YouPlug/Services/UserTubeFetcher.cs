@@ -12,7 +12,7 @@ using Google.Apis.Auth.OAuth2.Responses;
 namespace YouPlug.Services
 {
     
-    public class TubeFetcher
+    public class UserTubeFetcher
     {
         public static string[] Scopes = new string[] { YouTubeService.Scope.YoutubeReadonly };
         
@@ -21,15 +21,18 @@ namespace YouPlug.Services
         private List<ChannelDto> channels = new();
         private List<VideoDto> videos = new();
 
+        private YouPlugAuthModel authModel;
 
-        public TubeFetcher(string accessToken, string refreshToken)
+
+        public UserTubeFetcher(YouPlugAuthModel model)
         {
+            authModel = model;
             try
             {
                 TokenResponse token = new TokenResponse
                 {
-                    AccessToken = accessToken,
-                    RefreshToken = refreshToken
+                    AccessToken = model.accessToken,
+                    RefreshToken = model.refreshToken
                 };
 
                 var cred = new UserCredential
@@ -49,17 +52,23 @@ namespace YouPlug.Services
 
                 youtubeService = new YouTubeService(new BaseClientService.Initializer()
                 {
-                    ApplicationName = this.GetType().ToString(),
+                    ApplicationName = "PlugIt",
                     HttpClientInitializer = cred
                 });
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error (TubeFetcher) : " + ex.Message);
+                Console.WriteLine("Error (TubeFetcher) : " + ex.Message);
             }
             
             if (youtubeService == null)
                 throw new Exception("YoutubeService is null");
+        }
+
+        public YouPlugAuthModel GetAuth()
+        {
+            return authModel;
         }
         
 
@@ -86,11 +95,23 @@ namespace YouPlug.Services
             return channels;
         }
 
-        public List<VideoDto> GetVideos(string channelId)
+        public string GetMyOwnChannelId()
+        {
+            var request = youtubeService.Channels.List("snippet");
+            request.Mine = true;
+            var response = request.Execute();
+
+            return response.Items[0].Id;
+        }
+
+        public List<VideoDto> GetVideos(string? channelId)
         {
             List<VideoDto> videos = new();
             var request = youtubeService.Search.List("snippet");
-            request.ChannelId = channelId;
+            if (string.IsNullOrEmpty(channelId))
+                request.ChannelId = GetMyOwnChannelId();
+            else
+                request.ChannelId = channelId;
             request.Order = SearchResource.ListRequest.OrderEnum.Date;
             request.MaxResults = 10; // No need to query a lot of videos
 
@@ -106,7 +127,7 @@ namespace YouPlug.Services
                         Id = searchResult.Id.VideoId,
                         Title = searchResult.Snippet.Title,
                         Description = searchResult.Snippet.Description,
-                        Thumbnail = searchResult.Snippet.Thumbnails.High.Url,
+                        Thumbnail = searchResult.Snippet.Thumbnails?.Standard?.Url,
                         ChannelId = searchResult.Snippet.ChannelId,
                         ChannelTitle = searchResult.Snippet.ChannelTitle,
                         PublishedAt = searchResult.Snippet.PublishedAt ?? DateTime.MinValue
@@ -116,5 +137,6 @@ namespace YouPlug.Services
 
             return videos;
         }
+
     }
 }
