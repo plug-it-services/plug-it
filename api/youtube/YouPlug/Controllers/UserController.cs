@@ -223,14 +223,8 @@ namespace YouPlug.Controllers
             Console.WriteLine("Successfully updated auth for user " + auth.userId + $"redirecting to {auth.redirectUrl}");
             Console.WriteLine("Successfully updated auth for user " + auth.userId + $"redirecting to {auth.redirectUrl}");
 
-            // TEST ZONE
-            TubeFetcher tubeFetcher = new TubeFetcher(auth.accessToken, auth.refreshToken);
-            tubeFetcher.GetSubscriptions().ForEach(s =>
-            {
-                Console.WriteLine("Sub: " + s.Title);
-                Console.WriteLine("Sub: " + s.Title);
-            });
-            // END TEST ZONE
+            tubeFetcherService.AddUser(auth);
+
             return Redirect(auth.redirectUrl);
         }
 
