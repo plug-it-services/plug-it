@@ -3,6 +3,8 @@ using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using YouPlug.Db;
+using YouPlug.Models;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using static YouPlug.Dto.Rabbit.RabbitDto;
 
@@ -30,14 +32,30 @@ namespace YouPlug.Services
             if (string.IsNullOrWhiteSpace(eventQueue))
                 throw new Exception("Unable to recover EVENT_QUEUE env var!");
 
+            Console.WriteLine("RabbitMQ: Connecting to " + hostUri);
+            Console.WriteLine("RabbitMQ: Connecting to " + hostUri);
             factory = new ConnectionFactory() { Uri = hostUri };
             connection = factory.CreateConnection();
             channel = connection.CreateModel();
 
-            channel.QueueDeclare(queueInit);
+            Console.WriteLine("Init: " + queueInit);
+            Console.WriteLine("Init: " + queueInit);
+            Console.WriteLine("Disable: " + queryDisable);
+            Console.WriteLine("Disable: " + queryDisable);
+            channel.QueueDeclare(queue: queueInit,
+                     durable: true,
+                     exclusive: false,
+                     autoDelete: false,
+                     arguments: null);
             channel.QueueBind(queueInit, "amq.direct", queueInit);
-            channel.QueueDeclare(queryDisable);
-            channel.QueueBind(queryDisable, "amq.direct", queryDisable);        
+            channel.QueueDeclare(queue: queryDisable,
+                     durable: true,
+                     exclusive: false,
+                     autoDelete: false,
+                     arguments: null);
+            channel.QueueBind(queryDisable, "amq.direct", queryDisable);
+            Console.WriteLine("RabbitMQ: Ready!");
+            Console.WriteLine("RabbitMQ: Ready!");
         }
 
         private T? ReadMessage<T>(BasicDeliverEventArgs ea)
@@ -96,6 +114,7 @@ namespace YouPlug.Services
             }
             channel.BasicAck(ea.DeliveryTag, false);
             Console.WriteLine("Initialized event {0} for user {1}", message.eventId, message.userId);
+            Console.WriteLine("Initialized event {0} for user {1}", message.eventId, message.userId);
         }
 
         private void OnDisableConsume(object? sender, BasicDeliverEventArgs ea)
@@ -129,6 +148,7 @@ namespace YouPlug.Services
             {
                 Console.WriteLine("Error (RabbitService) : " + ex.Message);
                 Console.WriteLine("Error (RabbitService) : " + ex.Message);
+                handled = false; // Just to be over sure
             }
 
             if (!handled)
@@ -139,6 +159,41 @@ namespace YouPlug.Services
             }
             channel.BasicAck(ea.DeliveryTag, false);
             Console.WriteLine("Disabled event {0} for user {1}", message.eventId, message.userId);
+        }
+
+        public async void OnNewVideoFromChannel(EventInitializeDto triggerDto)
+        {
+            if (channel == null)
+            {
+                Console.WriteLine("Error (RabbitService) : " + "Channel is null");
+                Console.WriteLine("Error (RabbitService) : " + "Channel is null");
+                return;
+            }
+
+            Console.WriteLine("Setting up repository update for user {0}...", triggerDto.userId);
+            Console.WriteLine("Setting up repository update for user {0}...", triggerDto.userId);
+            
+            string? channelId = triggerDto.fields.Where(f => f.key == "channelId").FirstOrDefault()?.value;
+
+            if (string.IsNullOrWhiteSpace(channelId))
+            {
+                Console.WriteLine("Error (RabbitService) : " + "Unable to find channelId in triggerDto");
+                Console.WriteLine("Error (RabbitService) : " + "Unable to find channelId in triggerDto");
+                return;
+            }
+
+            NewVideoFromChannelModel newVideoFromChannelModel = new()
+            {
+                userId = triggerDto.userId.ToString(),
+                channelId = channelId,
+                plugId = triggerDto.plugId,
+            };
+
+            // Add new listener
+
+
+            // TODO: var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(newSubscribedChannelDto));
+            // channel.BasicPublish("amq.direct", "newSubscribedChannel", null, body);
         }
 
 
