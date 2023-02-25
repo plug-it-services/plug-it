@@ -23,7 +23,7 @@ export class OutlookService {
         (field: any) => field.key === 'body',
       ).value;
       const to = message.fields.find((field: any) => field.key === 'to').value;
-      await axios.post(
+      const res = await axios.post(
         url,
         {
           message: {
@@ -48,9 +48,11 @@ export class OutlookService {
           },
         },
       );
+      return res.data['id'];
     } catch (e) {
       console.error(e);
     }
+    return '';
     //console.log(response.data);
   }
 
