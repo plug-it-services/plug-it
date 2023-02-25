@@ -7,6 +7,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { OutlookAuthService } from './services/outlook-auth.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { OutlookAuthEntity } from './schemas/outlookAuthEntity';
+import { MailWatcherService } from './services/mail-watcher.service';
+import { OutlookMailStateEntity } from "./schemas/outlookMailStateEntity";
 
 @Module({
   imports: [
@@ -39,14 +41,15 @@ import { OutlookAuthEntity } from './schemas/outlookAuthEntity';
           database: configService.get<string>('POSTGRES_DB'),
           // TODO need to remove it in production
           synchronize: true,
-          entities: [OutlookAuthEntity],
+          entities: [OutlookAuthEntity, OutlookMailStateEntity],
         };
       },
     }),
     TypeOrmModule.forFeature([OutlookAuthEntity]),
+    TypeOrmModule.forFeature([OutlookMailStateEntity]),
   ],
   controllers: [AppController, ListenerController],
-  providers: [OutlookService, OutlookAuthService],
+  providers: [OutlookService, OutlookAuthService, MailWatcherService],
 })
 export class AppModule {
   constructor(
