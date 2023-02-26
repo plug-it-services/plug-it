@@ -77,7 +77,7 @@ export class OutlookAuthService {
     url.searchParams.append('response_type', 'code');
     url.searchParams.append('client_id', this.clientId);
     url.searchParams.append('redirect_uri', this.callbackUrl);
-    url.searchParams.append('scope', 'User.Read');
+    url.searchParams.append('scope', 'User.Read offline_access User.Write');
     url.searchParams.append('state', state);
     url.searchParams.append('code_challenge', codeChallenge);
     url.searchParams.append('code_challenge_method', 'S256');
