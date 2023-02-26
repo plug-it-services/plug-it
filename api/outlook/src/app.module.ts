@@ -45,8 +45,7 @@ import { OutlookMailStateEntity } from "./schemas/outlookMailStateEntity";
         };
       },
     }),
-    TypeOrmModule.forFeature([OutlookAuthEntity]),
-    TypeOrmModule.forFeature([OutlookMailStateEntity]),
+    TypeOrmModule.forFeature([OutlookAuthEntity, OutlookMailStateEntity]),
   ],
   controllers: [AppController, ListenerController],
   providers: [OutlookService, OutlookAuthService, MailWatcherService],
