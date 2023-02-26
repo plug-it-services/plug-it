@@ -7,12 +7,14 @@ import {
 import { OutlookService } from '../services/outlook.service';
 import { OutlookMailStateEntity } from "../schemas/outlookMailStateEntity";
 import { Repository } from "typeorm";
+import { InjectRepository } from "@nestjs/typeorm";
 
 @Controller('listener')
 export class ListenerController {
   constructor(
     private amqpConnection: AmqpConnection,
     private outlookService: OutlookService,
+    @InjectRepository(OutlookMailStateEntity)
     private outlookMailStateRepository: Repository<OutlookMailStateEntity>,
   ) {}
 
