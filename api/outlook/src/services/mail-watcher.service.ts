@@ -23,7 +23,7 @@ export class MailWatcherService {
   private async initService() {
     const states: OutlookMailStateEntity[] = await this.outlookMailStateRepository.find();
     this.logger.log("Started watching mails for '" + states.length.toString() + "' plugs !");
-    states.forEach(this.watchState);
+    states.forEach((state) => this.watchState(state));
   }
 
   private async updateState(plugId: string, latestMailDate: number) {
