@@ -56,10 +56,14 @@ export class MailWatcherService {
   }
 
   private async watchState(state: OutlookMailStateEntity) {
+    if (state == null) {
+      this.logger.error("Failed to watch a plug");
+      return;
+    }
+    this.logger.log("Watching mails for plug :" + state.plugId);
     const found = await this.outlookMailStateRepository.findBy({
       plugId: state.plugId,
     });
-    this.logger.log("Watching mails for plug :" + state.plugId);
     if (found === undefined || found.length === 0) {
       this.logger.error(
         "Stopped fetching mails for plug '%s', from user '%s'",
