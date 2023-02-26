@@ -142,6 +142,7 @@ export class OutlookAuthService {
         'grant_type': 'refresh_token',
         'client_id': this.configService.getOrThrow<string>('CLIENT_ID'),
         'client_secret': this.configService.getOrThrow<string>('CLIENT_SECRET'),
+        'refresh_token': auth.refreshToken,
       },
       {
         headers: {
