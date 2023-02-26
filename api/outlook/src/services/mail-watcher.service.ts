@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { OutlookMailStateEntity } from "src/schemas/outlookMailStateEntity";
 import { OutlookService } from "./outlook.service";
@@ -8,6 +8,8 @@ import { AmqpConnection } from "@golevelup/nestjs-rabbitmq";
 
 @Injectable()
 export class MailWatcherService {
+  private logger = new Logger(MailWatcherService.name);
+
   constructor(
     private configService: ConfigService,
     @InjectRepository(OutlookMailStateEntity)
@@ -19,8 +21,8 @@ export class MailWatcherService {
   }
 
   private async initService() {
-    console.error('failed');
     const states: OutlookMailStateEntity[] = await this.outlookMailStateRepository.find();
+    this.logger.log("Started watching mails for '" + states.length.toString() + "' plugs !");
     states.forEach(this.watchState);
   }
 
@@ -46,20 +48,20 @@ export class MailWatcherService {
       variables,
     };
 
-    console.log(
+    this.logger.log(
       `Publishing to ${queue} with message ${JSON.stringify(msg)}`,
     );
     await this.amqpConnection.publish('amq.direct', queue, msg);
-    console.log(`Published to ${queue}`);
+    this.logger.log(`Published to ${queue}`);
   }
 
   private async watchState(state: OutlookMailStateEntity) {
     const found = await this.outlookMailStateRepository.findBy({
       plugId: state.plugId,
     });
-
+    this.logger.log("Watching mails for plug :" + state.plugId);
     if (found === undefined || found.length === 0) {
-      console.error(
+      this.logger.error(
         "Stopped fetching mails for plug '%s', from user '%s'",
         state.plugId,
         state.userId,
@@ -71,8 +73,11 @@ export class MailWatcherService {
       state.userId,
       state.inboxWatched,
     );
+    this.logger.log("Reading '" + mails.length.toString() +"' mails ...");
     for (let i = 0; i < mails.length; ++i) {
+      this.logger.log("Reading '" + mails[i].subject + "' mail ...");
       if (this.isFilteredMail(mails[i], state)) {
+        this.logger.log("Mail '" + mails[i].subject + "' passed validation !!!");
         await this.publish(
           'plugs_events',
           'mailReceived',
@@ -82,7 +87,7 @@ export class MailWatcherService {
             { key:"sender", value: mails[i].sender },
             { key:"subject", value: mails[i].subject },
             { key:"body", value: mails[i].body.content },
-            { key:"id", value: mails[i].body.content },
+            { key:"id", value: mails[i].id },
           ],
         );
       }
@@ -127,7 +132,12 @@ export class MailWatcherService {
           inbox,
         );
         const date = new Date(mailInfo.data.receivedDateTime);
+        this.logger.log("Seeking if mail date received: '" + mails[i].subject + "' ");
         if (date.getTime() < latest) {
+          this.logger.log("Mail to old: '" + mails[i].subject + "', stopped fetching mail.");
+          this.logger.log("Mail date: " + mailInfo.data.receivedDateTime);
+          this.logger.log("Mail timestamp: " + date.getTime().toString());
+          this.logger.log("Against latest: " + latest.toString());
           return foundMails;
         }
         foundMails.push(mailInfo.data);

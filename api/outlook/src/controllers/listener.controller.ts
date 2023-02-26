@@ -1,4 +1,4 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Logger } from "@nestjs/common";
 import {
   AmqpConnection,
   Nack,
@@ -11,6 +11,8 @@ import { InjectRepository } from "@nestjs/typeorm";
 
 @Controller('listener')
 export class ListenerController {
+  private logger = new Logger(ListenerController.name);
+
   constructor(
     private amqpConnection: AmqpConnection,
     private outlookService: OutlookService,
@@ -24,8 +26,9 @@ export class ListenerController {
   async disableEvent(msg: any) {
     try {
       await this.outlookMailStateRepository.delete({plugId: msg.plugId})
+      this.logger.log("Deleted a plug")
     } catch (e) {
-      console.error(e)
+      this.logger.error(e)
       return new Nack(false);
     }
   }
@@ -35,6 +38,7 @@ export class ListenerController {
   })
   async listenForEvents(msg: {plugId:string, eventId: string, userId: number, fields:{key:string, value:string}[]}) {
     try {
+      this.logger.log("Received a new mail watcher plug !");
       const bodyFilter = msg.fields.find(
         (field: any) => field.key === 'body',
       ).value;
@@ -49,6 +53,7 @@ export class ListenerController {
       ).value;
       const date = new Date();
 
+      this.logger.log("Adding mail watcher");
       await this.outlookMailStateRepository.insert(
         {
           plugId: msg.plugId,
@@ -61,7 +66,7 @@ export class ListenerController {
         }
       )
     } catch (e) {
-      console.error(e)
+      this.logger.error(e)
     }
 
   }
@@ -83,11 +88,11 @@ export class ListenerController {
       variables,
     };
 
-    console.log(
+    this.logger.log(
       `Publishing to ${queue} with message ${JSON.stringify(msg)}`,
     );
     await this.amqpConnection.publish('amq.direct', queue, msg);
-    console.log(`Published to ${queue}`);
+    this.logger.log(`Published to ${queue}`);
   }
 
   @RabbitSubscribe({
@@ -95,6 +100,7 @@ export class ListenerController {
   })
   async triggerAction(msg: any) {
     const { actionId, plugId, runId, userId } = msg;
+    this.logger.log(`Received an '${actionId}' event !`);
     try {
       if (actionId === 'email') {
         await this.outlookService.sendMail(msg);
@@ -180,7 +186,7 @@ export class ListenerController {
           return;
       }
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       return new Nack(false);
     }
 
