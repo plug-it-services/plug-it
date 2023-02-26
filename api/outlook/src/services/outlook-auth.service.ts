@@ -70,6 +70,7 @@ export class OutlookAuthService {
 
   private async buildUrl(state: string, codeVerifier: string) {
     const codeChallenge = this.base64URLEncode(this.sha256(codeVerifier));
+    const scopes = 'https://graph.microsoft.com/User.Read https://graph.microsoft.com/offline_access https://graph.microsoft.com/Mail.ReadBasic https://graph.microsoft.com/Mail.Read https://graph.microsoft.com/Mail.ReadWrite https://graph.microsoft.com/Mail.Send';
     const url = new URL(
       'https://login.microsoftonline.com/901cb4ca-b862-4029-9306-e5cd0f6d9f86/oauth2/v2.0/authorize',
     );
@@ -77,7 +78,8 @@ export class OutlookAuthService {
     url.searchParams.append('response_type', 'code');
     url.searchParams.append('client_id', this.clientId);
     url.searchParams.append('redirect_uri', this.callbackUrl);
-    url.searchParams.append('scope', 'User.Read offline_access Mail.ReadBasic, Mail.Read, Mail.ReadWrite Mail.Send');
+    // Append scope param with the following permissions
+    url.searchParams.append('scope', scopes);
     url.searchParams.append('state', state);
     url.searchParams.append('code_challenge', codeChallenge);
     url.searchParams.append('code_challenge_method', 'S256');
