@@ -93,89 +93,95 @@ export class ListenerController {
   })
   async triggerAction(msg: any) {
     const { actionId, plugId, runId, userId } = msg;
-    if (actionId === 'email') {
-      await this.outlookService.sendMail(msg);
-      return;
-    }
-    switch (actionId) {
-      case 'email':
+    try {
+      if (actionId === 'email') {
         await this.outlookService.sendMail(msg);
-        await this.publish(
-          'plug_action_finished',
-          'email',
-          plugId,
-          userId,
-          runId,
-          []
+        return;
+      }
+      switch (actionId) {
+        case 'email':
+          await this.outlookService.sendMail(msg);
+          await this.publish(
+            'plug_action_finished',
+            'email',
+            plugId,
+            userId,
+            runId,
+            []
+            )
+          return;
+        case 'reply_email':
+          await this.outlookService.replyMail(msg);
+          await this.publish(
+            'plug_action_finished',
+            'reply_email',
+            plugId,
+            userId,
+            runId,
+            []
           )
-        break;
-      case 'reply_email':
-        await this.outlookService.replyMail(msg);
-        await this.publish(
-          'plug_action_finished',
-          'reply_email',
-          plugId,
-          userId,
-          runId,
-          []
-        )
-        break;
-      case 'set_high':
-        await this.outlookService.setHighImportanceMail(msg);
-        this.publish(
-          'plug_action_finished',
-          'set_high',
-          plugId,
-          userId,
-          runId,
-          []
-        )
-        break;
-      case 'set_low':
-        await this.outlookService.setLowImportanceMail(msg);
-        this.publish(
-          'plug_action_finished',
-          'set_low',
-          plugId,
-          userId,
-          runId,
-          []
-        )
-        break;
-      case 'set_normal':
-        await this.outlookService.setNormalImportanceMail(msg);
-        this.publish(
-          'plug_action_finished',
-          'set_normal',
-          plugId,
-          userId,
-          runId,
-          []
-        )
-        break;
-      case 'set_not_focused':
-        await this.outlookService.setUnFocusMail(msg);
-        this.publish(
-          'plug_action_finished',
-          'set_not_focused',
-          plugId,
-          userId,
-          runId,
-          []
-        )
-        break;
-      case 'set_focused':
-        await this.outlookService.setFocusMail(msg);
-        this.publish(
-          'plug_action_finished',
-          'set_focused',
-          plugId,
-          userId,
-          runId,
-          []
-        )
-        break;
+          return;
+        case 'set_high':
+          await this.outlookService.setHighImportanceMail(msg);
+          await this.publish(
+            'plug_action_finished',
+            'set_high',
+            plugId,
+            userId,
+            runId,
+            []
+          )
+          return;
+        case 'set_low':
+          await this.outlookService.setLowImportanceMail(msg);
+          await this.publish(
+            'plug_action_finished',
+            'set_low',
+            plugId,
+            userId,
+            runId,
+            []
+          )
+          return;
+        case 'set_normal':
+          await this.outlookService.setNormalImportanceMail(msg);
+          await this.publish(
+            'plug_action_finished',
+            'set_normal',
+            plugId,
+            userId,
+            runId,
+            []
+          )
+          return;
+        case 'set_not_focused':
+          await this.outlookService.setUnFocusMail(msg);
+          await this.publish(
+            'plug_action_finished',
+            'set_not_focused',
+            plugId,
+            userId,
+            runId,
+            []
+          )
+          return;
+        case 'set_focused':
+          await this.outlookService.setFocusMail(msg);
+          await this.publish(
+            'plug_action_finished',
+            'set_focused',
+            plugId,
+            userId,
+            runId,
+            []
+          )
+          return;
+      }
+    } catch (error) {
+      console.error(error);
+      return new Nack(false);
     }
+
     return new Nack(false);
   }
 }
