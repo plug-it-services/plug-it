@@ -10,7 +10,7 @@ export class OutlookMailStateEntity {
   @Column()
   userId: number;
 
-  @Column()
+  @Column({type: 'bigint'})
   latestMailReceived: number;
 
   @Column({ nullable: true })
