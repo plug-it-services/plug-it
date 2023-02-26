@@ -17,7 +17,7 @@ export class ListenerController {
   ) {}
 
   @RabbitSubscribe({
-    queue: 'plug_event_starton_disabled',
+    queue: 'plug_event_outlook_disabled',
   })
   async disableEvent(msg: any) {
     try {
