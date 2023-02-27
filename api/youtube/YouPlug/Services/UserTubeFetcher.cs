@@ -8,19 +8,20 @@ using Google.Apis.Auth.OAuth2;
 using Google.Apis.Util.Store;
 using Google.Apis.Auth.OAuth2.Flows;
 using Google.Apis.Auth.OAuth2.Responses;
+using static YouPlug.Dto.Rabbit.RabbitDto;
 
 namespace YouPlug.Services
 {
     
     public class UserTubeFetcher
     {
-        public static string[] Scopes = new string[] { YouTubeService.Scope.YoutubeReadonly };
+        public static string[] Scopes = new string[] {
+            YouTubeService.Scope.YoutubeReadonly,
+            YouTubeService.Scope.Youtube
+        };
         
         private YouTubeService youtubeService;
-
-        private List<ChannelDto> channels = new();
-        private List<VideoDto> videos = new();
-
+        
         private YouPlugAuthModel authModel;
 
 
@@ -137,6 +138,198 @@ namespace YouPlug.Services
             }
 
             return videos;
+        }
+
+        
+        public void PublishComment(string videoId, string comment)
+        {
+            var request = youtubeService.CommentThreads.Insert(new CommentThread
+            {
+                Snippet = new CommentThreadSnippet
+                {
+                    VideoId = videoId,
+                    TopLevelComment = new Comment
+                    {
+                        Snippet = new CommentSnippet
+                        {
+                            TextOriginal = comment
+                        }
+                    }
+                }
+            }, "snippet");
+
+            request.Execute();
+        }
+
+        
+        public void DeleteComment(string commentId)
+        {
+            var request = youtubeService.Comments.Delete(commentId);
+            request.Execute();
+        }
+
+        
+        public void PublishReply(string videoId, string commentId, string reply)
+        {
+            var request = youtubeService.Comments.Insert(new Comment
+            {
+                Snippet = new CommentSnippet
+                {
+                    VideoId = videoId,
+                    ParentId = commentId,
+                    TextOriginal = reply
+                }
+            }, "snippet");
+
+            request.Execute();
+        }
+
+        
+        public Variable[] LikeVideo(string videoId)
+        {
+            var request = youtubeService.Videos.Rate(videoId, VideosResource.RateRequest.RatingEnum.Like);
+            request.Execute();
+            return new Variable[] {};
+        }
+
+        
+        public void DislikeVideo(string videoId)
+        {
+            var request = youtubeService.Videos.Rate(videoId, VideosResource.RateRequest.RatingEnum.Dislike);
+            request.Execute();
+        }
+
+        public void RemoveReactionToVideo(string videoId)
+        {
+            var request = youtubeService.Videos.Rate(videoId, VideosResource.RateRequest.RatingEnum.None);
+            request.Execute();
+        }
+
+
+        public void SubscribeToChannel(string channelId)
+        {
+            var request = youtubeService.Subscriptions.Insert(new Subscription
+            {
+                Snippet = new SubscriptionSnippet
+                {
+                    ResourceId = new ResourceId
+                    {
+                        Kind = "youtube#channel",
+                        ChannelId = channelId
+                    }
+                }
+            }, "snippet");
+
+            request.Execute();
+        }
+
+        
+        public void UnsubscribeFromChannel(string channelId)
+        {
+            var request = youtubeService.Subscriptions.Delete(channelId);
+            request.Execute();
+        }
+        
+        
+        public void AddToWatchLater(string videoId)
+        {
+            var request = youtubeService.PlaylistItems.Insert(new PlaylistItem
+            {
+                Snippet = new PlaylistItemSnippet
+                {
+                    PlaylistId = "WL",
+                    ResourceId = new ResourceId
+                    {
+                        Kind = "youtube#video",
+                        VideoId = videoId
+                    }
+                }
+            }, "snippet");
+
+            request.Execute();
+        }
+
+        
+        public void RemoveFromWatchLater(string videoId)
+        {
+            var request = youtubeService.PlaylistItems.List("snippet");
+            request.PlaylistId = "WL";
+            request.MaxResults = 50;
+
+            var response = request.Execute();
+            var playlistItems = response.Items;
+
+            foreach (var playlistItem in playlistItems)
+            {
+                if (playlistItem.Snippet.ResourceId.VideoId == videoId)
+                {
+                    var deleteRequest = youtubeService.PlaylistItems.Delete(playlistItem.Id);
+                    deleteRequest.Execute();
+                    break;
+                }
+            }
+        }
+
+        
+        public void CreatePlaylist(string title, string description)
+        {
+            var request = youtubeService.Playlists.Insert(new Playlist
+            {
+                Snippet = new PlaylistSnippet
+                {
+                    Title = title,
+                    Description = description
+                }
+            }, "snippet");
+
+            request.Execute();
+        }
+
+        
+        public void RemovePlaylist(string playlistId)
+        {
+            var request = youtubeService.Playlists.Delete(playlistId);
+            request.Execute();
+        }
+
+        
+        public void AddToPlaylist(string playlistId, string videoId)
+        {
+            var request = youtubeService.PlaylistItems.Insert(new PlaylistItem
+            {
+                Snippet = new PlaylistItemSnippet
+                {
+                    PlaylistId = playlistId,
+                    ResourceId = new ResourceId
+                    {
+                        Kind = "youtube#video",
+                        VideoId = videoId
+                    }
+                }
+            }, "snippet");
+
+            request.Execute();
+        }
+
+        
+        public void RemoveFromPlaylist(string playlistId, string videoId)
+        {
+            var request = youtubeService.PlaylistItems.List("snippet");
+            request.PlaylistId = playlistId;
+            request.MaxResults = 50;
+
+            var response = request.Execute();
+            var playlistItems = response.Items;
+
+            foreach (var playlistItem in playlistItems)
+            {
+                if (playlistItem.Snippet.ResourceId.VideoId == videoId)
+                {
+                    var deleteRequest = youtubeService.PlaylistItems.Delete(playlistItem.Id);
+                    deleteRequest.Execute();
+                    break;
+                }
+            }
         }
     }
 }

@@ -37,16 +37,13 @@ namespace YouPlug.Services
             );
 
             plugData.AddAction(
-                "subcribeToChannel",
-                "Subscribe To Channel",
-                "When you subscribe to a channel",
-                new List<PlugDataDto.PlugVariable>()
-                {
-                    new PlugDataDto.PlugVariable("channelTitle", PlugDataDto.VariableType.String, "Channel Title", "The title of the channel that published the video"),
-                },
+                "likeVideo",
+                "Like a Video",
+                "Like a video on Youtube from it's ID",
+                new List<PlugDataDto.PlugVariable>() {},
                 new List<PlugDataDto.PlugField>()
                 {
-                    new PlugDataDto.PlugField("channelId", PlugDataDto.VariableType.String, "Channel ID", "The ID of the channel to watch for new videos", true),
+                    new PlugDataDto.PlugField("videoId", PlugDataDto.VariableType.String, "Video ID", "The ID of the video to like", true),
                 }
             );
 

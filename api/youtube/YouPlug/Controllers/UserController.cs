@@ -99,7 +99,8 @@ namespace YouPlug.Controllers
             oauth2Callback += "?client_id=" + clientId;
             oauth2Callback += "&redirect_uri=" + redirUri;
             oauth2Callback += "&response_type=code";
-            oauth2Callback += "&scope=" + YouTubeService.Scope.YoutubeReadonly;
+            // YouTubeService.Scope.YoutubeReadonly + YouTubeService.Scope.Youtube
+            oauth2Callback += "&scope=" + YouTubeService.Scope.YoutubeReadonly + " " + YouTubeService.Scope.Youtube;
             oauth2Callback += "&access_type=offline";
             // oauth2Callback += "&approval_prompt=force";
             // oauth2Callback += "&include_granted_scopes=true";

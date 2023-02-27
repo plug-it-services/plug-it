@@ -235,5 +235,10 @@ namespace YouPlug.Services
             else
                 Console.WriteLine("Removed listener on user " + model.userId + " channel to track new video. (Requested by " + model.userId + " | " + model.plugId + ")");
         }
+
+        public UserTubeFetcher? GetUserFetcher(int userId)
+        {
+            return userTubeFetchers.Find(userTubeFetcher => userTubeFetcher.GetAuth().userId == userId);
+        }
     }
 }

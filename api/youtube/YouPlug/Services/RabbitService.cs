@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using YouPlug.Db;
@@ -8,6 +9,7 @@ using YouPlug.Dto.Youtube;
 using YouPlug.Models;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using static YouPlug.Dto.Rabbit.RabbitDto;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace YouPlug.Services
 {
@@ -16,15 +18,20 @@ namespace YouPlug.Services
         private ConnectionFactory factory;
         private IConnection connection;
         private IModel channel;
+        
         private string? queueInit;
         private string? queryDisable;
         private string? eventQueue;
-
+        private string? actionTrigger;
+        private string? actionFinish;
+        
         public RabbitService(Uri hostUri)
         {
             queueInit = Environment.GetEnvironmentVariable("EVENT_INITIALIZATION_QUEUE", EnvironmentVariableTarget.Process);
             queryDisable = Environment.GetEnvironmentVariable("EVENT_DISABLED_QUEUE", EnvironmentVariableTarget.Process);
             eventQueue = Environment.GetEnvironmentVariable("EVENT_QUEUE", EnvironmentVariableTarget.Process);
+            actionTrigger = Environment.GetEnvironmentVariable("ACTION_TRIGGERS", EnvironmentVariableTarget.Process);
+            actionFinish = Environment.GetEnvironmentVariable("ACTION_FINISH", EnvironmentVariableTarget.Process);
 
             if (string.IsNullOrWhiteSpace(queueInit))
                 throw new Exception("Unable to recover EVENT_INITIALIZATION_QUEUE env var!");
@@ -32,6 +39,10 @@ namespace YouPlug.Services
                 throw new Exception("Unable to recover EVENT_DISABLED_QUEUE env var!");
             if (string.IsNullOrWhiteSpace(eventQueue))
                 throw new Exception("Unable to recover EVENT_QUEUE env var!");
+            if (string.IsNullOrWhiteSpace(actionTrigger))
+                throw new Exception("Unable to recover ACTION_TRIGGERS env var!");
+            if (string.IsNullOrWhiteSpace(actionFinish))
+                throw new Exception("Unable to recover ACTION_FINISH env var!");
 
             Console.WriteLine("RabbitMQ: Connecting to " + hostUri);
             factory = new ConnectionFactory() { Uri = hostUri };
@@ -40,18 +51,30 @@ namespace YouPlug.Services
 
             Console.WriteLine("Init: " + queueInit);
             Console.WriteLine("Disable: " + queryDisable);
+            Console.WriteLine("Event: " + eventQueue);
+            Console.WriteLine("Action Trigger: " + actionTrigger);
+            Console.WriteLine("Action Finish: " + actionFinish);
+            
             channel.QueueDeclare(queue: queueInit,
                      durable: true,
                      exclusive: false,
                      autoDelete: false,
                      arguments: null);
             channel.QueueBind(queueInit, "amq.direct", queueInit);
+            
             channel.QueueDeclare(queue: queryDisable,
                      durable: true,
                      exclusive: false,
                      autoDelete: false,
                      arguments: null);
             channel.QueueBind(queryDisable, "amq.direct", queryDisable);
+
+            channel.QueueDeclare(queue: actionTrigger,
+                     durable: true,
+                     exclusive: false,
+                     autoDelete: false,
+                     arguments: null);
+            channel.QueueBind(actionTrigger, "amq.direct", actionTrigger);
             Console.WriteLine("RabbitMQ: Ready!");
         }
 
@@ -182,6 +205,71 @@ namespace YouPlug.Services
             Console.WriteLine("Disabled event {0} for user {1}!", message.eventId, message.userId);
         }
 
+        private void OnActionRequested(object? sender, BasicDeliverEventArgs ea)
+        {
+            Console.WriteLine("Received action requested event");
+            bool handled = false;
+            ActionTriggerDto? message = null;
+            ActionFinishedDto? response = null;
+
+            try
+            {
+                message = ReadMessage<ActionTriggerDto>(ea);
+                if (message == null)
+                    throw new Exception("Unable to deserialize message");
+
+                Console.WriteLine("Action requested {0} for user {1}...", message.actionId, message.userId);
+
+                var userFetcher = Program.fetcherService.GetUserFetcher(message.userId);
+
+                if (userFetcher == null)
+                    throw new Exception("The user {0} don't seems to be connected??");
+
+                switch (message.actionId)
+                {
+                    case "likeVideo":
+                        Console.WriteLine("Liking video");
+                        response = new ActionFinishedDto()
+                        {
+                            actionId = message.actionId,
+                            userId = message.userId,
+                            plugId = message.plugId,
+                            runId = message.runId,
+                            serviceName = "youtube",
+                            variables = userFetcher.LikeVideo(message.fields.Where(x => x.key == "videoId").First().value)
+                        };
+                        handled = true;
+                        break;
+                    default:
+                        Console.WriteLine("Error (RabbitService) : " + "Unable to handle message");
+                        handled = false; // Just to be over sure
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                handled = false; // Just to be over sure
+            }
+
+            if (!handled)
+            {
+                Console.WriteLine("Error (RabbitService) : " + "Unable to handle message");
+                channel.BasicNack(ea.DeliveryTag, false, false);
+                return;
+            }
+
+            if (response != null)
+            {
+                Console.WriteLine("Sending response for action {0} for user {1}...", message.actionId, message.userId);
+                var body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(response));
+                channel.BasicPublish("amq.direct", actionFinish, null, body);
+            }
+
+            channel.BasicAck(ea.DeliveryTag, false);
+            Console.WriteLine("Action {0} for user {1} finished!", message.actionId, message.userId);
+        }
+
         public void OnNewVideoFromChannel(NewVideoFromChannelModel model, VideoDto videoDto)
         {
             if (channel == null)
@@ -243,9 +331,13 @@ namespace YouPlug.Services
 
             var disableConsumer = new EventingBasicConsumer(channel);
             disableConsumer.Received += OnDisableConsume;
-                
+
+            var eventTrigger = new EventingBasicConsumer(channel);
+            eventTrigger.Received += OnActionRequested;
+
             channel.BasicConsume(queueInit, false, initConsumer);
             channel.BasicConsume(queryDisable, false, disableConsumer);
+            channel.BasicConsume(actionTrigger, false, eventTrigger);
             Console.WriteLine("RabbitMQ: Started!");
         }
     }
