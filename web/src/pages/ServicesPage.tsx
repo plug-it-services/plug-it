@@ -19,6 +19,17 @@ const ServicesPage = () => {
     setSearchedServices(serviceList);
   };
 
+  const setConnection = (service: Service, newStatus: boolean) => {
+    const newServices = services.map((s) => {
+      if (s.name === service.name) {
+        return { ...s, connected: newStatus };
+      }
+      return s;
+    });
+    setServices(newServices);
+    setSearchedServices(newServices);
+  };
+
   useEffect(() => {
     getServices()
       .then(initServices)
@@ -57,7 +68,7 @@ const ServicesPage = () => {
       <MDBRow className={'d-flex justify-content-center'}>
         {searchedServices.map((service, index) => (
           <MDBCol xs="12" md="4" lg="3" key={index} className={'py-3 d-flex'}>
-            <ServiceCard service={service} />
+            <ServiceCard service={service} setConnection={(status: boolean) => setConnection(service, status)} />
           </MDBCol>
         ))}
       </MDBRow>

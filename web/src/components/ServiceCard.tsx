@@ -10,9 +10,10 @@ import InputBar from './InputBar';
 
 export interface IServiceCardProps {
   service: Service;
+  setConnection: (connected: boolean) => void;
 }
 
-function ServiceCard({ service }: IServiceCardProps, props: any) {
+function ServiceCard({ service, setConnection }: IServiceCardProps, props: any) {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const onClose = () => {
@@ -22,7 +23,7 @@ function ServiceCard({ service }: IServiceCardProps, props: any) {
   const handleOnClick = async () => {
     if (service.connected) {
       await disconnectService(service);
-      navigate(0);
+      setConnection(false);
       return;
     }
     if (service.authType === 'apiKey') {
@@ -81,7 +82,7 @@ function ServiceCard({ service }: IServiceCardProps, props: any) {
               onClick={async () => {
                 await authService(service, key);
                 setOpen(false);
-                navigate(0);
+                setConnection(true);
               }}
             />
           </MessageBox>
