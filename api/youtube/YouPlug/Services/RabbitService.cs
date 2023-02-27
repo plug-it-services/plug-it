@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using YouPlug.Db;
+using YouPlug.Dto.Youtube;
 using YouPlug.Models;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using static YouPlug.Dto.Rabbit.RabbitDto;
@@ -70,6 +71,7 @@ namespace YouPlug.Services
 
         private void OnInitConsume(object? sender, BasicDeliverEventArgs ea)
         {
+            Console.WriteLine("Received init event");
             bool handled = false;
             EventInitializeDto? message = null;
 
@@ -85,6 +87,14 @@ namespace YouPlug.Services
                 {
                     case "newVideoFromChannel":
                         Console.WriteLine("New video from channel {0} for user {1} for plugId {2} with fields: {3}!", message.eventId, message.userId, message.plugId, message.fields[0].key + " = " + message.fields[0].value);
+                        NewVideoFromChannelModel model = new()
+                        {
+                            channelId = message.fields.Where(x => x.key == "channelId").First().value,
+                            userId = message.userId,
+                            plugId = message.plugId,
+                            lastVideoDate = DateTime.Now
+                        };
+                        Program.fetcherService.AddNewVideoFromChannel(model);
                         handled = true;
                         break;
                     default:
@@ -109,6 +119,7 @@ namespace YouPlug.Services
 
         private void OnDisableConsume(object? sender, BasicDeliverEventArgs ea)
         {
+            Console.WriteLine("Received disable event");
             bool handled = false;
             PlugDisabledDto? message = null;
 
@@ -123,7 +134,7 @@ namespace YouPlug.Services
                 switch (message.eventId)
                 {
                     case "newVideoFromChannel":
-                        Console.WriteLine("disable video from channel {0} for user {1} for plugId {2}!", message.eventId, message.userId, message.plugId);
+                        Program.fetcherService.RemoveNewVideoFromChannel(message.userId, message.plugId);
                         handled = true;
                         break;
                     default:
@@ -148,7 +159,7 @@ namespace YouPlug.Services
             Console.WriteLine("Disabled event {0} for user {1}!", message.eventId, message.userId);
         }
 
-        public async void OnNewVideoFromChannel(EventInitializeDto triggerDto)
+        public void OnNewVideoFromChannel(NewVideoFromChannelModel model, VideoDto videoDto)
         {
             if (channel == null)
             {
@@ -156,28 +167,10 @@ namespace YouPlug.Services
                 return;
             }
 
-            Console.WriteLine("Setting up repository update for user {0}...", triggerDto.userId);
-            
-            string? channelId = triggerDto.fields.Where(f => f.key == "channelId").FirstOrDefault()?.value;
-
-            if (string.IsNullOrWhiteSpace(channelId))
-            {
-                Console.WriteLine("Error (RabbitService) : " + "Unable to find channelId in triggerDto");
-                return;
-            }
-
-            NewVideoFromChannelModel newVideoFromChannelModel = new()
-            {
-                userId = triggerDto.userId.ToString(),
-                channelId = channelId,
-                plugId = triggerDto.plugId,
-            };
-
-            // Add new listener
-
-
-            // TODO: var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(newSubscribedChannelDto));
-            // channel.BasicPublish("amq.direct", "newSubscribedChannel", null, body);
+            FireEvent("newVideoFromChannel", model.plugId, model.userId, new Variable[] {
+                new Variable() { key = "channelTitle", value = videoDto.ChannelTitle },
+                new Variable() { key = "videoTitle", value = videoDto.Title },
+            });
         }
 
 
@@ -190,7 +183,7 @@ namespace YouPlug.Services
 
             EventFiredDto eventFiredDto = new()
             {
-                serviceName = "YouTube",
+                serviceName = "youtube",
                 eventId = eventId,
                 plugId = plugId,
                 userId = userId,
@@ -216,6 +209,7 @@ namespace YouPlug.Services
                 
             channel.BasicConsume(queueInit, false, initConsumer);
             channel.BasicConsume(queryDisable, false, disableConsumer);
+            Console.WriteLine("RabbitMQ: Started!");
         }
     }
 }

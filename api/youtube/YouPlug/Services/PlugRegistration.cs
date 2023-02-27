@@ -31,14 +31,8 @@ namespace YouPlug.Services
                 "A new video has been published on Youtube from a specific channel",
                 new List<PlugDataDto.PlugVariable>()
                 {
-                    new PlugDataDto.PlugVariable("videoId", PlugDataDto.VariableType.String, "Video ID", "The ID of the video published"),
                     new PlugDataDto.PlugVariable("videoTitle", PlugDataDto.VariableType.String, "Video Title", "The published video title"),
-                    new PlugDataDto.PlugVariable("videoDescription", PlugDataDto.VariableType.String, "Video Description", "The published video description"),
-                    new PlugDataDto.PlugVariable("videoThumbnail", PlugDataDto.VariableType.String, "Video Thumbnail", "The published video thumbnail"),
-                    new PlugDataDto.PlugVariable("videoPublishedAt", PlugDataDto.VariableType.String, "Video Published At", "The date of the published video"),
-                    new PlugDataDto.PlugVariable("videoChannelId", PlugDataDto.VariableType.String, "Video Channel ID", "The ID of the channel that published the video"),
-                    new PlugDataDto.PlugVariable("videoChannelTitle", PlugDataDto.VariableType.String, "Video Channel Title", "The title of the channel that published the video"),
-                    new PlugDataDto.PlugVariable("videoChannelThumbnail", PlugDataDto.VariableType.String, "Video Channel Thumbnail", "The thumbnail of the channel that published the video"),
+                    new PlugDataDto.PlugVariable("channelTitle", PlugDataDto.VariableType.String, "Channel Title", "The title of the channel that published the video"),
                 },
                 new List<PlugDataDto.PlugField>()
                 {

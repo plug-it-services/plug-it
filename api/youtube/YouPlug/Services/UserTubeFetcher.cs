@@ -113,7 +113,7 @@ namespace YouPlug.Services
             else
                 request.ChannelId = channelId;
             request.Order = SearchResource.ListRequest.OrderEnum.Date;
-            request.MaxResults = 10; // No need to query a lot of videos
+            request.MaxResults = 2; // No need to query a lot of videos
 
             var response = request.Execute();
             var searchResults = response.Items;
@@ -137,6 +137,5 @@ namespace YouPlug.Services
 
             return videos;
         }
-
     }
 }

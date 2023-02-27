@@ -36,21 +36,73 @@ namespace YouPlug.Services
             {
                 AddNewVideoFromChannel(model, false);
             });
+
+            Start();
+        }
+
+        public Task Start()
+        {
+            return Task.Factory.StartNew(() =>
+            {
+                while (true)
+                {
+                    Console.WriteLine("TubeFetcherService: Checking for new videos...");
+                    try
+                    {
+                        newVideoFromChannels.ForEach(model =>
+                        {
+                            userTubeFetchers.ForEach(userTubeFetcher =>
+                            {
+                                userTubeFetcher.GetVideos(model.channelId).ForEach(video =>
+                                {
+                                    Console.WriteLine("Video from " + model.channelId + " for user " + userTubeFetcher.GetAuth().userId);
+                                    if (video.PublishedAt > model.lastVideoDate)
+                                    {
+                                        Console.WriteLine("New video from " + model.channelId + " for user " + userTubeFetcher.GetAuth().userId);
+                                        rabbitService.OnNewVideoFromChannel(model, video);
+                                        dbContext.NewVideoFromChannel.First(dbModel => dbModel.plugId == model.plugId).lastVideoDate = video.PublishedAt;
+                                        dbContext.SaveChanges();
+                                    }
+                                });
+                            });
+                        });
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Error in TubeFetcherService: " + e.Message);
+                    }
+
+                    Thread.Sleep(1000 * 60); // 60 seconds
+                }
+            });
         }
 
         public void AddUser(YouPlugAuthModel youPlugAuth)
         {
+            if (userTubeFetchers.Any(userTubeFetcher => userTubeFetcher.GetAuth().userId == youPlugAuth.userId))
+            {
+                Console.WriteLine("UserTubeFetcher already exists for user " + youPlugAuth.userId);
+                return;
+            }
+            
             if (!string.IsNullOrWhiteSpace(youPlugAuth.accessToken) && !string.IsNullOrWhiteSpace(youPlugAuth.refreshToken))
             {
                 userTubeFetchers.Add(new UserTubeFetcher(youPlugAuth));
                 Console.WriteLine("Created UserTubeFetcher for user " + youPlugAuth.userId);
             }
+            else
+            {
+                Console.WriteLine("Unable to create UserTubeFetcher for user " + youPlugAuth.userId + " because of missing tokens");
+            }
         }
 
         public void RemoveUser(uint userId)
         {
-            userTubeFetchers.RemoveAll(userTubeFetcher => userTubeFetcher.GetAuth().userId == userId);
-            Console.WriteLine("Removed UserTubeFetcher for user " + userId);
+            int nb = userTubeFetchers.RemoveAll(userTubeFetcher => userTubeFetcher.GetAuth().userId == userId);
+            if (nb == 0)
+                Console.WriteLine("No UserTubeFetcher found for user " + userId);
+            else
+                Console.WriteLine("Removed UserTubeFetcher for user " + userId);
         }
 
         public void AddNewVideoFromChannel(NewVideoFromChannelModel model, bool registerInDb = true)
@@ -70,6 +122,22 @@ namespace YouPlug.Services
                 newVideoFromChannels.Add(model);
                 Console.WriteLine("Added listener on " + model.channelId + " to track new video. (Requested by " + model.userId + " | " + model.plugId + ")");
             }
+        }
+
+        public void RemoveNewVideoFromChannel(int userId, string plugId)
+        {
+            NewVideoFromChannelModel? model = dbContext.NewVideoFromChannel.Find(userId, plugId);
+            if (model == null)
+            {
+                Console.WriteLine("Unable to remove NewVideoFromChannelModel for user " + userId + " and plug " + plugId + " because it doesn't exist");
+                return;
+            }
+
+            dbContext.NewVideoFromChannel.Remove(model);
+            Console.WriteLine("Removed NewVideoFromChannelModel for user " + userId + " and plug " + plugId);
+
+            newVideoFromChannels.RemoveAll(newVideoFromChannel => newVideoFromChannel.userId == userId && newVideoFromChannel.plugId == plugId);
+            Console.WriteLine("Removed listener on " + model.channelId + " to track new video. (Requested by " + model.userId + " | " + model.plugId + ")");
         }
     }
 }
