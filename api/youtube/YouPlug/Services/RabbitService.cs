@@ -105,13 +105,14 @@ namespace YouPlug.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error (RabbitService) : " + ex.Message);
+                Console.WriteLine("Error (RabbitService) : " + ex.Message + " | " + ex.Source + " | " + ex.StackTrace);
             }
 
             if (!handled)
             {
                 Console.WriteLine("Error (RabbitService) : " + "Unable to handle message");
-                channel.BasicNack(ea.DeliveryTag, false, true);
+                channel.BasicNack(ea.DeliveryTag, false, false);
+                return;
             }
             channel.BasicAck(ea.DeliveryTag, false);
             Console.WriteLine("Initialized event {0} for user {1}!", message.eventId, message.userId);
@@ -145,14 +146,14 @@ namespace YouPlug.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error (RabbitService) : " + ex.Message);
+                Console.WriteLine("Error (RabbitService) : " + ex.Message + " | " + ex.Source + " | " + ex.StackTrace);
                 handled = false; // Just to be over sure
             }
 
             if (!handled)
             {
                 Console.WriteLine("Error (RabbitService) : " + "Unable to handle message");
-                channel.BasicNack(ea.DeliveryTag, false, true);
+                channel.BasicNack(ea.DeliveryTag, false, false);
                 return;
             }
             channel.BasicAck(ea.DeliveryTag, false);
