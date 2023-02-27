@@ -174,7 +174,7 @@ class _StateServiceCard extends State<ServiceCard>{
     if (widget.service.authType == 'apiKey') {
       return getApiKeyInput();
     }
-    if (widget.service.authType == 'clientSecrets') {
+    if (widget.service.authType == 'clientSecret') {
       return getApiCredentialsInput();
     }
     return [
@@ -201,8 +201,7 @@ class _StateServiceCard extends State<ServiceCard>{
       padding: const EdgeInsets.all(10),
       child: Container(
         decoration: BoxDecoration(
-          //TODO: make a dominant color picker of the icon to color the container
-          color: PlugItStyle.cardColor,
+          color: widget.service.color,
           borderRadius: BorderRadius.circular(8)
         ),
         child: Row(

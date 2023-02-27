@@ -2,6 +2,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/PlugApi.dart';
 import 'package:mobile/models/plug/Plug.dart';
+import 'package:mobile/models/plug/PlugDetails.dart';
+import 'package:mobile/models/service/Service.dart';
 import 'package:mobile/ui-toolkit/PlugItStyle.dart';
 import 'package:transparent_image/transparent_image.dart';
 
@@ -17,6 +19,7 @@ class PlugCard extends StatefulWidget {
 }
 class _StatePlugCard extends State<PlugCard>{
   bool pressed = false;
+  List<Color?> colors = [];
 
 
   List<Widget> _getServiceBubbles() {
@@ -29,20 +32,23 @@ class _StatePlugCard extends State<PlugCard>{
       }
 
       bubbles.add(Container(
-        width: 46,
-        height: 46,
+        width: 60,
+        height: 60,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(100),
-          color: PlugItStyle.foregroundColor,
+          color: (colors.isNotEmpty && colors.length > idx && colors[idx] != null) ? colors[idx] : Colors.black26,
           border: Border.all(color: Colors.black)
         ),
-        child: CachedNetworkImage(
-          imageUrl: "${PlugApi.assetsUrl}/$icon",
-          placeholder: (context, url) => const CircularProgressIndicator(),
-          errorWidget: (context, url, error) => const Icon(Icons.error, color: Colors.black),
-          width: 44,
-          height: 44,
-        ),
+        child: Padding(
+          padding: EdgeInsets.all(5),
+          child: CachedNetworkImage(
+            imageUrl: "${PlugApi.assetsUrl}/$icon",
+            placeholder: (context, url) => const CircularProgressIndicator(),
+            errorWidget: (context, url, error) => const Icon(Icons.error, color: Colors.black),
+            width: 20,
+            height: 20,
+          ),
+        )
       ));
       if (idx + 1 < widget.plug.icons.length && idx + 1 <= 4) {
         bubbles.add(const SizedBox(width: 20,));
@@ -50,16 +56,20 @@ class _StatePlugCard extends State<PlugCard>{
       idx++;
     }
     if (widget.plug.icons.length > 5) {
-      var moreLen = 4 - widget.plug.icons.length;
+      var moreLen = widget.plug.icons.length - 4;
       bubbles.add(Container(
-          width: 12,
-          height: 12,
+          width: 60,
+          height: 60,
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(100),
-              color: PlugItStyle.foregroundColor,
+              color: Colors.black,
               border: Border.all(color: Colors.black)
           ),
-          child: Text("+$moreLen"),
+          child: Center(
+            child: Text("+$moreLen",
+              style: PlugItStyle.subtitleStyle,
+            ),
+          )
       ));
     }
     return bubbles;
@@ -76,6 +86,25 @@ class _StatePlugCard extends State<PlugCard>{
       pressed = false;
     });
     widget.callback!();
+  }
+
+  @override
+  void initState() {
+    PlugApi.getPlug(widget.plug.id).then((PlugDetails? value ) {
+      colors = List<Color?>.generate(2 + value!.actions.length, (index) => null);
+      PlugApi.getServiceByName(value!.event.serviceName).then((Service? service) {
+        setState(() {
+          colors[0] = service!.color;
+        });
+      });
+      for (var action in value!.actions) {
+        PlugApi.getServiceByName(action.serviceName).then((Service? service) {
+          setState(() {
+            colors[value.actions.indexOf(action) + 1] = service!.color;
+          });
+        });
+      }
+    });
   }
 
   @override

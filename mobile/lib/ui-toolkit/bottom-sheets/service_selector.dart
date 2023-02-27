@@ -44,8 +44,8 @@ class _StateServiceMenu extends State<ServiceMenu>{
         List<Widget> list = [];
         for (Service service in filteredServices ?? []) {
           list.add(const SizedBox(height: 10,));
-          list.add(ElevatedButton(
-              onPressed: () {
+          list.add(GestureDetector(
+              onTap: () {
                 widget.onServiceSelected(service);
                 Navigator.pop(context);
               },

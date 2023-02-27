@@ -45,9 +45,7 @@ class _StateVariableMenu extends State<VariableMenu>{
     return selectedPlugEvents;
   }
   Future setEventFromPlugEvent(PlugEvent ev, bool isTrigger, int idx, List<Event?> selectedPlugEvents) async {
-    print("Fetching event data: ${ev.id}");
     selectedPlugEvents[idx] = await PlugApi.getEvent(ev.serviceName, ev.id, isTrigger: isTrigger);
-    print("Fetched event data: ${ev.id}, and stored at $idx");
   }
 
   void displayMenu(BuildContext context) {
@@ -70,7 +68,11 @@ class _StateVariableMenu extends State<VariableMenu>{
               list.add(ElevatedButton(
                 onPressed: () {
                   Navigator.pop(context);
-                  widget.onVariableSelected(event, variable, widget.plug.actions.indexOf(widget.event));
+                  widget.onVariableSelected(
+                      event,
+                      variable,
+                      selectedPlugEvents.indexOf(event)
+                  );
                 },
                 child:
                 Column(

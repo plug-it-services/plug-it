@@ -11,6 +11,7 @@ Service _$ServiceFromJson(Map<String, dynamic> json) => Service(
       authType: json['authType'] as String,
       icon: json['icon'] as String,
       connected: json['connected'] as bool,
+      color: HexColor.fromHex(json['color']),
     );
 
 Map<String, dynamic> _$ServiceToJson(Service instance) => <String, dynamic>{
@@ -18,4 +19,5 @@ Map<String, dynamic> _$ServiceToJson(Service instance) => <String, dynamic>{
       'authType': instance.authType,
       'icon': instance.icon,
       'connected': instance.connected,
+      'color': instance.color.toHex()
     };

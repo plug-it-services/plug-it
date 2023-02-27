@@ -4,15 +4,15 @@ class PlugItStyle {
   static var foregroundColor = Colors.grey[100];
   static const backgroundColor = Colors.white70;
 
-  static var primaryColor = Colors.blue.shade700;
+  static var primaryColor = const Color.fromARGB(250, 39, 87, 201);
   static var secondaryColor = Colors.grey[300];
 
   static var buttonColor = Colors.blue.shade700;
   static var buttonColorPressed = Colors.blue.shade300;
-
+  
   static var validationColor = Colors.green[600];
 
-  static var cardColor = Colors.blue.shade500;
+  static var cardColor = const Color.fromARGB(250, 39, 87, 201);
 
 
   static const inputHintStyle = TextStyle(fontStyle: FontStyle.italic, fontWeight: FontWeight.normal, color: Colors.black);
@@ -37,4 +37,21 @@ extension StringExtension on String {
   String capitalize() {
     return "${this[0].toUpperCase()}${substring(1).toLowerCase()}";
   }
+}
+
+extension HexColor on Color {
+  /// String is in the format "aabbcc" or "ffaabbcc" with an optional leading "#".
+  static Color fromHex(String hexString) {
+    final buffer = StringBuffer();
+    if (hexString.length == 6 || hexString.length == 7) buffer.write('ff');
+    buffer.write(hexString.replaceFirst('#', ''));
+    return Color(int.parse(buffer.toString(), radix: 16));
+  }
+
+  /// Prefixes a hash sign if [leadingHashSign] is set to `true` (default is `true`).
+  String toHex({bool leadingHashSign = true}) => '${leadingHashSign ? '#' : ''}'
+      '${alpha.toRadixString(16).padLeft(2, '0')}'
+      '${red.toRadixString(16).padLeft(2, '0')}'
+      '${green.toRadixString(16).padLeft(2, '0')}'
+      '${blue.toRadixString(16).padLeft(2, '0')}';
 }

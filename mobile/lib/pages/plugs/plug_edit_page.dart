@@ -115,7 +115,7 @@ class PlugEditState extends State<PlugEdit> {
           name: '',
           event: PlugEvent(id: '', serviceName: '', fields: []),
           enabled: true,
-          actions: [],
+          actions: [PlugEvent(id: '', serviceName: '', fields: [])],
         );
         setActionCards();
       });
@@ -194,7 +194,7 @@ class PlugEditState extends State<PlugEdit> {
           const SizedBox(height: 20,),
           InputField(
             hint: "Enter Plug Name",
-            value: plugEdited!.name,
+            value: plugEdited?.name ?? "",
             onChanged: (value) => plugEdited!.name = value,
           ),
           const SizedBox(height: 20,),
