@@ -116,6 +116,7 @@ namespace YouPlug.Services
                 Console.WriteLine("NewVideoFromChannelModel already exists in database, updating it");
                 dbContext.NewVideoFromChannel.Update(model);
             }
+            dbContext.SaveChanges();
 
             if (!string.IsNullOrWhiteSpace(model.channelId))
             {
@@ -134,6 +135,7 @@ namespace YouPlug.Services
             }
 
             dbContext.NewVideoFromChannel.Remove(model);
+            dbContext.SaveChanges();
             Console.WriteLine("Removed NewVideoFromChannelModel for user " + userId + " and plug " + plugId);
 
             newVideoFromChannels.RemoveAll(newVideoFromChannel => newVideoFromChannel.userId == userId && newVideoFromChannel.plugId == plugId);
