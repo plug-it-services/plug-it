@@ -1,10 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { OutlookAuthService } from './outlook-auth.service';
 import axios from 'axios';
+import * as MicrosoftGraph from "@microsoft/microsoft-graph-types";
+import { Client, GraphRequest, GraphRequestCallback } from "@microsoft/microsoft-graph-client";
 
 @Injectable()
 export class OutlookService {
+
   constructor(private outlookAuthService: OutlookAuthService) {}
+
+
 
   async sendMail(message: any) {
     const token = await this.outlookAuthService.getAccessToken(message.userId);
@@ -211,25 +216,29 @@ export class OutlookService {
 
   async getMails(userId: number, count: number, inbox: string) {
     const token = await this.outlookAuthService.getAccessToken(userId);
-    const url =
-      'https://graph.microsoft.com/v1.0/me/mailFolders/' +
-      inbox +
-      '/messages?$top=' +
-      count;
+    const client = Client.init({
+      authProvider: (done) => {
+        done(null, token );
+      },
+    });
 
-    try {
-      return await axios.get(url, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": 'application/json'
-        },
-      });
-    } catch (e) {
-      console.error(e);
-    }
-    //console.log(response.data);
-    return null;
-  }
+    const options = {
+      // Filter to get only the 30 latest messages
+      filter: `IsRead eq false and IsDraft eq false`,
+      // Sort by receivedDateTime in descending order to get the latest messages first
+      orderby: "receivedDateTime",
+      // Select the fields to retrieve from the API
+      select: ["id", "subject", "from", "receivedDateTime", "body"],
+      // Limit the number of results to 30
+      top: count,
+    };
+
+    // Send the request to the Microsoft Graph API to get the latest messages
+    const result = await client.api(`/me/mailFolders/${inbox}/messages`).options(options).get();
+
+    // Return the messages as an array of MicrosoftGraph.Message objects
+    return result.value as MicrosoftGraph.Message[];
+  };
 
   async getMailInfo(userId: number, mailId: string, inbox: string) {
     const token = await this.outlookAuthService.getAccessToken(userId);

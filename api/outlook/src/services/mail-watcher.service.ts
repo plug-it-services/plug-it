@@ -5,6 +5,7 @@ import { OutlookService } from "./outlook.service";
 import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 import { AmqpConnection } from "@golevelup/nestjs-rabbitmq";
+import * as MicrosoftGraph from "@microsoft/microsoft-graph-types";
 
 @Injectable()
 export class MailWatcherService {
@@ -55,7 +56,7 @@ export class MailWatcherService {
     this.logger.log(`Published to ${queue}`);
   }
 
-  private async watchState(state: OutlookMailStateEntity) {
+  async watchState(state: OutlookMailStateEntity) {
     if (state == null) {
       this.logger.error("Failed to watch a plug");
       return;
@@ -72,7 +73,7 @@ export class MailWatcherService {
       );
       return;
     }
-    const mails = await this.getLatestMails(
+    const mails : MicrosoftGraph.Message[] = await this.getLatestMails(
       state.latestMailReceived,
       state.userId,
       state.inboxWatched,
@@ -88,7 +89,7 @@ export class MailWatcherService {
           state.plugId,
           state.userId,
           [
-            { key:"sender", value: mails[i].sender },
+            { key:"sender", value: mails[i].from.emailAddress.address },
             { key:"subject", value: mails[i].subject },
             { key:"body", value: mails[i].body.content },
             { key:"id", value: mails[i].id },
@@ -97,57 +98,45 @@ export class MailWatcherService {
       }
     }
     if (mails.length != 0) {
-      await this.updateState(state.plugId, mails[0].receivedDateTime);
-      state.latestMailReceived = mails[0].receivedDateTime;
+      const time = new Date(mails[0].receivedDateTime).getTime();
+      await this.updateState(state.plugId, time);
+      state.latestMailReceived = time;
     }
     setTimeout(() => {
       this.watchState(state);
     }, 1000*120);
   }
 
-  private isFilteredMail(mail: any, state: OutlookMailStateEntity) {
+  private isFilteredMail(mail: MicrosoftGraph.Message, state: OutlookMailStateEntity) {
     return (
       mail.subject.includes(state.mailSubjectFilter) &&
-      mail.sender.includes(state.mailSenderFilter) &&
+      mail.from.emailAddress.address.includes(state.mailSenderFilter) &&
       mail.body.content.includes(state.mailBodyFilter)
     );
   }
 
-  private async getLatestMails(latest: number, userId: number, inbox: string) {
-    let foundMails = [];
-    let count: number = 10;
-    let actualIdxWatched: number = 0;
-    let finished: boolean = false;
+  private async getLatestMails(latest: number, userId: number, inbox: string) : Promise<MicrosoftGraph.Message[]>{
+    let foundMails : MicrosoftGraph.Message[] = [];
 
-    while (!finished) {
-      const latestMails = await this.outlookService.getMails(
-        userId,
-        count,
-        inbox,
-      );
-      let actual = 0;
+    const mails = await this.outlookService.getMails(
+      userId,
+      30,
+      inbox,
+    );
+    let actual = 0;
 
-      const mails : any[] = latestMails.data.values;
-      for (let i = 0; i < mails.length; ++i) {
-        if (actual <= actualIdxWatched) continue;
-        const mailInfo = await this.outlookService.getMailInfo(
-          userId,
-          mails[i].id,
-          inbox,
-        );
-        const date = new Date(mailInfo.data.receivedDateTime);
-        this.logger.log("Seeking if mail date received: '" + mails[i].subject + "' ");
-        if (date.getTime() < latest) {
-          this.logger.log("Mail to old: '" + mails[i].subject + "', stopped fetching mail.");
-          this.logger.log("Mail date: " + mailInfo.data.receivedDateTime);
-          this.logger.log("Mail timestamp: " + date.getTime().toString());
-          this.logger.log("Against latest: " + latest.toString());
-          return foundMails;
-        }
-        foundMails.push(mailInfo.data);
-        actual += 1;
+    for (let i = 0; i < mails.length; ++i) {
+      const date = new Date(mails[i].receivedDateTime);
+      this.logger.log("Seeking if mail date received: '" + mails[i].subject + "' ");
+      if (date.getTime() < latest) {
+        this.logger.log("Mail to old: '" + mails[i].subject + "', stopped fetching mail.");
+        this.logger.log("Mail date: " + mails[i].receivedDateTime);
+        this.logger.log("Mail timestamp: " + date.getTime().toString());
+        this.logger.log("Against latest: " + latest.toString());
+        return foundMails;
       }
-      count += 10;
+      foundMails.push(mails[i]);
+      actual += 1;
     }
   }
 }

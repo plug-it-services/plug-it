@@ -8,6 +8,7 @@ import { OutlookService } from '../services/outlook.service';
 import { OutlookMailStateEntity } from "../schemas/outlookMailStateEntity";
 import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
+import { MailWatcherService } from "../services/mail-watcher.service";
 
 @Controller('listener')
 export class ListenerController {
@@ -18,6 +19,7 @@ export class ListenerController {
     private outlookService: OutlookService,
     @InjectRepository(OutlookMailStateEntity)
     private outlookMailStateRepository: Repository<OutlookMailStateEntity>,
+    private mailWatcherService: MailWatcherService
   ) {}
 
   @RabbitSubscribe({
@@ -48,10 +50,13 @@ export class ListenerController {
       const senderFilter = msg.fields.find(
         (field: any) => field.key === 'sender',
       ).value;
-      const inboxFilter = msg.fields.find(
+      let inboxFilter = msg.fields.find(
         (field: any) => field.key === 'inbox',
       ).value;
       const date = new Date();
+
+      if (inboxFilter === '')
+        inboxFilter = 'inbox';
 
       this.logger.log("Adding mail watcher");
       await this.outlookMailStateRepository.insert(
@@ -64,7 +69,9 @@ export class ListenerController {
           mailSubjectFilter: subjectFilter,
           inboxWatched: inboxFilter,
         }
-      )
+      );
+      let state = (await this.outlookMailStateRepository.findBy({ plugId: msg.plugId }))[0];
+      this.mailWatcherService.watchState(state);
     } catch (e) {
       this.logger.error(e)
     }
@@ -102,10 +109,6 @@ export class ListenerController {
     const { actionId, plugId, runId, userId } = msg;
     this.logger.log(`Received an '${actionId}' event !`);
     try {
-      if (actionId === 'email') {
-        await this.outlookService.sendMail(msg);
-        return;
-      }
       switch (actionId) {
         case 'email':
           await this.outlookService.sendMail(msg);
@@ -134,6 +137,17 @@ export class ListenerController {
           await this.publish(
             'plug_action_finished',
             'set_high',
+            plugId,
+            userId,
+            runId,
+            []
+          )
+          return;
+        case 'move':
+          await this.outlookService.moveMail(msg);
+          await this.publish(
+            'plug_action_finished',
+            'move',
             plugId,
             userId,
             runId,

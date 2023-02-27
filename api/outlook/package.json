@@ -21,6 +21,8 @@
   },
   "dependencies": {
     "@golevelup/nestjs-rabbitmq": "^3.4.0",
+    "@microsoft/microsoft-graph-client": "^3.0.5",
+    "@microsoft/microsoft-graph-types": "^2.26.0",
     "@nestjs/common": "^9.0.0",
     "@nestjs/config": "^2.2.0",
     "@nestjs/core": "^9.0.0",

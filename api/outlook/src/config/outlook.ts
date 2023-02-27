@@ -201,5 +201,27 @@ export const outlook = {
         },
       ],
     },
+    {
+      id: 'move',
+      name: 'Move EMail',
+      description: 'Move a given email to a specified folder.',
+      variables: [],
+      fields: [
+        {
+          key: 'id',
+          type: 'string',
+          displayName: 'Id',
+          description: 'The email id which you want to move.',
+          required: true,
+        },
+        {
+          key: 'inbox',
+          type: 'string',
+          displayName: 'Inbox Id',
+          description: 'Set your destination Id or a well known folder name (e.g: "deleteditems").',
+          required: true,
+        },
+      ],
+    },
   ],
 };

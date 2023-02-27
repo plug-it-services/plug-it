@@ -70,7 +70,16 @@ export class AppController {
     @Response() res,
     @Query('code') code: string,
     @Query('state') state: string,
+    @Query('error') error: string,
+    @Query('error_description') error_desc: string,
   ) {
+
+    if (error) {
+      this.logger.error("There was an error: " + error);
+      this.logger.error("Description: " + error_desc);
+      return;
+    }
+
     const { userId, redirectUrl } =
       await this.outlookAuthService.storeAccessToken(state, code);
 
@@ -80,7 +89,6 @@ export class AppController {
         userId: userId,
       },
     );
-
     res.redirect(redirectUrl);
   }
 }
