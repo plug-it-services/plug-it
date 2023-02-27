@@ -20,6 +20,18 @@ const PlugsPage = () => {
     setSearchedPlugs(plugList);
   };
 
+  const togglePlug = (plug: Plug) => {
+    setPlugEnable(!plug.enabled, plug.id).then(() => {
+      const newPlugs = plugs.map((p) => {
+        if (p.id === plug.id) {
+          return { ...p, enabled: !p.enabled };
+        }
+        return p;
+      });
+      setSearchedPlugs(newPlugs);
+    });
+  };
+
   useEffect(() => {
     getPlugs()
       .then(initPlugs)
@@ -72,7 +84,8 @@ const PlugsPage = () => {
           <MDBCol xs="12" md="4" lg="3" key={index} className={'py-3 d-flex'}>
             <PlugCard
               plug={plug}
-              onStateClickButton={() => setPlugEnable(!plug.enabled, plug.id)}
+              key={plug.id}
+              onStateClickButton={() => togglePlug(plug)}
               onEditClickButton={() => {
                 navigate(`/plugs/edit/${plug.id}`);
               }}
