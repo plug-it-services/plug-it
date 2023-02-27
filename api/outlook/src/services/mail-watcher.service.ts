@@ -53,51 +53,56 @@ export class MailWatcherService {
   }
 
   async watchState(state: OutlookMailStateEntity) {
-    if (state == null) {
-      this.logger.error("Failed to watch a plug");
-      return;
-    }
-    this.logger.log("Watching mails for plug :" + state.plugId);
-    const found = await this.outlookMailStateRepository.findBy({
-      plugId: state.plugId,
-    });
-    if (found === undefined || found.length === 0) {
-      this.logger.error(
-        "Stopped fetching mails for plug '%s', from user '%s', cannot find plug in db",
-        state.plugId,
+    try {
+      if (state == null) {
+        this.logger.error("Failed to watch a plug");
+        return;
+      }
+      this.logger.log("Watching mails for plug :" + state.plugId);
+      const found = await this.outlookMailStateRepository.findBy({
+        plugId: state.plugId,
+      });
+      if (found === undefined || found.length === 0) {
+        this.logger.error(
+          "Stopped fetching mails for plug '%s', from user '%s', cannot find plug in db",
+          state.plugId,
+          state.userId,
+        );
+        return;
+      }
+      const mails : MicrosoftGraph.Message[] = await this.getLatestMails(
+        state.latestMailReceived,
         state.userId,
+        state.inboxWatched,
       );
-      return;
-    }
-    const mails : MicrosoftGraph.Message[] = await this.getLatestMails(
-      state.latestMailReceived,
-      state.userId,
-      state.inboxWatched,
-    );
-    this.logger.log("Reading '" + mails.length.toString() +"' mails ...");
-    for (let i = 0; i < mails.length; ++i) {
-      this.logger.log("Reading '" + mails[i].subject + "' mail ...");
-      if (!this.isFilteredMail(mails[i], state))
-        continue;
-      this.logger.log("Mail '" + mails[i].subject + "' passed validation !!!");
-      await this.publish(
-        'plugs_events',
-        'mailReceived',
-        state.plugId,
-        state.userId,
-        [
-          { key:"sender", value: mails[i].from.emailAddress.address },
-          { key:"subject", value: mails[i].subject },
-          { key:"body", value: mails[i].body.content },
-          { key:"id", value: mails[i].id },
-          { key:"date", value: mails[i].receivedDateTime },
-        ],
-      );
-    }
-    if (mails.length != 0) {
-      const time = new Date(mails[0].receivedDateTime).getTime();
-      await this.updateState(state.plugId, time);
-      state.latestMailReceived = time;
+      this.logger.log("Reading '" + mails.length.toString() +"' mails ...");
+      for (let i = 0; i < mails.length; ++i) {
+        this.logger.log("Reading '" + mails[i].subject + "' mail ...");
+        if (!this.isFilteredMail(mails[i], state))
+          continue;
+        this.logger.log("Mail '" + mails[i].subject + "' passed validation !!!");
+        await this.publish(
+          'plugs_events',
+          'mailReceived',
+          state.plugId,
+          state.userId,
+          [
+            { key:"sender", value: mails[i].from.emailAddress.address },
+            { key:"subject", value: mails[i].subject },
+            { key:"body", value: mails[i].body.content },
+            { key:"id", value: mails[i].id },
+            { key:"date", value: mails[i].receivedDateTime },
+          ],
+        );
+      }
+      if (mails.length != 0) {
+        const time = new Date(mails[0].receivedDateTime).getTime();
+        await this.updateState(state.plugId, time);
+        state.latestMailReceived = time;
+      }
+
+    } catch (error) {
+      this.logger.error(error);
     }
     setTimeout(() => {
       this.watchState(state);
