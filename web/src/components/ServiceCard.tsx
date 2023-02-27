@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { MDBCard, MDBCardBody, MDBCardFooter, MDBCol, MDBRow } from 'mdb-react-ui-kit';
+import { MDBCard, MDBCardBody, MDBCardFooter } from 'mdb-react-ui-kit';
 import CardActions from '@mui/material/CardActions';
 import Typography from '@mui/material/Typography';
+import { useNavigate } from 'react-router-dom';
 import Button from './Button';
 import { authOAuth2, authService, disconnectService, Service } from '../utils/api';
 import MessageBox from './MessageBox';
@@ -12,6 +13,7 @@ export interface IServiceCardProps {
 }
 
 function ServiceCard({ service }: IServiceCardProps, props: any) {
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const onClose = () => {
     setOpen(false);
@@ -20,6 +22,7 @@ function ServiceCard({ service }: IServiceCardProps, props: any) {
   const handleOnClick = async () => {
     if (service.connected) {
       await disconnectService(service);
+      navigate(0);
       return;
     }
     if (service.authType === 'apiKey') {
@@ -78,6 +81,7 @@ function ServiceCard({ service }: IServiceCardProps, props: any) {
               onClick={async () => {
                 await authService(service, key);
                 setOpen(false);
+                navigate(0);
               }}
             />
           </MessageBox>

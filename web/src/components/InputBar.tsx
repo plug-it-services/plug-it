@@ -30,7 +30,7 @@ function InputBar({
   return (
     <Box
       component="form"
-      className="input-bar"
+      className="input-bar d-flex"
       sx={{
         borderColor,
         backgroundColor,

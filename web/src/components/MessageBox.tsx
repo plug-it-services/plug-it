@@ -24,7 +24,7 @@ function MessageBox({ title, description, type, isOpen, onClose, children }: IMe
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
-        <Card className={'message-box'}>
+        <Card className={'message-box p-3'}>
           <CardContent>
             <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
               {type === 'error' && <CancelIcon sx={{ color: '#F44336' }} />}
