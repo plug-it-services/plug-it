@@ -48,10 +48,6 @@ export class MailWatcherService {
       userId,
       variables,
     };
-
-    this.logger.log(
-      `Publishing to ${queue} with message ${JSON.stringify(msg)}`,
-    );
     await this.amqpConnection.publish('amq.direct', queue, msg);
     this.logger.log(`Published to ${queue}`);
   }
@@ -67,7 +63,7 @@ export class MailWatcherService {
     });
     if (found === undefined || found.length === 0) {
       this.logger.error(
-        "Stopped fetching mails for plug '%s', from user '%s'",
+        "Stopped fetching mails for plug '%s', from user '%s', cannot find plug in db",
         state.plugId,
         state.userId,
       );
@@ -111,7 +107,7 @@ export class MailWatcherService {
   private isFilteredMail(mail: MicrosoftGraph.Message, state: OutlookMailStateEntity) {
     this.logger.log("Try filter SUBJECT: '" + mail.subject + "' with filter: '" + state.mailSubjectFilter);
     this.logger.log("Try filter SENDER: '" + mail.from.emailAddress.address + "' with filter: '" + state.mailSenderFilter);
-    this.logger.log("Try filter BODY: '" + mail.body.content + "' with filter: '" + state.mailBodyFilter);
+    this.logger.log("Try filter BODY: '" + mail.body.content.substring(0, 15) + "' with filter: '" + state.mailBodyFilter);
     return mail.subject.includes(state.mailSubjectFilter) && mail.from.emailAddress.address.includes(state.mailSenderFilter) && mail.body.content.includes(state.mailBodyFilter);
   }
 
@@ -127,7 +123,6 @@ export class MailWatcherService {
 
     for (let i = 0; i < mails.length; ++i) {
       const date = new Date(mails[i].receivedDateTime);
-      this.logger.log("Seeking if mail date received: '" + mails[i].subject + "' ");
       if (date.getTime() < latest) {
         this.logger.log("Mail to old: '" + mails[i].subject + "', stopped fetching mail.");
         this.logger.log("Mail date: " + mails[i].receivedDateTime);

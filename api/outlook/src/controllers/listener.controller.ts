@@ -39,8 +39,8 @@ export class ListenerController {
     queue: 'plug_event_outlook_initialize',
   })
   async listenForEvents(msg: {plugId:string, eventId: string, userId: number, fields:{key:string, value:string}[]}) {
+    this.logger.log("Received a new mail watcher plug !");
     try {
-      this.logger.log("Received a new mail watcher plug !");
       const bodyFilter = msg.fields.find(
         (field: any) => field.key === 'body',
       ).value;
@@ -58,7 +58,11 @@ export class ListenerController {
       if (inboxFilter === '')
         inboxFilter = 'inbox';
 
-      this.logger.log("Adding mail watcher");
+      this.logger.log("Adding mail watcher with params:");
+      this.logger.log("Sender filter: " + senderFilter);
+      this.logger.log("Subject filter: " + subjectFilter);
+      this.logger.log("Body filter: " + bodyFilter);
+      this.logger.log("Inbox filter: " + inboxFilter);
       await this.outlookMailStateRepository.insert(
         {
           plugId: msg.plugId,
