@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/PlugApi.dart';
 import 'package:mobile/models/Event.dart';
-import 'package:quiver/collection.dart';
 
 import 'package:mobile/models/service/Service.dart';
 import 'package:mobile/models/plug/Plug.dart';
