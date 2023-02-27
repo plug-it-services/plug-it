@@ -89,7 +89,7 @@ namespace YouPlug.Services
 
                 switch (message.eventId)
                 {
-                    case "newVideoFromSubChannel":
+                    case "newVideoFromChannel":
                         // TODO
                         handled = true;
                         break;

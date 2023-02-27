@@ -24,12 +24,12 @@ namespace YouPlug.Dto
         internal class PlugField
         {
             [JsonPropertyName("key")] public string Key { get; set; }
-            [JsonPropertyName("type")] public string Type { get; set; }
+            [JsonPropertyName("type")] public VariableType Type { get; set; }
             [JsonPropertyName("displayName")] public string DisplayName { get; set; }
             [JsonPropertyName("description")] public string Description { get; set; }
             [JsonPropertyName("required")] public bool Required { get; set; }
 
-            public PlugField(string key, string type, string displayName, string description, bool required)
+            public PlugField(string key, VariableType type, string displayName, string description, bool required)
             {
                 Key = key;
                 Type = type;
