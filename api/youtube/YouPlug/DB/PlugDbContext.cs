@@ -11,5 +11,6 @@ namespace YouPlug.Db
 
         public DbSet<YouPlugAuthModel> Auths { get; set; }
         public DbSet<NewVideoFromChannelModel> NewVideoFromChannel { get; set; }
+        public DbSet<NewVideoFromMyChannelModel> NewVideoFromMyChannel { get; set; }
     }
 }

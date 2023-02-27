@@ -104,7 +104,7 @@ namespace YouPlug.Services
             return response.Items[0].Id;
         }
 
-        public List<VideoDto> GetVideos(string? channelId)
+        public List<VideoDto> GetVideos(string? channelId, int maxResults)
         {
             List<VideoDto> videos = new();
             var request = youtubeService.Search.List("snippet");
@@ -113,7 +113,8 @@ namespace YouPlug.Services
             else
                 request.ChannelId = channelId;
             request.Order = SearchResource.ListRequest.OrderEnum.Date;
-            request.MaxResults = 2; // No need to query a lot of videos
+            request.Type = "video";
+            request.MaxResults = maxResults;
 
             var response = request.Execute();
             var searchResults = response.Items;

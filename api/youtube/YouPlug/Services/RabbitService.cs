@@ -100,6 +100,17 @@ namespace YouPlug.Services
                         Program.fetcherService.AddNewVideoFromChannel(model);
                         handled = true;
                         break;
+                    case "newVideoFromMyChannel":
+                        Console.WriteLine("New video from my channel {0} for user {1} for plugId {2}!", message.eventId, message.userId, message.plugId);
+                        NewVideoFromMyChannelModel newVideoFromMyChannel = new()
+                        {
+                            userId = message.userId,
+                            plugId = message.plugId,
+                            lastVideoDate = new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds()
+                        };
+                        Program.fetcherService.AddNewVideoFromMyChannel(newVideoFromMyChannel);
+                        handled = true;
+                        break;
                     default:
                         Console.WriteLine("Error (RabbitService) : " + "Unable to handle message");
                         handled = false; // Just to be over sure
@@ -108,7 +119,7 @@ namespace YouPlug.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error (RabbitService) : " + ex.Message + " | " + ex.Source + " | " + ex.StackTrace);
+                Console.WriteLine(ex.ToString());
             }
 
             if (!handled)
@@ -145,6 +156,10 @@ namespace YouPlug.Services
                         Program.fetcherService.RemoveNewVideoFromChannel(message.userId, message.plugId);
                         handled = true;
                         break;
+                    case "newVideoFromMyChannel":
+                        Program.fetcherService.RemoveNewVideoFromMyChannel(message.userId, message.plugId);
+                        handled = true;
+                        break;
                     default:
                         Console.WriteLine("Error (RabbitService) : " + "Unable to handle message");
                         handled = false; // Just to be over sure
@@ -153,7 +168,7 @@ namespace YouPlug.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error (RabbitService) : " + ex.Message + " | " + ex.Source + " | " + ex.StackTrace);
+                Console.WriteLine(ex.ToString());
                 handled = false; // Just to be over sure
             }
 
@@ -181,6 +196,19 @@ namespace YouPlug.Services
             });
         }
 
+        public void OnNewVideoFromMyChannel(NewVideoFromMyChannelModel model, VideoDto videoDto)
+        {
+            if (channel == null)
+            {
+                Console.WriteLine("Error (RabbitService) : " + "Channel is null");
+                return;
+            }
+
+            FireEvent("newVideoFromMyChannel", model.plugId, model.userId, new Variable[] {
+                new Variable() { key = "channelTitle", value = videoDto.ChannelTitle },
+                new Variable() { key = "videoTitle", value = videoDto.Title },
+            });
+        }
 
         public void FireEvent(string eventId, string plugId, int userId, Variable[] variables)
         {

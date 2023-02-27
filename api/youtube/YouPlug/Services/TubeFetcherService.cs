@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 using YouPlug.Db;
 using YouPlug.Models;
 
@@ -9,6 +10,7 @@ namespace YouPlug.Services
         private List<UserTubeFetcher> userTubeFetchers = new();
 
         private List<NewVideoFromChannelModel> newVideoFromChannels = new();
+        private List<NewVideoFromMyChannelModel> newVideoFromMyChannels = new();
 
         private PlugDbContext dbContext;
         private RabbitService rabbitService;
@@ -21,7 +23,7 @@ namespace YouPlug.Services
 
             if (string.IsNullOrWhiteSpace(rabbitMq))
                 throw new Exception("Unable to recover RABBITMQ_URL env var!");
-            
+
             rabbitService = new RabbitService(new Uri(rabbitMq));
             rabbitService.Start();
 
@@ -37,7 +39,67 @@ namespace YouPlug.Services
                 AddNewVideoFromChannel(model, false);
             });
 
+            plugDbContext.NewVideoFromMyChannel.ToList().ForEach(model =>
+            {
+                AddNewVideoFromMyChannel(model, false);
+            });
+
             Start();
+        }
+
+        public void NewVideoFromChannelRoutine()
+        {
+            newVideoFromChannels.ForEach(model =>
+            {
+                userTubeFetchers.ForEach(userTubeFetcher =>
+                {
+                    userTubeFetcher.GetVideos(model.channelId, 1).ForEach(video =>
+                    {
+                        long nowUnix = new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds();
+                        long videoUnix = new DateTimeOffset(video.PublishedAt).ToUnixTimeSeconds();
+
+                        Console.WriteLine("Scanned video \"" + video.Title + "\" from " + model.channelId + " for user " + userTubeFetcher.GetAuth().userId + " (published at " + video.PublishedAt + "[UNIX: " + videoUnix + "]");
+                        Console.WriteLine("Last video date (from db): " + model.lastVideoDate + " (now: " + nowUnix + ")");
+
+                        if (videoUnix > model.lastVideoDate)
+                        {
+                            Console.WriteLine("New video from " + model.channelId + " for user " + userTubeFetcher.GetAuth().userId);
+                            rabbitService.OnNewVideoFromChannel(model, video);
+                            dbContext.NewVideoFromChannel.First(dbModel => dbModel.plugId == model.plugId).lastVideoDate = videoUnix;
+                            dbContext.SaveChanges();
+                        }
+                    });
+                });
+            });
+        }
+
+        public void NewVideoFromMyChannelRoutine()
+        {
+            newVideoFromMyChannels.ForEach(model =>
+            {
+                userTubeFetchers.ForEach(userTubeFetcher =>
+                {
+                    if (userTubeFetcher.GetAuth().userId != model.userId)
+                        return;
+
+                    userTubeFetcher.GetVideos(userTubeFetcher.GetMyOwnChannelId(), 1).ForEach(video =>
+                    {
+                        long nowUnix = new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds();
+                        long videoUnix = new DateTimeOffset(video.PublishedAt).ToUnixTimeSeconds();
+
+                        Console.WriteLine("Scanned video \"" + video.Title + "\" from my channel for user " + userTubeFetcher.GetAuth().userId + " (published at " + video.PublishedAt + "[UNIX: " + videoUnix + "]");
+                        Console.WriteLine("Last video date (from db): " + model.lastVideoDate + " (now: " + nowUnix + ")");
+
+                        if (videoUnix > model.lastVideoDate)
+                        {
+                            Console.WriteLine("New video from my channel for user " + userTubeFetcher.GetAuth().userId);
+                            rabbitService.OnNewVideoFromMyChannel(model, video);
+                            dbContext.NewVideoFromMyChannel.First(dbModel => dbModel.plugId == model.plugId).lastVideoDate = videoUnix;
+                            dbContext.SaveChanges();
+                        }
+                    });
+                });
+            });
         }
 
         public Task Start()
@@ -49,28 +111,8 @@ namespace YouPlug.Services
                     Console.WriteLine("TubeFetcherService: Checking for new videos...");
                     try
                     {
-                        newVideoFromChannels.ForEach(model =>
-                        {
-                            userTubeFetchers.ForEach(userTubeFetcher =>
-                            {
-                                userTubeFetcher.GetVideos(model.channelId).ForEach(video =>
-                                {
-                                    long nowUnix = new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds();
-                                    long videoUnix = new DateTimeOffset(video.PublishedAt).ToUnixTimeSeconds();
-
-                                    Console.WriteLine("Scanned video \"" + video.Title + "\" from " + model.channelId + " for user " + userTubeFetcher.GetAuth().userId + " (published at " + video.PublishedAt + "[UNIX: " + videoUnix + "]");
-                                    Console.WriteLine("Last video date (from db): " + model.lastVideoDate + " (now: " + nowUnix + ")");
-
-                                    if (videoUnix > model.lastVideoDate)
-                                    {
-                                        Console.WriteLine("New video from " + model.channelId + " for user " + userTubeFetcher.GetAuth().userId);
-                                        rabbitService.OnNewVideoFromChannel(model, video);
-                                        dbContext.NewVideoFromChannel.First(dbModel => dbModel.plugId == model.plugId).lastVideoDate = videoUnix;
-                                        dbContext.SaveChanges();
-                                    }
-                                });
-                            });
-                        });
+                        NewVideoFromChannelRoutine();
+                        NewVideoFromMyChannelRoutine();
                     }
                     catch (Exception e)
                     {
@@ -108,8 +150,8 @@ namespace YouPlug.Services
                 Console.WriteLine("No UserTubeFetcher found for user " + userId);
             else
                 Console.WriteLine("Removed UserTubeFetcher for user " + userId);
-        }
-
+        }  
+        
         public void AddNewVideoFromChannel(NewVideoFromChannelModel model, bool registerInDb = true)
         {
             if (registerInDb && dbContext.NewVideoFromChannel.Find(model.userId, model.plugId) == null)
@@ -139,12 +181,59 @@ namespace YouPlug.Services
                 return;
             }
 
-            dbContext.NewVideoFromChannel.Remove(model);
+            var ent = dbContext.NewVideoFromChannel.Remove(model);
             dbContext.SaveChanges();
-            Console.WriteLine("Removed NewVideoFromChannelModel for user " + userId + " and plug " + plugId);
+            if (ent.State == EntityState.Deleted)
+                Console.WriteLine("Removed NewVideoFromChannelModel for user " + userId + " and plug " + plugId);
+            else
+                Console.WriteLine("Unable to remove NewVideoFromChannelModel for user " + userId + " and plug " + plugId + " because it doesn't exist");
 
-            newVideoFromChannels.RemoveAll(newVideoFromChannel => newVideoFromChannel.userId == userId && newVideoFromChannel.plugId == plugId);
-            Console.WriteLine("Removed listener on " + model.channelId + " to track new video. (Requested by " + model.userId + " | " + model.plugId + ")");
+            int cnt = newVideoFromChannels.RemoveAll(newVideoFromChannel => newVideoFromChannel.userId == userId && newVideoFromChannel.plugId == plugId);
+            if (cnt == 0)
+                Console.WriteLine("Unable to remove listener on " + model.channelId + " to track new video. (Requested by " + model.userId + " | " + model.plugId + ")");
+            else
+                Console.WriteLine("Removed listener on " + model.channelId + " to track new video. (Requested by " + model.userId + " | " + model.plugId + ")");
+        }
+
+        public void AddNewVideoFromMyChannel(NewVideoFromMyChannelModel model, bool registerInDb = true)
+        {
+            if (registerInDb && dbContext.NewVideoFromMyChannel.Find(model.userId, model.plugId) == null)
+            {
+                Console.WriteLine("NewVideoFromMyChannelModel not found in database, adding it");
+                dbContext.NewVideoFromMyChannel.Add(model);
+            }
+            else if (registerInDb)
+            {
+                Console.WriteLine("NewVideoFromMyChannelModel already exists in database, updating it");
+                dbContext.NewVideoFromMyChannel.Update(model);
+            }
+            dbContext.SaveChanges();
+
+            newVideoFromMyChannels.Add(model);
+            Console.WriteLine("Added listener on user " + model.userId + " channel to track new video. (Requested by " + model.userId + " | " + model.plugId + ")");
+        }
+
+        public void RemoveNewVideoFromMyChannel(int userId, string plugId)
+        {
+            NewVideoFromMyChannelModel? model = dbContext.NewVideoFromMyChannel.Find(userId, plugId);
+            if (model == null)
+            {
+                Console.WriteLine("Unable to remove NewVideoFromMyChannelModel for user " + userId + " and plug " + plugId + " because it doesn't exist");
+                return;
+            }
+
+            var ent = dbContext.NewVideoFromMyChannel.Remove(model);
+            dbContext.SaveChanges();
+            if (ent.State == EntityState.Deleted)
+                Console.WriteLine("Removed NewVideoFromMyChannelModel for user " + userId + " and plug " + plugId);
+            else
+                Console.WriteLine("Unable to remove NewVideoFromMyChannelModel for user " + userId + " and plug " + plugId + " because it doesn't exist");
+
+            int cnt = newVideoFromMyChannels.RemoveAll(newVideoFromMyChannel => newVideoFromMyChannel.userId == userId && newVideoFromMyChannel.plugId == plugId);
+            if (cnt == 0)
+                Console.WriteLine("Unable to remove listener on user " + model.userId + " channel to track new video. (Requested by " + model.userId + " | " + model.plugId + ")");
+            else
+                Console.WriteLine("Removed listener on user " + model.userId + " channel to track new video. (Requested by " + model.userId + " | " + model.plugId + ")");
         }
     }
 }
