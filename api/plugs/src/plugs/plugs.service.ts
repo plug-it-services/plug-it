@@ -258,7 +258,7 @@ export class PlugsService {
 
   async update(id: string, plug: PlugSubmitDto): Promise<PlugWithId> {
     const updated = await this.plugsModel
-      .findByIdAndUpdate(id, plug)
+      .findByIdAndUpdate(id, plug, { new: true })
       .lean()
       .exec();
 
@@ -267,7 +267,7 @@ export class PlugsService {
 
   async editEnabled(id: string, enabled: boolean): Promise<Plug> {
     const updated = await this.plugsModel
-      .findByIdAndUpdate(id, { enabled: enabled })
+      .findByIdAndUpdate(id, { enabled: enabled }, { new: true })
       .lean()
       .exec();
 

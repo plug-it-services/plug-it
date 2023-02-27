@@ -77,11 +77,22 @@ export class PublicController {
   @Delete(':id')
   async deletePlug(@Param('id') id: string, @Headers('user') userDto: string) {
     const user: UserHeaderDto = JSON.parse(userDto);
+
+    this.logger.log(`Deleting plug ${id} of user ${user.id}`);
+
     const plug = await this.plugsService.findById(id);
 
     if (!plug) throw new NotFoundException(`Plug with id ${id} does not exist`);
     if (plug.owner !== user.id)
       throw new ForbiddenException('Cannot delete a plug that is not yours');
+    await this.eventConnectorService.emitPlugDisabling(
+      plug.event.serviceName,
+      {
+        plugId: plug.id,
+        eventId: plug.event.id,
+        userId: user.id,
+      }
+    );
     return this.plugsService.delete(id);
   }
 
