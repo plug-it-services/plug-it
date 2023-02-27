@@ -218,7 +218,7 @@ export const outlook = {
           key: 'inbox',
           type: 'string',
           displayName: 'Inbox Id',
-          description: 'Set your destination Id or a well known folder name (e.g: "deleteditems").',
+          description: 'Set your destination Id: (e.g: "deleteditems, archive, junkemail, outbox, sentitems, drafts, etc...").',
           required: true,
         },
       ],

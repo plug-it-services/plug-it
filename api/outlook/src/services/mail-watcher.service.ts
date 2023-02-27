@@ -81,22 +81,22 @@ export class MailWatcherService {
     this.logger.log("Reading '" + mails.length.toString() +"' mails ...");
     for (let i = 0; i < mails.length; ++i) {
       this.logger.log("Reading '" + mails[i].subject + "' mail ...");
-      if (this.isFilteredMail(mails[i], state)) {
-        this.logger.log("Mail '" + mails[i].subject + "' passed validation !!!");
-        await this.publish(
-          'plugs_events',
-          'mailReceived',
-          state.plugId,
-          state.userId,
-          [
-            { key:"sender", value: mails[i].from.emailAddress.address },
-            { key:"subject", value: mails[i].subject },
-            { key:"body", value: mails[i].body.content },
-            { key:"id", value: mails[i].id },
-            { key:"date", value: mails[i].receivedDateTime },
-          ],
-        );
-      }
+      if (!this.isFilteredMail(mails[i], state))
+        continue;
+      this.logger.log("Mail '" + mails[i].subject + "' passed validation !!!");
+      await this.publish(
+        'plugs_events',
+        'mailReceived',
+        state.plugId,
+        state.userId,
+        [
+          { key:"sender", value: mails[i].from.emailAddress.address },
+          { key:"subject", value: mails[i].subject },
+          { key:"body", value: mails[i].body.content },
+          { key:"id", value: mails[i].id },
+          { key:"date", value: mails[i].receivedDateTime },
+        ],
+      );
     }
     if (mails.length != 0) {
       const time = new Date(mails[0].receivedDateTime).getTime();
@@ -109,11 +109,10 @@ export class MailWatcherService {
   }
 
   private isFilteredMail(mail: MicrosoftGraph.Message, state: OutlookMailStateEntity) {
-    return (
-      mail.subject.includes(state.mailSubjectFilter) &&
-      mail.from.emailAddress.address.includes(state.mailSenderFilter) &&
-      mail.body.content.includes(state.mailBodyFilter)
-    );
+    this.logger.log("Try filter SUBJECT: '" + mail.subject + "' with filter: '" + state.mailSubjectFilter);
+    this.logger.log("Try filter SENDER: '" + mail.from.emailAddress.address + "' with filter: '" + state.mailSenderFilter);
+    this.logger.log("Try filter BODY: '" + mail.body.content + "' with filter: '" + state.mailBodyFilter);
+    return mail.subject.includes(state.mailSubjectFilter) && mail.from.emailAddress.address.includes(state.mailSenderFilter) && mail.body.content.includes(state.mailBodyFilter);
   }
 
   private async getLatestMails(latest: number, userId: number, inbox: string) : Promise<MicrosoftGraph.Message[]>{
