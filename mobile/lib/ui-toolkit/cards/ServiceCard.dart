@@ -174,7 +174,7 @@ class _StateServiceCard extends State<ServiceCard>{
     if (widget.service.authType == 'apiKey') {
       return getApiKeyInput();
     }
-    if (widget.service.authType == 'clientSecrets') {
+    if (widget.service.authType == 'clientSecret') {
       return getApiCredentialsInput();
     }
     return [

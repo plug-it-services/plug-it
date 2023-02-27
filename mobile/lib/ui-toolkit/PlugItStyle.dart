@@ -4,15 +4,15 @@ class PlugItStyle {
   static var foregroundColor = Colors.grey[100];
   static const backgroundColor = Colors.white70;
 
-  static var primaryColor = Colors.blue.shade700;
+  static var primaryColor = const Color.fromARGB(250, 39, 87, 201);
   static var secondaryColor = Colors.grey[300];
 
   static var buttonColor = Colors.blue.shade700;
   static var buttonColorPressed = Colors.blue.shade300;
-
+  
   static var validationColor = Colors.green[600];
 
-  static var cardColor = Colors.blue.shade500;
+  static var cardColor = const Color.fromARGB(250, 39, 87, 201);
 
 
   static const inputHintStyle = TextStyle(fontStyle: FontStyle.italic, fontWeight: FontWeight.normal, color: Colors.black);
