@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using YouPlug.Dto;
 
 namespace YouPlug.Services
