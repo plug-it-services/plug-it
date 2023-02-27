@@ -194,7 +194,7 @@ class PlugEditState extends State<PlugEdit> {
           const SizedBox(height: 20,),
           InputField(
             hint: "Enter Plug Name",
-            value: plugEdited!.name,
+            value: plugEdited?.name ?? "",
             onChanged: (value) => plugEdited!.name = value,
           ),
           const SizedBox(height: 20,),
