@@ -133,7 +133,7 @@ namespace YouPlug.Services
 
                 switch (message.eventId)
                 {
-                    case "newVideoFromSubChannel":
+                    case "newVideoFromChannel":
                         // TODO
                         handled = true;
                         break;
@@ -156,6 +156,7 @@ namespace YouPlug.Services
                 Console.WriteLine("Error (RabbitService) : " + "Unable to handle message");
                 Console.WriteLine("Error (RabbitService) : " + "Unable to handle message");
                 channel.BasicNack(ea.DeliveryTag, false, true);
+                return;
             }
             channel.BasicAck(ea.DeliveryTag, false);
             Console.WriteLine("Disabled event {0} for user {1}", message.eventId, message.userId);

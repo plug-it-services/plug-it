@@ -74,6 +74,7 @@ using (var context = new PlugDbContext(builder.Services.BuildServiceProvider().G
 {
     context.Database.EnsureCreated();
     context.Database.Migrate();
+    YouPlug.Program.fetcherService = new TubeFetcherService(context);
 }
 
 var app = builder.Build();
@@ -93,3 +94,11 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+namespace YouPlug
+{
+    class Program
+    {
+        public static TubeFetcherService? fetcherService = null;
+    }
+}

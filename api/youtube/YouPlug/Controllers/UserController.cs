@@ -22,8 +22,6 @@ namespace YouPlug.Controllers
         private readonly ILogger<UserController> _logger;
         private readonly IConfiguration _config;
         private readonly PlugDbContext _plugDbContext;
-
-        private TubeFetcherService tubeFetcherService;
         
         public class OAuth2Redirect
         {
@@ -45,7 +43,6 @@ namespace YouPlug.Controllers
             _logger = logger;
             _config = config;
             _plugDbContext = plugDbContext;
-            tubeFetcherService = new TubeFetcherService(_plugDbContext);
             Console.WriteLine("UserController created");
         }
         
@@ -227,7 +224,7 @@ namespace YouPlug.Controllers
 
             Console.WriteLine("Successfully updated auth for user " + auth.userId + $"redirecting to {auth.redirectUrl}");
 
-            tubeFetcherService.AddUser(auth);
+            Program.fetcherService.AddUser(auth);
 
             return Redirect(auth.redirectUrl);
         }
