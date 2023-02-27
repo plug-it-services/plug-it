@@ -11,6 +11,7 @@ Field _$FieldFromJson(Map<String, dynamic> json) => Field(
       type: json['type'] as String,
       displayName: json['displayName'] as String,
       required: json['required'] as bool,
+      description: json['description'] as String
     );
 
 Map<String, dynamic> _$FieldToJson(Field instance) => <String, dynamic>{
@@ -18,4 +19,5 @@ Map<String, dynamic> _$FieldToJson(Field instance) => <String, dynamic>{
       'type': instance.type,
       'displayName': instance.displayName,
       'required': instance.required,
+      'description': instance.description,
     };

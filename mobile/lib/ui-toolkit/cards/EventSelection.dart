@@ -105,7 +105,7 @@ class _StateEventSelection extends State<EventSelection>{
                 borderRadius: BorderRadius.circular(4),
             ),
             child: CardTitle(
-                label: "1 ${(widget.selectedEvent != null) ? "- ${widget.selectedEvent!.name.capitalize()}" : "- Select an Action "}",
+                label: "1 - Select Event",
                 style: PlugItStyle.smallStyle,
                 state: widget.isOpen,
                 onPressed: () {

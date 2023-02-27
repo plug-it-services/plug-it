@@ -105,9 +105,9 @@ class _StateServiceMenu extends State<ServiceMenu>{
                       width: 30,
                       height: 30,
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 5),
               Text(
-                  (widget.selectedService == null) ? "Select a service" : "- ${widget.selectedService!.name.capitalize()}",
+                  (widget.selectedService == null) ? "Select a service" : " ${widget.selectedService!.name.capitalize()}",
                   style: PlugItStyle.subtitleStyle
               ),
             ],

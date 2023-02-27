@@ -65,10 +65,30 @@ class _StateActionEditCard extends State<ActionEditCard>{
   }
 
   String getLabel() {
+    var idx = "";
     if (widget.isTrigger) {
-      return "1 --| Trigger";
+      idx = "1";
     }
-    return "${widget.plug.actions.indexOf(widget.editedEvent) + 2} --| Action";
+    else {
+      idx = "${widget.plug.actions.indexOf(widget.editedEvent) + 2}";
+    }
+
+    if (selectedEvent != null) {
+      var selected = " - ${selectedEvent!.name.capitalize()}";
+      if (selected.length > 27) {
+        selected = "${selected.substring(0, 27)}...";
+      }
+      idx += selected;
+    }
+    else {
+      if (widget.isTrigger) {
+        idx += " - Trigger";
+      }
+      else {
+        idx += " - Action";
+      }
+    }
+    return idx;
   }
 
 
@@ -176,7 +196,7 @@ class _StateActionEditCard extends State<ActionEditCard>{
             child: Column(
               children: [
                 CardTitle(
-                  label: "${getLabel()} ${(selectedService != null) ? "- ${selectedService!.name.capitalize()}" : ""}",
+                  label: getLabel(),
                   state: widget.isOpen,
                   onPressed: () {
                     widget.onCardDeploy();
@@ -187,10 +207,7 @@ class _StateActionEditCard extends State<ActionEditCard>{
                     ...getBody(),
                   ],
                 ),
-                IconButton(
-                  onPressed: widget.onActionAdded,
-                  icon: const Icon(Icons.add_rounded),
-                ),
+
               ]
             )
         )

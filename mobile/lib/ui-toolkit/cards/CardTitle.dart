@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/ui-toolkit/PlugItStyle.dart';
-import 'package:mobile/ui-toolkit/buttons/IconButtonSwitch.dart';
 
 
 class CardTitle extends StatefulWidget {
@@ -63,24 +62,26 @@ class _StateCardTitle extends State<CardTitle>{
             decoration: BoxDecoration(
                 color: (!pressed) ? PlugItStyle.primaryColor : PlugItStyle.buttonColorPressed,
                 borderRadius: BorderRadius.circular(4),
-                border: Border.all(color: Colors.black12),
+                border: Border.all(color: Colors.black45),
             ),
             child: Row(
               children: [
+                const SizedBox(width: 10,),
+                (widget.state)
+                    ? const Icon(Icons.keyboard_arrow_up_rounded)
+                    : const Icon(Icons.keyboard_arrow_down_rounded),
                 Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     child:Text(widget.label, style: widget.style)
                 ),
-                (widget.state)
-                    ? const Icon(Icons.keyboard_arrow_up_rounded)
-                    : const Icon(Icons.keyboard_arrow_down_rounded),
                 (widget.isIconButtonPresent)
-                    ? const SizedBox(width: 50,)
-                    : const SizedBox(width: 0,),
-                (widget.isIconButtonPresent)
-                    ? IconButton(
-                      onPressed: widget.onIconPressed!,
-                      icon: widget.iconButton)
+                    ? Expanded(
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: IconButton(
+                          onPressed: widget.onIconPressed!,
+                          icon: widget.iconButton)
+                    ))
                     : const SizedBox(width: 0,),
               ],
             )
@@ -95,7 +96,18 @@ class _StateCardTitle extends State<CardTitle>{
           children:
             (widget.state) ? [
               getCardTitle(height),
-              ...widget.children
+              Container(
+                decoration: BoxDecoration(
+                  color: (!pressed) ? PlugItStyle.primaryColor : PlugItStyle.buttonColorPressed,
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(color: Colors.black38),
+                ),
+                child: Column(
+                  children: [
+                    ...widget.children
+                  ]
+                )
+              )
             ] : [
               getCardTitle(height)
             ]

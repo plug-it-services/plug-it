@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:mobile/PlugApi.dart';
 import 'package:mobile/models/Event.dart';
 
-
 import 'package:mobile/models/service/Service.dart';
 import 'package:mobile/models/plug/Plug.dart';
 import 'package:mobile/models/plug/PlugDetails.dart';
@@ -42,18 +41,15 @@ class PlugEditState extends State<PlugEdit> {
 
   void _addAction(int idx) {
     setState(() {
-      print("Adding an element at idx: $idx");
       plugEdited!.actions.insert(idx + 1, PlugEvent(id: '', serviceName: '', fields: [],));
       cardIdxOpen = idx + 1;
       cardOpen = true;
-      printPlug(plugEdited!);
       setActionCards();
     });
   }
 
   void _deleteAction(int idx) {
     setState(() {
-      print("Deleting an element at idx: $idx");
       plugEdited!.actions.removeAt(idx);
       if (idx == cardIdxOpen) {
         cardIdxOpen = -1;
@@ -61,11 +57,9 @@ class PlugEditState extends State<PlugEdit> {
       }
     });
     setActionCards();
-    printPlug(plugEdited!);
   }
 
   void _savePlug() {
-    //TODO: validate data first
     if (!widget.editing) {
       PlugApi.createPlug(plugEdited!).then((value) {
         _cancel();
@@ -129,15 +123,6 @@ class PlugEditState extends State<PlugEdit> {
     super.initState();
   }
 
-  void printPlug(PlugDetails plug) {
-    print("Plug: ${plug.id} ${plug.name}");
-    if (plug.event != null)
-      print("Plug trigger: ${plug.event.id} ${plug.event.serviceName}");
-    for (var action in plug.actions) {
-      print("Plug action '${plug.actions.indexOf(action)}': ${action.id} ${action.serviceName}");
-    }
-  }
-
   void setActionCards()
   {
     List<Widget> widgets = [];
@@ -189,6 +174,10 @@ class PlugEditState extends State<PlugEdit> {
         onActionDeleted: () => _deleteAction(index),
         onActionAdded: () => _addAction(index),
         isTrigger: index == -1,
+      ));
+      widgets.add(IconButton(
+        onPressed: () => _addAction(index),
+        icon: const Icon(Icons.add_rounded),
       ));
     }
     setState(() {
