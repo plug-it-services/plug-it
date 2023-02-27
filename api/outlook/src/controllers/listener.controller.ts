@@ -40,6 +40,14 @@ export class ListenerController {
   })
   async listenForEvents(msg: {plugId:string, eventId: string, userId: number, fields:{key:string, value:string}[]}) {
     this.logger.log("Received a new mail watcher plug !");
+    let oldState = (await this.outlookMailStateRepository.findBy({ plugId: msg.plugId }));
+
+    if (oldState) {
+      this.logger.log("Found an old plug with same id, deleting it ...");
+      await this.outlookMailStateRepository.delete({plugId: msg.plugId});
+      this.logger.log("Successfully deleted old plug!");
+    }
+
     try {
       const bodyFilter = msg.fields.find(
         (field: any) => field.key === 'body',
