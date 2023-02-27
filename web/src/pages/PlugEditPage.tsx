@@ -107,9 +107,13 @@ const PlugEditPage = () => {
       ...servicesToFetch.slice(1).map((service) => getServiceActions(service)),
     ];
     const details: (ServiceEvent[] | ServiceAction[])[] = await Promise.all(promises);
+    const eventDetail = details[0];
+    const actionDetails = details.slice(1);
+
     return steps.map((el, idx) => {
       const step = el;
-      const serviceDetails = details[idx];
+      const serviceDetails = idx ? actionDetails[servicesToFetch.indexOf(step.serviceName) - 1] : eventDetail;
+      console.debug(`serviceDetails for ${el.serviceName}`, serviceDetails);
       if (!serviceDetails) throw new Error(`Cannot find service ${step.serviceName} details`);
       const stepDetails = serviceDetails.find((detail) => detail.id === step.stepId);
       if (!stepDetails) throw new Error(`Cannot find step ${step.stepId} in service ${step.serviceName} details`);
@@ -134,8 +138,6 @@ const PlugEditPage = () => {
       if (!plugId) return;
       try {
         const plug = await getPlugDetail(plugId);
-        setPlugDetail(plug);
-        setPlugName(plug.name);
         let cards: StepInfo[] = [
           {
             serviceName: plug.event.serviceName,
@@ -153,9 +155,12 @@ const PlugEditPage = () => {
           })),
         ];
         cards = await fillFieldsInformations(cards);
+        setPlugDetail(plug);
+        setPlugName(plug.name);
         setSelections(cards);
         setLoading(false);
       } catch (err: any) {
+        setLoading(false);
         setError('Cannot get plug');
         setMessage(err.message);
         setOpen(true);
