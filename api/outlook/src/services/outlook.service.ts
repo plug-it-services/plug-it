@@ -193,7 +193,7 @@ export class OutlookService {
         (field: any) => field.key === 'id',
       ).value;
       const dest = message.fields.find(
-        (field: any) => field.key === 'destination',
+        (field: any) => field.key === 'inbox',
       ).value;
       const url = 'https://graph.microsoft.com/v1.0/me/messages/' + id + '/move';
       await axios.post(
