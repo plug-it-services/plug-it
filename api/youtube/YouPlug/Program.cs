@@ -74,8 +74,11 @@ using (var context = new PlugDbContext(builder.Services.BuildServiceProvider().G
 {
     context.Database.EnsureCreated();
     context.Database.Migrate();
-    YouPlug.Program.fetcherService = new TubeFetcherService(context);
 }
+
+// recover permanent db context
+var _context = new PlugDbContext(builder.Services.BuildServiceProvider().GetService<DbContextOptions<PlugDbContext>>());
+YouPlug.Program.fetcherService = new TubeFetcherService(_context);
 
 var app = builder.Build();
 

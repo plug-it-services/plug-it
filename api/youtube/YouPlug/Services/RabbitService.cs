@@ -77,6 +77,9 @@ namespace YouPlug.Services
 
             try
             {
+                if (Program.fetcherService == null)
+                    throw new Exception("FetcherService not ready!!!");
+                
                 message = ReadMessage<EventInitializeDto>(ea);
                 if (message == null)
                     throw new Exception("Unable to deserialize message");
@@ -126,6 +129,10 @@ namespace YouPlug.Services
 
             try
             {
+
+                if (Program.fetcherService == null)
+                    throw new Exception("FetcherService not ready!!!");
+
                 message = ReadMessage<PlugDisabledDto>(ea);
                 if (message == null)
                     throw new Exception("Unable to deserialize message");
