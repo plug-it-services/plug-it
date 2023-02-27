@@ -21,21 +21,12 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 string? corsAllow = Environment.GetEnvironmentVariable("CORS_ORIGIN", EnvironmentVariableTarget.Process);
-string[] corsOrigins = new string[0];
 
 if (string.IsNullOrWhiteSpace(corsAllow))
 {
     Console.WriteLine("Missing CORS_ORIGIN environment variable!");
     Console.WriteLine("Missing CORS_ORIGIN environment variable!");
-    corsOrigins = corsAllow.Split(',');
-}
-
-if (!corsOrigins.Contains("http://localhost:3000") && corsOrigins.Length > 0)
-{
-    corsAllow += ",http://localhost:3000";
-} else
-{
-    corsAllow = "http://localhost:3000";
+    return;
 }
 
 builder.Services.AddCors(options =>
