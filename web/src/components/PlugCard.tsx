@@ -31,7 +31,7 @@ function PlugCard({ plug, onStateClickButton, onEditClickButton }: IAreaCardProp
                 ...
               </MDBCol>
               <MDBCol size="4" className={'d-flex justify-content-center'}>
-                <img src={plug.icons[-1]} alt="icon" className={'w-50'} />
+                <img src={plug.icons[plug.icons.length - 1]} alt="icon" className={'w-50'} />
               </MDBCol>
             </>
           ) : (
