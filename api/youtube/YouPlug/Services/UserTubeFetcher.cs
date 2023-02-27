@@ -193,20 +193,22 @@ namespace YouPlug.Services
         }
 
         
-        public void DislikeVideo(string videoId)
+        public Variable[] DislikeVideo(string videoId)
         {
             var request = youtubeService.Videos.Rate(videoId, VideosResource.RateRequest.RatingEnum.Dislike);
             request.Execute();
+            return new Variable[] {};
         }
 
-        public void RemoveReactionToVideo(string videoId)
+        public Variable[] RemoveReactionToVideo(string videoId)
         {
             var request = youtubeService.Videos.Rate(videoId, VideosResource.RateRequest.RatingEnum.None);
             request.Execute();
+            return new Variable[] { };
         }
 
 
-        public void SubscribeToChannel(string channelId)
+        public Variable[] SubscribeToChannel(string channelId)
         {
             var request = youtubeService.Subscriptions.Insert(new Subscription
             {
@@ -220,18 +222,25 @@ namespace YouPlug.Services
                 }
             }, "snippet");
 
-            request.Execute();
+            var sub = request.Execute();
+            
+            return new Variable[] {
+                new() { key = "channelId", value = sub.Snippet.ResourceId.ChannelId },
+                new() { key = "channelTitle", value = sub.Snippet.Title },
+                new() { key = "channelDescription", value = sub.Snippet.Description },
+            };
         }
 
         
-        public void UnsubscribeFromChannel(string channelId)
+        public Variable[] UnsubscribeFromChannel(string channelId)
         {
             var request = youtubeService.Subscriptions.Delete(channelId);
             request.Execute();
+            return new Variable[] { };
         }
         
         
-        public void AddToWatchLater(string videoId)
+        public Variable[] AddToWatchLater(string videoId)
         {
             var request = youtubeService.PlaylistItems.Insert(new PlaylistItem
             {
@@ -246,11 +255,19 @@ namespace YouPlug.Services
                 }
             }, "snippet");
 
-            request.Execute();
+            var plyI = request.Execute();
+
+            return new Variable[] {
+                new() { key = "title", value = plyI.Snippet.Title },
+                new() { key = "description", value = plyI.Snippet.Description },
+                new() { key = "playlistId", value = plyI.Snippet.PlaylistId },
+                new() { key = "ownerChannelId", value = plyI.Snippet.VideoOwnerChannelId },
+                new() { key = "ownerChannelTitle", value = plyI.Snippet.VideoOwnerChannelTitle },
+            };
         }
 
         
-        public void RemoveFromWatchLater(string videoId)
+        public Variable[] RemoveFromWatchLater(string videoId)
         {
             var request = youtubeService.PlaylistItems.List("snippet");
             request.PlaylistId = "WL";
@@ -268,10 +285,11 @@ namespace YouPlug.Services
                     break;
                 }
             }
+            return new Variable[] { };
         }
 
         
-        public void CreatePlaylist(string title, string description)
+        public Variable[] CreatePlaylist(string title, string description)
         {
             var request = youtubeService.Playlists.Insert(new Playlist
             {
@@ -282,18 +300,27 @@ namespace YouPlug.Services
                 }
             }, "snippet");
 
-            request.Execute();
+            var ply = request.Execute();
+
+            return new Variable[] {
+                new() { key = "title", value = ply.Snippet.Title },
+                new() { key = "description", value = ply.Snippet.Description },
+                new() { key = "playlistId", value = ply.Id },
+                new() { key = "ownerChannelId", value = ply.Snippet.ChannelId },
+                new() { key = "ownerChannelTitle", value = ply.Snippet.ChannelTitle },
+            };
         }
 
         
-        public void RemovePlaylist(string playlistId)
+        public Variable[] RemovePlaylist(string playlistId)
         {
             var request = youtubeService.Playlists.Delete(playlistId);
             request.Execute();
+            return new Variable[] { };
         }
 
         
-        public void AddToPlaylist(string playlistId, string videoId)
+        public Variable[] AddToPlaylist(string playlistId, string videoId)
         {
             var request = youtubeService.PlaylistItems.Insert(new PlaylistItem
             {
@@ -308,11 +335,19 @@ namespace YouPlug.Services
                 }
             }, "snippet");
 
-            request.Execute();
+            var plyI = request.Execute();
+
+            return new Variable[] {
+                new() { key = "title", value = plyI.Snippet.Title },
+                new() { key = "description", value = plyI.Snippet.Description },
+                new() { key = "playlistId", value = plyI.Snippet.PlaylistId },
+                new() { key = "ownerChannelId", value = plyI.Snippet.VideoOwnerChannelId },
+                new() { key = "ownerChannelTitle", value = plyI.Snippet.VideoOwnerChannelTitle },
+            };
         }
 
         
-        public void RemoveFromPlaylist(string playlistId, string videoId)
+        public Variable[] RemoveFromPlaylist(string playlistId, string videoId)
         {
             var request = youtubeService.PlaylistItems.List("snippet");
             request.PlaylistId = playlistId;
@@ -330,6 +365,7 @@ namespace YouPlug.Services
                     break;
                 }
             }
+            return new Variable[] { };
         }
     }
 }

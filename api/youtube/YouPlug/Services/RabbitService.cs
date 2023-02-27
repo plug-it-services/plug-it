@@ -227,8 +227,21 @@ namespace YouPlug.Services
 
                 switch (message.actionId)
                 {
+                    case "getMyChannelId":
+                        Console.WriteLine("Getting channel id for user {0}", message.userId);
+                        response = new ActionFinishedDto()
+                        {
+                            actionId = message.actionId,
+                            userId = message.userId,
+                            plugId = message.plugId,
+                            runId = message.runId,
+                            serviceName = "youtube",
+                            variables = new Variable[] { new Variable() { key = "channelId", value = userFetcher.GetMyOwnChannelId() } }
+                        };
+                        handled = true;
+                        break;
                     case "likeVideo":
-                        Console.WriteLine("Liking video");
+                        Console.WriteLine("Liking video {0}", message.fields.Where(x => x.key == "videoId").First().value + " for user " + message.userId);
                         response = new ActionFinishedDto()
                         {
                             actionId = message.actionId,
@@ -237,6 +250,151 @@ namespace YouPlug.Services
                             runId = message.runId,
                             serviceName = "youtube",
                             variables = userFetcher.LikeVideo(message.fields.Where(x => x.key == "videoId").First().value)
+                        };
+                        handled = true;
+                        break;
+                    case "dislikeVideo":
+                        Console.WriteLine("Disliking video {0}", message.fields.Where(x => x.key == "videoId").First().value + " for user " + message.userId);
+                        response = new ActionFinishedDto()
+                        {
+                            actionId = message.actionId,
+                            userId = message.userId,
+                            plugId = message.plugId,
+                            runId = message.runId,
+                            serviceName = "youtube",
+                            variables = userFetcher.DislikeVideo(message.fields.Where(x => x.key == "videoId").First().value)
+                        };
+                        handled = true;
+                        break;
+                    case "removeReactionFromVideo":
+                        Console.WriteLine("Removing reaction from video {0}", message.fields.Where(x => x.key == "videoId").First().value + " for user " + message.userId);
+                        response = new ActionFinishedDto()
+                        {
+                            actionId = message.actionId,
+                            userId = message.userId,
+                            plugId = message.plugId,
+                            runId = message.runId,
+                            serviceName = "youtube",
+                            variables = userFetcher.RemoveReactionToVideo(message.fields.Where(x => x.key == "videoId").First().value)
+                        };
+                        handled = true;
+                        break;
+                    case "subscribeToChannel":
+                        Console.WriteLine("Subscribing to channel {0}", message.fields.Where(x => x.key == "channelId").First().value + " for user " + message.userId);
+                        response = new ActionFinishedDto()
+                        {
+                            actionId = message.actionId,
+                            userId = message.userId,
+                            plugId = message.plugId,
+                            runId = message.runId,
+                            serviceName = "youtube",
+                            variables = userFetcher.SubscribeToChannel(message.fields.Where(x => x.key == "channelId").First().value)
+                        };
+                        handled = true;
+                        break;
+                    case "unsubscribeFromChannel":
+                        Console.WriteLine("Unsubscribing from channel {0}", message.fields.Where(x => x.key == "channelId").First().value + " for user " + message.userId);
+                        response = new ActionFinishedDto()
+                        {
+                            actionId = message.actionId,
+                            userId = message.userId,
+                            plugId = message.plugId,
+                            runId = message.runId,
+                            serviceName = "youtube",
+                            variables = userFetcher.UnsubscribeFromChannel(message.fields.Where(x => x.key == "channelId").First().value)
+                        };
+                        handled = true;
+                        break;
+                    case "addVideoToWatchLater":
+                        Console.WriteLine("Adding video {0} to watch later for user {1}", message.fields.Where(x => x.key == "videoId").First().value, message.userId);
+                        response = new ActionFinishedDto()
+                        {
+                            actionId = message.actionId,
+                            userId = message.userId,
+                            plugId = message.plugId,
+                            runId = message.runId,
+                            serviceName = "youtube",
+                            variables = userFetcher.AddToWatchLater(message.fields.Where(x => x.key == "videoId").First().value)
+                        };
+                        handled = true;
+                        break;
+                    case "removeVideoFromWatchLater":
+                        Console.WriteLine("Removing video {0} from watch later for user {1}", message.fields.Where(x => x.key == "videoId").First().value, message.userId);
+                        response = new ActionFinishedDto()
+                        {
+                            actionId = message.actionId,
+                            userId = message.userId,
+                            plugId = message.plugId,
+                            runId = message.runId,
+                            serviceName = "youtube",
+                            variables = userFetcher.RemoveFromWatchLater(message.fields.Where(x => x.key == "videoId").First().value)
+                        };
+                        handled = true;
+                        break;
+                    case "createPlaylist":
+                        Console.WriteLine("Creating playlist {0} ({1}) for user {2}",
+                            message.fields.Where(x => x.key == "playlistName").First().value,
+                            message.fields.Where(x => x.key == "playlistDescription").First().value,
+                            message.userId);
+                        response = new ActionFinishedDto()
+                        {
+                            actionId = message.actionId,
+                            userId = message.userId,
+                            plugId = message.plugId,
+                            runId = message.runId,
+                            serviceName = "youtube",
+                            variables = userFetcher.CreatePlaylist(
+                                message.fields.Where(x => x.key == "playlistName").First().value,
+                                message.fields.Where(x => x.key == "playlistDescription").First().value)
+                        };
+                        handled = true;
+                        break;
+                    case "deletePlaylist":
+                        Console.WriteLine("Deleting playlist {0} for user {1}", message.fields.Where(x => x.key == "playlistId").First().value, message.userId);
+                        response = new ActionFinishedDto()
+                        {
+                            actionId = message.actionId,
+                            userId = message.userId,
+                            plugId = message.plugId,
+                            runId = message.runId,
+                            serviceName = "youtube",
+                            variables = userFetcher.RemovePlaylist(message.fields.Where(x => x.key == "playlistId").First().value)
+                        };
+                        handled = true;
+                        break;
+                    case "addVideoToPlaylist":
+                        Console.WriteLine("Adding video {0} to playlist {1} for user {2}",
+                            message.fields.Where(x => x.key == "videoId").First().value,
+                            message.fields.Where(x => x.key == "playlistId").First().value,
+                            message.userId);
+                        response = new ActionFinishedDto()
+                        {
+                            actionId = message.actionId,
+                            userId = message.userId,
+                            plugId = message.plugId,
+                            runId = message.runId,
+                            serviceName = "youtube",
+                            variables = userFetcher.AddToPlaylist(
+                                message.fields.Where(x => x.key == "playlistId").First().value,
+                                message.fields.Where(x => x.key == "videoId").First().value)
+                        };
+                        handled = true;
+                        break;
+                    case "removeVideoFromPlaylist":
+                        Console.WriteLine("Removing video {0} from playlist {1} for user {2}",
+                            message.fields.Where(x => x.key == "videoId").First().value,
+                            message.fields.Where(x => x.key == "playlistId").First().value,
+                            message.userId);
+                        response = new ActionFinishedDto()
+                        {
+                            actionId = message.actionId,
+                            userId = message.userId,
+                            plugId = message.plugId,
+                            runId = message.runId,
+                            serviceName = "youtube",
+                            variables = userFetcher.RemoveFromPlaylist(
+                                message.fields.Where(x => x.key == "playlistId").First().value,
+                                message.fields.Where(x => x.key == "videoId").First().value)
                         };
                         handled = true;
                         break;
