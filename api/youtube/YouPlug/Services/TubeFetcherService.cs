@@ -55,13 +55,17 @@ namespace YouPlug.Services
                             {
                                 userTubeFetcher.GetVideos(model.channelId).ForEach(video =>
                                 {
-                                    long nowUtcUnix = new DateTimeOffset(video.PublishedAt).ToUnixTimeSeconds();
-                                    Console.WriteLine("Video from " + model.channelId + " for user " + userTubeFetcher.GetAuth().userId);
-                                    if (nowUtcUnix > model.lastVideoDate)
+                                    long nowUnix = new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds();
+                                    long videoUnix = new DateTimeOffset(video.PublishedAt).ToUnixTimeSeconds();
+
+                                    Console.WriteLine("Scanned video \"" + video.Title + "\" from " + model.channelId + " for user " + userTubeFetcher.GetAuth().userId + " (published at " + video.PublishedAt + "[UNIX: " + videoUnix + "]");
+                                    Console.WriteLine("Last video date (from db): " + model.lastVideoDate + " (now: " + nowUnix + ")");
+
+                                    if (videoUnix > model.lastVideoDate)
                                     {
                                         Console.WriteLine("New video from " + model.channelId + " for user " + userTubeFetcher.GetAuth().userId);
                                         rabbitService.OnNewVideoFromChannel(model, video);
-                                        dbContext.NewVideoFromChannel.First(dbModel => dbModel.plugId == model.plugId).lastVideoDate = nowUtcUnix;
+                                        dbContext.NewVideoFromChannel.First(dbModel => dbModel.plugId == model.plugId).lastVideoDate = videoUnix;
                                         dbContext.SaveChanges();
                                     }
                                 });

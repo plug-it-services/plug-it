@@ -200,6 +200,7 @@ namespace YouPlug.Services
 
             var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(eventFiredDto));
             channel.BasicPublish("amq.direct", eventQueue, null, body);
+            Console.WriteLine("Fired event {0} for user {1}!", eventId, userId);
         }
 
         public void Start()
