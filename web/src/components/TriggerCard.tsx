@@ -202,6 +202,7 @@ function TriggerCard({ selected, availableVariables, onSelectedChange, onDelete,
           <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {step?.fields.map((field) => (
               <FieldEditor
+                key={field.key}
                 fieldKey={field.key}
                 description={field.description}
                 onChange={(val) => onFieldChange(field.key, val)}

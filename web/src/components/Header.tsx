@@ -84,14 +84,14 @@ function Header({ title }: IHeaderProps) {
   return (
     <MDBNavbar expand="lg" light style={{ backgroundColor: '#EAF1FF' }}>
       <MDBContainer fluid>
-        <MDBNavbarBrand href="#">
+        <MDBNavbarBrand href="/">
           <Typography
             variant="h4"
             fontWeight="bold"
             color={'primary'}
             style={{ marginLeft: '20px', display: 'flex', alignItems: 'center' }}
           >
-            <Link href="/">{title}</Link>
+            {title}
           </Typography>
         </MDBNavbarBrand>
 

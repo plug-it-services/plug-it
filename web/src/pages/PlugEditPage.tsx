@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Typography } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
 import { MDBCol, MDBRow } from 'mdb-react-ui-kit';
-import Header from '../components/Header';
 import TriggerCard from '../components/TriggerCard';
 import Button from '../components/Button';
 import {
@@ -19,9 +18,11 @@ import {
 import InputBar from '../components/InputBar';
 import MessageBox from '../components/MessageBox';
 import { StepInfo, StepType } from '../components/StepInfo.type';
+import Loading from '../components/Loading';
 
 const PlugEditPage = () => {
   const { plugId } = useParams();
+  const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('Cannot create plug');
@@ -153,6 +154,7 @@ const PlugEditPage = () => {
         ];
         cards = await fillFieldsInformations(cards);
         setSelections(cards);
+        setLoading(false);
       } catch (err: any) {
         setError('Cannot get plug');
         setMessage(err.message);
@@ -162,7 +164,9 @@ const PlugEditPage = () => {
     getPlug();
   }, [plugId]);
 
-  return (
+  return loading ? (
+    <Loading />
+  ) : (
     <>
       <MessageBox title={error} description={message} type={'error'} isOpen={open} onClose={() => setOpen(false)} />
       <Typography variant="h4" fontWeight="bold" color={'primary'} className={'pt-3 text-center'}>
@@ -185,10 +189,9 @@ const PlugEditPage = () => {
         </div>
       </MDBRow>
       {selections.map((selection, selectionIdx) => (
-        <MDBRow className={'d-flex justify-content-center'}>
+        <MDBRow key={selectionIdx} className={'d-flex justify-content-center'}>
           <div className={'col-12 col-md-8 col-lg-4'}>
             <TriggerCard
-              key={selectionIdx}
               selected={selection}
               availableVariables={selections
                 .slice(0, selectionIdx)
