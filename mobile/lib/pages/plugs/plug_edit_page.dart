@@ -115,7 +115,7 @@ class PlugEditState extends State<PlugEdit> {
           name: '',
           event: PlugEvent(id: '', serviceName: '', fields: []),
           enabled: true,
-          actions: [],
+          actions: [PlugEvent(id: '', serviceName: '', fields: [])],
         );
         setActionCards();
       });
