@@ -1,5 +1,6 @@
 import { Autocomplete, TextField } from '@mui/material';
 import { useState } from 'react';
+import { MDBTooltip } from 'mdb-react-ui-kit';
 import InputBar from './InputBar';
 import { Variable } from '../utils/api';
 import { StepInfo } from './StepInfo.type';
@@ -15,10 +16,12 @@ export function FieldEditor({
   fieldKey,
   onChange,
   value,
+  description,
   variables,
 }: {
   fieldKey: string;
   onChange: (value: string) => void;
+  description: string;
   value: string;
   variables: VariableReference[];
 }) {
@@ -74,6 +77,7 @@ export function FieldEditor({
           }}
         />
       )}
+      <MDBTooltip tag={'span'} placement={'top'} title={description}>
       <InputBar
         placeholder={fieldKey}
         backgroundColor={'#2757C9'}
@@ -84,6 +88,7 @@ export function FieldEditor({
         onChange={onChange}
         onSubmit={() => {}}
       />
+      </MDBTooltip>
     </div>
   );
 }

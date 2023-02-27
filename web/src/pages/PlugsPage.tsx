@@ -74,7 +74,7 @@ const PlugsPage = () => {
               plug={plug}
               onStateClickButton={() => setPlugEnable(!plug.enabled, plug.id)}
               onEditClickButton={() => {
-                window.location.href = `/plugs/edit/${plug.id}`;
+                navigate(`/plugs/edit/${plug.id}`);
               }}
             />
           </MDBCol>
