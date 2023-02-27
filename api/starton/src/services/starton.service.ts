@@ -431,4 +431,32 @@ export class StartonService {
       throw e;
     }
   }
+
+  async sendNativeToken(
+    apiKey: string,
+    wallet: string,
+    network: string,
+    to: string,
+    value: string,
+  ): Promise<void> {
+    const startonApi = axios.create({
+      baseURL: 'https://api.starton.io',
+      headers: {
+        'x-api-key': apiKey,
+      },
+    });
+
+    try {
+      await startonApi.post(`/v3/transaction`, {
+        network,
+        to,
+        value,
+        signerWallet: wallet,
+      });
+    } catch (e) {
+      this.logger.error(`Error sending native token: ${e}`);
+      this.logger.log(e.response.data);
+      throw e;
+    }
+  }
 }

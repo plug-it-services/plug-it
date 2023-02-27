@@ -6,6 +6,7 @@ import { UserEntity } from './entities/user.entity';
 import { WebHookService } from './services/webhook.service';
 import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
+import { AmqpService } from './services/amqp.service';
 
 @Controller()
 export class AppController {
@@ -15,13 +16,57 @@ export class AppController {
     private readonly userService: UserService,
     private readonly configService: ConfigService,
     private readonly webhookService: WebHookService,
+    private amqpService: AmqpService,
   ) {}
 
   @RabbitSubscribe({
     queue: 'plug_action_starton_triggers',
   })
   async triggerAction(msg: any) {
-    // No actions
+    this.logger.log(`Received event trigger: ${JSON.stringify(msg)}`);
+    try {
+      const { actionId, userId, plugId, runId } = msg;
+      const variables = [];
+      const user = await this.userService.getUserById(userId);
+
+      if (!user) {
+        this.logger.error(`User ${userId} not connected to Starton`);
+        return new Nack(false);
+      }
+
+      switch (actionId) {
+        case 'sendNativeToken':
+          const wallet = msg.fields.find(
+            (field: any) => field.key === 'wallet',
+          ).value;
+          const network = msg.fields.find(
+            (field: any) => field.key === 'network',
+          ).value;
+          const to = msg.fields.find((field: any) => field.key === 'to').value;
+          const value = msg.fields.find(
+            (field: any) => field.key === 'value',
+          ).value;
+
+          await this.startonService.sendNativeToken(
+            user.apiKey,
+            wallet,
+            network,
+            to,
+            value,
+          );
+          break;
+      }
+      await this.amqpService.publishAction(
+        actionId,
+        plugId,
+        runId,
+        userId,
+        variables,
+      );
+    } catch (err) {
+      this.logger.error(`Error while triggering action : ${err}`);
+      return new Nack(false);
+    }
   }
 
   @RabbitSubscribe({

@@ -27,4 +27,28 @@ export class AmqpService {
     await this.amqpConnection.publish('amq.direct', queue, msg);
     this.logger.log(`Published to ${queue}`);
   }
+
+  async publishAction(
+    actionId: string,
+    plugId: string,
+    runId: string,
+    userId: number,
+    variables: { key: string; value: string }[],
+  ) {
+    const queue = 'plug_action_finished';
+    const msg = {
+      serviceName: 'discord',
+      plugId,
+      runId,
+      actionId,
+      userId,
+      variables,
+    };
+
+    this.logger.log(
+      `Publishing to ${queue} with message ${JSON.stringify(msg)}`,
+    );
+    this.amqpConnection.publish('amq.direct', queue, msg);
+    this.logger.log(`Published to ${queue}`);
+  }
 }
