@@ -23,6 +23,7 @@ namespace YouPlug.Services
                 throw new Exception("Unable to recover RABBITMQ_URL env var!");
             
             rabbitService = new RabbitService(new Uri(rabbitMq));
+            rabbitService.Start();
 
             // First load all registered users
             plugDbContext.Auths.ToList().ForEach(model =>
@@ -43,14 +44,12 @@ namespace YouPlug.Services
             {
                 userTubeFetchers.Add(new UserTubeFetcher(youPlugAuth));
                 Console.WriteLine("Created UserTubeFetcher for user " + youPlugAuth.userId);
-                Console.WriteLine("Created UserTubeFetcher for user " + youPlugAuth.userId);
             }
         }
 
         public void RemoveUser(uint userId)
         {
             userTubeFetchers.RemoveAll(userTubeFetcher => userTubeFetcher.GetAuth().userId == userId);
-            Console.WriteLine("Removed UserTubeFetcher for user " + userId);
             Console.WriteLine("Removed UserTubeFetcher for user " + userId);
         }
 
@@ -59,11 +58,9 @@ namespace YouPlug.Services
             if (registerInDb && dbContext.NewVideoFromChannel.Find(model.userId, model.plugId) == null)
             {
                 Console.WriteLine("NewVideoFromChannelModel not found in database, adding it");
-                Console.WriteLine("NewVideoFromChannelModel not found in database, adding it");
                 dbContext.NewVideoFromChannel.Add(model);
             } else if (registerInDb)
             {
-                Console.WriteLine("NewVideoFromChannelModel already exists in database, updating it");
                 Console.WriteLine("NewVideoFromChannelModel already exists in database, updating it");
                 dbContext.NewVideoFromChannel.Update(model);
             }
@@ -71,7 +68,6 @@ namespace YouPlug.Services
             if (!string.IsNullOrWhiteSpace(model.channelId))
             {
                 newVideoFromChannels.Add(model);
-                Console.WriteLine("Added listener on " + model.channelId + " to track new video. (Requested by " + model.userId + " | " + model.plugId + ")");
                 Console.WriteLine("Added listener on " + model.channelId + " to track new video. (Requested by " + model.userId + " | " + model.plugId + ")");
             }
         }

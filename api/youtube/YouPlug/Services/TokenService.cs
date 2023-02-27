@@ -8,14 +8,15 @@ namespace YouPlug.Services
     public class TokenService
     {
 
-        public static async Task<OAuthResponseDto?> ExchangeAuthCode(IConfiguration config, string state, string code)
+        public static async Task<OAuthResponseDto?> ExchangeAuthCode(string state, string code)
         {
             string googleTokenUrl = "https://oauth2.googleapis.com/token";
-            googleTokenUrl += "?client_id=" + config.GetValue<string>("CLIENT_ID");
-            googleTokenUrl += "&client_secret=" + config.GetValue<string>("CLIENT_SECRET");
-            googleTokenUrl += "&redirect_uri=" + config.GetValue<string>("OAUTH2_CALLBACK");
+            googleTokenUrl += "?client_id=" + Environment.GetEnvironmentVariable("CLIENT_ID", EnvironmentVariableTarget.Process);
+            googleTokenUrl += "&client_secret=" + Environment.GetEnvironmentVariable("CLIENT_SECRET", EnvironmentVariableTarget.Process);
+            googleTokenUrl += "&redirect_uri=" + Environment.GetEnvironmentVariable("OAUTH2_CALLBACK", EnvironmentVariableTarget.Process);
             googleTokenUrl += "&grant_type=authorization_code";
             googleTokenUrl += "&code=" + code;
+            googleTokenUrl += "&access_type=offline";
 
             HttpResponseMessage response;
             try
@@ -37,6 +38,7 @@ namespace YouPlug.Services
             }
 
             string content = await response.Content.ReadAsStringAsync();
+            Console.WriteLine(content);
             OAuthResponseDto? authResponse = OAuthResponseDto.FromJson(content);
 
             if (authResponse == null || authResponse.access_token == null)
@@ -44,11 +46,15 @@ namespace YouPlug.Services
                 Console.WriteLine("Error (ExchangeAuthCode) : " + "AuthResponse or access_token is null");
                 return null;
             }
-
+            Console.WriteLine("AuthResponse : " + authResponse.access_token);
+            Console.WriteLine("AuthResponse : " + authResponse.refresh_token);
+            Console.WriteLine("AuthResponse : " + authResponse.expires_in);
+            Console.WriteLine("AuthResponse : " + authResponse.scope);
+            Console.WriteLine("AuthResponse : " + authResponse.token_type);
             return authResponse;
         }
 
-        public static async Task<string?> GetAccessToken(PlugDbContext plugDbContext, IConfiguration config, uint userId)
+        public static async Task<string?> GetAccessToken(PlugDbContext plugDbContext, uint userId)
         {
             YouPlugAuthModel? auth = plugDbContext.Auths.Where(a => a.userId == userId).FirstOrDefault();
 
@@ -61,8 +67,8 @@ namespace YouPlug.Services
             if (auth.expiresAt < new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds())
             {
                 string googleTokenUrl = "https://oauth2.googleapis.com/token";
-                googleTokenUrl += "?client_id=" + config.GetValue<string>("CLIENT_ID");
-                googleTokenUrl += "&client_secret=" + config.GetValue<string>("CLIENT_SECRET");
+                googleTokenUrl += "?client_id=" + Environment.GetEnvironmentVariable("CLIENT_ID", EnvironmentVariableTarget.Process);
+                googleTokenUrl += "&client_secret=" + Environment.GetEnvironmentVariable("CLIENT_SECRET", EnvironmentVariableTarget.Process);
                 googleTokenUrl += "&grant_type=refresh_token";
                 googleTokenUrl += "&refresh_token=" + auth.refreshToken;
 

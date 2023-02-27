@@ -47,13 +47,11 @@ namespace YouPlug.Controllers
             _plugDbContext = plugDbContext;
             tubeFetcherService = new TubeFetcherService(_plugDbContext);
             Console.WriteLine("UserController created");
-            Console.WriteLine("UserController created");
         }
         
         [HttpPost("oauth2", Name = "OAuth2")]
         public ActionResult<OAuth2Redirect> OAuth2([FromHeader] string user, [FromBody] OAuthStart body)
         {
-            Console.WriteLine("Received request from UserController.OAuth2");
             Console.WriteLine("Received request from UserController.OAuth2");
             string? redirUri = Environment.GetEnvironmentVariable("OAUTH2_CALLBACK", EnvironmentVariableTarget.Process);
             string? clientId = Environment.GetEnvironmentVariable("CLIENT_ID", EnvironmentVariableTarget.Process);
@@ -73,7 +71,6 @@ namespace YouPlug.Controllers
             if (string.IsNullOrWhiteSpace(redirUri) || string.IsNullOrWhiteSpace(clientId))
             {
                 Console.WriteLine("Missing configuration! " + $"redirUri[{redirUri}], clientId[{clientId}]");
-                Console.WriteLine("Missing configuration! " + $"redirUri[{redirUri}], clientId[{clientId}]");
 
                 GeneralDto.ErrorMessage errorMessage = new() {
                     message = "Internal server error occurred: Missing configuration!"
@@ -87,12 +84,10 @@ namespace YouPlug.Controllers
             if (plugAuthModel != null)
             {
                 Console.WriteLine($"Found existing auth for user {userModel.id} with guid {plugAuthModel.id}. Updating with new guid...");
-                Console.WriteLine($"Found existing auth for user {userModel.id} with guid {plugAuthModel.id}. Updating with new guid...");
                 plugAuthModel.id = guid.ToString();
             }
             else
             {
-                Console.WriteLine($"No existing auth for user {userModel.id}. Creating...");
                 Console.WriteLine($"No existing auth for user {userModel.id}. Creating...");
                 _plugDbContext.Auths.Add(new YouPlugAuthModel()
                 {
@@ -109,9 +104,11 @@ namespace YouPlug.Controllers
             oauth2Callback += "&response_type=code";
             oauth2Callback += "&scope=" + YouTubeService.Scope.YoutubeReadonly;
             oauth2Callback += "&access_type=offline";
+            // oauth2Callback += "&approval_prompt=force";
+            // oauth2Callback += "&include_granted_scopes=true";
             oauth2Callback += "&state=" + guid.ToString();
+            oauth2Callback += "&prompt=consent";
 
-            Console.WriteLine("Generated callback: " + oauth2Callback);
             Console.WriteLine("Generated callback: " + oauth2Callback);
 
             OAuth2Redirect oAuth2Redirect = new() { url = oauth2Callback };
@@ -122,14 +119,12 @@ namespace YouPlug.Controllers
         public async Task<ActionResult> Callback([FromQuery] string? error, [FromQuery] string code, [FromQuery] string state)
         {
             Console.WriteLine("Received request from UserController.Callback");
-            Console.WriteLine("Received request from UserController.Callback");
             if (!string.IsNullOrWhiteSpace(error))
             {
                 GeneralDto.ErrorMessage errorMessage = new()
                 {
                     message = "Internal server error occurred: " + error
                 };
-                Console.WriteLine("Error from UserController.Callback: " + error);
                 Console.WriteLine("Error from UserController.Callback: " + error);
                 return StatusCode(400, errorMessage);
             }
@@ -141,7 +136,16 @@ namespace YouPlug.Controllers
                     message = "Internal server error occurred: Missing code!"
                 };
                 Console.WriteLine("Error from UserController.Callback: Missing code!");
-                Console.WriteLine("Error from UserController.Callback: Missing code!");
+                return StatusCode(400, errorMessage);
+            }
+
+            if (string.IsNullOrWhiteSpace(state))
+            {
+                GeneralDto.ErrorMessage errorMessage = new()
+                {
+                    message = "Internal server error occurred: Missing state!"
+                };
+                Console.WriteLine("Error from UserController.Callback: Missing state!");
                 return StatusCode(400, errorMessage);
             }
 
@@ -157,7 +161,6 @@ namespace YouPlug.Controllers
                     message = "Internal server error occurred: " + e.Message
                 };
                 Console.WriteLine("Error during DB research UserController.Callback: " + e.Message);
-                Console.WriteLine("Error during DB research UserController.Callback: " + e.Message);
                 return StatusCode(500, errorMessage);
             }
             
@@ -168,20 +171,18 @@ namespace YouPlug.Controllers
                     message = "Internal server error occurred: Missing/missmatch auth!"
                 };
                 Console.WriteLine("Error from UserController.Callback: Missing/missmatch auth!");
-                Console.WriteLine("Error from UserController.Callback: Missing/missmatch auth!");
                 return StatusCode(400, errorMessage);
             }
 
-            var response = await TokenService.ExchangeAuthCode(_config, state, code);
+            var response = await TokenService.ExchangeAuthCode(state, code);
 
-            if (response == null || string.IsNullOrWhiteSpace(response.refresh_token))
+            if (response == null || string.IsNullOrWhiteSpace(response.access_token) || string.IsNullOrWhiteSpace(response.refresh_token))
             {
                 GeneralDto.ErrorMessage errorMessage = new()
                 {
-                    message = "Internal server error occurred: Missing response or refresh token!"
+                    message = "Internal server error occurred: Missing response or missing tokens!"
                 };
-                Console.WriteLine("Error from UserController.Callback: Missing response or refresh token!");
-                Console.WriteLine("Error from UserController.Callback: Missing response or refresh token!");
+                Console.WriteLine("Error from UserController.Callback: Missing response or missing tokens!");
                 return StatusCode(400, errorMessage);
             }
 
@@ -201,7 +202,6 @@ namespace YouPlug.Controllers
                     message = "Internal server error occurred: Missing PLUGS_SERVICE_LOGGED_IN_URL env var!"
                 };
                 Console.WriteLine("Error from UserController.Callback: Missing PLUGS_SERVICE_LOGGED_IN_URL env var!");
-                Console.WriteLine("Error from UserController.Callback: Missing PLUGS_SERVICE_LOGGED_IN_URL env var!");
                 return StatusCode(500, errorMessage);
             }
 
@@ -222,11 +222,9 @@ namespace YouPlug.Controllers
                     message = "Internal server error occurred: Error during plug login notify"
                 };
                 Console.WriteLine("An error occured while sending plug registration: " + ex.Message);
-                Console.WriteLine("An error occured while sending plug registration: " + ex.Message);
                 return StatusCode(500, errorMessage);
             }
 
-            Console.WriteLine("Successfully updated auth for user " + auth.userId + $"redirecting to {auth.redirectUrl}");
             Console.WriteLine("Successfully updated auth for user " + auth.userId + $"redirecting to {auth.redirectUrl}");
 
             tubeFetcherService.AddUser(auth);
@@ -238,7 +236,6 @@ namespace YouPlug.Controllers
         public async Task<ActionResult> Disconnect([FromHeader] string user)
         {
             Console.WriteLine("Received request from UserController.Disconnect" + $"user: {user}");
-            Console.WriteLine("Received request from UserController.Disconnect" + $"user: {user}");
             UserModel? userModel = UserModel.FromJson(user);
 
             if (userModel == null)
@@ -247,7 +244,6 @@ namespace YouPlug.Controllers
                 {
                     message = "Internal server error occurred: Missing user!"
                 };
-                Console.WriteLine("Error from UserController.Disconnect: Missing user!");
                 Console.WriteLine("Error from UserController.Disconnect: Missing user!");
                 return StatusCode(400, errorMessage);
             }
@@ -261,7 +257,6 @@ namespace YouPlug.Controllers
                 {
                     message = "Internal server error occurred: Missing PLUGS_SERVICE_LOGGED_IN_URL env var!"
                 };
-                Console.WriteLine("Error from UserController.Callback: Missing PLUGS_SERVICE_LOGGED_IN_URL env var!");
                 Console.WriteLine("Error from UserController.Callback: Missing PLUGS_SERVICE_LOGGED_IN_URL env var!");
                 return StatusCode(500, errorMessage);
             }
@@ -282,7 +277,6 @@ namespace YouPlug.Controllers
                 {
                     message = "Internal server error occurred: Error during plug login notify"
                 };
-                Console.WriteLine("An error occured while sending plug registration: " + ex.Message);
                 Console.WriteLine("An error occured while sending plug registration: " + ex.Message);
                 return StatusCode(500, errorMessage);
             }
