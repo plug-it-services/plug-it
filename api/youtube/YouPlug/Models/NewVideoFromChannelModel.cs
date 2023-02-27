@@ -12,6 +12,6 @@ namespace YouPlug.Models
         [Key]
         public string plugId { get; set; }
         public string channelId { get; set; }
-        public DateTime lastVideoDate { get; set; }
+        public long lastVideoDate { get; set; }
     }
 }

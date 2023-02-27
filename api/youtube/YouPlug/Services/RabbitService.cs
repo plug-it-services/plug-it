@@ -95,7 +95,7 @@ namespace YouPlug.Services
                             channelId = message.fields.Where(x => x.key == "channelId").First().value,
                             userId = message.userId,
                             plugId = message.plugId,
-                            lastVideoDate = DateTime.Now
+                            lastVideoDate = new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds()
                         };
                         Program.fetcherService.AddNewVideoFromChannel(model);
                         handled = true;
