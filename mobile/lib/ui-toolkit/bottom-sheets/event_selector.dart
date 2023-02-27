@@ -137,7 +137,7 @@ class _StateEventMenu extends State<EventMenu>{
           child: Row(
             children: [
               (widget.selectedEvent == null) ? const Icon(Icons.search_rounded,) : const SizedBox(),
-              (widget.selectedEvent == null) ? const SizedBox(width: 10,) : const SizedBox(),
+              (widget.selectedEvent == null) ? const SizedBox(width: 5,) : const SizedBox(),
               Text(
               (widget.selectedEvent == null) ? "Select an event" : widget.selectedEvent!.name,
               style: PlugItStyle.subtitleStyle

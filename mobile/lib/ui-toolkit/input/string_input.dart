@@ -100,19 +100,27 @@ class _StringInputFieldState extends State<StringInputField> {
   @override
   Widget build(BuildContext context) {
     return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text("${widget.templateField.displayName}: ", style: PlugItStyle.subtitleStyle),
+              Text(
+                  (!widget.templateField.required) ? "${widget.templateField.displayName}: " : "${widget.templateField.displayName} (required): ",
+                  style: (!widget.templateField.required) ? PlugItStyle.subtitleStyle : PlugItStyle.subtitleStyleWarning
+              ),
               (!widget.isTrigger) ? VariableMenu(
                 onVariableSelected: (Event event , Variable variable, int idx) {
-                  onChange(controller!.text += "\${${idx}.${variable.key}}");
+                  onChange(controller!.text += "\${$idx.${variable.key}}");
                 },
                 plug: widget.plug,
                 event: widget.event,
               ) : const SizedBox(width: 0,),
             ],
+          ),
+          Padding(
+            padding: const EdgeInsets.all(5),
+            child: Text(widget.templateField.description, style: PlugItStyle.smallStyle),
           ),
           const SizedBox(height: 10,),
           Padding(
