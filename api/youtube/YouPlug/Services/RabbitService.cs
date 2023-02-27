@@ -33,14 +33,11 @@ namespace YouPlug.Services
                 throw new Exception("Unable to recover EVENT_QUEUE env var!");
 
             Console.WriteLine("RabbitMQ: Connecting to " + hostUri);
-            Console.WriteLine("RabbitMQ: Connecting to " + hostUri);
             factory = new ConnectionFactory() { Uri = hostUri };
             connection = factory.CreateConnection();
             channel = connection.CreateModel();
 
             Console.WriteLine("Init: " + queueInit);
-            Console.WriteLine("Init: " + queueInit);
-            Console.WriteLine("Disable: " + queryDisable);
             Console.WriteLine("Disable: " + queryDisable);
             channel.QueueDeclare(queue: queueInit,
                      durable: true,
@@ -55,7 +52,6 @@ namespace YouPlug.Services
                      arguments: null);
             channel.QueueBind(queryDisable, "amq.direct", queryDisable);
             Console.WriteLine("RabbitMQ: Ready!");
-            Console.WriteLine("RabbitMQ: Ready!");
         }
 
         private T? ReadMessage<T>(BasicDeliverEventArgs ea)
@@ -65,7 +61,6 @@ namespace YouPlug.Services
 
             if (message == null)
             {
-                Console.WriteLine("Error (RabbitService) : " + "Unable to deserialize message");
                 Console.WriteLine("Error (RabbitService) : " + "Unable to deserialize message");
                 return default(T);
             }
@@ -85,16 +80,14 @@ namespace YouPlug.Services
                     throw new Exception("Unable to deserialize message");
 
                 Console.WriteLine("Initializing event {0} for user {1}...", message.eventId, message.userId);
-                Console.WriteLine("Initializing event {0} for user {1}...", message.eventId, message.userId);
 
                 switch (message.eventId)
                 {
                     case "newVideoFromChannel":
-                        // TODO
+                        Console.WriteLine("New video from channel {0} for user {1} for plugId {2} with fields: {3}!", message.eventId, message.userId, message.plugId, message.fields[0].key + " = " + message.fields[0].value);
                         handled = true;
                         break;
                     default:
-                        Console.WriteLine("Error (RabbitService) : " + "Unable to handle message");
                         Console.WriteLine("Error (RabbitService) : " + "Unable to handle message");
                         handled = false; // Just to be over sure
                         break;
@@ -103,18 +96,15 @@ namespace YouPlug.Services
             catch (Exception ex)
             {
                 Console.WriteLine("Error (RabbitService) : " + ex.Message);
-                Console.WriteLine("Error (RabbitService) : " + ex.Message);
             }
 
             if (!handled)
             {
                 Console.WriteLine("Error (RabbitService) : " + "Unable to handle message");
-                Console.WriteLine("Error (RabbitService) : " + "Unable to handle message");
                 channel.BasicNack(ea.DeliveryTag, false, true);
             }
             channel.BasicAck(ea.DeliveryTag, false);
-            Console.WriteLine("Initialized event {0} for user {1}", message.eventId, message.userId);
-            Console.WriteLine("Initialized event {0} for user {1}", message.eventId, message.userId);
+            Console.WriteLine("Initialized event {0} for user {1}!", message.eventId, message.userId);
         }
 
         private void OnDisableConsume(object? sender, BasicDeliverEventArgs ea)
@@ -129,16 +119,14 @@ namespace YouPlug.Services
                     throw new Exception("Unable to deserialize message");
 
                 Console.WriteLine("Disabling event {0} for user {1}...", message.eventId, message.userId);
-                Console.WriteLine("Disabling event {0} for user {1}...", message.eventId, message.userId);
 
                 switch (message.eventId)
                 {
                     case "newVideoFromChannel":
-                        // TODO
+                        Console.WriteLine("disable video from channel {0} for user {1} for plugId {2}!", message.eventId, message.userId, message.plugId);
                         handled = true;
                         break;
                     default:
-                        Console.WriteLine("Error (RabbitService) : " + "Unable to handle message");
                         Console.WriteLine("Error (RabbitService) : " + "Unable to handle message");
                         handled = false; // Just to be over sure
                         break;
@@ -147,19 +135,17 @@ namespace YouPlug.Services
             catch (Exception ex)
             {
                 Console.WriteLine("Error (RabbitService) : " + ex.Message);
-                Console.WriteLine("Error (RabbitService) : " + ex.Message);
                 handled = false; // Just to be over sure
             }
 
             if (!handled)
             {
                 Console.WriteLine("Error (RabbitService) : " + "Unable to handle message");
-                Console.WriteLine("Error (RabbitService) : " + "Unable to handle message");
                 channel.BasicNack(ea.DeliveryTag, false, true);
                 return;
             }
             channel.BasicAck(ea.DeliveryTag, false);
-            Console.WriteLine("Disabled event {0} for user {1}", message.eventId, message.userId);
+            Console.WriteLine("Disabled event {0} for user {1}!", message.eventId, message.userId);
         }
 
         public async void OnNewVideoFromChannel(EventInitializeDto triggerDto)
@@ -167,18 +153,15 @@ namespace YouPlug.Services
             if (channel == null)
             {
                 Console.WriteLine("Error (RabbitService) : " + "Channel is null");
-                Console.WriteLine("Error (RabbitService) : " + "Channel is null");
                 return;
             }
 
-            Console.WriteLine("Setting up repository update for user {0}...", triggerDto.userId);
             Console.WriteLine("Setting up repository update for user {0}...", triggerDto.userId);
             
             string? channelId = triggerDto.fields.Where(f => f.key == "channelId").FirstOrDefault()?.value;
 
             if (string.IsNullOrWhiteSpace(channelId))
             {
-                Console.WriteLine("Error (RabbitService) : " + "Unable to find channelId in triggerDto");
                 Console.WriteLine("Error (RabbitService) : " + "Unable to find channelId in triggerDto");
                 return;
             }
@@ -202,7 +185,6 @@ namespace YouPlug.Services
         {
             if (channel == null) {
                 Console.WriteLine("Error (RabbitService) : " + "Channel is null");
-                Console.WriteLine("Error (RabbitService) : " + "Channel is null");
                 return;
             }
 
@@ -222,7 +204,6 @@ namespace YouPlug.Services
         public void Start()
         {
             if (channel == null) {
-                Console.WriteLine("Error (RabbitService) : " + "Channel is null");
                 Console.WriteLine("Error (RabbitService) : " + "Channel is null");
                 return;
             }
