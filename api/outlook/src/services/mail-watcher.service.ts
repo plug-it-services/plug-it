@@ -93,6 +93,7 @@ export class MailWatcherService {
             { key:"subject", value: mails[i].subject },
             { key:"body", value: mails[i].body.content },
             { key:"id", value: mails[i].id },
+            { key:"date", value: mails[i].receivedDateTime },
           ],
         );
       }
