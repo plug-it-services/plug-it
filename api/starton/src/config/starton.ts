@@ -486,6 +486,42 @@ export default {
     // },
   ],
   actions: [
+    {
+      id: 'sendNativeToken',
+      name: 'Send Native Token',
+      description: 'Send native token to an address',
+      variables: [],
+      fields: [
+        {
+          key: 'wallet',
+          type: 'string',
+          displayName: 'Wallet',
+          description: 'The address to send the transaction from',
+          required: true,
+        },
+        {
+          key: 'network',
+          type: 'string',
+          displayName: 'Network',
+          description: 'The network to send the transaction on',
+          required: true,
+        },
+        {
+          key: 'to',
+          type: 'string',
+          displayName: 'To',
+          description: 'The address to send the transaction to',
+          required: true,
+        },
+        {
+          key: 'value',
+          type: 'string',
+          displayName: 'Value',
+          description: 'The value of the transaction',
+          required: true,
+        },
+      ],
+    },
     // {
     //   id: 'deploySmartContractFromTemplate',
     //   name: 'Deploy Smart Contract From Template',
