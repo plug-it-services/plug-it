@@ -34,6 +34,7 @@ function TriggerCard({ selected, availableVariables, onSelectedChange, onDelete,
   const [servicesPreviews, setServicesPreviews] = useState<Service[]>([]);
   const [steps, setSteps] = useState<ServiceAction[] | ServiceEvent[]>([]);
   const [step, setStep] = useState<ServiceAction | ServiceEvent | null>();
+  const [deleting, setDeleting] = useState(false);
 
   async function onServiceSelected(serviceName: string) {
     const service = servicesPreviews.find((el) => el.name === serviceName);
@@ -70,6 +71,11 @@ function TriggerCard({ selected, availableVariables, onSelectedChange, onDelete,
     selected.variables = found.variables;
     setStep(found);
     onSelectedChange(selected);
+  }
+
+  async function deleteStep() {
+    setDeleting(true);
+    setTimeout(onDelete, 500);
   }
 
   function getActionServices() {
@@ -170,7 +176,7 @@ function TriggerCard({ selected, availableVariables, onSelectedChange, onDelete,
   }, [steps]);
 
   return (
-    <>
+    <div style={deleting ? { transition: 'all 0.5s', opacity: '0'} : {}}>
       <MessageBox title={error} description={message} type={'error'} isOpen={open} onClose={() => setOpen(false)} />
       <Card className={'trigger-card'} sx={{ backgroundColor }}>
         <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -182,7 +188,11 @@ function TriggerCard({ selected, availableVariables, onSelectedChange, onDelete,
               </Typography>
             </div>
             {selected.type === StepType.ACTION && (
-              <DeleteForeverIcon style={{ color: 'white', fontSize: '25px' }} onClick={onDelete} />
+              <DeleteForeverIcon
+                className={'delete-step-icon'}
+                style={{ color: 'white', fontSize: '25px' }}
+                onClick={deleteStep}
+              />
             )}
           </div>
         </CardContent>
@@ -213,7 +223,7 @@ function TriggerCard({ selected, availableVariables, onSelectedChange, onDelete,
           </CardContent>
         </Accordion>
       </Card>
-    </>
+    </div>
   );
 }
 
