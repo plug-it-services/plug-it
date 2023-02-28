@@ -438,7 +438,10 @@ namespace YouPlug.Services
 
             FireEvent("newVideoFromChannel", model.plugId, model.userId, new Variable[] {
                 new Variable() { key = "channelTitle", value = videoDto.ChannelTitle },
+                new Variable() { key = "channelId", value = videoDto.ChannelId },
                 new Variable() { key = "videoTitle", value = videoDto.Title },
+                new Variable() { key = "videoId", value = videoDto.Id },
+                new Variable() { key = "videoDescription", value = videoDto.Description },
             });
         }
 
@@ -452,7 +455,78 @@ namespace YouPlug.Services
 
             FireEvent("newVideoFromMyChannel", model.plugId, model.userId, new Variable[] {
                 new Variable() { key = "channelTitle", value = videoDto.ChannelTitle },
+                new Variable() { key = "channelId", value = videoDto.ChannelId },
                 new Variable() { key = "videoTitle", value = videoDto.Title },
+                new Variable() { key = "videoId", value = videoDto.Id },
+                new Variable() { key = "videoDescription", value = videoDto.Description },
+            });
+        }
+
+        public void OnNewStreamFromChannel(NewStreamFromChannelModel model, VideoDto streamDto)
+        {
+            if (channel == null)
+            {
+                Console.WriteLine("Error (RabbitService) : " + "Channel is null");
+                return;
+            }
+
+            FireEvent("newStreamFromChannel", model.plugId, model.userId, new Variable[] {
+                new Variable() { key = "channelTitle", value = streamDto.ChannelTitle },
+                new Variable() { key = "channelId", value = streamDto.ChannelId },
+                new Variable() { key = "streamTitle", value = streamDto.Title },
+                new Variable() { key = "streamId", value = streamDto.Id },
+                new Variable() { key = "streamDescription", value = streamDto.Description },
+            });
+        }
+
+        public void OnNewStreamFromMyChannel(NewStreamFromMyChannelModel model, VideoDto streamDto)
+        {
+            if (channel == null)
+            {
+                Console.WriteLine("Error (RabbitService) : " + "Channel is null");
+                return;
+            }
+
+            FireEvent("newStreamFromMyChannel", model.plugId, model.userId, new Variable[] {
+                new Variable() { key = "channelTitle", value = streamDto.ChannelTitle },
+                new Variable() { key = "channelId", value = streamDto.ChannelId },
+                new Variable() { key = "streamTitle", value = streamDto.Title },
+                new Variable() { key = "streamId", value = streamDto.Id },
+                new Variable() { key = "streamDescription", value = streamDto.Description },
+            });
+        }
+
+        public void OnNewUpcomingFromChannel(NewUpcomingFromChannelModel model, VideoDto streamDto)
+        {
+            if (channel == null)
+            {
+                Console.WriteLine("Error (RabbitService) : " + "Channel is null");
+                return;
+            }
+
+            FireEvent("newUpcomingStreamFromChannel", model.plugId, model.userId, new Variable[] {
+                new Variable() { key = "channelTitle", value = streamDto.ChannelTitle },
+                new Variable() { key = "channelId", value = streamDto.ChannelId },
+                new Variable() { key = "streamTitle", value = streamDto.Title },
+                new Variable() { key = "streamId", value = streamDto.Id },
+                new Variable() { key = "streamDescription", value = streamDto.Description },
+            });
+        }
+
+        public void OnNewUpcomingFromMyChannel(NewUpcomingFromMyChannelModel model, VideoDto streamDto)
+        {
+            if (channel == null)
+            {
+                Console.WriteLine("Error (RabbitService) : " + "Channel is null");
+                return;
+            }
+
+            FireEvent("newUpcomingStreamFromMyChannel", model.plugId, model.userId, new Variable[] {
+                new Variable() { key = "channelTitle", value = streamDto.ChannelTitle },
+                new Variable() { key = "channelId", value = streamDto.ChannelId },
+                new Variable() { key = "streamTitle", value = streamDto.Title },
+                new Variable() { key = "streamId", value = streamDto.Id },
+                new Variable() { key = "streamDescription", value = streamDto.Description },
             });
         }
 

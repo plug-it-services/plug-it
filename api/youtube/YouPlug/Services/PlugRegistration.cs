@@ -15,8 +15,11 @@ namespace YouPlug.Services
                 "A new video has been published on Youtube from a specific channel",
                 new List<PlugDataDto.PlugVariable>()
                 {
-                    new ("videoTitle", PlugDataDto.VariableType.String, "Video Title", "The published video title"),
                     new ("channelTitle", PlugDataDto.VariableType.String, "Channel Title", "The title of the channel that published the video"),
+                    new ("channelId", PlugDataDto.VariableType.String, "Channel ID", "The ID of the channel that published the video"),
+                    new ("videoTitle", PlugDataDto.VariableType.String, "Video Title", "The published video title"),
+                    new ("videoId", PlugDataDto.VariableType.String, "Video ID", "The ID of the published video"),
+                    new ("videoDescription", PlugDataDto.VariableType.String, "Video Description", "The description of the published video"),
                 },
                 new List<PlugDataDto.PlugField>()
                 {
@@ -30,10 +33,64 @@ namespace YouPlug.Services
                 "A new video has been published on your Youtube channel",
                 new List<PlugDataDto.PlugVariable>()
                 {
-                    new ("videoTitle", PlugDataDto.VariableType.String, "Video Title", "The published video title"),
                     new ("channelTitle", PlugDataDto.VariableType.String, "Channel Title", "The title of the channel that published the video"),
+                    new ("channelId", PlugDataDto.VariableType.String, "Channel ID", "The ID of the channel that published the video"),
+                    new ("videoTitle", PlugDataDto.VariableType.String, "Video Title", "The published video title"),
+                    new ("videoId", PlugDataDto.VariableType.String, "Video ID", "The ID of the published video"),
+                    new ("videoDescription", PlugDataDto.VariableType.String, "Video Description", "The description of the published video"),
                 },
                 new List<PlugDataDto.PlugField>() { }
+            );
+
+            plugData.AddEvent(
+                "newStreamFromChannel",
+                "New Stream From Channel",
+                "A new stream has been published on Youtube from a specific channel",
+                new List<PlugDataDto.PlugVariable>()
+                {
+                    new ("channelTitle", PlugDataDto.VariableType.String, "Channel Title", "The title of the channel that published the stream"),
+                    new ("channelId", PlugDataDto.VariableType.String, "Channel ID", "The ID of the channel that published the stream"),
+                    new ("videoTitle", PlugDataDto.VariableType.String, "Video Title", "The published stream title"),
+                    new ("videoId", PlugDataDto.VariableType.String, "Video ID", "The ID of the published stream"),
+                    new ("videoDescription", PlugDataDto.VariableType.String, "Video Description", "The description of the published stream"),
+                },
+                new List<PlugDataDto.PlugField>()
+                {
+                    new PlugDataDto.PlugField("channelId", PlugDataDto.VariableType.String, "Channel ID", "The ID of the channel to watch for new streams", true),
+                }
+            );
+
+            plugData.AddEvent(
+                "newStreamFromMyChannel",
+                "New Stream From My Channel",
+                "A new stream has been published on your Youtube channel",
+                new List<PlugDataDto.PlugVariable>()
+                {
+                    new ("channelTitle", PlugDataDto.VariableType.String, "Channel Title", "The title of the channel that published the stream"),
+                    new ("channelId", PlugDataDto.VariableType.String, "Channel ID", "The ID of the channel that published the stream"),
+                    new ("videoTitle", PlugDataDto.VariableType.String, "Video Title", "The published stream title"),
+                    new ("videoId", PlugDataDto.VariableType.String, "Video ID", "The ID of the published stream"),
+                    new ("videoDescription", PlugDataDto.VariableType.String, "Video Description", "The description of the published stream"),
+                },
+                new List<PlugDataDto.PlugField>() { }
+            );
+
+            plugData.AddEvent(
+                "newUpcomingStreamFromChannel",
+                "New Upcoming Stream From Channel",
+                "A new upcoming stream has been published on Youtube from a specific channel",
+                new List<PlugDataDto.PlugVariable>()
+                {
+                    new ("channelTitle", PlugDataDto.VariableType.String, "Channel Title", "The title of the channel that published the upcoming stream"),
+                    new ("channelId", PlugDataDto.VariableType.String, "Channel ID", "The ID of the channel that published the upcoming stream"),
+                    new ("videoTitle", PlugDataDto.VariableType.String, "Video Title", "The published upcoming stream title"),
+                    new ("videoId", PlugDataDto.VariableType.String, "Video ID", "The ID of the published upcoming stream"),
+                    new ("videoDescription", PlugDataDto.VariableType.String, "Video Description", "The description of the published upcoming stream"),
+                },
+                new List<PlugDataDto.PlugField>()
+                {
+                    new PlugDataDto.PlugField("channelId", PlugDataDto.VariableType.String, "Channel ID", "The ID of the channel to watch for new upcoming streams", true),
+                }
             );
 
             plugData.AddAction(

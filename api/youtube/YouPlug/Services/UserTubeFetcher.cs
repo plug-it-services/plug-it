@@ -9,6 +9,7 @@ using Google.Apis.Util.Store;
 using Google.Apis.Auth.OAuth2.Flows;
 using Google.Apis.Auth.OAuth2.Responses;
 using static YouPlug.Dto.Rabbit.RabbitDto;
+using static Google.Apis.YouTube.v3.SearchResource.ListRequest;
 
 namespace YouPlug.Services
 {
@@ -105,7 +106,7 @@ namespace YouPlug.Services
             return response.Items[0].Id;
         }
 
-        public List<VideoDto> GetVideos(string? channelId, int maxResults)
+        public List<VideoDto> GetVideos(string? channelId, int maxResults, EventTypeEnum eventType)
         {
             List<VideoDto> videos = new();
             var request = youtubeService.Search.List("snippet");
@@ -115,6 +116,7 @@ namespace YouPlug.Services
                 request.ChannelId = channelId;
             request.Order = SearchResource.ListRequest.OrderEnum.Date;
             request.Type = "video";
+            request.EventType = eventType;
             request.MaxResults = maxResults;
 
             var response = request.Execute();
@@ -132,7 +134,7 @@ namespace YouPlug.Services
                         Thumbnail = searchResult.Snippet.Thumbnails?.Standard?.Url,
                         ChannelId = searchResult.Snippet.ChannelId,
                         ChannelTitle = searchResult.Snippet.ChannelTitle,
-                        PublishedAt = searchResult.Snippet.PublishedAt ?? DateTime.MinValue
+                        PublishedAt = searchResult.Snippet.PublishedAt ?? DateTime.MinValue,
                     });
                 }
             }
@@ -140,7 +142,6 @@ namespace YouPlug.Services
             return videos;
         }
 
-        
         public void PublishComment(string videoId, string comment)
         {
             var request = youtubeService.CommentThreads.Insert(new CommentThread
