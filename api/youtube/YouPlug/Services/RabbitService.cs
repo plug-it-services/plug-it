@@ -163,7 +163,6 @@ namespace YouPlug.Services
 
             try
             {
-
                 if (Program.fetcherService == null)
                     throw new Exception("FetcherService not ready!!!");
 

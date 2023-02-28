@@ -25,14 +25,6 @@ namespace YouPlug.Services
         {
             dbContext = plugDbContext;
 
-            string? rabbitMq = Environment.GetEnvironmentVariable("RABBITMQ_URL", EnvironmentVariableTarget.Process);
-
-            if (string.IsNullOrWhiteSpace(rabbitMq))
-                throw new Exception("Unable to recover RABBITMQ_URL env var!");
-
-            rabbitService = new RabbitService(new Uri(rabbitMq));
-            rabbitService.Start();
-
             // First load all registered users
             plugDbContext.Auths.ToList().ForEach(model =>
             {
@@ -69,8 +61,6 @@ namespace YouPlug.Services
             {
                 AddNewUpcomingFromMyChannel(model, false);
             });
-
-            Start();
         }
 
         public void NewVideoFromChannelRoutine()
@@ -241,6 +231,14 @@ namespace YouPlug.Services
 
         public Task Start()
         {
+            string? rabbitMq = Environment.GetEnvironmentVariable("RABBITMQ_URL", EnvironmentVariableTarget.Process);
+
+            if (string.IsNullOrWhiteSpace(rabbitMq))
+                throw new Exception("Unable to recover RABBITMQ_URL env var!");
+            
+            rabbitService = new RabbitService(new Uri(rabbitMq));
+            rabbitService.Start();
+            
             return Task.Factory.StartNew(() =>
             {
                 while (true)
