@@ -313,6 +313,53 @@ services:
       options:
         gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
         tag: "github"
+
+  drive-postgres:
+    image: 'postgres:latest'
+    networks:
+      - drive_network
+    env_file:
+      - ./api/drive/.env
+    volumes:
+      - drive_data:/var/lib/postgresql/data
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "drive-potgres"
+
+  drive:
+    build: ./api/drive
+    networks:
+      - rabbit_network
+      - traefik_network
+      - drive_network
+    labels:
+      - traefik.http.routers.drive-oauth2-callback.rule=Path(`/service/drive/callback`)
+      - traefik.http.routers.drive.rule=Path(`/service/drive/oauth2`) || Path(`/service/drive/disconnect`)
+      - traefik.http.middlewares.drive-replacepathregex.replacepathregex.regex=^/service/drive/(.*)
+      - traefik.http.middlewares.drive-replacepathregex.replacepathregex.replacement=/public/$$1
+      - traefik.http.middlewares.test-auth.forwardauth.address=http://user/verify
+      - traefik.http.middlewares.test-auth.forwardauth.authResponseHeaders=user
+      - traefik.http.routers.drive.middlewares=drive-replacepathregex, test-auth
+      - traefik.http.routers.drive-oauth2-callback.middlewares=drive-replacepathregex
+      - traefik.enable=true
+    ports:
+      - ${DRIVE_PORT}:80
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      elk:
+        condition: service_started
+      drive-postgres:
+        condition: service_started
+      plugs:
+        condition: service_healthy
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "drive"
   
   docker-hub-postgres:
     image: 'postgres:latest'
@@ -488,6 +535,7 @@ volumes:
   starton_data:
   user_data:
   docker-hub_data:
+  drive_data:
 
 networks:
   rabbit_network:
@@ -501,3 +549,4 @@ networks:
   github_network:
   docker-hub_network:
   discord_network:
+  drive_network:
