@@ -10,6 +10,7 @@ using Google.Apis.Auth.OAuth2.Flows;
 using Google.Apis.Auth.OAuth2.Responses;
 using static YouPlug.Dto.Rabbit.RabbitDto;
 using static Google.Apis.YouTube.v3.SearchResource.ListRequest;
+using Google;
 
 namespace YouPlug.Services
 {
@@ -142,7 +143,7 @@ namespace YouPlug.Services
             return videos;
         }
 
-        public void PublishComment(string videoId, string comment)
+        public Variable[] PublishComment(string videoId, string commentText)
         {
             var request = youtubeService.CommentThreads.Insert(new CommentThread
             {
@@ -153,24 +154,41 @@ namespace YouPlug.Services
                     {
                         Snippet = new CommentSnippet
                         {
-                            TextOriginal = comment
+                            TextOriginal = commentText
                         }
                     }
                 }
             }, "snippet");
 
-            request.Execute();
+            var com = request.Execute();
+
+            return new Variable[]
+            {
+                new () { key = "commentId", value = com.Id },
+                new () { key = "commentText", value = com.Snippet.TopLevelComment.Snippet.TextOriginal },
+                new () { key = "commentAuthor", value = com.Snippet.TopLevelComment.Snippet.AuthorDisplayName },
+                new () { key = "commentAuthorId", value = com.Snippet.TopLevelComment.Snippet.AuthorChannelId.Value },
+            };
         }
 
         
-        public void DeleteComment(string commentId)
+        public Variable[] DeleteComment(string commentId)
         {
             var request = youtubeService.Comments.Delete(commentId);
-            request.Execute();
+
+            try {
+                request.Execute();
+            }
+            catch (GoogleApiException ex)
+            {
+                if (ex.HttpStatusCode != System.Net.HttpStatusCode.BadRequest)
+                    throw ex;
+            }
+            return new Variable[] { };
         }
 
         
-        public void PublishReply(string videoId, string commentId, string reply)
+        public Variable[] PublishReply(string videoId, string commentId, string reply)
         {
             var request = youtubeService.Comments.Insert(new Comment
             {
@@ -182,14 +200,31 @@ namespace YouPlug.Services
                 }
             }, "snippet");
 
-            request.Execute();
+            var com = request.Execute();
+
+            return new Variable[]
+            {
+                new () { key = "commentId", value = com.Id },
+                new () { key = "commentText", value = com.Snippet.TextOriginal },
+                new () { key = "commentAuthor", value = com.Snippet.AuthorDisplayName },
+                new () { key = "commentAuthorId", value = com.Snippet.AuthorChannelId.Value },
+                new () { key = "commentParentId", value = com.Snippet.ParentId },
+                new () { key = "commentVideoId", value = com.Snippet.VideoId },
+            };
         }
 
         
         public Variable[] LikeVideo(string videoId)
         {
             var request = youtubeService.Videos.Rate(videoId, VideosResource.RateRequest.RatingEnum.Like);
-            request.Execute();
+            try {
+                request.Execute();
+            }
+            catch (GoogleApiException ex)
+            {
+                if (ex.HttpStatusCode != System.Net.HttpStatusCode.BadRequest)
+                    throw ex;
+            }
             return new Variable[] {};
         }
 
@@ -197,14 +232,30 @@ namespace YouPlug.Services
         public Variable[] DislikeVideo(string videoId)
         {
             var request = youtubeService.Videos.Rate(videoId, VideosResource.RateRequest.RatingEnum.Dislike);
-            request.Execute();
+            try
+            {
+                request.Execute();
+            }
+            catch (GoogleApiException ex)
+            {
+                if (ex.HttpStatusCode != System.Net.HttpStatusCode.BadRequest)
+                    throw ex;
+            }
             return new Variable[] {};
         }
 
         public Variable[] RemoveReactionToVideo(string videoId)
         {
             var request = youtubeService.Videos.Rate(videoId, VideosResource.RateRequest.RatingEnum.None);
-            request.Execute();
+            try
+            {
+                request.Execute();
+            }
+            catch (GoogleApiException ex)
+            {
+                if (ex.HttpStatusCode != System.Net.HttpStatusCode.BadRequest)
+                    throw ex;
+            }
             return new Variable[] { };
         }
 
@@ -235,8 +286,26 @@ namespace YouPlug.Services
 
         public Variable[] UnsubscribeFromChannel(string channelId)
         {
-            var request = youtubeService.Subscriptions.Delete(channelId);
-            request.Execute();
+            // Recover the subscription id
+            var request = youtubeService.Subscriptions.List("snippet");
+            request.ChannelId = channelId;
+            request.Mine = true;
+            try
+            {
+                var sub = request.Execute().Items.FirstOrDefault();
+
+                if (sub == null)
+                    return new Variable[] { };
+
+                var _request = youtubeService.Subscriptions.Delete(sub.Id);
+                
+                _request.Execute();
+            }
+            catch (GoogleApiException ex)
+            {
+                if (ex.HttpStatusCode != System.Net.HttpStatusCode.BadRequest)
+                    throw ex;
+            }
             return new Variable[] { };
         }
 
@@ -267,11 +336,18 @@ namespace YouPlug.Services
         public Variable[] RemovePlaylist(string playlistId)
         {
             var request = youtubeService.Playlists.Delete(playlistId);
-            request.Execute();
+            try
+            {
+                request.Execute();
+            }
+            catch (GoogleApiException ex)
+            {
+                if (ex.HttpStatusCode != System.Net.HttpStatusCode.BadRequest)
+                    throw ex;
+            }
             return new Variable[] { };
         }
 
-        
         public Variable[] AddToPlaylist(string playlistId, string videoId)
         {
             var request = youtubeService.PlaylistItems.Insert(new PlaylistItem
@@ -303,7 +379,7 @@ namespace YouPlug.Services
         {
             var request = youtubeService.PlaylistItems.List("snippet");
             request.PlaylistId = playlistId;
-            request.MaxResults = 50;
+            request.MaxResults = 10;
 
             var response = request.Execute();
             var playlistItems = response.Items;

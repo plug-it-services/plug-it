@@ -371,6 +371,56 @@ namespace YouPlug.Services
                         };
                         handled = true;
                         break;
+                    case "removeComment":
+                        Console.WriteLine("Removing comment {0} for user {1}", message.fields.Where(x => x.key == "commentId").First().value, message.userId);
+                        response = new ActionFinishedDto()
+                        {
+                            actionId = message.actionId,
+                            userId = message.userId,
+                            plugId = message.plugId,
+                            runId = message.runId,
+                            serviceName = "youtube",
+                            variables = userFetcher.DeleteComment(message.fields.Where(x => x.key == "commentId").First().value)
+                        };
+                        handled = true;
+                        break;
+                    case "postComment":
+                        Console.WriteLine("Posting comment {0} on video {1} for user {2}",
+                            message.fields.Where(x => x.key == "commentText").First().value,
+                            message.fields.Where(x => x.key == "videoId").First().value,
+                            message.userId);
+                        response = new ActionFinishedDto()
+                        {
+                            actionId = message.actionId,
+                            userId = message.userId,
+                            plugId = message.plugId,
+                            runId = message.runId,
+                            serviceName = "youtube",
+                            variables = userFetcher.PublishComment(
+                                message.fields.Where(x => x.key == "videoId").First().value,
+                                message.fields.Where(x => x.key == "commentText").First().value)
+                        };
+                        handled = true;
+                        break;
+                    case "postReply":
+                        Console.WriteLine("Posting reply {0} on comment {1} for user {2}",
+                            message.fields.Where(x => x.key == "commentText").First().value,
+                            message.fields.Where(x => x.key == "commentId").First().value,
+                            message.userId);
+                        response = new ActionFinishedDto()
+                        {
+                            actionId = message.actionId,
+                            userId = message.userId,
+                            plugId = message.plugId,
+                            runId = message.runId,
+                            serviceName = "youtube",
+                            variables = userFetcher.PublishReply(
+                                message.fields.Where(x => x.key == "videoId").First().value,
+                                message.fields.Where(x => x.key == "commentId").First().value,
+                                message.fields.Where(x => x.key == "commentText").First().value)
+                        };
+                        handled = true;
+                        break;
                     default:
                         Console.WriteLine("Error (RabbitService) : " + "Unable to handle message");
                         handled = false; // Just to be over sure

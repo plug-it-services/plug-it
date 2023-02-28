@@ -178,6 +178,54 @@ namespace YouPlug.Services
                 }
             );
 
+            plugData.AddAction(
+                "removeComment",
+                "Remove a Comment",
+                "Remove a comment on Youtube from it's ID",
+                new List<PlugDataDto.PlugVariable>() { },
+                new List<PlugDataDto.PlugField>()
+                {
+                    new ("commentId", PlugDataDto.VariableType.String, "Comment ID", "The ID of the comment to remove", true),
+                }
+            );
+
+            plugData.AddAction(
+                "postComment",
+                "Post a Comment",
+                "Post a comment on Youtube",
+                new List<PlugDataDto.PlugVariable>() {
+                    new ("commentId", PlugDataDto.VariableType.String, "Comment ID", "The ID of the comment you posted"),
+                    new ("commentText", PlugDataDto.VariableType.String, "Comment Text", "The text of the comment you posted"),
+                    new ("commentAuthor", PlugDataDto.VariableType.String, "Comment Author", "The author of the comment you posted"),
+                    new ("commentAuthorId", PlugDataDto.VariableType.String, "Comment Author ID", "The ID of the author of the comment you posted"),
+                },
+                new List<PlugDataDto.PlugField>()
+                {
+                    new ("videoId", PlugDataDto.VariableType.String, "Video ID", "The ID of the video you commented on", true),
+                    new ("commentText", PlugDataDto.VariableType.String, "Comment", "The text of the comment you posted", true),
+                }
+            );
+
+            plugData.AddAction(
+                "postReply",
+                "Post a Reply",
+                "Post a reply to a comment on Youtube",
+                new List<PlugDataDto.PlugVariable>() {
+                    new ("commentId", PlugDataDto.VariableType.String, "Comment ID", "The ID of the comment you posted"),
+                    new ("commentText", PlugDataDto.VariableType.String, "Comment Text", "The text of the comment you posted"),
+                    new ("commentAuthor", PlugDataDto.VariableType.String, "Comment Author", "The author of the comment you posted"),
+                    new ("commentAuthorId", PlugDataDto.VariableType.String, "Comment Author ID", "The ID of the author of the comment you posted"),
+                    new ("commentParentId", PlugDataDto.VariableType.String, "Comment Parent ID", "The ID of the comment you replied to"),
+                    new ("commentVideoId", PlugDataDto.VariableType.String, "Comment Video ID", "The ID of the video you replied to"),
+                },
+                new List<PlugDataDto.PlugField>()
+                {
+                    new ("videoId", PlugDataDto.VariableType.String, "Video ID", "The ID of the video you replied to", true),
+                    new ("commentId", PlugDataDto.VariableType.String, "Comment ID", "The ID of the comment you replied to", true),
+                    new ("commentText", PlugDataDto.VariableType.String, "Comment", "The text of the comment you posted", true),
+                }
+            );
+
             plugData.AddAction( // OK
                 "createPlaylist",
                 "Create a Playlist",
