@@ -1,8 +1,9 @@
 import React from 'react';
 import MuiButton from '@mui/material/Button';
+import { MDBBtn } from 'mdb-react-ui-kit';
 
 // extends Material UI Button
-export interface IButtonProps extends React.ComponentProps<typeof MuiButton> {
+export interface IButtonProps extends React.ComponentProps<typeof MDBBtn> {
   text: string;
   onClick?: () => void;
   buttonStyle?: 'rectangle' | 'circle';
@@ -10,14 +11,9 @@ export interface IButtonProps extends React.ComponentProps<typeof MuiButton> {
 
 function Button({ text, color, onClick, buttonStyle = 'rectangle' }: IButtonProps) {
   return (
-    <MuiButton
-      variant="contained"
-      color={color}
-      onClick={onClick}
-      style={{ borderRadius: buttonStyle === 'circle' ? '50%' : '4px' }}
-    >
+    <MDBBtn color={color} onClick={onClick} style={{ borderRadius: buttonStyle === 'circle' ? '50%' : '4px' }}>
       {text}
-    </MuiButton>
+    </MDBBtn>
   );
 }
 

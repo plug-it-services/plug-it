@@ -1,24 +1,28 @@
 import React, { useEffect, useState } from 'react';
 import { Typography } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
-import Header from '../components/Header';
+import { MDBCol, MDBRow } from 'mdb-react-ui-kit';
 import TriggerCard from '../components/TriggerCard';
 import Button from '../components/Button';
 import {
   deletePlug,
   editPlug,
   getPlugDetail,
-  getServiceActions, getServiceEvents,
+  getServiceActions,
+  getServiceEvents,
   PlugDetail,
-  ServiceAction, ServiceEvent,
+  ServiceAction,
+  ServiceEvent,
   Variable,
 } from '../utils/api';
 import InputBar from '../components/InputBar';
 import MessageBox from '../components/MessageBox';
 import { StepInfo, StepType } from '../components/StepInfo.type';
+import Loading from '../components/Loading';
 
 const PlugEditPage = () => {
   const { plugId } = useParams();
+  const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('Cannot create plug');
@@ -103,19 +107,21 @@ const PlugEditPage = () => {
       ...servicesToFetch.slice(1).map((service) => getServiceActions(service)),
     ];
     const details: (ServiceEvent[] | ServiceAction[])[] = await Promise.all(promises);
+    const eventDetail = details[0];
+    const actionDetails = details.slice(1);
+
     return steps.map((el, idx) => {
       const step = el;
-      const serviceDetails = details[idx];
-      if (!serviceDetails)
-        throw new Error(`Cannot find service ${step.serviceName} details`);
+      const serviceDetails = idx ? actionDetails[servicesToFetch.indexOf(step.serviceName) - 1] : eventDetail;
+      console.debug(`serviceDetails for ${el.serviceName}`, serviceDetails);
+      if (!serviceDetails) throw new Error(`Cannot find service ${step.serviceName} details`);
       const stepDetails = serviceDetails.find((detail) => detail.id === step.stepId);
-      if (!stepDetails)
-        throw new Error(`Cannot find step ${step.stepId} in service ${step.serviceName} details`);
+      if (!stepDetails) throw new Error(`Cannot find step ${step.stepId} in service ${step.serviceName} details`);
       step.fields = step.fields.map((field) => {
         const fieldDetails = stepDetails.fields.find((detail) => detail.key === field.key);
         if (!fieldDetails)
           throw new Error(
-            `Cannot find field ${field.key} in step ${step.stepId} in service ${step.serviceName} details`
+            `Cannot find field ${field.key} in step ${step.stepId} in service ${step.serviceName} details`,
           );
         return {
           ...field,
@@ -132,8 +138,6 @@ const PlugEditPage = () => {
       if (!plugId) return;
       try {
         const plug = await getPlugDetail(plugId);
-        setPlugDetail(plug);
-        setPlugName(plug.name);
         let cards: StepInfo[] = [
           {
             serviceName: plug.event.serviceName,
@@ -151,8 +155,12 @@ const PlugEditPage = () => {
           })),
         ];
         cards = await fillFieldsInformations(cards);
+        setPlugDetail(plug);
+        setPlugName(plug.name);
         setSelections(cards);
+        setLoading(false);
       } catch (err: any) {
+        setLoading(false);
         setError('Cannot get plug');
         setMessage(err.message);
         setOpen(true);
@@ -161,32 +169,34 @@ const PlugEditPage = () => {
     getPlug();
   }, [plugId]);
 
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+  return loading ? (
+    <Loading />
+  ) : (
+    <>
       <MessageBox title={error} description={message} type={'error'} isOpen={open} onClose={() => setOpen(false)} />
-      <Header title="Plug-It" area="Plugs" />
-      <Typography variant="h4" fontWeight="bold" color={'primary'} style={{ marginTop: 30 }}>
+      <Typography variant="h4" fontWeight="bold" color={'primary'} className={'pt-3 text-center'}>
         Edit a PLUG
       </Typography>
-      <div style={{ display: 'flex', flexDirection: 'row', gap: '20px', marginTop: 30 }}>
-        <InputBar
-          placeholder={'Plug Name'}
-          textColor={'white'}
-          backgroundColor={'#2757C9'}
-          borderColor={'#2757C9'}
-          isPassword={false}
-          value={plugName}
-          onChange={(value) => {
-            setPlugName(value);
-          }}
-          onSubmit={() => {}}
-        />
-      </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginTop: 30 }}>
-        {selections.map((selection, selectionIdx) => (
-          <>
+      <MDBRow className={'d-flex justify-content-center pb-3'}>
+        <div className={'col-12 col-md-8 col-lg-4 py-3'}>
+          <InputBar
+            placeholder={'Plug Name'}
+            textColor={'white'}
+            backgroundColor={'#2757C9'}
+            borderColor={'#2757C9'}
+            isPassword={false}
+            value={plugName}
+            onChange={(value) => {
+              setPlugName(value);
+            }}
+            onSubmit={() => {}}
+          />
+        </div>
+      </MDBRow>
+      {selections.map((selection, selectionIdx) => (
+        <MDBRow key={selectionIdx} className={'d-flex justify-content-center'}>
+          <div className={'col-12 col-md-8 col-lg-4'}>
             <TriggerCard
-              key={selectionIdx}
               selected={selection}
               availableVariables={selections
                 .slice(0, selectionIdx)
@@ -198,31 +208,43 @@ const PlugEditPage = () => {
               onDelete={() => deleteStep(selectionIdx)}
               backgroundColor={'#2757C9'}
             />
-            <Button key={-selectionIdx} text={'Add Step'} color={'secondary'} onClick={() => addStep(selectionIdx)} />
-          </>
-        ))}
-      </div>
+            <div className={'d-flex justify-content-center py-2'}>
+              <Button key={-selectionIdx} text={'Add Step'} color={'secondary'} onClick={() => addStep(selectionIdx)} />
+            </div>
+          </div>
+        </MDBRow>
+      ))}
 
-      <div style={{ display: 'flex', flexDirection: 'row', gap: '20px', marginTop: 30 }}>
-        <Button
-          color="secondary"
-          text={'Cancel'}
-          onClick={() => {
-            window.location.href = '/plugs';
-          }}
-        />
-        <Button
-          color="secondary"
-          text={'Delete'}
-          onClick={async () => {
-            if (!plugDetail?.id) return;
-            await plugDelete();
-            window.location.href = '/plugs';
-          }}
-        />
-        <Button color="primary" text={'Save'} onClick={plugEdit} />
-      </div>
-    </div>
+      <MDBRow className={'d-flex justify-content-center text-center'}>
+        <div className={'col-12 col-md-8 col-lg-4'}>
+          <MDBRow>
+            <MDBCol>
+              <Button
+                color="secondary"
+                text={'Cancel'}
+                onClick={() => {
+                  window.location.href = '/plugs';
+                }}
+              />
+            </MDBCol>
+            <MDBCol>
+              <Button
+                color="secondary"
+                text={'Delete'}
+                onClick={async () => {
+                  if (!plugDetail?.id) return;
+                  await plugDelete();
+                  window.location.href = '/plugs';
+                }}
+              />
+            </MDBCol>
+            <MDBCol>
+              <Button color="primary" text={'Save'} onClick={plugEdit} />
+            </MDBCol>
+          </MDBRow>
+        </div>
+      </MDBRow>
+    </>
   );
 };
 

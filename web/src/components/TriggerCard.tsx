@@ -62,6 +62,7 @@ function TriggerCard({ selected, availableVariables, onSelectedChange, onDelete,
     selected.fields = found.fields.map((field) => ({
       key: field.key,
       value: '',
+      description: field.description,
       modified: false,
       required: field.required ?? false,
     }));
@@ -201,7 +202,9 @@ function TriggerCard({ selected, availableVariables, onSelectedChange, onDelete,
           <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {step?.fields.map((field) => (
               <FieldEditor
+                key={field.key}
                 fieldKey={field.key}
+                description={field.description}
                 onChange={(val) => onFieldChange(field.key, val)}
                 value={selected.fields.filter((el) => el.key === field.key)[0]?.value ?? ''}
                 variables={availableVariables}

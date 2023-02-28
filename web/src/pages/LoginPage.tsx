@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import randomstring from 'randomstring';
 import { Typography } from '@mui/material';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
+import { MDBContainer, MDBTypography } from 'mdb-react-ui-kit';
 import LoginCard from '../components/LoginCard';
 import api, { googleLogin, loginAccount } from '../utils/api';
 import MessageBox from '../components/MessageBox';
@@ -52,16 +53,14 @@ const LoginPage = () => {
   }
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <Typography variant="h2" fontWeight="bold" color={'primary'}>
-          Plug-It
-        </Typography>
-        <Typography variant="h4" fontWeight="bold" color={'primary'}>
-          Login
-        </Typography>
-        <br />
-        <LoginCard title={'Login'} description={'Login to your account.'} onClick={onLogin} />
+    <MDBContainer className={'d-flex flex-column justify-content-center align-items-center'} style={{ minHeight: '100vh'}}>
+      <MDBTypography tag="h1" variant="h1" className={'fw-bold'} style={{ fontSize: '3.5rem' }} color="primary">
+        Plug-It
+      </MDBTypography>
+      <MDBTypography tag="h2" variant="h2" className={'fw-bold'} style={{ fontSize: '2.5rem' }} color="primary">
+        Login
+      </MDBTypography>
+        <LoginCard title={'Login with email'} description={'Login to your account.'} onClick={onLogin} />
         <MessageBox title={error} description={message} type={'error'} isOpen={open} onClose={onClose} />
         <Typography variant="h6" fontWeight="bold" color={'primary'} padding={2}>
           Or
@@ -76,8 +75,7 @@ const LoginPage = () => {
             }}
           />
         </GoogleOAuthProvider>
-      </div>
-    </div>
+    </MDBContainer>
   );
 };
 

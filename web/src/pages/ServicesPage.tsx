@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Grid, Typography } from '@mui/material';
+import { MDBCard, MDBCardTitle, MDBCol, MDBRow, MDBTypography } from 'mdb-react-ui-kit';
 import Header from '../components/Header';
 import SearchBar from '../components/SearchBar';
 import ServiceCard from '../components/ServiceCard';
@@ -16,6 +17,17 @@ const ServicesPage = () => {
   const initServices = (serviceList: Service[]) => {
     setServices(serviceList);
     setSearchedServices(serviceList);
+  };
+
+  const setConnection = (service: Service, newStatus: boolean) => {
+    const newServices = services.map((s) => {
+      if (s.name === service.name) {
+        return { ...s, connected: newStatus };
+      }
+      return s;
+    });
+    setServices(newServices);
+    setSearchedServices(newServices);
   };
 
   useEffect(() => {
@@ -38,34 +50,29 @@ const ServicesPage = () => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <>
       <MessageBox title={error} description={message} type={'error'} isOpen={open} onClose={() => setOpen(false)} />
-      <Header title="Plug-It" area="Services" />
-      <br />
-      <Typography variant="h4" fontWeight="bold" color={'primary'} style={{ paddingTop: '20px' }}>
+      <MDBTypography tag="h4" variant="h1" color={'primary'} className="text-center fw-bold pt-3">
         Services
-      </Typography>
-      <br />
-      <SearchBar
-        onChange={(value) => filterResearchedServices(value)}
-        onSearch={(value) => filterResearchedServices(value)}
-        placeholder="Search a service"
-        textColor="black"
-        backgroundColor="#EAF1FF"
-        borderColor="#EAF1FF"
-      />
-      <br />
-      <div style={{ display: 'flex', flexDirection: 'row', gap: '20px' }}>
-        <Grid container spacing={2} columns={3} style={{ paddingTop: '20px' }}>
-          {searchedServices.map((service) => (
-            <Grid item key={service.name}>
-              <ServiceCard service={service} />
-            </Grid>
-          ))}
-        </Grid>
+      </MDBTypography>
+      <div className="d-flex justify-content-center py-2">
+        <SearchBar
+          onChange={(value) => filterResearchedServices(value)}
+          onSearch={(value) => filterResearchedServices(value)}
+          placeholder="Search a service"
+          textColor="black"
+          backgroundColor="#EAF1FF"
+          borderColor="#EAF1FF"
+        />
       </div>
-    </div>
+      <MDBRow className={'d-flex justify-content-center'}>
+        {searchedServices.map((service, index) => (
+          <MDBCol xs="12" md="4" lg="3" key={index} className={'py-3 d-flex'}>
+            <ServiceCard service={service} setConnection={(status: boolean) => setConnection(service, status)} />
+          </MDBCol>
+        ))}
+      </MDBRow>
+    </>
   );
 };
-
 export default ServicesPage;

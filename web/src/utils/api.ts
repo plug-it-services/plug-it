@@ -18,6 +18,7 @@ export class ApiError extends Error {
 export type FieldEdition = {
   key: string;
   value: string;
+  description?: string;
   modified?: boolean;
   required?: boolean;
 };
@@ -49,6 +50,7 @@ export interface ServiceEvent {
   description: string;
   variables: Variable[];
   fields: {
+    description: string;
     type: string;
     key: string;
     displayName: string;
@@ -69,6 +71,7 @@ export interface ServiceAction {
   description: string;
   variables: Variable[];
   fields: {
+    description: string;
     type: string;
     key: string;
     displayName: string;
