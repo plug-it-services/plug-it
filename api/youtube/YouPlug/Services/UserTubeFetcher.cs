@@ -19,7 +19,8 @@ namespace YouPlug.Services
     {
         public static string[] Scopes = new string[] {
             YouTubeService.Scope.YoutubeReadonly,
-            YouTubeService.Scope.Youtube
+            YouTubeService.Scope.Youtube,
+            YouTubeService.Scope.YoutubeForceSsl,
         };
         
         private YouTubeService youtubeService;
@@ -288,11 +289,10 @@ namespace YouPlug.Services
         {
             // Recover the subscription id
             var request = youtubeService.Subscriptions.List("snippet");
-            request.ChannelId = channelId;
             request.Mine = true;
             try
             {
-                var sub = request.Execute().Items.FirstOrDefault();
+                var sub = request.Execute().Items.FirstOrDefault(s => s.Snippet.ResourceId.ChannelId == channelId);
 
                 if (sub == null)
                     return new Variable[] { };
@@ -305,6 +305,7 @@ namespace YouPlug.Services
             {
                 if (ex.HttpStatusCode != System.Net.HttpStatusCode.BadRequest)
                     throw ex;
+                Console.WriteLine("Ignored: " + ex.ToString());
             }
             return new Variable[] { };
         }

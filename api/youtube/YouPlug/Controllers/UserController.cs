@@ -100,7 +100,7 @@ namespace YouPlug.Controllers
             oauth2Callback += "&redirect_uri=" + redirUri;
             oauth2Callback += "&response_type=code";
             // YouTubeService.Scope.YoutubeReadonly + YouTubeService.Scope.Youtube
-            oauth2Callback += "&scope=" + YouTubeService.Scope.YoutubeReadonly + " " + YouTubeService.Scope.Youtube;
+            oauth2Callback += "&scope=" + YouTubeService.Scope.YoutubeReadonly + " " + YouTubeService.Scope.Youtube + " " + YouTubeService.Scope.YoutubeForceSsl;
             oauth2Callback += "&access_type=offline";
             // oauth2Callback += "&approval_prompt=force";
             // oauth2Callback += "&include_granted_scopes=true";
