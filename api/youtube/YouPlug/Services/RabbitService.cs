@@ -305,32 +305,6 @@ namespace YouPlug.Services
                         };
                         handled = true;
                         break;
-                    case "addVideoToWatchLater":
-                        Console.WriteLine("Adding video {0} to watch later for user {1}", message.fields.Where(x => x.key == "videoId").First().value, message.userId);
-                        response = new ActionFinishedDto()
-                        {
-                            actionId = message.actionId,
-                            userId = message.userId,
-                            plugId = message.plugId,
-                            runId = message.runId,
-                            serviceName = "youtube",
-                            variables = userFetcher.AddToWatchLater(message.fields.Where(x => x.key == "videoId").First().value)
-                        };
-                        handled = true;
-                        break;
-                    case "removeVideoFromWatchLater":
-                        Console.WriteLine("Removing video {0} from watch later for user {1}", message.fields.Where(x => x.key == "videoId").First().value, message.userId);
-                        response = new ActionFinishedDto()
-                        {
-                            actionId = message.actionId,
-                            userId = message.userId,
-                            plugId = message.plugId,
-                            runId = message.runId,
-                            serviceName = "youtube",
-                            variables = userFetcher.RemoveFromWatchLater(message.fields.Where(x => x.key == "videoId").First().value)
-                        };
-                        handled = true;
-                        break;
                     case "createPlaylist":
                         Console.WriteLine("Creating playlist {0} ({1}) for user {2}",
                             message.fields.Where(x => x.key == "playlistName").First().value,

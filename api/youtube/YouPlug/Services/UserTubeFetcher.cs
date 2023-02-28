@@ -232,60 +232,11 @@ namespace YouPlug.Services
             };
         }
 
-        
+
         public Variable[] UnsubscribeFromChannel(string channelId)
         {
             var request = youtubeService.Subscriptions.Delete(channelId);
             request.Execute();
-            return new Variable[] { };
-        }
-        
-        
-        public Variable[] AddToWatchLater(string videoId)
-        {
-            var request = youtubeService.PlaylistItems.Insert(new PlaylistItem
-            {
-                Snippet = new PlaylistItemSnippet
-                {
-                    PlaylistId = "WL",
-                    ResourceId = new ResourceId
-                    {
-                        Kind = "youtube#video",
-                        VideoId = videoId
-                    }
-                }
-            }, "snippet");
-
-            var plyI = request.Execute();
-
-            return new Variable[] {
-                new() { key = "title", value = plyI.Snippet.Title },
-                new() { key = "description", value = plyI.Snippet.Description },
-                new() { key = "playlistId", value = plyI.Snippet.PlaylistId },
-                new() { key = "ownerChannelId", value = plyI.Snippet.VideoOwnerChannelId },
-                new() { key = "ownerChannelTitle", value = plyI.Snippet.VideoOwnerChannelTitle },
-            };
-        }
-
-        
-        public Variable[] RemoveFromWatchLater(string videoId)
-        {
-            var request = youtubeService.PlaylistItems.List("snippet");
-            request.PlaylistId = "WL";
-            request.MaxResults = 50;
-
-            var response = request.Execute();
-            var playlistItems = response.Items;
-
-            foreach (var playlistItem in playlistItems)
-            {
-                if (playlistItem.Snippet.ResourceId.VideoId == videoId)
-                {
-                    var deleteRequest = youtubeService.PlaylistItems.Delete(playlistItem.Id);
-                    deleteRequest.Execute();
-                    break;
-                }
-            }
             return new Variable[] { };
         }
 

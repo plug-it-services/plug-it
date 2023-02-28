@@ -130,7 +130,7 @@ namespace YouPlug.Services
                 }
             );
 
-            plugData.AddAction(
+            plugData.AddAction( // OK
                 "dislikeVideo",
                 "Dislike a Video",
                 "Dislike a video on Youtube from it's ID",
@@ -141,7 +141,7 @@ namespace YouPlug.Services
                 }
             );
 
-            plugData.AddAction(
+            plugData.AddAction( // OK
                 "removeReactionFromVideo",
                 "Remove Reaction From Video",
                 "Remove your reaction from a video on Youtube from it's ID",
@@ -178,34 +178,6 @@ namespace YouPlug.Services
                 }
             );
 
-            plugData.AddAction(
-                "addVideoToWatchLater",
-                "Add a Video to Watch Later",
-                "Add a video to your Watch Later playlist on Youtube from it's ID",
-                new List<PlugDataDto.PlugVariable>() {
-                    new ("title", PlugDataDto.VariableType.String, "Video Title", "The title of the video you added to your Watch Later playlist"),
-                    new ("description", PlugDataDto.VariableType.String, "Video Description", "The description of the video you added to your Watch Later playlist"),
-                    new ("playlistId", PlugDataDto.VariableType.String, "Playlist ID", "The ID of the playlist you added the video to"),
-                    new ("ownerChannelId", PlugDataDto.VariableType.String, "Channel ID", "The ID of the channel that published the video"),
-                    new ("ownerChannelTitle", PlugDataDto.VariableType.String, "Channel Title", "The title of the channel that published the video"),
-                },
-                new List<PlugDataDto.PlugField>()
-                {
-                    new ("videoId", PlugDataDto.VariableType.String, "Video ID", "The ID of the video to add to your Watch Later playlist", true),
-                }
-            );
-
-            plugData.AddAction(
-                "removeVideoFromWatchLater",
-                "Remove a Video from Watch Later",
-                "Remove a video from your Watch Later playlist on Youtube from it's ID",
-                new List<PlugDataDto.PlugVariable>() { },
-                new List<PlugDataDto.PlugField>()
-                {
-                    new ("videoId", PlugDataDto.VariableType.String, "Video ID", "The ID of the video to remove from your Watch Later playlist", true),
-                }
-            );
-
             plugData.AddAction( // OK
                 "createPlaylist",
                 "Create a Playlist",
@@ -224,7 +196,7 @@ namespace YouPlug.Services
                 }
             );
 
-            plugData.AddAction(
+            plugData.AddAction( // OK
                 "deletePlaylist",
                 "Delete a Playlist",
                 "Delete a playlist on Youtube from it's ID",
@@ -253,7 +225,7 @@ namespace YouPlug.Services
                 }
             );
 
-            plugData.AddAction(
+            plugData.AddAction( // OK
                 "removeVideoFromPlaylist",
                 "Remove a Video from a Playlist",
                 "Remove a video from a playlist on Youtube from it's ID",
