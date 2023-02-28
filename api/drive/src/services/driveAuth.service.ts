@@ -29,6 +29,9 @@ export class DriveAuthService {
     const exists = await this.driveAuthRepository.findOneBy({ userId });
 
     if (exists) {
+      this.logger.log(
+        `User ${userId} already has a drive auth entry. Updating it with new state (${state}) and redirectUrl (${redirectUrl})`,
+      );
       await this.driveAuthRepository.update(
         { userId },
         {
@@ -36,12 +39,17 @@ export class DriveAuthService {
           redirectUrl,
         },
       );
+      this.logger.log(`User ${userId} auth entry updated`);
     } else {
+      this.logger.log(
+        `User ${userId} does not have a drive auth entry. Creating one with state (${state}) and redirectUrl (${redirectUrl})`,
+      );
       await this.driveAuthRepository.save({
         id: state,
         userId,
         redirectUrl,
       });
+      this.logger.log(`User ${userId} drive auth entry created`);
     }
     return state;
   }
@@ -82,11 +90,17 @@ export class DriveAuthService {
     const auth = await this.retrieveByState(state);
     try {
       const tokens = await this.fetchAccessToken(code);
+      this.logger.log(
+        `Successfully fetched access token for user ${auth.userId}`,
+      );
       await this.driveAuthRepository.update(
         { id: state },
         {
           refreshToken: tokens.refresh_token,
         },
+      );
+      this.logger.log(
+        `Successfully saved refresh token in database for user ${auth.userId}`,
       );
       return { userId: auth.userId, redirectUrl: auth.redirectUrl };
     } catch (e) {

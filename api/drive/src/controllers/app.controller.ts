@@ -35,19 +35,28 @@ export class AppController {
     @Body(new ValidationPipe()) body: Oauth2StartDto,
   ) {
     const user: UserHeaderDto = JSON.parse(userHeader);
+
+    this.logger.log(`User ${user.id} is initiated a connection to drive`);
     const url = await this.githubAuthService.getAuthUrl(
       user.id,
       body.redirectUrl,
     );
 
+    this.logger.log(`User ${user.id} will be redirected to ${url}`);
     return { url };
   }
 
   @Post('disconnect')
   async disconnect(@Headers('user') userHeader: string) {
     const user: UserHeaderDto = JSON.parse(userHeader);
+
+    this.logger.log(`User ${user.id} is initiated a disconnection from drive`);
+
     await this.githubAuthService.disconnect(user.id);
 
+    this.logger.log(
+      `User ${user.id} is disconnected from drive. Notifying plugs microservice`,
+    );
     try {
       await axios.post(
         this.configService.getOrThrow<string>('PLUGS_SERVICE_LOGGED_OUT_URL'),
@@ -61,6 +70,9 @@ export class AppController {
       );
       throw new InternalServerErrorException('Cannot save disconnected state');
     }
+    this.logger.log(
+      `User ${user.id} is fully disconnected from drive (notified plugs microservice).`,
+    );
   }
 
   @Get('callback')
@@ -76,14 +88,26 @@ export class AppController {
       return;
     }
 
+    this.logger.log(
+      `Received callback from github with code ${code} and state ${state}`,
+    );
+
     const { userId, redirectUrl } =
       await this.githubAuthService.storeAccessToken(state, code);
+
+    this.logger.log(
+      `User ${userId} is connected to drive. Notifying plugs microservice`,
+    );
 
     await axios.post(
       this.configService.getOrThrow<string>('PLUGS_SERVICE_LOGGED_IN_URL'),
       {
         userId: userId,
       },
+    );
+
+    this.logger.log(
+      `User ${userId} is fully connected to drive (notified plugs microservice). Redirecting user to ${redirectUrl}`,
     );
 
     res.redirect(redirectUrl);
