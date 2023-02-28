@@ -199,7 +199,7 @@ const PlugEditPage = () => {
         </div>
       </MDBRow>
       {selections.map((selection, selectionIdx) => (
-        <MDBRow key={selectionIdx} className={'d-flex justify-content-center'}>
+        <MDBRow key={`${selection.serviceName}-${selection.stepId}-${selectionIdx}`} className={'d-flex justify-content-center'}>
           <div className={'col-12 col-md-8 col-lg-4'}>
             <TriggerCard
               selected={selection}
