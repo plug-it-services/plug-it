@@ -9,7 +9,7 @@ namespace YouPlug.Services
         {
             PlugDataDto plugData = new PlugDataDto("youtube", PlugDataDto.PlugAuthType.oauth2, "/images/youtube_icon.png", "#FF0000");
 
-            plugData.AddEvent(
+            plugData.AddEvent( // OK
                 "newVideoFromChannel",
                 "New Video From Channel",
                 "A new video has been published on Youtube from a specific channel",
@@ -27,7 +27,7 @@ namespace YouPlug.Services
                 }
             );
 
-            plugData.AddEvent(
+            plugData.AddEvent( // OK
                 "newVideoFromMyChannel",
                 "New Video From My Channel",
                 "A new video has been published on your Youtube channel",
@@ -76,9 +76,9 @@ namespace YouPlug.Services
             );
 
             plugData.AddEvent(
-                "newUpcomingStreamFromChannel",
-                "New Upcoming Stream From Channel",
-                "A new upcoming stream has been published on Youtube from a specific channel",
+                "newUpcomingFromChannel",
+                "New Upcoming From Channel",
+                "A new upcoming content has been published on Youtube from a specific channel",
                 new List<PlugDataDto.PlugVariable>()
                 {
                     new ("channelTitle", PlugDataDto.VariableType.String, "Channel Title", "The title of the channel that published the upcoming stream"),
@@ -93,6 +93,21 @@ namespace YouPlug.Services
                 }
             );
 
+            plugData.AddEvent(
+                "newUpcomingFromMyChannel",
+                "New Upcoming From My Channel",
+                "A new upcoming content has been published on your Youtube channel",
+                new List<PlugDataDto.PlugVariable>()
+                {
+                    new ("channelTitle", PlugDataDto.VariableType.String, "Channel Title", "The title of the channel that published the upcoming stream"),
+                    new ("channelId", PlugDataDto.VariableType.String, "Channel ID", "The ID of the channel that published the upcoming stream"),
+                    new ("videoTitle", PlugDataDto.VariableType.String, "Video Title", "The published upcoming stream title"),
+                    new ("videoId", PlugDataDto.VariableType.String, "Video ID", "The ID of the published upcoming stream"),
+                    new ("videoDescription", PlugDataDto.VariableType.String, "Video Description", "The description of the published upcoming stream"),
+                },
+                new List<PlugDataDto.PlugField>() { }
+            );
+
             plugData.AddAction(
                 "getMyChannelId",
                 "Get My Channel ID",
@@ -104,7 +119,7 @@ namespace YouPlug.Services
                 new List<PlugDataDto.PlugField>() { }
             );
 
-            plugData.AddAction(
+            plugData.AddAction( // OK
                 "likeVideo",
                 "Like a Video",
                 "Like a video on Youtube from it's ID",
@@ -137,7 +152,7 @@ namespace YouPlug.Services
                 }
             );
 
-            plugData.AddAction(
+            plugData.AddAction( // OK
                 "subscribeToChannel",
                 "Subscribe to a Channel",
                 "Subscribe to a channel on Youtube from it's ID",
@@ -191,7 +206,7 @@ namespace YouPlug.Services
                 }
             );
 
-            plugData.AddAction(
+            plugData.AddAction( // OK
                 "createPlaylist",
                 "Create a Playlist",
                 "Create a playlist on Youtube",
@@ -220,7 +235,7 @@ namespace YouPlug.Services
                 }
             );
 
-            plugData.AddAction(
+            plugData.AddAction( // OK
                 "addVideoToPlaylist",
                 "Add a Video to a Playlist",
                 "Add a video to a playlist on Youtube from it's ID",

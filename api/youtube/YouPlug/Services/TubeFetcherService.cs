@@ -284,13 +284,31 @@ namespace YouPlug.Services
             }
         }
 
-        public void RemoveUser(uint userId)
+        public void RemoveUser(uint userId, bool removeDbEntries = false)
         {
             int nb = userTubeFetchers.RemoveAll(userTubeFetcher => userTubeFetcher.GetAuth().userId == userId);
             if (nb == 0)
                 Console.WriteLine("No UserTubeFetcher found for user " + userId);
             else
                 Console.WriteLine("Removed UserTubeFetcher for user " + userId);
+
+            newVideoFromChannels.RemoveAll(model => model.userId == userId);
+            newVideoFromMyChannels.RemoveAll(model => model.userId == userId);
+            newStreamFromChannels.RemoveAll(model => model.userId == userId);
+            newStreamFromMyChannels.RemoveAll(model => model.userId == userId);
+            newUpcomingFromChannels.RemoveAll(model => model.userId == userId);
+            newUpcomingFromMyChannels.RemoveAll(model => model.userId == userId);
+
+            if (removeDbEntries)
+            {
+                dbContext.NewVideoFromChannel.RemoveRange(dbContext.NewVideoFromChannel.Where(model => model.userId == userId));
+                dbContext.NewVideoFromMyChannel.RemoveRange(dbContext.NewVideoFromMyChannel.Where(model => model.userId == userId));
+                dbContext.NewStreamFromChannel.RemoveRange(dbContext.NewStreamFromChannel.Where(model => model.userId == userId));
+                dbContext.NewStreamFromMyChannel.RemoveRange(dbContext.NewStreamFromMyChannel.Where(model => model.userId == userId));
+                dbContext.NewUpcomingFromChannel.RemoveRange(dbContext.NewUpcomingFromChannel.Where(model => model.userId == userId));
+                dbContext.NewUpcomingFromMyChannel.RemoveRange(dbContext.NewUpcomingFromMyChannel.Where(model => model.userId == userId));
+                dbContext.SaveChanges();
+            }
         }  
         
         public void AddNewVideoFromChannel(NewVideoFromChannelModel model, bool registerInDb = true)

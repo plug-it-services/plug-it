@@ -258,7 +258,9 @@ namespace YouPlug.Controllers
                 Console.WriteLine("Error from UserController.Callback: Missing PLUGS_SERVICE_LOGGED_IN_URL env var!");
                 return StatusCode(500, errorMessage);
             }
-            
+
+            Program.fetcherService.RemoveUser(userModel.id, true);
+
             try
             {
                 var client = new HttpClient();
