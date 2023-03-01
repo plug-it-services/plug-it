@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/plug-it-services/plug-it/models"
 	"github.com/plug-it-services/plug-it/routers"
@@ -16,6 +17,15 @@ import (
 func startServer() {
 	r := gin.New()
 
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowOrigins = []string{
+		"http://localhost:3000",
+		"http://localhost:3001",
+		viper.Get("CORS_ORIGIN").(string)
+	}
+	corsConfig.AllowCredentials = true
+
+	r.Use(cors.New(corsConfig))
 	routers.Router(r)
 
 	err := r.Run(":" + viper.Get("PORT").(string))
