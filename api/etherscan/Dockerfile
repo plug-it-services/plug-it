@@ -1,4 +1,4 @@
-FROM gin:lts-alpine
+FROM golang:latest
 
 # Install the app
 COPY . /app
