@@ -516,36 +516,36 @@ services:
       options:
         gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
         tag: "discord"
-    
-  discord-postgres:
+
+  etherscan-postgres:
     image: 'postgres:latest'
     networks:
-      - discord_network
+      - etherscan_network
     env_file:
-      - ./api/discord/.env
+      - ./api/etherscan/.env
     volumes:
-      - discord_data:/var/lib/postgresql/data
+      - etherscan_data:/var/lib/postgresql/data
     logging:
       driver: gelf
       options:
         gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
-        tag: "discord-potgres"
+        tag: "etherscan-postgres"
 
   etherscan:
-    build: ./api/discord
+    build: ./api/etherscan
     networks:
       - rabbit_network
       - traefik_network
-      - discord_network
+      - etherscan_network
     labels:
-      - traefik.http.routers.discord-oauth2-callback.rule=Path(`/service/discord/callback`)
-      - traefik.http.routers.discord.rule=Path(`/service/discord/oauth2`) || Path(`/service/discord/disconnect`)
-      - traefik.http.middlewares.discord-replacepathregex.replacepathregex.regex=^/service/discord/(.*)
-      - traefik.http.middlewares.discord-replacepathregex.replacepathregex.replacement=/public/$$1
+      - traefik.http.routers.etherscan-oauth2-callback.rule=Path(`/service/etherscan/callback`)
+      - traefik.http.routers.etherscan.rule=Path(`/service/etherscan/oauth2`) || Path(`/service/etherscan/disconnect`)
+      - traefik.http.middlewares.etherscan-replacepathregex.replacepathregex.regex=^/service/etherscan/(.*)
+      - traefik.http.middlewares.etherscan-replacepathregex.replacepathregex.replacement=/public/$$1
       - traefik.http.middlewares.test-auth.forwardauth.address=http://user/verify
       - traefik.http.middlewares.test-auth.forwardauth.authResponseHeaders=user
-      - traefik.http.routers.discord.middlewares=discord-replacepathregex, test-auth
-      - traefik.http.routers.discord-oauth2-callback.middlewares=discord-replacepathregex
+      - traefik.http.routers.etherscan.middlewares=etherscan-replacepathregex, test-auth
+      - traefik.http.routers.etherscan-oauth2-callback.middlewares=etherscan-replacepathregex
       - traefik.enable=true
     ports:
       - ${ETHERSCAN_PORT}:80
@@ -554,7 +554,7 @@ services:
         condition: service_healthy
       elk:
         condition: service_started
-      discord-postgres:
+      etherscan-postgres:
         condition: service_started
       plugs:
         condition: service_healthy
