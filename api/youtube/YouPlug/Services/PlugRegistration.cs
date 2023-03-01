@@ -108,7 +108,7 @@ namespace YouPlug.Services
                 new List<PlugDataDto.PlugField>() { }
             );
 
-            plugData.AddAction(
+            plugData.AddAction( // OK
                 "getMyChannelId",
                 "Get My Channel ID",
                 "Get the ID of your Youtube channel",
@@ -167,7 +167,7 @@ namespace YouPlug.Services
                 }
             );
 
-            plugData.AddAction(
+            plugData.AddAction( // OK
                 "unsubscribeFromChannel",
                 "Unsubscribe from a Channel",
                 "Unsubscribe from a channel on Youtube from it's ID",
@@ -178,7 +178,7 @@ namespace YouPlug.Services
                 }
             );
 
-            plugData.AddAction(
+            plugData.AddAction( // OK
                 "removeComment",
                 "Remove a Comment",
                 "Remove a comment on Youtube from it's ID",
@@ -189,7 +189,7 @@ namespace YouPlug.Services
                 }
             );
 
-            plugData.AddAction(
+            plugData.AddAction( // OK
                 "postComment",
                 "Post a Comment",
                 "Post a comment on Youtube",
@@ -206,7 +206,7 @@ namespace YouPlug.Services
                 }
             );
 
-            plugData.AddAction(
+            plugData.AddAction( // OK
                 "postReply",
                 "Post a Reply",
                 "Post a reply to a comment on Youtube",
