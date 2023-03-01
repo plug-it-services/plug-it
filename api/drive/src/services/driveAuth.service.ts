@@ -118,7 +118,7 @@ export class DriveAuthService {
     return auth.refreshToken;
   }
 
-  async disconnect(userId: number) {
+  async getLoggedClient(userId: number) {
     const oauth2Client = new google.auth.OAuth2(
       this.clientId,
       this.clientSecret,
@@ -127,6 +127,11 @@ export class DriveAuthService {
     oauth2Client.setCredentials({
       refresh_token: await this.getRefreshToken(userId),
     });
+    return oauth2Client;
+  }
+
+  async disconnect(userId: number) {
+    const oauth2Client = await this.getLoggedClient(userId);
 
     await oauth2Client.revokeCredentials();
     await this.driveAuthRepository.delete({ userId });
