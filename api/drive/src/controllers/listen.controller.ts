@@ -70,11 +70,25 @@ export class ListenerController {
   async triggerAction(msg: ActionTriggerDto) {
     try {
       switch (msg.actionId) {
-        case 'CREATE_FILE':
+        case 'createFile':
           this.logger.log(
             `Received action to create file for user ${msg.userId}`,
           );
-          // TODO
+          await this.fileActionsService.createFile(
+            msg.userId,
+            msg.plugId,
+            msg.fields.find((field) => field.key === 'fileName').value,
+          );
+          break;
+        case 'deleteFile':
+          this.logger.log(
+            `Received action to delete file for user ${msg.userId}`,
+          );
+          await this.fileActionsService.deleteFile(
+            msg.userId,
+            msg.plugId,
+            msg.fields.find((field) => field.key === 'fileId').value,
+          );
           break;
         default:
           this.logger.warn('Unknown action: ', msg.actionId);
