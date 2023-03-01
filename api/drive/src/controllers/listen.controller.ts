@@ -6,21 +6,21 @@ export class ListenerController {
   constructor(private amqpConnection: AmqpConnection) {}
 
   @RabbitSubscribe({
-    queue: 'plug_event_github_initialize',
+    queue: 'plug_event_drive_initialize',
   })
   async listenForEvents() {
     // TODO: Implement
   }
 
   @RabbitSubscribe({
-    queue: 'plug_event_github_disabled',
+    queue: 'plug_event_drive_disabled',
   })
   async listenForDisabledEvents() {
     // TODO: Implement
   }
 
   @RabbitSubscribe({
-    queue: 'plug_action_github_triggers',
+    queue: 'plug_action_drive_triggers',
   })
   async triggerAction(msg: any) {
     // TODO: Implement
