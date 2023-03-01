@@ -130,6 +130,52 @@ namespace YouPlug.Services
                         Program.fetcherService.AddNewVideoFromMyChannel(newVideoFromMyChannel);
                         handled = true;
                         break;
+                    case "newStreamFromChannel":
+                        Console.WriteLine("New stream from channel {0} for user {1} for plugId {2}!", message.eventId, message.userId, message.plugId);
+                        NewStreamFromChannelModel newStreamFromChannel = new()
+                        {
+                            channelId = message.fields.First(x => x.key == "channelId").value,
+                            userId = message.userId,
+                            plugId = message.plugId,
+                            lastStreamDate = new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds()
+                        };
+                        Program.fetcherService.AddNewStreamFromChannel(newStreamFromChannel);
+                        handled = true;
+                        break;
+                    case "newStreamFromMyChannel":
+                        Console.WriteLine("New stream from my channel {0} for user {1} for plugId {2}!", message.eventId, message.userId, message.plugId);
+                        NewStreamFromMyChannelModel newStreamFromMyChannel = new()
+                        {
+                            userId = message.userId,
+                            plugId = message.plugId,
+                            lastStreamDate = new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds()
+                        };
+                        Program.fetcherService.AddNewStreamFromMyChannel(newStreamFromMyChannel);
+                        handled = true;
+                        break;
+                    case "newUpcomingFromChannel":
+                        Console.WriteLine("New upcoming from channel {0} for user {1} for plugId {2}!", message.eventId, message.userId, message.plugId);
+                        NewUpcomingFromChannelModel newUpcomingFromChannel = new()
+                        {
+                            channelId = message.fields.First(x => x.key == "channelId").value,
+                            userId = message.userId,
+                            plugId = message.plugId,
+                            lastUpcomingDate = new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds()
+                        };
+                        Program.fetcherService.AddNewUpcomingFromChannel(newUpcomingFromChannel);
+                        handled = true;
+                        break;
+                    case "newUpcomingFromMyChannel":
+                        Console.WriteLine("New upcoming from my channel {0} for user {1} for plugId {2}!", message.eventId, message.userId, message.plugId);
+                        NewUpcomingFromMyChannelModel newUpcomingFromMyChannel = new()
+                        {
+                            userId = message.userId,
+                            plugId = message.plugId,
+                            lastUpcomingDate = new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds()
+                        };
+                        Program.fetcherService.AddNewUpcomingFromMyChannel(newUpcomingFromMyChannel);
+                        handled = true;
+                        break;
                     default:
                         Console.WriteLine("Error (RabbitService) : " + "Unable to handle message");
                         handled = false; // Just to be over sure
