@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using YouPlug.Db;
+﻿using YouPlug.Db;
 using YouPlug.Dto;
 using YouPlug.Models;
 

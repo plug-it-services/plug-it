@@ -23,7 +23,7 @@ namespace YouPlug.Services
                 },
                 new List<PlugDataDto.PlugField>()
                 {
-                    new PlugDataDto.PlugField("channelId", PlugDataDto.VariableType.String, "Channel ID", "The ID of the channel to watch for new videos", true),
+                    new("channelId", PlugDataDto.VariableType.String, "Channel ID", "The ID of the channel to watch for new videos", true),
                 }
             );
 
@@ -56,7 +56,7 @@ namespace YouPlug.Services
                 },
                 new List<PlugDataDto.PlugField>()
                 {
-                    new PlugDataDto.PlugField("channelId", PlugDataDto.VariableType.String, "Channel ID", "The ID of the channel to watch for new streams", true),
+                    new("channelId", PlugDataDto.VariableType.String, "Channel ID", "The ID of the channel to watch for new streams", true),
                 }
             );
 
@@ -89,7 +89,7 @@ namespace YouPlug.Services
                 },
                 new List<PlugDataDto.PlugField>()
                 {
-                    new PlugDataDto.PlugField("channelId", PlugDataDto.VariableType.String, "Channel ID", "The ID of the channel to watch for new upcoming streams", true),
+                    new("channelId", PlugDataDto.VariableType.String, "Channel ID", "The ID of the channel to watch for new upcoming streams", true),
                 }
             );
 

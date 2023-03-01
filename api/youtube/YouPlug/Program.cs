@@ -61,8 +61,7 @@ if (string.IsNullOrWhiteSpace(host) || string.IsNullOrWhiteSpace(userName)
     return;
 }
 
-string connectionString = string.Format("Host={0};Username={1};Password={2};Database={3}",
-    host, userName, password, databaseName);
+string connectionString = $"Host={host};Username={userName};Password={password};Database={databaseName}";
 
 Console.WriteLine($"Connection string: {connectionString}");
 

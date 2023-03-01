@@ -1,20 +1,18 @@
-﻿using YouPlug.Models;
-using Google.Apis.YouTube.v3;
-using Google.Apis.YouTube.v3.Data;
-using Google.Apis.Services;
-using Microsoft.EntityFrameworkCore;
-using YouPlug.Dto.Youtube;
+﻿using Google;
 using Google.Apis.Auth.OAuth2;
-using Google.Apis.Util.Store;
 using Google.Apis.Auth.OAuth2.Flows;
 using Google.Apis.Auth.OAuth2.Responses;
-using static YouPlug.Dto.Rabbit.RabbitDto;
+using Google.Apis.Services;
+using Google.Apis.YouTube.v3;
+using Google.Apis.YouTube.v3.Data;
+using YouPlug.Dto.Youtube;
+using YouPlug.Models;
 using static Google.Apis.YouTube.v3.SearchResource.ListRequest;
-using Google;
+using static YouPlug.Dto.Rabbit.RabbitDto;
 
 namespace YouPlug.Services
 {
-    
+
     public class UserTubeFetcher
     {
         public static string[] Scopes = new string[] {
@@ -22,11 +20,10 @@ namespace YouPlug.Services
             YouTubeService.Scope.Youtube,
             YouTubeService.Scope.YoutubeForceSsl,
         };
-        
-        private YouTubeService youtubeService;
-        
-        private YouPlugAuthModel authModel;
 
+        private YouTubeService youtubeService;
+
+        private YouPlugAuthModel authModel;
 
         public UserTubeFetcher(YouPlugAuthModel model)
         {
@@ -41,9 +38,9 @@ namespace YouPlug.Services
 
                 var cred = new UserCredential
                     (new GoogleAuthorizationCodeFlow(
-                        new GoogleAuthorizationCodeFlow.Initializer()
+                        new GoogleAuthorizationCodeFlow.Initializer
                         {
-                            ClientSecrets = new ClientSecrets()
+                            ClientSecrets = new ClientSecrets
                             {
                                 ClientId = Environment.GetEnvironmentVariable("CLIENT_ID"),
                                 ClientSecret = Environment.GetEnvironmentVariable("CLIENT_SECRET")
@@ -54,7 +51,7 @@ namespace YouPlug.Services
                         token
                     );
 
-                youtubeService = new YouTubeService(new BaseClientService.Initializer()
+                youtubeService = new YouTubeService(new BaseClientService.Initializer
                 {
                     ApplicationName = "PlugIt",
                     HttpClientInitializer = cred
@@ -65,7 +62,7 @@ namespace YouPlug.Services
                 Console.WriteLine("Error (TubeFetcher) : " + ex.Message);
                 Console.WriteLine("Error (TubeFetcher) : " + ex.Message);
             }
-            
+
             if (youtubeService == null)
                 throw new Exception("YoutubeService is null");
         }
@@ -74,7 +71,6 @@ namespace YouPlug.Services
         {
             return authModel;
         }
-        
 
         public List<ChannelDto> GetSubscriptions()
         {
@@ -112,11 +108,8 @@ namespace YouPlug.Services
         {
             List<VideoDto> videos = new();
             var request = youtubeService.Search.List("snippet");
-            if (string.IsNullOrEmpty(channelId))
-                request.ChannelId = GetMyOwnChannelId();
-            else
-                request.ChannelId = channelId;
-            request.Order = SearchResource.ListRequest.OrderEnum.Date;
+            request.ChannelId = string.IsNullOrEmpty(channelId) ? GetMyOwnChannelId() : channelId;
+            request.Order = OrderEnum.Date;
             request.Type = "video";
             request.EventType = eventType;
             request.MaxResults = maxResults;
@@ -172,23 +165,24 @@ namespace YouPlug.Services
             };
         }
 
-        
+
         public Variable[] DeleteComment(string commentId)
         {
             var request = youtubeService.Comments.Delete(commentId);
 
-            try {
+            try
+            {
                 request.Execute();
             }
             catch (GoogleApiException ex)
             {
                 if (ex.HttpStatusCode != System.Net.HttpStatusCode.BadRequest)
-                    throw ex;
+                    throw;
             }
             return new Variable[] { };
         }
 
-        
+
         public Variable[] PublishReply(string videoId, string commentId, string reply)
         {
             var request = youtubeService.Comments.Insert(new Comment
@@ -214,22 +208,23 @@ namespace YouPlug.Services
             };
         }
 
-        
+
         public Variable[] LikeVideo(string videoId)
         {
             var request = youtubeService.Videos.Rate(videoId, VideosResource.RateRequest.RatingEnum.Like);
-            try {
+            try
+            {
                 request.Execute();
             }
             catch (GoogleApiException ex)
             {
                 if (ex.HttpStatusCode != System.Net.HttpStatusCode.BadRequest)
-                    throw ex;
+                    throw;
             }
-            return new Variable[] {};
+            return new Variable[] { };
         }
 
-        
+
         public Variable[] DislikeVideo(string videoId)
         {
             var request = youtubeService.Videos.Rate(videoId, VideosResource.RateRequest.RatingEnum.Dislike);
@@ -240,9 +235,9 @@ namespace YouPlug.Services
             catch (GoogleApiException ex)
             {
                 if (ex.HttpStatusCode != System.Net.HttpStatusCode.BadRequest)
-                    throw ex;
+                    throw;
             }
-            return new Variable[] {};
+            return new Variable[] { };
         }
 
         public Variable[] RemoveReactionToVideo(string videoId)
@@ -255,7 +250,7 @@ namespace YouPlug.Services
             catch (GoogleApiException ex)
             {
                 if (ex.HttpStatusCode != System.Net.HttpStatusCode.BadRequest)
-                    throw ex;
+                    throw;
             }
             return new Variable[] { };
         }
@@ -276,7 +271,7 @@ namespace YouPlug.Services
             }, "snippet");
 
             var sub = request.Execute();
-            
+
             return new Variable[] {
                 new() { key = "channelId", value = sub.Snippet.ResourceId.ChannelId },
                 new() { key = "channelTitle", value = sub.Snippet.Title },
@@ -298,19 +293,19 @@ namespace YouPlug.Services
                     return new Variable[] { };
 
                 var _request = youtubeService.Subscriptions.Delete(sub.Id);
-                
+
                 _request.Execute();
             }
             catch (GoogleApiException ex)
             {
                 if (ex.HttpStatusCode != System.Net.HttpStatusCode.BadRequest)
-                    throw ex;
-                Console.WriteLine("Ignored: " + ex.ToString());
+                    throw;
+                Console.WriteLine("Ignored: " + ex);
             }
             return new Variable[] { };
         }
 
-        
+
         public Variable[] CreatePlaylist(string title, string description)
         {
             var request = youtubeService.Playlists.Insert(new Playlist
@@ -333,7 +328,7 @@ namespace YouPlug.Services
             };
         }
 
-        
+
         public Variable[] RemovePlaylist(string playlistId)
         {
             var request = youtubeService.Playlists.Delete(playlistId);
@@ -344,7 +339,7 @@ namespace YouPlug.Services
             catch (GoogleApiException ex)
             {
                 if (ex.HttpStatusCode != System.Net.HttpStatusCode.BadRequest)
-                    throw ex;
+                    throw;
             }
             return new Variable[] { };
         }
@@ -375,7 +370,7 @@ namespace YouPlug.Services
             };
         }
 
-        
+
         public Variable[] RemoveFromPlaylist(string playlistId, string videoId)
         {
             var request = youtubeService.PlaylistItems.List("snippet");

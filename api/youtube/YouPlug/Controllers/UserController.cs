@@ -1,7 +1,5 @@
 using Google.Apis.YouTube.v3;
-using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -9,11 +7,10 @@ using YouPlug.Db;
 using YouPlug.Dto;
 using YouPlug.Models;
 using YouPlug.Services;
-using static System.Net.WebRequestMethods;
 
 namespace YouPlug.Controllers
 {
-    
+
     [ApiController]
     [Route("public")]
     public class UserController : ControllerBase
@@ -22,7 +19,7 @@ namespace YouPlug.Controllers
         private readonly ILogger<UserController> _logger;
         private readonly IConfiguration _config;
         private readonly PlugDbContext _plugDbContext;
-        
+
         public class OAuth2Redirect
         {
             public string url { get; set; }
@@ -45,7 +42,7 @@ namespace YouPlug.Controllers
             _plugDbContext = plugDbContext;
             Console.WriteLine("UserController created");
         }
-        
+
         [HttpPost("oauth2", Name = "OAuth2")]
         public ActionResult<OAuth2Redirect> OAuth2([FromHeader] string user, [FromBody] OAuthStart body)
         {
@@ -69,7 +66,8 @@ namespace YouPlug.Controllers
             {
                 Console.WriteLine("Missing configuration! " + $"redirUri[{redirUri}], clientId[{clientId}]");
 
-                GeneralDto.ErrorMessage errorMessage = new() {
+                GeneralDto.ErrorMessage errorMessage = new()
+                {
                     message = "Internal server error occurred: Missing configuration!"
                 };
                 return StatusCode(400, errorMessage);
@@ -150,7 +148,7 @@ namespace YouPlug.Controllers
             YouPlugAuthModel? auth;
             try
             {
-                auth = _plugDbContext.Auths.Where(a => a.id == state).First();
+                auth = _plugDbContext.Auths.First(a => a.id == state);
             }
             catch (Exception e)
             {
@@ -161,7 +159,7 @@ namespace YouPlug.Controllers
                 Console.WriteLine("Error during DB research UserController.Callback: " + e.Message);
                 return StatusCode(500, errorMessage);
             }
-            
+
             if (auth == null)
             {
                 GeneralDto.ErrorMessage errorMessage = new()

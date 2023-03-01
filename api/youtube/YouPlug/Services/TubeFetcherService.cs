@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.Diagnostics;
 using YouPlug.Db;
 using YouPlug.Models;
 
@@ -235,10 +234,10 @@ namespace YouPlug.Services
 
             if (string.IsNullOrWhiteSpace(rabbitMq))
                 throw new Exception("Unable to recover RABBITMQ_URL env var!");
-            
+
             rabbitService = new RabbitService(new Uri(rabbitMq));
             rabbitService.Start();
-            
+
             return Task.Factory.StartNew(() =>
             {
                 while (true)
@@ -270,7 +269,7 @@ namespace YouPlug.Services
                 Console.WriteLine("UserTubeFetcher already exists for user " + youPlugAuth.userId);
                 return;
             }
-            
+
             if (!string.IsNullOrWhiteSpace(youPlugAuth.accessToken) && !string.IsNullOrWhiteSpace(youPlugAuth.refreshToken))
             {
                 userTubeFetchers.Add(new UserTubeFetcher(youPlugAuth));
@@ -307,8 +306,8 @@ namespace YouPlug.Services
                 dbContext.NewUpcomingFromMyChannel.RemoveRange(dbContext.NewUpcomingFromMyChannel.Where(model => model.userId == userId));
                 dbContext.SaveChanges();
             }
-        }  
-        
+        }
+
         public void AddNewVideoFromChannel(NewVideoFromChannelModel model, bool registerInDb = true)
         {
             if (registerInDb && dbContext.NewVideoFromChannel.Find(model.userId, model.plugId) == null)
@@ -316,7 +315,8 @@ namespace YouPlug.Services
                 Console.WriteLine("NewVideoFromChannelModel not found in database, adding it");
                 dbContext.NewVideoFromChannel.Add(model);
                 dbContext.SaveChanges();
-            } else if (registerInDb)
+            }
+            else if (registerInDb)
             {
                 Console.WriteLine("NewVideoFromChannelModel already exists in database, updating it");
                 dbContext.NewVideoFromChannel.Update(model);
@@ -504,7 +504,7 @@ namespace YouPlug.Services
             }
         }
 
-        public void RemoveUpcomingFromChannel(int userId, string plugId)
+        public void RemoveNewUpcomingFromChannel(int userId, string plugId)
         {
             NewUpcomingFromChannelModel? model = dbContext.NewUpcomingFromChannel.Find(userId, plugId);
             if (model == null)

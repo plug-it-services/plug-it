@@ -1,13 +1,9 @@
-using System.Text;
-using System.Text.Json;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using YouPlug.Db;
+using System.Text;
 using YouPlug.Dto.Youtube;
 using YouPlug.Models;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using static YouPlug.Dto.Rabbit.RabbitDto;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
@@ -18,13 +14,13 @@ namespace YouPlug.Services
         private ConnectionFactory factory;
         private IConnection connection;
         private IModel channel;
-        
+
         private string? queueInit;
         private string? queryDisable;
         private string? eventQueue;
         private string? actionTrigger;
         private string? actionFinish;
-        
+
         public RabbitService(Uri hostUri)
         {
             queueInit = Environment.GetEnvironmentVariable("EVENT_INITIALIZATION_QUEUE", EnvironmentVariableTarget.Process);
@@ -54,14 +50,14 @@ namespace YouPlug.Services
             Console.WriteLine("Event: " + eventQueue);
             Console.WriteLine("Action Trigger: " + actionTrigger);
             Console.WriteLine("Action Finish: " + actionFinish);
-            
+
             channel.QueueDeclare(queue: queueInit,
                      durable: true,
                      exclusive: false,
                      autoDelete: false,
                      arguments: null);
             channel.QueueBind(queueInit, "amq.direct", queueInit);
-            
+
             channel.QueueDeclare(queue: queryDisable,
                      durable: true,
                      exclusive: false,
@@ -102,7 +98,7 @@ namespace YouPlug.Services
             {
                 if (Program.fetcherService == null)
                     throw new Exception("FetcherService not ready!!!");
-                
+
                 message = ReadMessage<EventInitializeDto>(ea);
                 if (message == null)
                     throw new Exception("Unable to deserialize message");
@@ -115,7 +111,7 @@ namespace YouPlug.Services
                         Console.WriteLine("New video from channel {0} for user {1} for plugId {2} with fields: {3}!", message.eventId, message.userId, message.plugId, message.fields[0].key + " = " + message.fields[0].value);
                         NewVideoFromChannelModel model = new()
                         {
-                            channelId = message.fields.Where(x => x.key == "channelId").First().value,
+                            channelId = message.fields.First(x => x.key == "channelId").value,
                             userId = message.userId,
                             plugId = message.plugId,
                             lastVideoDate = new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds()
@@ -182,6 +178,22 @@ namespace YouPlug.Services
                         Program.fetcherService.RemoveNewVideoFromMyChannel(message.userId, message.plugId);
                         handled = true;
                         break;
+                    case "newStreamFromChannel":
+                        Program.fetcherService.RemoveNewStreamFromChannel(message.userId, message.plugId);
+                        handled = true;
+                        break;
+                    case "newStreamFromMyChannel":
+                        Program.fetcherService.RemoveNewStreamFromMyChannel(message.userId, message.plugId);
+                        handled = true;
+                        break;
+                    case "newUpcomingFromChannel":
+                        Program.fetcherService.RemoveNewUpcomingFromChannel(message.userId, message.plugId);
+                        handled = true;
+                        break;
+                    case "newUpcomingFromMyChannel":
+                        Program.fetcherService.RemoveNewUpcomingFromMyChannel(message.userId, message.plugId);
+                        handled = true;
+                        break;
                     default:
                         Console.WriteLine("Error (RabbitService) : " + "Unable to handle message");
                         handled = false; // Just to be over sure
@@ -219,7 +231,7 @@ namespace YouPlug.Services
 
                 Console.WriteLine("Action requested {0} for user {1}...", message.actionId, message.userId);
 
-                var userFetcher = Program.fetcherService.GetUserFetcher(message.userId);
+                var userFetcher = Program.fetcherService?.GetUserFetcher(message.userId);
 
                 if (userFetcher == null)
                     throw new Exception("The user {0} don't seems to be connected??");
@@ -235,12 +247,12 @@ namespace YouPlug.Services
                             plugId = message.plugId,
                             runId = message.runId,
                             serviceName = "youtube",
-                            variables = new Variable[] { new Variable() { key = "channelId", value = userFetcher.GetMyOwnChannelId() } }
+                            variables = new Variable[] { new() { key = "channelId", value = userFetcher.GetMyOwnChannelId() } }
                         };
                         handled = true;
                         break;
                     case "likeVideo":
-                        Console.WriteLine("Liking video {0}", message.fields.Where(x => x.key == "videoId").First().value + " for user " + message.userId);
+                        Console.WriteLine("Liking video {0}", message.fields.First(x => x.key == "videoId").value + " for user " + message.userId);
                         response = new ActionFinishedDto()
                         {
                             actionId = message.actionId,
@@ -248,12 +260,12 @@ namespace YouPlug.Services
                             plugId = message.plugId,
                             runId = message.runId,
                             serviceName = "youtube",
-                            variables = userFetcher.LikeVideo(message.fields.Where(x => x.key == "videoId").First().value)
+                            variables = userFetcher.LikeVideo(message.fields.First(x => x.key == "videoId").value)
                         };
                         handled = true;
                         break;
                     case "dislikeVideo":
-                        Console.WriteLine("Disliking video {0}", message.fields.Where(x => x.key == "videoId").First().value + " for user " + message.userId);
+                        Console.WriteLine("Disliking video {0}", message.fields.First(x => x.key == "videoId").value + " for user " + message.userId);
                         response = new ActionFinishedDto()
                         {
                             actionId = message.actionId,
@@ -261,12 +273,12 @@ namespace YouPlug.Services
                             plugId = message.plugId,
                             runId = message.runId,
                             serviceName = "youtube",
-                            variables = userFetcher.DislikeVideo(message.fields.Where(x => x.key == "videoId").First().value)
+                            variables = userFetcher.DislikeVideo(message.fields.First(x => x.key == "videoId").value)
                         };
                         handled = true;
                         break;
                     case "removeReactionFromVideo":
-                        Console.WriteLine("Removing reaction from video {0}", message.fields.Where(x => x.key == "videoId").First().value + " for user " + message.userId);
+                        Console.WriteLine("Removing reaction from video {0}", message.fields.First(x => x.key == "videoId").value + " for user " + message.userId);
                         response = new ActionFinishedDto()
                         {
                             actionId = message.actionId,
@@ -274,12 +286,12 @@ namespace YouPlug.Services
                             plugId = message.plugId,
                             runId = message.runId,
                             serviceName = "youtube",
-                            variables = userFetcher.RemoveReactionToVideo(message.fields.Where(x => x.key == "videoId").First().value)
+                            variables = userFetcher.RemoveReactionToVideo(message.fields.First(x => x.key == "videoId").value)
                         };
                         handled = true;
                         break;
                     case "subscribeToChannel":
-                        Console.WriteLine("Subscribing to channel {0}", message.fields.Where(x => x.key == "channelId").First().value + " for user " + message.userId);
+                        Console.WriteLine("Subscribing to channel {0}", message.fields.First(x => x.key == "channelId").value + " for user " + message.userId);
                         response = new ActionFinishedDto()
                         {
                             actionId = message.actionId,
@@ -287,12 +299,12 @@ namespace YouPlug.Services
                             plugId = message.plugId,
                             runId = message.runId,
                             serviceName = "youtube",
-                            variables = userFetcher.SubscribeToChannel(message.fields.Where(x => x.key == "channelId").First().value)
+                            variables = userFetcher.SubscribeToChannel(message.fields.First(x => x.key == "channelId").value)
                         };
                         handled = true;
                         break;
                     case "unsubscribeFromChannel":
-                        Console.WriteLine("Unsubscribing from channel {0}", message.fields.Where(x => x.key == "channelId").First().value + " for user " + message.userId);
+                        Console.WriteLine("Unsubscribing from channel {0}", message.fields.First(x => x.key == "channelId").value + " for user " + message.userId);
                         response = new ActionFinishedDto()
                         {
                             actionId = message.actionId,
@@ -300,14 +312,14 @@ namespace YouPlug.Services
                             plugId = message.plugId,
                             runId = message.runId,
                             serviceName = "youtube",
-                            variables = userFetcher.UnsubscribeFromChannel(message.fields.Where(x => x.key == "channelId").First().value)
+                            variables = userFetcher.UnsubscribeFromChannel(message.fields.First(x => x.key == "channelId").value)
                         };
                         handled = true;
                         break;
                     case "createPlaylist":
                         Console.WriteLine("Creating playlist {0} ({1}) for user {2}",
-                            message.fields.Where(x => x.key == "playlistName").First().value,
-                            message.fields.Where(x => x.key == "playlistDescription").First().value,
+                            message.fields.First(x => x.key == "playlistName").value,
+                            message.fields.First(x => x.key == "playlistDescription").value,
                             message.userId);
                         response = new ActionFinishedDto()
                         {
@@ -317,13 +329,13 @@ namespace YouPlug.Services
                             runId = message.runId,
                             serviceName = "youtube",
                             variables = userFetcher.CreatePlaylist(
-                                message.fields.Where(x => x.key == "playlistName").First().value,
-                                message.fields.Where(x => x.key == "playlistDescription").First().value)
+                                message.fields.First(x => x.key == "playlistName").value,
+                                message.fields.First(x => x.key == "playlistDescription").value)
                         };
                         handled = true;
                         break;
                     case "deletePlaylist":
-                        Console.WriteLine("Deleting playlist {0} for user {1}", message.fields.Where(x => x.key == "playlistId").First().value, message.userId);
+                        Console.WriteLine("Deleting playlist {0} for user {1}", message.fields.First(x => x.key == "playlistId").value, message.userId);
                         response = new ActionFinishedDto()
                         {
                             actionId = message.actionId,
@@ -331,14 +343,14 @@ namespace YouPlug.Services
                             plugId = message.plugId,
                             runId = message.runId,
                             serviceName = "youtube",
-                            variables = userFetcher.RemovePlaylist(message.fields.Where(x => x.key == "playlistId").First().value)
+                            variables = userFetcher.RemovePlaylist(message.fields.First(x => x.key == "playlistId").value)
                         };
                         handled = true;
                         break;
                     case "addVideoToPlaylist":
                         Console.WriteLine("Adding video {0} to playlist {1} for user {2}",
-                            message.fields.Where(x => x.key == "videoId").First().value,
-                            message.fields.Where(x => x.key == "playlistId").First().value,
+                            message.fields.First(x => x.key == "videoId").value,
+                            message.fields.First(x => x.key == "playlistId").value,
                             message.userId);
                         response = new ActionFinishedDto()
                         {
@@ -348,15 +360,15 @@ namespace YouPlug.Services
                             runId = message.runId,
                             serviceName = "youtube",
                             variables = userFetcher.AddToPlaylist(
-                                message.fields.Where(x => x.key == "playlistId").First().value,
-                                message.fields.Where(x => x.key == "videoId").First().value)
+                                message.fields.First(x => x.key == "playlistId").value,
+                                message.fields.First(x => x.key == "videoId").value)
                         };
                         handled = true;
                         break;
                     case "removeVideoFromPlaylist":
                         Console.WriteLine("Removing video {0} from playlist {1} for user {2}",
-                            message.fields.Where(x => x.key == "videoId").First().value,
-                            message.fields.Where(x => x.key == "playlistId").First().value,
+                            message.fields.First(x => x.key == "videoId").value,
+                            message.fields.First(x => x.key == "playlistId").value,
                             message.userId);
                         response = new ActionFinishedDto()
                         {
@@ -366,13 +378,13 @@ namespace YouPlug.Services
                             runId = message.runId,
                             serviceName = "youtube",
                             variables = userFetcher.RemoveFromPlaylist(
-                                message.fields.Where(x => x.key == "playlistId").First().value,
-                                message.fields.Where(x => x.key == "videoId").First().value)
+                                message.fields.First(x => x.key == "playlistId").value,
+                                message.fields.First(x => x.key == "videoId").value)
                         };
                         handled = true;
                         break;
                     case "removeComment":
-                        Console.WriteLine("Removing comment {0} for user {1}", message.fields.Where(x => x.key == "commentId").First().value, message.userId);
+                        Console.WriteLine("Removing comment {0} for user {1}", message.fields.First(x => x.key == "commentId").value, message.userId);
                         response = new ActionFinishedDto()
                         {
                             actionId = message.actionId,
@@ -380,14 +392,14 @@ namespace YouPlug.Services
                             plugId = message.plugId,
                             runId = message.runId,
                             serviceName = "youtube",
-                            variables = userFetcher.DeleteComment(message.fields.Where(x => x.key == "commentId").First().value)
+                            variables = userFetcher.DeleteComment(message.fields.First(x => x.key == "commentId").value)
                         };
                         handled = true;
                         break;
                     case "postComment":
                         Console.WriteLine("Posting comment {0} on video {1} for user {2}",
-                            message.fields.Where(x => x.key == "commentText").First().value,
-                            message.fields.Where(x => x.key == "videoId").First().value,
+                            message.fields.First(x => x.key == "commentText").value,
+                            message.fields.First(x => x.key == "videoId").value,
                             message.userId);
                         response = new ActionFinishedDto()
                         {
@@ -397,15 +409,15 @@ namespace YouPlug.Services
                             runId = message.runId,
                             serviceName = "youtube",
                             variables = userFetcher.PublishComment(
-                                message.fields.Where(x => x.key == "videoId").First().value,
-                                message.fields.Where(x => x.key == "commentText").First().value)
+                                message.fields.First(x => x.key == "videoId").value,
+                                message.fields.First(x => x.key == "commentText").value)
                         };
                         handled = true;
                         break;
                     case "postReply":
                         Console.WriteLine("Posting reply {0} on comment {1} for user {2}",
-                            message.fields.Where(x => x.key == "commentText").First().value,
-                            message.fields.Where(x => x.key == "commentId").First().value,
+                            message.fields.First(x => x.key == "commentText").value,
+                            message.fields.First(x => x.key == "commentId").value,
                             message.userId);
                         response = new ActionFinishedDto()
                         {
@@ -555,7 +567,8 @@ namespace YouPlug.Services
 
         public void FireEvent(string eventId, string plugId, int userId, Variable[] variables)
         {
-            if (channel == null) {
+            if (channel == null)
+            {
                 Console.WriteLine("Error (RabbitService) : " + "Channel is null");
                 return;
             }
@@ -576,7 +589,8 @@ namespace YouPlug.Services
 
         public void Start()
         {
-            if (channel == null) {
+            if (channel == null)
+            {
                 Console.WriteLine("Error (RabbitService) : " + "Channel is null");
                 return;
             }
