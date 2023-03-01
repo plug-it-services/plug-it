@@ -24,8 +24,11 @@ func startServer() {
 		viper.Get("CORS_ORIGIN").(string),
 	}
 	corsConfig.AllowCredentials = true
+	erro := r.Use(cors.New(corsConfig))
 
-	r.Use(cors.New(corsConfig))
+	log.Println("CORS_ORIGIN: ", viper.Get("CORS_ORIGIN").(string))
+	log.Println(erro)
+
 	routers.Router(r)
 
 	err := r.Run(":" + viper.Get("PORT").(string))
