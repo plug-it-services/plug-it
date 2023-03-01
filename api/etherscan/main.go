@@ -21,7 +21,7 @@ func startServer() {
 	corsConfig.AllowOrigins = []string{
 		"http://localhost:3000",
 		"http://localhost:3001",
-		viper.Get("CORS_ORIGIN").(string)
+		viper.Get("CORS_ORIGIN").(string),
 	}
 	corsConfig.AllowCredentials = true
 

@@ -576,6 +576,7 @@ services:
       - twitter_network
       - youtube_network
       - drive_network
+      - etherscan_network
     ports:
       - 7000:8080
 
