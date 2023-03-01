@@ -9,12 +9,14 @@ import {
   InternalServerErrorException,
   Body,
   ValidationPipe,
+  Param,
 } from '@nestjs/common';
 import UserHeaderDto from '../dto/UserHeader.dto';
 import { ConfigService } from '@nestjs/config';
 import { DriveAuthService } from '../services/driveAuth.service';
 import axios from 'axios';
 import Oauth2StartDto from '../dto/Oauth2Start.dto';
+import { WebHookService } from "../services/webhook.service";
 
 @Controller('public')
 export class AppController {
@@ -23,6 +25,7 @@ export class AppController {
   constructor(
     private githubAuthService: DriveAuthService,
     private configService: ConfigService,
+    private webhookService: WebHookService,
   ) {
     this.frontendUrl = this.configService.getOrThrow<string>(
       'FRONTEND_SERVICES_PAGE_URL',
@@ -111,5 +114,29 @@ export class AppController {
     );
 
     res.redirect(redirectUrl);
+  }
+
+  @Post(':uuid')
+  async triggerWebhook(
+    @Param('uuid') webhookId: string,
+    @Headers('X-Goog-Resource-ID') resourceId: string,
+    @Headers('X-Goog-Resource-State') resourceState: string,
+  ) {
+    const webhook = await this.webhookService.getWebhookById(webhookId);
+
+    if (!webhook) {
+      this.logger.error(`Webhook ${webhookId} not found`);
+      return;
+    }
+
+    this.logger.log(`Webhook ${webhookId} triggered`);
+    switch (webhook.eventId) {
+      case 'file.create':
+        // TODO
+        break;
+      default:
+        this.logger.warn(`Event ${webhook.eventId} not handled yet`);
+        break;
+    }
   }
 }
