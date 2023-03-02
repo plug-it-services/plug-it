@@ -3,6 +3,7 @@ import { WebHookService } from './webhook.service';
 import { DriveAuthService } from './driveAuth.service';
 import { ConfigService } from '@nestjs/config';
 import { google } from 'googleapis';
+import { Field } from '../dto/Field.dto';
 
 @Injectable()
 export default class FileActionsService {
@@ -14,7 +15,29 @@ export default class FileActionsService {
     private configService: ConfigService,
   ) {}
 
-  async createFile(userId: number, plugId: string, name: string) {
+  buildClassicReply(file): Field[] {
+    return [
+      { key: 'fileId', value: file.data.id },
+      { key: 'name', value: file.data.name },
+      { key: 'driveId', value: file.data.driveId },
+      { key: 'url', value: file.data.webViewLink },
+      {
+        key: 'isOwner',
+        value: (
+          file.data.owners.find((owner) => owner.me) !== undefined
+        ).toString(),
+      },
+      { key: 'isShared', value: (file.data.shared !== undefined).toString() },
+      { key: 'isTrashed', value: file.data.trashed.toString() },
+      { key: 'isStarred', value: file.data.starred.toString() },
+    ];
+  }
+
+  async createFile(
+    userId: number,
+    plugId: string,
+    name: string,
+  ): Promise<Field[]> {
     const drive = google.drive({
       version: 'v3',
       auth: await this.driveAuthService.getLoggedClient(userId),
@@ -30,7 +53,7 @@ export default class FileActionsService {
       fields: 'id',
     });
 
-    // TODO rendre des variables depuis le file créé
+    return this.buildClassicReply(file);
   }
 
   async deleteFile(userId: number, plugId: string, fileId: string) {
@@ -49,7 +72,7 @@ export default class FileActionsService {
     plugId: string,
     fileId: string,
     name: string,
-  ) {
+  ): Promise<Field[]> {
     const drive = google.drive({
       version: 'v3',
       auth: await this.driveAuthService.getLoggedClient(userId),
@@ -63,6 +86,8 @@ export default class FileActionsService {
       fileId,
       requestBody: fileMetadata,
     });
+
+    return this.buildClassicReply(file);
   }
 
   async moveFile(
@@ -70,7 +95,7 @@ export default class FileActionsService {
     plugId: string,
     fileId: string,
     destinationId: string,
-  ) {
+  ): Promise<Field[]> {
     const drive = google.drive({
       version: 'v3',
       auth: await this.driveAuthService.getLoggedClient(userId),
@@ -84,6 +109,8 @@ export default class FileActionsService {
       fileId,
       requestBody: fileMetadata,
     });
+
+    return this.buildClassicReply(file);
   }
 
   async copyFile(
@@ -91,7 +118,7 @@ export default class FileActionsService {
     plugId: string,
     fileId: string,
     destinationId: string,
-  ) {
+  ): Promise<Field[]> {
     const drive = google.drive({
       version: 'v3',
       auth: await this.driveAuthService.getLoggedClient(userId),
@@ -105,6 +132,8 @@ export default class FileActionsService {
       fileId,
       requestBody: fileMetadata,
     });
+
+    return this.buildClassicReply(file);
   }
 
   async shareFile(
@@ -113,7 +142,7 @@ export default class FileActionsService {
     fileId: string,
     email: string,
     role: string,
-  ) {
+  ): Promise<Field[]> {
     const drive = google.drive({
       version: 'v3',
       auth: await this.driveAuthService.getLoggedClient(userId),
@@ -130,7 +159,12 @@ export default class FileActionsService {
       requestBody: permission,
     });
 
-    // TODO rendre des variables depuis le perm créé
+    return [
+      { key: 'fileId', value: fileId },
+      { key: 'permissionId', value: perm.data.id },
+      { key: 'email', value: perm.data.emailAddress },
+      { key: 'role', value: perm.data.role },
+    ];
   }
 
   async unshareFile(
@@ -148,6 +182,11 @@ export default class FileActionsService {
       fileId,
       permissionId,
     });
+
+    return [
+      { key: 'fileId', value: fileId },
+      { key: 'permissionId', value: permissionId },
+    ];
   }
 
   async changeFilePermission(
@@ -172,7 +211,12 @@ export default class FileActionsService {
       requestBody: permission,
     });
 
-    // TODO rendre des variables depuis le perm créé
+    return [
+      { key: 'fileId', value: fileId },
+      { key: 'permissionId', value: perm.data.id },
+      { key: 'email', value: perm.data.emailAddress },
+      { key: 'role', value: perm.data.role },
+    ];
   }
 
   async createFolder(userId: number, plugId: string, name: string) {
@@ -191,7 +235,7 @@ export default class FileActionsService {
       fields: 'id',
     });
 
-    // TODO rendre des variables depuis le file créé
+    return this.buildClassicReply(file);
   }
 
   async deleteFolder(userId: number, plugId: string, folderId: string) {
@@ -270,6 +314,8 @@ export default class FileActionsService {
       fileId,
       fields: '*',
     });
+
+    return this.buildClassicReply(file);
   }
 
   async getFolder(userId: number, plugId: string, folderId: string) {
