@@ -10,7 +10,7 @@ import { EventInitializeDto } from '../dto/EventInitialize.dto';
 import DriveChangesService from '../services/driveChanges.service';
 import FileActionsService from '../services/fileActions.service';
 
-@Controller('listener')
+@Controller()
 export class ListenerController {
   private logger = new Logger(ListenerController.name);
 

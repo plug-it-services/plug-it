@@ -9,6 +9,7 @@ import DriveChangesService from './services/driveChanges.service';
 import FileActionsService from './services/fileActions.service';
 import { WebHookService } from './services/webhook.service';
 import { WebHookEntity } from './schemas/webhook.entity';
+import { ListenerController } from './controllers/listen.controller';
 
 @Module({
   imports: [
@@ -46,7 +47,7 @@ import { WebHookEntity } from './schemas/webhook.entity';
       },
     }),
   ],
-  controllers: [AppController],
+  controllers: [AppController, ListenerController],
   providers: [
     DriveAuthService,
     DriveChangesService,
