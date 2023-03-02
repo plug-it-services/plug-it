@@ -74,7 +74,7 @@ export default {
       fields: [],
     },
     {
-      id: 'changesOnMyDrive',
+      id: 'changesOnFile',
       name: 'Changes on my drive',
       description:
         'Trigger when a file or folder is change in your whole drive',
