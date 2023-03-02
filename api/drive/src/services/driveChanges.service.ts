@@ -77,12 +77,20 @@ export default class DriveChangesService {
   }
 
   async stopWebhook(userId: number, plugId: string, eventId: string) {
+    const webhook = await this.webhookService.find(userId, plugId, eventId);
+
+    if (!webhook) {
+      this.logger.log(
+        `Webhook not found for user ${userId} that should be stopped`,
+      );
+      return;
+    }
+    const { uuid } = webhook;
     const oauth2Client = await this.driveAuthService.getLoggedClient(userId);
     const drive = google.drive({
       version: 'v3',
       auth: oauth2Client,
     });
-    const { uuid } = await this.webhookService.find(userId, plugId, eventId);
     this.logger.log(`Stopping webhook ${uuid} for user ${userId}`);
     drive.channels.stop({
       requestBody: {
