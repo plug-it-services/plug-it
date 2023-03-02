@@ -5,6 +5,10 @@ import { AmqpConnection, RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import { AppController } from './controllers/app.controller';
 import { DriveAuthService } from './services/driveAuth.service';
 import { DriveAuthEntity } from './schemas/driveAuth.entity';
+import DriveChangesService from './services/driveChanges.service';
+import FileActionsService from './services/fileActions.service';
+import { WebHookService } from './services/webhook.service';
+import { WebHookEntity } from './schemas/webhook.entity';
 
 @Module({
   imports: [
@@ -25,7 +29,7 @@ import { DriveAuthEntity } from './schemas/driveAuth.entity';
         };
       },
     }),
-    TypeOrmModule.forFeature([DriveAuthEntity]),
+    TypeOrmModule.forFeature([DriveAuthEntity, WebHookEntity]),
     RabbitMQModule.forRootAsync(RabbitMQModule, {
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
@@ -43,7 +47,12 @@ import { DriveAuthEntity } from './schemas/driveAuth.entity';
     }),
   ],
   controllers: [AppController],
-  providers: [DriveAuthService],
+  providers: [
+    DriveAuthService,
+    DriveChangesService,
+    FileActionsService,
+    WebHookService,
+  ],
 })
 export class AppModule {
   constructor(

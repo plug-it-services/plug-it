@@ -85,6 +85,7 @@ export default {
           type: 'string',
           displayName: 'File ID',
           description: 'The ID of the file that will be watched',
+          required: true,
         },
       ],
     },
