@@ -35,7 +35,7 @@ export default class DriveChangesService {
     this.logger.log(
       `Creating webhook to watch changes on ${userId} user's drive`,
     );
-    await drive.changes.watch({
+    const channel = await drive.changes.watch({
       pageToken: token.data.startPageToken,
       requestBody: {
         id: webhookId,
@@ -44,6 +44,10 @@ export default class DriveChangesService {
           this.configService.getOrThrow('WEBHOOK_BASE_URL') + `/${webhookId}`,
       },
     });
+    this.logger.warn(channel);
+    this.logger.warn(
+      this.configService.getOrThrow('WEBHOOK_BASE_URL') + `/${webhookId}`,
+    );
     this.logger.log(`Created webhook for user ${userId}`);
   }
 
