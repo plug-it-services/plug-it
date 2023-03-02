@@ -26,7 +26,7 @@ import { ListenerController } from './controllers/listen.controller';
           database: configService.get<string>('POSTGRES_DB'),
           // TODO need to remove it in production
           synchronize: true,
-          entities: [DriveAuthEntity],
+          entities: [DriveAuthEntity, WebHookEntity],
         };
       },
     }),
