@@ -519,6 +519,7 @@ services:
       - outlook_network
       - starton_network
       - twitter_network
+      - drive_network
     ports:
       - 7000:8080
 
