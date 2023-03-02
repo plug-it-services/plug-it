@@ -21,6 +21,7 @@ func startServer() {
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{viper.Get("CORS_ORIGIN").(string)},
 		AllowCredentials: true,
+		AllowMethods:     []string{"OPTIONS", "GET", "POST", "PUT", "DELETE"},
 	}))
 
 	r.POST("/public/disconnect", controllers.DisconnectUser)
