@@ -83,6 +83,7 @@ export class DriveAuthService {
       this.callbackUrl,
     );
     const { tokens } = await oauth2Client.getToken(code);
+    this.logger.debug(`Successfully fetched access token`, tokens);
     return tokens;
   }
 
