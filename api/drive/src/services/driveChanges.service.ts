@@ -96,11 +96,19 @@ export default class DriveChangesService {
       auth: oauth2Client,
     });
     this.logger.log(`Stopping webhook ${uuid} for user ${userId}`);
-    drive.channels.stop({
-      requestBody: {
-        id: uuid,
-      },
-    });
+    try {
+      drive.channels.stop({
+        requestBody: {
+          id: uuid,
+        },
+      });
+    } catch (e) {
+      this.logger.error(
+        `Error while stopping webhook ${uuid} for user ${userId}`,
+        e,
+      );
+    }
+    await this.webhookService.deleteById(webhook.uuid);
     this.logger.log(`Stopped webhook ${uuid} for user ${userId}`);
   }
 }
