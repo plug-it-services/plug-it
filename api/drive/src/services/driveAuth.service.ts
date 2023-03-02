@@ -131,9 +131,6 @@ export class DriveAuthService {
   }
 
   async disconnect(userId: number) {
-    const oauth2Client = await this.getLoggedClient(userId);
-
-    await oauth2Client.revokeCredentials();
     await this.driveAuthRepository.delete({ userId });
   }
 }
