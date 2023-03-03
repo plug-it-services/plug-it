@@ -75,10 +75,17 @@ export default {
     },
     {
       id: 'changesOnFile',
-      name: 'Changes on my drive',
+      name: 'Changes on file',
       description:
-        'Trigger when a file or folder is change in your whole drive',
-      variables: [],
+        'Trigger when the specified file or folder changes',
+      variables: [
+        {
+          key: 'fileId',
+          type: 'string',
+          displayName: 'File ID',
+          description: 'The ID of the file that was changed',
+        },
+      ],
       fields: [
         {
           key: 'fileId',

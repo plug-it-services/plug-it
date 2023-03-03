@@ -17,6 +17,7 @@ import { DriveAuthService } from '../services/driveAuth.service';
 import axios from 'axios';
 import Oauth2StartDto from '../dto/Oauth2Start.dto';
 import { WebHookService } from "../services/webhook.service";
+import { AmqpService } from '../services/amqp.service';
 
 @Controller('public')
 export class AppController {
@@ -26,6 +27,7 @@ export class AppController {
     private githubAuthService: DriveAuthService,
     private configService: ConfigService,
     private webhookService: WebHookService,
+    private amqpService: AmqpService,
   ) {
     this.frontendUrl = this.configService.getOrThrow<string>(
       'FRONTEND_SERVICES_PAGE_URL',
@@ -134,13 +136,12 @@ export class AppController {
     }
 
     this.logger.log(`Webhook ${webhookId} triggered`);
-    switch (webhook.eventId) {
-      case 'file.create':
-        // TODO
-        break;
-      default:
-        this.logger.warn(`Event ${webhook.eventId} not handled yet`);
-        break;
-    }
+    await this.amqpService.publishEvent(
+      webhook.eventId,
+      webhook.plugId,
+      webhook.userId,
+      [{ key: 'fileId', value: resourceId }],
+    );
+    this.logger.log(`Webhook ${webhookId} event published`);
   }
 }

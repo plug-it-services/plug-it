@@ -10,6 +10,7 @@ import FileActionsService from './services/fileActions.service';
 import { WebHookService } from './services/webhook.service';
 import { WebHookEntity } from './schemas/webhook.entity';
 import { ListenerController } from './controllers/listen.controller';
+import { AmqpService } from './services/amqp.service';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { ListenerController } from './controllers/listen.controller';
     DriveChangesService,
     FileActionsService,
     WebHookService,
+    AmqpService,
   ],
 })
 export class AppModule {

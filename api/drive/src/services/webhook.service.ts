@@ -33,6 +33,10 @@ export class WebHookService {
     return this.webhookRepository.findBy({ userId });
   }
 
+  async update(uuid: string, entity: Partial<WebHookEntity>) {
+    await this.webhookRepository.update({ uuid }, entity);
+  }
+
   async create(
     uuid: string,
     userId: number,

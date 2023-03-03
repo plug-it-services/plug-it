@@ -48,7 +48,13 @@ export default class DriveChangesService {
     this.logger.warn(
       this.configService.getOrThrow('WEBHOOK_BASE_URL') + `/${webhookId}`,
     );
-    this.logger.log(`Created webhook for user ${userId}`);
+    this.logger.log(`Created webhook for user ${userId}. Saving resourceId...`);
+    await this.webhookService.update(webhookId, {
+      resourceId: channel.data.resourceId,
+    });
+    this.logger.log(
+      `Saved webhook ${webhookId} resourceId in DB for user ${userId}`,
+    );
   }
 
   async setupWebhookOnFile(userId: number, plugId: string, fileId: string) {
@@ -63,12 +69,12 @@ export default class DriveChangesService {
       webhookId,
       userId,
       plugId,
-      'changesOnMyDrive',
+      'changesOnFile',
     );
     this.logger.log(
       `Creating webhook to watch ${fileId} file changes for user ${userId}`,
     );
-    await drive.files.watch({
+    const response = await drive.files.watch({
       fileId,
       requestBody: {
         id: webhookId,
@@ -77,7 +83,15 @@ export default class DriveChangesService {
           this.configService.getOrThrow('WEBHOOK_BASE_URL') + `/${webhookId}`,
       },
     });
-    this.logger.log(`Created webhook for user ${userId}`);
+    this.logger.log(
+      `Created webhook for user ${userId}. Saving resourceId to DB...`,
+    );
+    await this.webhookService.update(webhookId, {
+      resourceId: response.data.resourceId,
+    });
+    this.logger.log(
+      `Saved webhook ${webhookId} resourceId in DB for user ${userId}`,
+    );
   }
 
   async stopWebhook(userId: number, plugId: string, eventId: string) {
@@ -100,6 +114,7 @@ export default class DriveChangesService {
       drive.channels.stop({
         requestBody: {
           id: uuid,
+          resourceId: webhook.resourceId,
         },
       });
     } catch (e) {

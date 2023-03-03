@@ -8,6 +8,9 @@ export class WebHookEntity {
   @PrimaryColumn()
   uuid: string;
 
+  @Column({ nullable: true })
+  resourceId?: string;
+
   @Column()
   userId: number;
 
