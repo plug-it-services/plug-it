@@ -8,9 +8,10 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
-	"github.com/plug-it-services/plug-it/controllers"
 	"github.com/plug-it-services/plug-it/middlewares"
 	"github.com/plug-it-services/plug-it/models"
+	"github.com/plug-it-services/plug-it/rabbitmq"
+	"github.com/plug-it-services/plug-it/routers"
 	"github.com/spf13/viper"
 )
 
@@ -19,8 +20,7 @@ func startServer() {
 
 	r.Use(middlewares.CORSMiddleware())
 
-	r.POST("/public/disconnect", controllers.DisconnectUser)
-	r.POST("/public/apiKey", middlewares.ConnectUserBodyMiddleware, controllers.ConnectUser)
+	routers.Router(r)
 
 	err := r.Run(":" + viper.Get("PORT").(string))
 	if err != nil {
@@ -43,6 +43,12 @@ func initRequest() {
 func main() {
 	viper.SetConfigFile(".env")
 	viper.ReadInConfig()
+
+	RabbitMQService, err := rabbitmq.New(viper.Get("RABBITMQ_URL").(string))
+	if err != nil {
+		log.Fatal("Error when connecting to RabbitMQ: ", err)
+	}
+	defer RabbitMQService.Disconnect()
 
 	models.SetupModels()
 	initRequest()
