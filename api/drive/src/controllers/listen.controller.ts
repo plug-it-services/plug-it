@@ -77,7 +77,7 @@ export class ListenerController {
           await this.fileActionsService.createFile(
             msg.userId,
             msg.plugId,
-            msg.fields.find((field) => field.key === 'fileName').value,
+            msg.fields.find((field) => field.key === 'name').value,
           );
           break;
         case 'deleteFile':
