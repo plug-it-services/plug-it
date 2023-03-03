@@ -55,6 +55,26 @@ func initViper() {
 	viper.ReadInConfig()
 }
 
+func initRabbitmq(RabbitMQService *rabbitmq.RabbitMQService) {
+	err := RabbitMQService.CreateQueue("plug_event_etherscan_initialize", "amq.direct")
+	if err != nil {
+		log.Fatal("Error when creating queue: ", err)
+	}
+	err = RabbitMQService.CreateQueue("plug_action_etherscan_triggers", "amq.direct")
+	if err != nil {
+		log.Fatal("Error when creating queue: ", err)
+	}
+
+	err = RabbitMQService.CreateConsumer("plug_event_etherscan_initialize", rabbitmq.EventConsumer)
+	if err != nil {
+		log.Fatal("Error when creating consumer: ", err)
+	}
+	err = RabbitMQService.CreateConsumer("plug_action_etherscan_triggers", rabbitmq.ActionConsumer)
+	if err != nil {
+		log.Fatal("Error when creating consumer: ", err)
+	}
+}
+
 func main() {
 	initViper()
 
@@ -62,30 +82,9 @@ func main() {
 	if err != nil {
 		log.Fatal("Error when connecting to RabbitMQ: ", err)
 	}
-	defer RabbitMQService.Disconnect()
+	defer RabbitMQService.Close()
 
-	q, err := RabbitMQService.Ch.QueueDeclare("plug_event_etherscan_initialize", true, false, false, false, nil)
-	if err != nil {
-		log.Fatal("Error when declaring queue: ", err)
-	}
-	err = RabbitMQService.Ch.QueueBind(q.Name, "plug_event_etherscan_initialize", "amq.direct", false, nil)
-	if err != nil {
-		log.Fatal("Error when binding queue: ", err)
-	}
-
-	log.Println("name", q.Name)
-
-	messages, err := RabbitMQService.Ch.Consume(q.Name, "", true, false, false, false, nil)
-	if err != nil {
-		log.Fatal("Error when consuming messages: ", err)
-	}
-
-	go func() {
-		for msg := range messages {
-			fmt.Println("Body:", string(msg.Body), "Timestamp:", msg.Timestamp)
-			msg.Ack(false)
-		}
-	}()
+	initRabbitmq(RabbitMQService)
 
 	initRequest()
 	initGin()
