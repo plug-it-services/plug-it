@@ -32,19 +32,31 @@ export class GithubEventService {
       url = body.repository.html_url;
     } catch {}
 
-    let mail = '';
+    let mail = 'Confidential';
     try {
-      mail = body.sender.email || '';
+      mail = body.sender.email || 'Confidential';
     } catch {}
+
+    let login = 'Confidential';
+    try {
+      login = body.sender.name || body.sender.login || 'Confidential';
+    } catch {}
+
 
     let repo = 'Unidentified';
     try {
       repo = body.repository.name || 'Unidentified';
     } catch {}
+
+    let action = 'Unidentified'
+    try {
+      action = headers['X-Github-Event'] || 'Unidentified';
+    } catch {}
+
     const data = {
-      action: headers['X-Github-Event'],
+      action: action,
       url: url,
-      sender: body.sender.name,
+      sender: login,
       sender_mail: mail,
     };
     this.logger.log(
