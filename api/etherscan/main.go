@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/plug-it-services/plug-it/controllers"
 	"github.com/plug-it-services/plug-it/middlewares"
@@ -18,11 +17,7 @@ import (
 func startServer() {
 	r := gin.Default()
 
-	config := cors.DefaultConfig()
-  	config.AllowOrigins = []string{viper.Get("CORS_ORIGIN").(string)}
-	config.AllowCredentials = true
-
- 	r.Use(cors.New(config))
+	r.Use(middlewares.CORSMiddleware())
 
 	r.POST("/public/disconnect", controllers.DisconnectUser)
 	r.POST("/public/apiKey", middlewares.ConnectUserBodyMiddleware, controllers.ConnectUser)
