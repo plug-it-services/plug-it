@@ -538,7 +538,7 @@ services:
       - traefik_network
       - etherscan_network
     labels:
-     - traefik.http.routers.etherscan().rule=PathPrefix(`/service/etherscan`)
+      - traefik.http.routers.etherscan.rule=PathPrefix(`/service/etherscan`)
       - traefik.http.middlewares.etherscan-replacepathregex.replacepathregex.regex=^/service/etherscan/(.*)
       - traefik.http.middlewares.etherscan-replacepathregex.replacepathregex.replacement=/public/$$1
       - traefik.http.middlewares.test-auth.forwardauth.address=http://user/verify
