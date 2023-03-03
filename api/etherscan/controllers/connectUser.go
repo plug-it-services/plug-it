@@ -16,9 +16,13 @@ func ConnectUser(c *gin.Context) {
 	var body dto.ConnectUserBodyDto
 	var user dto.UserDto
 
-	c.ShouldBindJSON(&body)
-	err := json.Unmarshal([]byte(c.GetHeader("user")), &user)
-	if err != nil {
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "bad request",
+		})
+		return
+	}
+	if err := json.Unmarshal([]byte(c.GetHeader("user")), &user); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "internal server error",
 		})
@@ -28,8 +32,7 @@ func ConnectUser(c *gin.Context) {
 	log.Println("user", user)
 	log.Println("body", body)
 
-	err = services.CreateUser(c, user.Id, body.ApiKey)
-	if err != nil {
+	if err := services.CreateUser(c, user.Id, body.ApiKey); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "internal server error",
 		})
@@ -44,8 +47,7 @@ func ConnectUser(c *gin.Context) {
 		return
 	}
 
-	_, err = http.Post(viper.Get("PLUGS_SERVICE_LOGGED_IN_URL").(string), "application/json", bytes.NewBuffer(requestBody))
-	if err != nil {
+	if _, err := http.Post(viper.Get("PLUGS_SERVICE_LOGGED_IN_URL").(string), "application/json", bytes.NewBuffer(requestBody)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "internal server error",
 		})
