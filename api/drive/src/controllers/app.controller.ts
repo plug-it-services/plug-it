@@ -16,7 +16,7 @@ import { ConfigService } from '@nestjs/config';
 import { DriveAuthService } from '../services/driveAuth.service';
 import axios from 'axios';
 import Oauth2StartDto from '../dto/Oauth2Start.dto';
-import { WebHookService } from "../services/webhook.service";
+import { WebHookService } from '../services/webhook.service';
 import { AmqpService } from '../services/amqp.service';
 
 @Controller('public')

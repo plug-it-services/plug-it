@@ -237,9 +237,9 @@ export default {
           required: true,
         },
         {
-          key: 'permissionId',
+          key: 'email',
           type: 'string',
-          displayName: 'Permission ID',
+          displayName: 'Email',
           description: 'The ID of the permission to remove',
           required: true,
         },

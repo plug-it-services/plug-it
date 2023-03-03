@@ -110,7 +110,7 @@ export class ListenerController {
             msg.userId,
             msg.plugId,
             msg.fields.find((field) => field.key === 'fileId').value,
-            msg.fields.find((field) => field.key === 'folderId').value,
+            msg.fields.find((field) => field.key === 'destinationId').value,
           );
           break;
         case 'copyFile':
@@ -121,7 +121,7 @@ export class ListenerController {
             msg.userId,
             msg.plugId,
             msg.fields.find((field) => field.key === 'fileId').value,
-            msg.fields.find((field) => field.key === 'folderId').value,
+            msg.fields.find((field) => field.key === 'destinationId').value,
           );
           break;
         case 'shareFile':
@@ -155,7 +155,7 @@ export class ListenerController {
             msg.userId,
             msg.plugId,
             msg.fields.find((field) => field.key === 'fileId').value,
-            msg.fields.find((field) => field.key === 'email').value,
+            msg.fields.find((field) => field.key === 'permissionId').value,
             msg.fields.find((field) => field.key === 'role').value,
           );
           break;
@@ -206,7 +206,7 @@ export class ListenerController {
             msg.userId,
             msg.plugId,
             msg.fields.find((field) => field.key === 'folderId').value,
-            msg.fields.find((field) => field.key === 'folderId').value,
+            msg.fields.find((field) => field.key === 'destinationId').value,
           );
           break;
         case 'copyFolder':
@@ -217,7 +217,7 @@ export class ListenerController {
             msg.userId,
             msg.plugId,
             msg.fields.find((field) => field.key === 'folderId').value,
-            msg.fields.find((field) => field.key === 'folderId').value,
+            msg.fields.find((field) => field.key === 'destinationId').value,
           );
           break;
         case 'shareFolder':
@@ -240,7 +240,7 @@ export class ListenerController {
             msg.userId,
             msg.plugId,
             msg.fields.find((field) => field.key === 'folderId').value,
-            msg.fields.find((field) => field.key === 'email').value,
+            msg.fields.find((field) => field.key === 'permissionId').value,
           );
           break;
         case 'changeFolderPermission':
@@ -251,7 +251,7 @@ export class ListenerController {
             msg.userId,
             msg.plugId,
             msg.fields.find((field) => field.key === 'folderId').value,
-            msg.fields.find((field) => field.key === 'email').value,
+            msg.fields.find((field) => field.key === 'permissionId').value,
             msg.fields.find((field) => field.key === 'role').value,
           );
           break;
