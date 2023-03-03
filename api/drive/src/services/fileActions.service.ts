@@ -50,7 +50,7 @@ export default class FileActionsService {
     });
 
     const fileMetadata = {
-      name
+      name,
     };
 
     const file = await drive.files.create({

@@ -91,6 +91,180 @@ export class ListenerController {
             msg.fields.find((field) => field.key === 'fileId').value,
           );
           break;
+        case 'renameFile':
+          this.logger.log(
+            `Received action to rename file for user ${msg.userId}`,
+          );
+          await this.fileActionsService.renameFile(
+            msg.userId,
+            msg.plugId,
+            msg.fields.find((field) => field.key === 'fileId').value,
+            msg.fields.find((field) => field.key === 'name').value,
+          );
+          break;
+        case 'moveFile':
+          this.logger.log(
+            `Received action to move file for user ${msg.userId}`,
+          );
+          await this.fileActionsService.moveFile(
+            msg.userId,
+            msg.plugId,
+            msg.fields.find((field) => field.key === 'fileId').value,
+            msg.fields.find((field) => field.key === 'folderId').value,
+          );
+          break;
+        case 'copyFile':
+          this.logger.log(
+            `Received action to copy file for user ${msg.userId}`,
+          );
+          await this.fileActionsService.copyFile(
+            msg.userId,
+            msg.plugId,
+            msg.fields.find((field) => field.key === 'fileId').value,
+            msg.fields.find((field) => field.key === 'folderId').value,
+          );
+          break;
+        case 'shareFile':
+          this.logger.log(
+            `Received action to share file for user ${msg.userId}`,
+          );
+          await this.fileActionsService.shareFile(
+            msg.userId,
+            msg.plugId,
+            msg.fields.find((field) => field.key === 'fileId').value,
+            msg.fields.find((field) => field.key === 'email').value,
+            msg.fields.find((field) => field.key === 'role').value,
+          );
+          break;
+        case 'unshareFile':
+          this.logger.log(
+            `Received action to unshare file for user ${msg.userId}`,
+          );
+          await this.fileActionsService.unshareFile(
+            msg.userId,
+            msg.plugId,
+            msg.fields.find((field) => field.key === 'fileId').value,
+            msg.fields.find((field) => field.key === 'email').value,
+          );
+          break;
+        case 'changeFilePermission':
+          this.logger.log(
+            `Received action to change file permission for user ${msg.userId}`,
+          );
+          await this.fileActionsService.changeFilePermission(
+            msg.userId,
+            msg.plugId,
+            msg.fields.find((field) => field.key === 'fileId').value,
+            msg.fields.find((field) => field.key === 'email').value,
+            msg.fields.find((field) => field.key === 'role').value,
+          );
+          break;
+        case 'getFile':
+          this.logger.log(`Received action to get file for user ${msg.userId}`);
+          await this.fileActionsService.getFile(
+            msg.userId,
+            msg.plugId,
+            msg.fields.find((field) => field.key === 'fileId').value,
+          );
+          break;
+        case 'createFolder':
+          this.logger.log(
+            `Received action to create folder for user ${msg.userId}`,
+          );
+          await this.fileActionsService.createFolder(
+            msg.userId,
+            msg.plugId,
+            msg.fields.find((field) => field.key === 'name').value,
+          );
+          break;
+        case 'deleteFolder':
+          this.logger.log(
+            `Received action to delete folder for user ${msg.userId}`,
+          );
+          await this.fileActionsService.deleteFolder(
+            msg.userId,
+            msg.plugId,
+            msg.fields.find((field) => field.key === 'folderId').value,
+          );
+          break;
+        case 'renameFolder':
+          this.logger.log(
+            `Received action to rename folder for user ${msg.userId}`,
+          );
+          await this.fileActionsService.renameFolder(
+            msg.userId,
+            msg.plugId,
+            msg.fields.find((field) => field.key === 'folderId').value,
+            msg.fields.find((field) => field.key === 'name').value,
+          );
+          break;
+        case 'moveFolder':
+          this.logger.log(
+            `Received action to move folder for user ${msg.userId}`,
+          );
+          await this.fileActionsService.moveFolder(
+            msg.userId,
+            msg.plugId,
+            msg.fields.find((field) => field.key === 'folderId').value,
+            msg.fields.find((field) => field.key === 'folderId').value,
+          );
+          break;
+        case 'copyFolder':
+          this.logger.log(
+            `Received action to copy folder for user ${msg.userId}`,
+          );
+          await this.fileActionsService.copyFolder(
+            msg.userId,
+            msg.plugId,
+            msg.fields.find((field) => field.key === 'folderId').value,
+            msg.fields.find((field) => field.key === 'folderId').value,
+          );
+          break;
+        case 'shareFolder':
+          this.logger.log(
+            `Received action to share folder for user ${msg.userId}`,
+          );
+          await this.fileActionsService.shareFolder(
+            msg.userId,
+            msg.plugId,
+            msg.fields.find((field) => field.key === 'folderId').value,
+            msg.fields.find((field) => field.key === 'email').value,
+            msg.fields.find((field) => field.key === 'role').value,
+          );
+          break;
+        case 'unshareFolder':
+          this.logger.log(
+            `Received action to unshare folder for user ${msg.userId}`,
+          );
+          await this.fileActionsService.unshareFolder(
+            msg.userId,
+            msg.plugId,
+            msg.fields.find((field) => field.key === 'folderId').value,
+            msg.fields.find((field) => field.key === 'email').value,
+          );
+          break;
+        case 'changeFolderPermission':
+          this.logger.log(
+            `Received action to change folder permission for user ${msg.userId}`,
+          );
+          await this.fileActionsService.changeFolderPermission(
+            msg.userId,
+            msg.plugId,
+            msg.fields.find((field) => field.key === 'folderId').value,
+            msg.fields.find((field) => field.key === 'email').value,
+            msg.fields.find((field) => field.key === 'role').value,
+          );
+          break;
+        case 'getFolder':
+          this.logger.log(
+            `Received action to get folder for user ${msg.userId}`,
+          );
+          await this.fileActionsService.getFolder(
+            msg.userId,
+            msg.plugId,
+            msg.fields.find((field) => field.key === 'folderId').value,
+          );
+          break
         default:
           this.logger.warn('Unknown action: ', msg.actionId);
       }
