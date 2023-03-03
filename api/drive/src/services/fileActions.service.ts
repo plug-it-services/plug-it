@@ -24,12 +24,18 @@ export default class FileActionsService {
       {
         key: 'isOwner',
         value: (
-          file.data.owners.find((owner) => owner.me) !== undefined
+          file.data?.owners?.find((owner) => owner.me) !== undefined
         ).toString(),
       },
-      { key: 'isShared', value: (file.data.shared !== undefined).toString() },
-      { key: 'isTrashed', value: file.data.trashed.toString() },
-      { key: 'isStarred', value: file.data.starred.toString() },
+      { key: 'isShared', value: (file.data?.shared !== undefined).toString() },
+      {
+        key: 'isTrashed',
+        value: (file.data?.trashed !== undefined).toString(),
+      },
+      {
+        key: 'isStarred',
+        value: (file.data?.starred !== undefined).toString(),
+      },
     ];
   }
 
@@ -44,8 +50,7 @@ export default class FileActionsService {
     });
 
     const fileMetadata = {
-      name,
-      mimeType: 'application/vnd.google-apps.folder',
+      name
     };
 
     const file = await drive.files.create({

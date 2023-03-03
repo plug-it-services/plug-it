@@ -69,6 +69,7 @@ export class ListenerController {
   })
   async triggerAction(msg: ActionTriggerDto) {
     try {
+      this.logger.warn(msg);
       switch (msg.actionId) {
         case 'createFile':
           this.logger.log(
