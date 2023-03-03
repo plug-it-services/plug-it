@@ -106,16 +106,21 @@ export default class FileActionsService {
       auth: await this.driveAuthService.getLoggedClient(userId),
     });
 
-    const fileMetadata = {
-      parents: [destinationId],
-    };
-
-    const file = await drive.files.update({
+    const file = await drive.files.get({
       fileId,
-      requestBody: fileMetadata,
+      fields: 'parents',
     });
 
-    return this.buildClassicReply(file);
+    const previousParents = file.data.parents.join(',');
+
+    const fileUpd = await drive.files.update({
+      fileId,
+      addParents: destinationId,
+      removeParents: previousParents,
+      fields: 'id, parents',
+    });
+
+    return this.buildClassicReply(fileUpd);
   }
 
   async copyFile(
