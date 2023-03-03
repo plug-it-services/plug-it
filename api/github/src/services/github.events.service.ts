@@ -50,7 +50,7 @@ export class GithubEventService {
 
     let action = 'Unidentified'
     try {
-      action = headers['X-Github-Event'] || 'Unidentified';
+      action = headers['x-github-event'] || 'Unidentified';
     } catch {}
 
     const data = {
@@ -421,7 +421,8 @@ export class GithubEventService {
     const data = this.getBaseEventData(body, headers);
     let actionType = '';
     try {
-      actionType = ' : ' + body.action;
+      if (body.action)
+        actionType = ' : ' + body.action;
     } catch (e) {}
 
     const variables = [
