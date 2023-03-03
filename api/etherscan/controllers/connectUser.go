@@ -16,7 +16,7 @@ func ConnectUser(c *gin.Context) {
 	var body dto.ConnectUserBodyDto
 	var user dto.UserDto
 
-	c.ShouldBindJSON(body)
+	c.ShouldBindJSON(&body)
 	err := json.Unmarshal([]byte(c.GetHeader("user")), &user)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -28,7 +28,7 @@ func ConnectUser(c *gin.Context) {
 	log.Println("user", user)
 	log.Println("body", body)
 
-	err = services.CreateUser(c, user.Id, *body.ApiKey)
+	err = services.CreateUser(c, user.Id, body.ApiKey)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "internal server error",

@@ -1,5 +1,5 @@
 package dto
 
 type ConnectUserBodyDto struct {
-	ApiKey *string `json:"apiKey" binding:"required"`
+	ApiKey string `json:"apiKey" binding:"required"`
 }
