@@ -18,10 +18,17 @@ import (
 func startServer() {
 	r := gin.Default()
 
-	r.Use(cors.New(cors.Config{
+	config := cors.DefaultConfig()
+  	config.AllowOrigins = []string{viper.Get("CORS_ORIGIN").(string)}
+	config.AllowCredentials = true
+
+ 	 router.Use(cors.New(config))
+
+	r.Use(cors.Default(cors.Config{
 		AllowOrigins:     []string{viper.Get("CORS_ORIGIN").(string)},
 		AllowCredentials: true,
 		AllowMethods:     []string{"OPTIONS", "GET", "POST", "PUT", "DELETE"},
+		AllowHeaders:     []string{},
 	}))
 
 	r.POST("/public/disconnect", controllers.DisconnectUser)
