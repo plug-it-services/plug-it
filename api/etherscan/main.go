@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/plug-it-services/plug-it/middlewares"
@@ -16,7 +15,19 @@ import (
 	"github.com/spf13/viper"
 )
 
-func startServer() {
+func initRequest() {
+	content, err := ioutil.ReadFile("./config/etherscan.json")
+	if err != nil {
+		log.Fatal("Error when opening file: ", err)
+	}
+
+	_, err = http.Post(viper.Get("PLUGS_SERVICE_INITIALIZE_URL").(string), "application/json", bytes.NewBuffer(content))
+	if err != nil {
+		log.Fatal("Error when sending init request: ", err)
+	}
+}
+
+func initGin() {
 	r := gin.Default()
 
 	r.Use(middlewares.CORSMiddleware())
@@ -34,25 +45,18 @@ func startServer() {
 
 	err := r.Run(":" + viper.Get("PORT").(string))
 	if err != nil {
+		log.Fatal("Error when starting server: ", err)
 		return
 	}
 }
 
-func initRequest() {
-	content, err := ioutil.ReadFile("./config/etherscan.json")
-	if err != nil {
-		log.Fatal("Error when opening file: ", err)
-	}
-
-	_, err = http.Post(viper.Get("PLUGS_SERVICE_INITIALIZE_URL").(string), "application/json", bytes.NewBuffer(content))
-	if err != nil {
-		os.Exit(1)
-	}
+func initViper() {
+	viper.SetConfigFile(".env")
+	viper.ReadInConfig()
 }
 
 func main() {
-	viper.SetConfigFile(".env")
-	viper.ReadInConfig()
+	initViper()
 
 	RabbitMQService, err := rabbitmq.New(viper.Get("RABBITMQ_URL").(string))
 	if err != nil {
@@ -60,6 +64,29 @@ func main() {
 	}
 	defer RabbitMQService.Disconnect()
 
+	q, err := RabbitMQService.Ch.QueueDeclare("plug_event_etherscan_initialize", true, false, false, false, nil)
+	if err != nil {
+		log.Fatal("Error when declaring queue: ", err)
+	}
+	err = RabbitMQService.Ch.QueueBind(q.Name, "plug_event_etherscan_initialize", "amq.direct", false, nil)
+	if err != nil {
+		log.Fatal("Error when binding queue: ", err)
+	}
+
+	log.Println("name", q.Name)
+
+	messages, err := RabbitMQService.Ch.Consume(q.Name, "", true, false, false, false, nil)
+	if err != nil {
+		log.Fatal("Error when consuming messages: ", err)
+	}
+
+	go func() {
+		for msg := range messages {
+			fmt.Println("Body:", string(msg.Body), "Timestamp:", msg.Timestamp)
+			msg.Ack(false)
+		}
+	}()
+
 	initRequest()
-	startServer()
+	initGin()
 }

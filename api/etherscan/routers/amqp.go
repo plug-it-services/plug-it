@@ -1,0 +1,4 @@
+package routers
+
+func SetupAmqpConsumers() {
+}

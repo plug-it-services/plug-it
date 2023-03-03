@@ -3,7 +3,6 @@ package controllers
 import (
 	"bytes"
 	"encoding/json"
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -28,9 +27,6 @@ func ConnectUser(c *gin.Context) {
 		})
 		return
 	}
-
-	log.Println("user", user)
-	log.Println("body", body)
 
 	if err := services.CreateUser(c, user.Id, body.ApiKey); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
