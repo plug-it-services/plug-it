@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -19,6 +20,15 @@ func startServer() {
 	r := gin.Default()
 
 	r.Use(middlewares.CORSMiddleware())
+
+	viper_user := viper.Get("POSTGRES_USER")
+	viper_password := viper.Get("POSTGRES_PASSWORD")
+	viper_db := viper.Get("POSTGRES_DB")
+	viper_host := viper.Get("POSTGRES_HOST")
+	viper_port := viper.Get("POSTGRES_PORT")
+
+	conname := fmt.Sprintf("host=%v port=%v user=%v dbname=%v password=%v sslmode=disable", viper_host, viper_port, viper_user, viper_db, viper_password)
+	r.Use(models.SetupModels(conname))
 
 	routers.Router(r)
 
@@ -50,7 +60,6 @@ func main() {
 	}
 	defer RabbitMQService.Disconnect()
 
-	models.SetupModels()
 	initRequest()
 	startServer()
 }
