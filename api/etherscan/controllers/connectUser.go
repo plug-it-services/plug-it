@@ -3,6 +3,7 @@ package controllers
 import (
 	"bytes"
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -12,7 +13,7 @@ import (
 )
 
 func ConnectUser(c *gin.Context) {
-	body := &dto.ConnectUserBodyDto{}
+	var body dto.ConnectUserBodyDto
 	var user dto.UserDto
 
 	c.ShouldBindJSON(body)
@@ -23,6 +24,9 @@ func ConnectUser(c *gin.Context) {
 		})
 		return
 	}
+
+	log.Println("user", user)
+	log.Println("body", body)
 
 	err = services.CreateUser(c, user.Id, *body.ApiKey)
 	if err != nil {
