@@ -337,12 +337,16 @@ services:
     labels:
       - traefik.http.routers.drive-oauth2-callback.rule=Path(`/service/drive/callback`)
       - traefik.http.routers.drive.rule=Path(`/service/drive/oauth2`) || Path(`/service/drive/disconnect`)
+      - traefik.http.routers.drive-webhook.rule=PathPrefix(`/webhook/drive`)
+      - traefik.http.middlewares.drive-webhook-replacepathregex.replacepathregex.regex=^/webhook/drive/(.*)
+      - traefik.http.middlewares.drive-webhook-replacepathregex.replacepathregex.replacement=/public/$$1
       - traefik.http.middlewares.drive-replacepathregex.replacepathregex.regex=^/service/drive/(.*)
       - traefik.http.middlewares.drive-replacepathregex.replacepathregex.replacement=/public/$$1
       - traefik.http.middlewares.test-auth.forwardauth.address=http://user/verify
       - traefik.http.middlewares.test-auth.forwardauth.authResponseHeaders=user
       - traefik.http.routers.drive.middlewares=drive-replacepathregex, test-auth
       - traefik.http.routers.drive-oauth2-callback.middlewares=drive-replacepathregex
+      - traefik.http.routers.drive-webhook.middlewares=drive-webhook-replacepathregex
       - traefik.enable=true
     ports:
       - ${DRIVE_PORT}:80

@@ -122,6 +122,10 @@ export class AppController {
     @Headers('X-Goog-Resource-ID') resourceId: string,
     @Headers('X-Goog-Resource-State') resourceState: string,
   ) {
+    if (resourceState === 'sync') {
+      this.logger.log(`Ignoring sync event`);
+      return;
+    }
     const webhook = await this.webhookService.getWebhookById(webhookId);
 
     if (!webhook) {
