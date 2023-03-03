@@ -538,14 +538,12 @@ services:
       - traefik_network
       - etherscan_network
     labels:
-      - traefik.http.routers.etherscan-oauth2-callback.rule=Path(`/service/etherscan/callback`)
-      - traefik.http.routers.etherscan.rule=Path(`/service/etherscan/oauth2`) || Path(`/service/etherscan/disconnect`)
+     - traefik.http.routers.etherscan().rule=PathPrefix(`/service/etherscan`)
       - traefik.http.middlewares.etherscan-replacepathregex.replacepathregex.regex=^/service/etherscan/(.*)
       - traefik.http.middlewares.etherscan-replacepathregex.replacepathregex.replacement=/public/$$1
       - traefik.http.middlewares.test-auth.forwardauth.address=http://user/verify
       - traefik.http.middlewares.test-auth.forwardauth.authResponseHeaders=user
       - traefik.http.routers.etherscan.middlewares=etherscan-replacepathregex, test-auth
-      - traefik.http.routers.etherscan-oauth2-callback.middlewares=etherscan-replacepathregex
       - traefik.enable=true
     ports:
       - ${ETHERSCAN_PORT}:80
