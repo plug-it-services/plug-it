@@ -224,57 +224,6 @@ export default {
       ],
     },
     {
-      id: 'unshareFile',
-      name: 'Unshare a file',
-      description: 'Unshare a file with the provided id from a user',
-      variables: [],
-      fields: [
-        {
-          key: 'fileId',
-          type: 'string',
-          displayName: 'File ID',
-          description: 'The ID of the file to unshare',
-          required: true,
-        },
-        {
-          key: 'email',
-          type: 'string',
-          displayName: 'Email',
-          description: 'The ID of the permission to remove',
-          required: true,
-        },
-      ],
-    },
-    {
-      id: 'changeFilePermission',
-      name: 'Change a file permission',
-      description: 'Change a file permission with the provided id',
-      variables: [], // TODO
-      fields: [
-        {
-          key: 'fileId',
-          type: 'string',
-          displayName: 'File ID',
-          description: 'The ID of the file to change the permission of',
-          required: true,
-        },
-        {
-          key: 'permissionId',
-          type: 'string',
-          displayName: 'Permission ID',
-          description: 'The ID of the permission to change',
-          required: true,
-        },
-        {
-          key: 'role',
-          type: 'string',
-          displayName: 'Role',
-          description: 'The new role of the user to share the file with',
-          required: true,
-        },
-      ],
-    },
-    {
       id: 'getFile',
       name: 'Get a file',
       description: 'Get a file with the provided id',
@@ -410,57 +359,6 @@ export default {
           type: 'string',
           displayName: 'Role',
           description: 'The role of the user to share the folder with',
-          required: true,
-        },
-      ],
-    },
-    {
-      id: 'unshareFolder',
-      name: 'Unshare a folder',
-      description: 'Unshare a folder with the provided id from a user',
-      variables: [],
-      fields: [
-        {
-          key: 'folderId',
-          type: 'string',
-          displayName: 'Folder ID',
-          description: 'The ID of the folder to unshare',
-          required: true,
-        },
-        {
-          key: 'permissionId',
-          type: 'string',
-          displayName: 'Permission ID',
-          description: 'The ID of the permission to remove',
-          required: true,
-        },
-      ],
-    },
-    {
-      id: 'changeFolderPermission',
-      name: 'Change a folder permission',
-      description: 'Change a folder permission with the provided id',
-      variables: [], // TODO
-      fields: [
-        {
-          key: 'folderId',
-          type: 'string',
-          displayName: 'Folder ID',
-          description: 'The ID of the folder to change the permission of',
-          required: true,
-        },
-        {
-          key: 'permissionId',
-          type: 'string',
-          displayName: 'Permission ID',
-          description: 'The ID of the permission to change',
-          required: true,
-        },
-        {
-          key: 'role',
-          type: 'string',
-          displayName: 'Role',
-          description: 'The new role of the user to share the folder with',
           required: true,
         },
       ],

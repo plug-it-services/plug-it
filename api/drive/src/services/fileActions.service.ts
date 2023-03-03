@@ -151,7 +151,7 @@ export default class FileActionsService {
     plugId: string,
     fileId: string,
     email: string,
-    role: string,
+    role: string | 'owner' | 'writer' | 'reader',
   ): Promise<Field[]> {
     const drive = google.drive({
       version: 'v3',
@@ -181,12 +181,20 @@ export default class FileActionsService {
     userId: number,
     plugId: string,
     fileId: string,
-    permissionId: string,
+    email: string,
   ) {
     const drive = google.drive({
       version: 'v3',
       auth: await this.driveAuthService.getLoggedClient(userId),
     });
+
+    const permissions = await drive.permissions.list({
+      fileId,
+    });
+
+    const permissionId = permissions.data?.permissions?.find(
+      (perm) => perm?.emailAddress === email,
+    )?.id;
 
     await drive.permissions.delete({
       fileId,
@@ -203,8 +211,8 @@ export default class FileActionsService {
     userId: number,
     plugId: string,
     fileId: string,
-    permissionId: string,
-    role: string,
+    email: string,
+    role: string | 'owner' | 'writer' | 'reader',
   ) {
     const drive = google.drive({
       version: 'v3',
@@ -214,6 +222,14 @@ export default class FileActionsService {
     const permission = {
       role,
     };
+
+    const permissions = await drive.permissions.list({
+      fileId,
+    });
+
+    const permissionId = permissions.data?.permissions?.find(
+      (perm) => perm?.emailAddress === email,
+    )?.id;
 
     const perm = await drive.permissions.update({
       fileId,
@@ -284,7 +300,7 @@ export default class FileActionsService {
     plugId: string,
     folderId: string,
     email: string,
-    role: string,
+    role: string | 'owner' | 'writer' | 'reader',
   ) {
     await this.shareFile(userId, plugId, folderId, email, role);
   }
@@ -293,25 +309,19 @@ export default class FileActionsService {
     userId: number,
     plugId: string,
     folderId: string,
-    permissionId: string,
+    email: string,
   ) {
-    await this.unshareFile(userId, plugId, folderId, permissionId);
+    await this.unshareFile(userId, plugId, folderId, email);
   }
 
   async changeFolderPermission(
     userId: number,
     plugId: string,
     folderId: string,
-    permissionId: string,
-    role: string,
+    email: string,
+    role: string | 'owner' | 'writer' | 'reader',
   ) {
-    await this.changeFilePermission(
-      userId,
-      plugId,
-      folderId,
-      permissionId,
-      role,
-    );
+    await this.changeFilePermission(userId, plugId, folderId, email, role);
   }
 
   async getFile(userId: number, plugId: string, fileId: string) {
