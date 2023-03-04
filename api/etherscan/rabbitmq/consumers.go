@@ -146,7 +146,9 @@ func EventDisabledConsumer(db *gorm.DB, rabbit *RabbitMQService, msg amqp.Delive
 		return
 	}
 
-	cron.New().Remove(cron.EntryID(c.Id))
+	log.Println("Cron job delete", c, cron.EntryID(c.CronId))
+
+	cron.New().Remove(cron.EntryID(c.CronId))
 
 	if err := services.DeleteCron(db, c.Id); err != nil {
 		log.Println("Error deleting cron job", err)
