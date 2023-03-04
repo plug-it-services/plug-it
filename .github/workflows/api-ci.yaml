@@ -130,6 +130,8 @@ jobs:
           go-version: 1.19
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
+        with:
+          working-directory: api/${{ matrix.service }}
 
   build-gin:
     strategy:
