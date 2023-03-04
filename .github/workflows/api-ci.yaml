@@ -34,12 +34,10 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-          cache: 'yarn'
-          cache-dependency-path: api/${{ matrix.service }}/yarn.lock
       - name: Install dev dependencies
         run: yarn install
       - name: Lint app
-        run: yarn lint:check
+        run: yarn lint
         env:
           CI: false
 
@@ -64,12 +62,10 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-          cache: 'yarn'
-          cache-dependency-path: ${{ matrix.service }}/yarn.lock
       - name: Install dev dependencies
         run: yarn install
       - name: Format app
-        run: yarn format:check
+        run: yarn format
         env:
           CI: false
 
@@ -94,8 +90,6 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-          cache: 'yarn'
-          cache-dependency-path: ${{ matrix.service }}/yarn.lock
       - name: Install dev dependencies
         run: yarn install
       - name: Build app
