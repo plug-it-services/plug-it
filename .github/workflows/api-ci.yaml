@@ -1,0 +1,104 @@
+name: Api-ci
+
+on:
+  push:
+    paths: ["api/**"]
+    branches: ["master", "dev"]
+  pull_request:
+    paths: ["api/**"]
+    branches: ["master", "dev"]
+
+defaults:
+  run:
+    working-directory: api
+
+jobs:
+  lint-nest:
+    strategy:
+      matrix:
+        service:
+          - discord
+          - github
+          - outlook
+          - plugs
+          - user
+          - starton
+          - twitter
+          - drive
+    defaults:
+      run:
+        working-directory: api/${{ matrix.service }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: 'yarn'
+          cache-dependency-path: api/${{ matrix.service }}/yarn.lock
+      - name: Install dev dependencies
+        run: yarn install
+      - name: Lint app
+        run: yarn lint:check
+        env:
+          CI: false
+
+  format-nest:
+    strategy:
+      matrix:
+        service:
+          - discord
+          - github
+          - outlook
+          - plugs
+          - user
+          - starton
+          - twitter
+          - drive
+    defaults:
+      run:
+        working-directory: api/${{ matrix.service }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: 'yarn'
+          cache-dependency-path: ${{ matrix.service }}/yarn.lock
+      - name: Install dev dependencies
+        run: yarn install
+      - name: Format app
+        run: yarn format:check
+        env:
+          CI: false
+
+  build-nest:
+    strategy:
+      matrix:
+        service:
+          - discord
+          - github
+          - outlook
+          - plugs
+          - user
+          - starton
+          - twitter
+          - drive
+    defaults:
+      run:
+        working-directory: api/${{ matrix.service }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: 'yarn'
+          cache-dependency-path: ${{ matrix.service }}/yarn.lock
+      - name: Install dev dependencies
+        run: yarn install
+      - name: Build app
+        run: yarn build
+        env:
+          CI: false
