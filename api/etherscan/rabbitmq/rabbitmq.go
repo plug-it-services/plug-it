@@ -20,7 +20,8 @@ type RabbitMQServiceInterface interface {
 	Close() error
 	CreateChannel() error
 	CreateQueue(ch *amqp.Channel, queue string, exchange string) error
-	PublishEvent(queue string, eventId string, plugId string, userId int, variables map[string]interface{}) error
+	PublishEvent(queue string, eventId string, plugId string, userId int, variables []Value) error
+	PublishAction(queue string, actionId string, runId string, plugId string, userId int, variables []Value) error
 	CreateConsumer(cr *cron.Cron, ch *amqp.Channel, db *gorm.DB, queue string, wow func(cr *cron.Cron, db *gorm.DB, rabbit *RabbitMQService, msg amqp.Delivery)) error
 }
 
@@ -121,6 +122,28 @@ func (r *RabbitMQService) PublishEvent(queue string, eventId string, plugId stri
 		amqp.Publishing{
 			ContentType: "application/json",
 			Body:        []byte(`{"serviceName": "etherscan", "eventId":"` + eventId + `","plugId":"` + plugId + `","userId":` + strconv.Itoa(userId) + `,"variables":` + string(parsedVariables) + `}`),
+		},
+	)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *RabbitMQService) PublishAction(queue string, actionId string, runId string, plugId string, userId int, variables []Value) error {
+	parsedVariables, err := json.Marshal(variables)
+	if err != nil {
+		return err
+	}
+
+	err = r.PublishChannel.Publish(
+		"amq.direct",
+		queue,
+		false,
+		false,
+		amqp.Publishing{
+			ContentType: "application/json",
+			Body:        []byte(`{"serviceName": "etherscan", "actionId":"` + actionId + `","plugId":"` + plugId + `","userId":` + strconv.Itoa(userId) + `,"variables":` + string(parsedVariables) + `}`),
 		},
 	)
 	if err != nil {

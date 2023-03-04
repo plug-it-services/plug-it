@@ -25,6 +25,14 @@ type EventMessage struct {
 	Fields  []Value `json:"fields"`
 }
 
+type ActionMessage struct {
+	PlugId   string  `json:"plugId"`
+	UserId   int     `json:"userId"`
+	ActionId string  `json:"actionId"`
+	RunId    string  `json:"runId"`
+	Fields   []Value `json:"fields"`
+}
+
 type EventDisabledMessage struct {
 	PlugId  string `json:"plugId"`
 	UserId  int    `json:"userId"`
@@ -158,6 +166,44 @@ func EventDisabledConsumer(cr *cron.Cron, db *gorm.DB, rabbit *RabbitMQService, 
 
 func ActionConsumer(cr *cron.Cron, db *gorm.DB, rabbit *RabbitMQService, msg amqp.Delivery) {
 	log.Println("Action received", string(msg.Body))
+	var data ActionMessage
+
+	if err := json.Unmarshal(msg.Body, &data); err != nil {
+		log.Println("Error unmarshalling action message", err)
+		msg.Ack(true)
+		return
+	}
+
+	user, err := services.FindUserById(db, data.UserId)
+	if err != nil {
+		log.Println("Error finding user", err)
+		msg.Ack(true)
+		return
+	}
+
+	var variables []Value
+
+	switch data.ActionId {
+	case "gasPrice":
+		gasPrice, err := etherscan.GetGasPrice(user.ApiKey)
+		if err != nil {
+			log.Println("Error getting gas price", err)
+			msg.Ack(true)
+			return
+		}
+		variables = append(variables, Value{
+			Key:   "gasPrice",
+			Value: strconv.Itoa(gasPrice),
+		})
+	default:
+		log.Println("Event not supported", data.ActionId)
+	}
+
+	if err := rabbit.PublishAction("plug_action_finished", data.ActionId, data.RunId, data.PlugId, user.Id, variables); err != nil {
+		log.Println("Error publishing action finished", err)
+		msg.Ack(true)
+		return
+	}
 
 	msg.Ack(true)
 }
