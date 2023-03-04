@@ -66,12 +66,14 @@ func eventCallback(rabbit *RabbitMQService, user models.User, plugId string, eve
 		}
 		if gasPrice < expectedGasPrice {
 			log.Println("Gas price is lower than expected", gasPrice, data)
+			err := rabbit.PublishEvent("plugs_events", eventId, plugId, user.Id, map[string]interface{}{
+				"key":   "gasPrice",
+				"value": strconv.Itoa(gasPrice),
+			})
+			if err != nil {
+				log.Println("Error publishing event", err)
+			}
 		}
-
-		rabbit.PublishEvent("plugs_events", eventId, plugId, user.Id, map[string]interface{}{
-			"key":   "gasPrice",
-			"value": strconv.Itoa(gasPrice),
-		})
 	default:
 		log.Println("Event not supported", eventId)
 	}
@@ -98,7 +100,7 @@ func EventInitializeConsumer(db *gorm.DB, rabbit *RabbitMQService, msg amqp.Deli
 	case "lowerGasPrice":
 		gasPrice := findInsideFields(data)
 
-		id, err := createCronJob("*/5 * * * * *", eventCallback, rabbit, user, data.PlugId, data.EventId, gasPrice)
+		id, err := createCronJob("*/5 * * * *", eventCallback, rabbit, user, data.PlugId, data.EventId, gasPrice)
 		if err != nil {
 			log.Println("Error creating cron job", err)
 			msg.Ack(false)
