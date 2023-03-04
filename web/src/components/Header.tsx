@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { AppBar, Link, Typography } from '@mui/material';
+import { Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import {
   MDBContainer,
@@ -10,15 +10,13 @@ import {
   MDBNavbarNav,
   MDBNavbarItem,
   MDBNavbarLink,
-  MDBBtn,
   MDBDropdown,
   MDBDropdownToggle,
   MDBDropdownMenu,
   MDBDropdownItem,
-  MDBCollapse, MDBAccordionItem, MDBAccordion,
+  MDBCollapse,
 } from 'mdb-react-ui-kit';
 import Button from './Button';
-import AccountTile from './AccountTile';
 import { getUserInfos, logout, UserInfos } from '../utils/api';
 
 export interface IHeaderProps {
@@ -136,7 +134,7 @@ function Header({ title }: IHeaderProps) {
             </MDBNavbarItem>
             <MDBNavbarItem className={'d-lg-none'}>
               <MDBDropdown className={'m-0'}>
-                <MDBDropdownToggle tag='a' className='nav-link' role='button'>
+                <MDBDropdownToggle tag="a" className="nav-link" role="button">
                   My account
                 </MDBDropdownToggle>
                 <MDBDropdownMenu>
@@ -149,8 +147,13 @@ function Header({ title }: IHeaderProps) {
             </MDBNavbarItem>
             <MDBNavbarItem className={'d-none d-lg-block'}>
               <MDBDropdown>
-                <MDBDropdownToggle tag='button' className='btn-primary ripple-surface py-2 px-3 border-0' style={{borderRadius: '4px', fontSize: '12px'}} role='button'>
-                  <MDBIcon fas icon='user' />
+                <MDBDropdownToggle
+                  tag="button"
+                  className="btn-primary ripple-surface py-2 px-3 border-0"
+                  style={{ borderRadius: '4px', fontSize: '12px' }}
+                  role="button"
+                >
+                  <MDBIcon fas icon="user" />
                 </MDBDropdownToggle>
                 <MDBDropdownMenu>
                   <MDBDropdownItem header>{`${user?.firstname} ${user?.lastname} (${user?.id})`}</MDBDropdownItem>

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { MDBCol, MDBRow } from 'mdb-react-ui-kit';
 import TriggerCard from '../components/TriggerCard';
 import Button from '../components/Button';
-import { PlugDetail, postPlug, Variable } from '../utils/api';
+import { PlugDetail, postPlug } from '../utils/api';
 import InputBar from '../components/InputBar';
 import MessageBox from '../components/MessageBox';
 import { StepInfo, StepType } from '../components/StepInfo.type';

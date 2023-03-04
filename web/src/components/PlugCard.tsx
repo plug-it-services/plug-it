@@ -1,10 +1,8 @@
 import React from 'react';
-import { Typography, CardActions } from '@mui/material';
+import { Typography } from '@mui/material';
 import { MDBCard, MDBCardBody, MDBCardFooter, MDBCardTitle, MDBCol, MDBRow } from 'mdb-react-ui-kit';
 import Button from './Button';
-import { authService, Plug } from '../utils/api';
-import MessageBox from './MessageBox';
-import InputBar from './InputBar';
+import { Plug } from '../utils/api';
 
 export interface IAreaCardProps {
   plug: Plug;

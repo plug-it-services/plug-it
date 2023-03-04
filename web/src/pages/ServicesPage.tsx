@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Grid, Typography } from '@mui/material';
-import { MDBCard, MDBCardTitle, MDBCol, MDBRow, MDBTypography } from 'mdb-react-ui-kit';
-import Header from '../components/Header';
+import { MDBCol, MDBRow, MDBTypography } from 'mdb-react-ui-kit';
 import SearchBar from '../components/SearchBar';
 import ServiceCard from '../components/ServiceCard';
 import { getServices, Service } from '../utils/api';

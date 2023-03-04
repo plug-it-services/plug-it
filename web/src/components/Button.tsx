@@ -1,5 +1,4 @@
 import React from 'react';
-import MuiButton from '@mui/material/Button';
 import { MDBBtn } from 'mdb-react-ui-kit';
 
 // extends Material UI Button

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, InputBase, IconButton } from '@mui/material';
+import { InputBase } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import { MDBIcon } from 'mdb-react-ui-kit';
 
