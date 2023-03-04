@@ -25,7 +25,6 @@ export class GithubWebhookService {
       active: true,
       events: events,
       config: {
-        // TODO: check url
         url: 'https://api-area-dev.alexandrejublot.com/webhook/github/' + uuid,
         content_type: 'json',
       },
@@ -93,7 +92,6 @@ export class GithubWebhookService {
       active: true,
       events: events,
       config: {
-        // TODO: check url
         url: 'https://api-area-dev.alexandrejublot.com/webhook/github/' + uuid,
         content_type: 'json',
       },

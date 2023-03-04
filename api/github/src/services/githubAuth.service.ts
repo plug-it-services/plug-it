@@ -62,7 +62,7 @@ export class GithubAuthService {
 
     url.searchParams.append('client_id', this.clientId);
     url.searchParams.append('redirect_uri', this.callbackUrl);
-    url.searchParams.append('scope', 'user:read read:user repo');
+    url.searchParams.append('scope', 'user:read read:user repo admin:org_hook admin:org admin:repo_hook');
     url.searchParams.append('state', state);
     return url.toString();
   }
