@@ -133,6 +133,7 @@ export class GithubWatcherService {
     const uuid = uuidv4();
     const repo = msg.fields.find((field: any) => field.key === 'repo').value;
     const owner = msg.fields.find((field: any) => field.key === 'owner').value;
+    this.logger.log('Repository watched: ' + owner + "/" + repo);
 
     this.logger.log('Posting webhook to db ...');
     await this.webhookService.create(uuid, msg.userId, msg.plugId, msg.eventId);
@@ -162,6 +163,7 @@ export class GithubWatcherService {
     const token = await this.gitAuthService.getAccessToken(msg.userId);
     const uuid = uuidv4();
     const org = msg.fields.find((field: any) => field.key === 'org').value;
+    this.logger.log('Organization watched: ' + org);
 
     this.logger.log('Posting webhook to db ...');
     await this.webhookService.create(uuid, msg.userId, msg.plugId, msg.eventId);

@@ -23,7 +23,7 @@ export class ListenerController {
     try {
       const hook = await this.webHookService.find(msg.plugId);
       const token = await this.gitAuthService.getAccessToken(hook.userId);
-      if (hook.eventId .startsWith("repo")) {
+      if (hook.eventId.startsWith("repo")) {
         await this.webHookService.deleteById(msg.plugId);
         await this.gitWebhookService.deleteRepoWebhook(hook.repo, hook.owner, token, hook.webhookId);
       } else {
@@ -46,12 +46,12 @@ export class ListenerController {
     userId: number;
     fields: { key: string; value: string }[];
   }) {
-    this.logger.log('Received a new mail watcher plug !');
+    this.logger.log('Received a new plug event to initialize !');
     const oldState = await this.webHookService.find(msg.plugId);
 
     if (oldState) {
       this.logger.log('Found an old plug with same id, deleting it ...');
-      await this.webHookService.deleteById(msg.plugId);
+      await this.disableEvent(msg);
       this.logger.log('Successfully deleted old plug!');
     }
     try {
