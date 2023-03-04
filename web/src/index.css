@@ -131,3 +131,7 @@ code {
   align-items: center;
   margin: 8px;
 }
+
+.delete-step-icon:hover {
+  cursor: pointer;
+}
