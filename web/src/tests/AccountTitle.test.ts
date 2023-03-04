@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import AccountTile from '../components/AccountTile';
 import '@testing-library/jest-dom/extend-expect';
 
-describe('Plug InputBar', () => {
+describe('Plug AccountTile', () => {
   it('renders with the correct text', () => {
     render(
       AccountTile({
