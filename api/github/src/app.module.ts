@@ -2,9 +2,19 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AmqpConnection, RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
-import { AppController } from './controllers/app.controller';
-import { GithubAuthService } from './services/githubAuth.service';
+
+import { ListenerController } from './controllers/listen.controller';
+import { PublicController } from './controllers/public.controller';
+
 import { GithubAuthEntity } from './schemas/githubAuth.entity';
+import { WebHookEntity } from './schemas/webhook.entity';
+
+import { GithubAuthService } from './services/githubAuth.service';
+import { GithubWatcherService } from './services/github.watcher.service';
+import { GithubWebhookService } from './services/github.webhook.service';
+import { GithubEventService } from './services/github.events.service';
+import { WebHookService } from './services/webhook.service';
+import { AmqpService } from './services/amqp.service';
 
 @Module({
   imports: [
@@ -21,11 +31,11 @@ import { GithubAuthEntity } from './schemas/githubAuth.entity';
           database: configService.get<string>('POSTGRES_DB'),
           // TODO need to remove it in production
           synchronize: true,
-          entities: [GithubAuthEntity],
+          entities: [GithubAuthEntity, WebHookEntity],
         };
       },
     }),
-    TypeOrmModule.forFeature([GithubAuthEntity]),
+    TypeOrmModule.forFeature([GithubAuthEntity, WebHookEntity]),
     RabbitMQModule.forRootAsync(RabbitMQModule, {
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
@@ -42,8 +52,15 @@ import { GithubAuthEntity } from './schemas/githubAuth.entity';
       },
     }),
   ],
-  controllers: [AppController],
-  providers: [GithubAuthService],
+  controllers: [PublicController, ListenerController],
+  providers: [
+    GithubAuthService,
+    GithubEventService,
+    GithubWatcherService,
+    WebHookService,
+    GithubWebhookService,
+    AmqpService,
+  ],
 })
 export class AppModule {
   constructor(

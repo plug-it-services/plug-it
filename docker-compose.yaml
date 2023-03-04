@@ -290,12 +290,16 @@ services:
     labels:
       - traefik.http.routers.github-oauth2-callback.rule=Path(`/service/github/callback`)
       - traefik.http.routers.github.rule=Path(`/service/github/oauth2`) || Path(`/service/github/disconnect`)
+      - traefik.http.routers.github-webhook.rule=PathPrefix(`/webhook/github`)
       - traefik.http.middlewares.github-replacepathregex.replacepathregex.regex=^/service/github/(.*)
+      - traefik.http.middlewares.github-webhook-replacepathregex.replacepathregex.regex=^/webhook/github/(.*)
       - traefik.http.middlewares.github-replacepathregex.replacepathregex.replacement=/public/$$1
+      - traefik.http.middlewares.github-webhook-replacepathregex.replacepathregex.replacement=/public/$$1
       - traefik.http.middlewares.test-auth.forwardauth.address=http://user/verify
       - traefik.http.middlewares.test-auth.forwardauth.authResponseHeaders=user
       - traefik.http.routers.github.middlewares=github-replacepathregex, test-auth
       - traefik.http.routers.github-oauth2-callback.middlewares=github-replacepathregex
+      - traefik.http.routers.github-webhook.middlewares=github-webhook-replacepathregex
       - traefik.enable=true
     ports:
       - ${GITHUB_PORT}:80
