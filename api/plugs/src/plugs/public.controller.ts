@@ -45,6 +45,9 @@ export class PublicController {
     @Headers('user') userDto: string,
     @Body() plug: PlugSubmitDto,
   ) {
+    if (!plug.event || !plug.actions.length)
+      throw new BadRequestException('Plug must have at least one event/action');
+
     const user: UserHeaderDto = JSON.parse(userDto);
 
     await this.plugsService.validateSteps(plug);
