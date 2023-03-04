@@ -19,4 +19,14 @@ export class WebHookEntity {
 
   @Column({ nullable: true })
   webhookId?: string;
+
+  @Column({ nullable: true })
+  org?: string;
+
+  @Column({ nullable: true })
+  owner?: string;
+
+  @Column({ nullable: true })
+  repo?: string;
+
 }

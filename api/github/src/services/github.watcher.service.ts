@@ -138,13 +138,14 @@ export class GithubWatcherService {
     await this.webhookService.create(uuid, msg.userId, msg.plugId, msg.eventId);
 
     this.logger.log('Posting webhook to github ...');
-    await this.gitHooksService.createRepoWebhook(
+    const gitHook = await this.gitHooksService.createRepoWebhook(
       repo,
       owner,
       token,
       events,
       uuid,
     );
+    await this.webhookService.addWebhookId(uuid, gitHook.data.id);
   }
 
   async createOrgWatcher(
@@ -165,6 +166,7 @@ export class GithubWatcherService {
     this.logger.log('Posting webhook to db ...');
     await this.webhookService.create(uuid, msg.userId, msg.plugId, msg.eventId);
     this.logger.log('Posting webhook to github ...');
-    await this.gitHooksService.createOrgWebhook(org, token, events, uuid);
+    const gitHook = await this.gitHooksService.createOrgWebhook(org, token, events, uuid);
+    await this.webhookService.addWebhookId(uuid, gitHook.data.id);
   }
 }

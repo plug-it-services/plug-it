@@ -9,7 +9,7 @@ export class GithubWebhookService {
     token: string,
     events: string[],
     uuid: string,
-  ): Promise<void> {
+  ): Promise<any> {
     const url = `/repos/${owner}/${repo}/hooks`;
 
     const githubApi = axios.create({
@@ -33,12 +33,51 @@ export class GithubWebhookService {
     return await githubApi.post(url, data);
   }
 
+  async deleteRepoWebhook(
+    repo: string,
+    owner: string,
+    token: string,
+    uuid: string,
+  ): Promise<any> {
+    const url = `/repos/${owner}/${repo}/hooks/${uuid}`;
+
+    const githubApi = axios.create({
+      baseURL: 'https://api.github.com',
+      headers: {
+        Accept: 'application/vnd.github+json',
+        Authorization: `Bearer ${token}`,
+        'X-GitHub-Api-Version': '2022-11-28',
+      },
+    });
+
+    return await githubApi.delete(url);
+  }
+
+  async deleteOrgWebhook(
+    org: string,
+    token: string,
+    uuid: string,
+  ): Promise<any> {
+    const url = `/repos/${org}/hooks/${uuid}`;
+
+    const githubApi = axios.create({
+      baseURL: 'https://api.github.com',
+      headers: {
+        Accept: 'application/vnd.github+json',
+        Authorization: `Bearer ${token}`,
+        'X-GitHub-Api-Version': '2022-11-28',
+      },
+    });
+
+    return await githubApi.delete(url);
+  }
+
   async createOrgWebhook(
     org: string,
     token: string,
     events: string[],
     uuid: string,
-  ): Promise<void> {
+  ): Promise<any> {
     const url = `/orgs/${org}/hooks`;
 
     const githubApi = axios.create({

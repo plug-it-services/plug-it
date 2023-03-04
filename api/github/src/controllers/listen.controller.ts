@@ -2,6 +2,8 @@ import { Controller, Logger } from '@nestjs/common';
 import { Nack, RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 import { WebHookService } from '../services/webhook.service';
 import { GithubWatcherService } from '../services/github.watcher.service';
+import { GithubAuthService } from "../services/githubAuth.service";
+import { GithubWebhookService } from "../services/github.webhook.service";
 
 @Controller('listener')
 export class ListenerController {
@@ -10,6 +12,8 @@ export class ListenerController {
   constructor(
     private webHookService: WebHookService,
     private gitWatcherService: GithubWatcherService,
+    private gitWebhookService: GithubWebhookService,
+    private gitAuthService: GithubAuthService,
   ) {}
 
   @RabbitSubscribe({
@@ -17,7 +21,15 @@ export class ListenerController {
   })
   async disableEvent(msg: { plugId: string }) {
     try {
-      await this.webHookService.deleteById(msg.plugId);
+      const hook = await this.webHookService.find(msg.plugId);
+      const token = await this.gitAuthService.getAccessToken(hook.userId);
+      if (hook.eventId .startsWith("repo")) {
+        await this.webHookService.deleteById(msg.plugId);
+        await this.gitWebhookService.deleteRepoWebhook(hook.repo, hook.owner, token, hook.webhookId);
+      } else {
+        await this.webHookService.deleteById(msg.plugId);
+        await this.gitWebhookService.deleteOrgWebhook(hook.org, token, hook.webhookId);
+      }
       this.logger.log('Deleted a plug');
     } catch (e) {
       this.logger.error(e);
