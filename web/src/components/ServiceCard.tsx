@@ -4,7 +4,7 @@ import CardActions from '@mui/material/CardActions';
 import Typography from '@mui/material/Typography';
 import { useNavigate } from 'react-router-dom';
 import Button from './Button';
-import { authOAuth2, authService, disconnectService, Service } from '../utils/api';
+import { authOAuth2, authService, authServiceSecret, disconnectService, Service } from '../utils/api';
 import MessageBox from './MessageBox';
 import InputBar from './InputBar';
 
@@ -15,11 +15,13 @@ export interface IServiceCardProps {
 
 function ServiceCard({ service, setConnection }: IServiceCardProps, props: any) {
   const navigate = useNavigate();
-  const [open, setOpen] = useState(false);
+  const [openApiKey, setOpenApiKey] = useState(false);
+  const [openClientSecret, setOpenClientSecret] = useState(false);
   const onClose = () => {
-    setOpen(false);
+    setOpenApiKey(false);
   };
   const [key, setKey] = useState('');
+  const [secret, setSecret] = useState('');
   const handleOnClick = async () => {
     if (service.connected) {
       await disconnectService(service);
@@ -27,7 +29,9 @@ function ServiceCard({ service, setConnection }: IServiceCardProps, props: any) 
       return;
     }
     if (service.authType === 'apiKey') {
-      setOpen(true);
+      setOpenApiKey(true);
+    } else if (service.authType === 'clientSecret') {
+      setOpenClientSecret(true);
     } else if (service.authType === 'oauth2') {
       const authUrl = await authOAuth2(service);
       if (authUrl.length > 0) {
@@ -64,7 +68,7 @@ function ServiceCard({ service, setConnection }: IServiceCardProps, props: any) 
             title={'Login'}
             description={'Please log in to your account.'}
             type={'info'}
-            isOpen={open}
+            isOpen={openApiKey}
             onClose={onClose}
           >
             <InputBar
@@ -81,7 +85,43 @@ function ServiceCard({ service, setConnection }: IServiceCardProps, props: any) 
               text={'Submit'}
               onClick={async () => {
                 await authService(service, key);
-                setOpen(false);
+                setOpenApiKey(false);
+                setConnection(true);
+              }}
+            />
+          </MessageBox>
+          <MessageBox
+            title={'Login'}
+            description={'Please log in to your account.'}
+            type={'info'}
+            isOpen={openClientSecret}
+            onClose={() => setOpenClientSecret(false)}
+          >
+            <InputBar
+              onChange={setKey}
+              placeholder="Client id"
+              textColor="black"
+              backgroundColor="#EAF1FF"
+              borderColor="#EAF1FF"
+              isPassword={false}
+              onSubmit={() => {}}
+            />
+            <br />
+            <InputBar
+              onChange={setSecret}
+              placeholder="Client secret"
+              textColor="black"
+              backgroundColor="#EAF1FF"
+              borderColor="#EAF1FF"
+              isPassword={false}
+              onSubmit={() => {}}
+            />
+            <br />
+            <Button
+              text={'Submit'}
+              onClick={async () => {
+                await authServiceSecret(service, key, secret);
+                setOpenClientSecret(false);
                 setConnection(true);
               }}
             />
