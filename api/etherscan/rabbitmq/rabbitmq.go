@@ -114,7 +114,7 @@ func (r *RabbitMQService) PublishEvent(queue string, eventId string, plugId stri
 		return err
 	}
 
-	err = r.PublishChannel.Publish(
+	err = r.PublishChannel.Publish( //nolint:staticcheck
 		"amq.direct",
 		queue,
 		false,
@@ -138,7 +138,7 @@ func (r *RabbitMQService) PublishAction(queue string, actionId string, runId str
 
 	log.Println(`{"serviceName": "etherscan", "actionId":"` + actionId + `","plugId":"` + plugId + `","runId":"` + runId + `","userId":` + strconv.Itoa(userId) + `,"variables":` + string(parsedVariables) + `}`)
 
-	err = r.PublishChannel.Publish(
+	err = r.PublishChannel.Publish( //nolint:staticcheck
 		"amq.direct",
 		queue,
 		false,
