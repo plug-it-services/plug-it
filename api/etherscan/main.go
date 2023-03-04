@@ -96,7 +96,7 @@ func main() {
 	if err != nil {
 		log.Fatal("Error when connecting to RabbitMQ: ", err)
 	}
-	defer RabbitMQService.Close()
+	// defer RabbitMQService.Close()
 
 	initRabbitmq(db, RabbitMQService)
 
