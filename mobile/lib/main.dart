@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/models/plug/Plug.dart';
 
 import 'package:mobile/ui-toolkit/appbar.dart';
 import 'package:mobile/PlugApi.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 import 'ui-toolkit/navbar.dart';
 import 'pages/auth/Login.dart';
 import 'pages/auth/SignUp.dart';
@@ -49,9 +51,11 @@ class StateMyApp extends State<MyApp> {
       darkTheme: ThemeData.dark(),
       themeMode: modes[index],
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primaryTextTheme: Typography().white,
+
       ),
-      home: MyHomePage(
+      home: (_prefs != null) ? MyHomePage(
+          preferences: _prefs!,
           title: 'Plug It',
           onThemeSelected: (int newIndex) => setState(() {
             index = newIndex;
@@ -59,7 +63,7 @@ class StateMyApp extends State<MyApp> {
           }),
           themes: modes,
           actualTheme: index
-      ),
+      ) : null,
     );
   }
 }
@@ -68,8 +72,9 @@ class MyHomePage extends StatefulWidget {
   final void Function(int newIndex) onThemeSelected;
   final List<ThemeMode> themes;
   final int actualTheme;
+  final SharedPreferences preferences;
 
-  const MyHomePage({super.key, required this.title, required this.themes, required this.onThemeSelected, required this.actualTheme});
+  const MyHomePage({super.key, required this.preferences, required this.title, required this.themes, required this.onThemeSelected, required this.actualTheme});
   final String title;
 
   @override
@@ -84,6 +89,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget getCurrentForm() {
     if (loginOpen) {
       return Login(
+        preferences: widget.preferences,
         onLogged: (user) {
           setState(() {
             connected = true;
@@ -121,7 +127,32 @@ class _MyHomePageState extends State<MyHomePage> {
       registerOpen = false;
       connected = false;
       PlugApi.token = null;
+      PlugApi.sessionToken = const Uuid().v4();
+      widget.preferences.setBool('RememberMe', false);
     });
+  }
+
+
+  @override
+  void initState() {
+    var _rememberMe = widget.preferences.getBool("RememberMe") ?? false;
+    var password = widget.preferences.getString("password") ?? "";
+    var username = widget.preferences.getString("email") ?? "";
+    if (_rememberMe && password != "" && username != "") {
+      PlugApi.login(username, password).then((value) {
+        setState(() {
+          connected = true;
+        });
+      }).catchError((error) {
+        setState(() {
+          if (error.response.data is String) {
+          }
+          else {
+          }
+        });
+      });
+    }
+    super.initState();
   }
 
   @override

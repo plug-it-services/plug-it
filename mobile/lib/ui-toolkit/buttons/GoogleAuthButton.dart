@@ -40,16 +40,12 @@ class _StateGoogleAuthButton extends State<GoogleAuthButton>{
     print('trying google sso');
     _googleSignIn.signIn().then((account) {
       account?.authentication.then((result) {
-        print('success google sso');
-        print('GOOGLE ID: ${result.accessToken!}');
         PlugApi.ssoLogin("google", result.accessToken!).then((result) => {
           widget.callback!()
         });
       });
     }).catchError((err) {
-      print('failed google sso');
       error = err.toString();
-      print(err);
     });
   }
 
@@ -74,7 +70,10 @@ class _StateGoogleAuthButton extends State<GoogleAuthButton>{
                       const SizedBox(width: 20),
                       Image.network(
                           'http://pngimg.com/uploads/google/google_PNG19635.png',
-                          fit:BoxFit.cover
+                          fit:BoxFit.cover,
+                          errorBuilder: (BuildContext context, Object expection, StackTrace? trace) {
+                            return const Icon(Icons.error) as Widget;
+                          },
                       ),
                       const SizedBox(width: 25),
                       const Text(

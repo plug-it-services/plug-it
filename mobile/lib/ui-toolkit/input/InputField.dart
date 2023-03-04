@@ -31,14 +31,6 @@ class InputField extends StatefulWidget {
 }
 
 class _InputFieldState extends State<InputField> {
-  TextEditingController? controller;
-
-
-  @override
-  void initState() {
-    controller = TextEditingController(text:widget.value);
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +46,7 @@ class _InputFieldState extends State<InputField> {
                     child: Focus(
                       onFocusChange: widget.onChangedFocus,
                       child: TextFormField(
-                        controller: controller,
+                        initialValue: widget.value,
                         style: widget.valueStyle ?? PlugItStyle.inputTextStyle,
                         onChanged: widget.onChanged,
                         obscureText: widget.obscured,

@@ -15,9 +15,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 
 class Login extends StatefulWidget {
+  final SharedPreferences preferences;
   final void Function(User) onLogged;
   final void Function() onChangeToRegisterPressed;
-  const Login({super.key, required this.onLogged, required this.onChangeToRegisterPressed});
+  const Login({super.key, required this.preferences, required this.onLogged, required this.onChangeToRegisterPressed});
 
 
   @override
@@ -34,7 +35,6 @@ class _LoginState extends State<Login> {
     "Try it, but don't get addicted !"
   ];
 
-  SharedPreferences? _prefs;
   bool _rememberMe = false;
   String username = "";
   String password = "";
@@ -85,17 +85,21 @@ class _LoginState extends State<Login> {
         error = null;
       });
       save();
-      PlugApi.login(username, password).then((value) =>
-          widget.onLogged(User(id:"", email:username, username: username, token:PlugApi.token ?? ""))
-      ).catchError((error) {
+      PlugApi.login(username, password).then((value) {
+        widget.onLogged(User(id:"", email:username, username: username, token:PlugApi.token ?? ""));
+      }).catchError((error) {
         setState(() {
-          this.error = error.response.data['message'];
+          if (error.response.data is String) {
+            this.error = error.response.data;
+          }
+          else {
+            this.error = error.response.data['message'];
+          }
         });
       });
   }
 
   void onGoogleAuth() {
-    print("Successfully logged in with google");
     widget.onLogged(User(id:"1", email:"jean.michel@plug-it.com", username: "Jean Michel Plug It", token:"123456789ABCDEFG"));
   }
 
@@ -131,41 +135,31 @@ class _LoginState extends State<Login> {
   }
 
   void save() {
+    widget.preferences.setBool("RememberMe", _rememberMe);
     if (!_rememberMe) {
       return;
     }
-    if (_prefs == null) {
-      setState(() {
-        error = "Error while loading preferences!";
-      });
-      return;
-    }
-    _prefs!.setBool("RememberMe", _rememberMe);
-    _prefs!.setString("email", username);
-    _prefs!.setString("password", password);
+    widget.preferences.setString("email", username);
+    widget.preferences.setString("password", password);
   }
 
   void rememberMePressed(bool? value) {
     setState(() {
-      _rememberMe = value ?? !_rememberMe;
+      _rememberMe = !_rememberMe;
     });
   }
 
-  void initRememberMe(SharedPreferences value) {
-    _prefs = value;
+  void initRememberMe() {
     setState(() {
-      _rememberMe = _prefs!.getBool("RememberMe") ?? false;
-      password = _prefs!.getString("password") ?? "";
-      username = _prefs!.getString("email") ?? "";
+      _rememberMe = widget.preferences.getBool("RememberMe") ?? false;
+      password = widget.preferences.getString("password") ?? "";
+      username = widget.preferences.getString("email") ?? "";
     });
-
   }
 
   @override
   void initState() {
-    SharedPreferences.getInstance().then((value) {
-      initRememberMe(value);
-    });
+    initRememberMe();
     super.initState();
   }
 
@@ -190,6 +184,7 @@ class _LoginState extends State<Login> {
                   // LOGIN INPUT
                   ...getMailError(),
                   InputField(
+                      key: const ValueKey("loginEmailField"),
                       hint: "Email or Username",
                       onChanged: (value) => {username = value},
                       onChangedFocus: (value) => checkEmail(),
@@ -203,6 +198,7 @@ class _LoginState extends State<Login> {
                   // PASSWORD INPUT
                   ...getPasswordError(),
                   InputField(
+                      key: const ValueKey("loginPasswordField"),
                       hint: "Password",
                       obscured: true,
                       onChanged: (value) => password = value,
@@ -215,12 +211,26 @@ class _LoginState extends State<Login> {
                   const SizedBox(height: 25),
 
                   //Sign in button
-                  ScreenWidthButton(label: "Sign In", size: 20, callback: onSign),
+                  ScreenWidthButton(
+                      key: const ValueKey("loginSignButton"),
+                      label: "Sign In",
+                      size: 20,
+                      callback: onSign
+                  ),
                   const SizedBox(height: 15),
-                  ScreenWidthButton(label: "No account? Register!", size: 20, callback: widget.onChangeToRegisterPressed),
+                  ScreenWidthButton(
+                      key: const ValueKey("loginGoToRegisterButton"),
+                      label: "No account? Register!",
+                      size: 20,
+                      callback: widget.onChangeToRegisterPressed
+                  ),
                   const SizedBox(height: 15),
-                  GoogleAuthButton(callback: onGoogleAuth),
+                  GoogleAuthButton(
+                      key: const ValueKey("loginGoogleButton"),
+                      callback: onGoogleAuth
+                  ),
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Text("Remember me:", style: PlugItStyle.smallStyle),
                       Checkbox(value: _rememberMe, onChanged: rememberMePressed)

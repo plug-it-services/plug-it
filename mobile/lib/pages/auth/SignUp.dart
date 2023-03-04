@@ -169,7 +169,9 @@ class _SignupState extends State<Signup> {
                   const SizedBox(height: 25),
 
                   //Sign in button
-                  ScreenWidthButton(label: "Sign Up", size: 20, callback: onSign),
+                  ScreenWidthButton(
+                      key: const ValueKey("registerSignUpButton"),
+                      label: "Sign Up", size: 20, callback: onSign),
                   const SizedBox(height: 15),
                   ScreenWidthButton(label: "Have an account? Sign in!", size: 20, callback: widget.onChangeToLoginPressed),
                   const SizedBox(height: 15),

@@ -33,6 +33,7 @@ class PlugEdit extends StatefulWidget {
 class PlugEditState extends State<PlugEdit> {
   bool cardOpen = true;
   int cardIdxOpen = -1;
+  String? name;
 
   PlugDetails? plugEdited;
   List<Widget> cards = [];
@@ -104,6 +105,7 @@ class PlugEditState extends State<PlugEdit> {
       PlugApi.getPlug(widget.selectedPlug!.id).then((plug) {
         setState(() {
           plugEdited = plug;
+          name = plug?.name;
         });
         setActionCards();
       });
@@ -192,11 +194,25 @@ class PlugEditState extends State<PlugEdit> {
         children: [
 
           const SizedBox(height: 20,),
-          InputField(
-            hint: "Enter Plug Name",
-            value: plugEdited?.name ?? "",
-            onChanged: (value) => plugEdited!.name = value,
-          ),
+          (name != null && widget.selectedPlug != null)
+              ? InputField(
+                hint: "Enter Plug Name",
+                value: name,
+                onChanged: (value) {
+                  plugEdited!.name = value;
+                  name = value;
+              },
+            )
+            : const SizedBox(height: 0,),
+          (widget.selectedPlug == null)
+              ? InputField(
+                  hint: "Enter Plug Name",
+                  onChanged: (value) {
+                    plugEdited!.name = value;
+                    name = value;
+                  }
+                )
+              : const SizedBox(height: 0,),
           const SizedBox(height: 20,),
 
           ListView(

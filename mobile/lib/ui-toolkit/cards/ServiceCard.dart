@@ -209,7 +209,7 @@ class _StateServiceCard extends State<ServiceCard>{
             Padding(
               padding: const EdgeInsets.all(20),
               child: CachedNetworkImage(
-                imageUrl: "${PlugApi.assetsUrl}/${widget.service.icon}",
+                imageUrl: (!widget.service.icon.startsWith('/')) ? "${PlugApi.assetsUrl}/${widget.service.icon}" : "${PlugApi.assetsUrl}${widget.service.icon}",
                 placeholder: (context, url) => const CircularProgressIndicator(),
                 errorWidget: (context, url, error) => const Icon(Icons.error),
                 width: 100,
