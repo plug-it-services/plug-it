@@ -12,9 +12,14 @@ class PlugEvent {
   String serviceName;
   List<FieldInput> fields = [];
 
-  PlugEvent({required this.id, required this.serviceName, required this.fields});
+  PlugEvent(
+      {required this.id, required this.serviceName, required this.fields});
 
-  PlugEvent.fromEventService({required Event event, required this.serviceName, this.id = "", this.fields = const []}) {
+  PlugEvent.fromEventService(
+      {required Event event,
+      required this.serviceName,
+      this.id = "",
+      this.fields = const []}) {
     List<FieldInput> newFields = [];
     id = event.id;
     for (Field field in event.fields) {
@@ -22,8 +27,6 @@ class PlugEvent {
     }
     fields = newFields;
   }
-
-
 
   factory PlugEvent.fromJson(Json json) => _$PlugEventFromJson(json);
 

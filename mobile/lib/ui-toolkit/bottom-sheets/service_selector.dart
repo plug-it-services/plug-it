@@ -6,13 +6,13 @@ import 'package:mobile/models/service/Service.dart';
 import 'package:mobile/ui-toolkit/PlugItStyle.dart';
 import 'package:mobile/ui-toolkit/cards/ServiceCard.dart';
 
-
 class ServiceMenu extends StatefulWidget {
   final Service? selectedService;
   final List<Service> services;
   final void Function(Service service) onServiceSelected;
 
-  const ServiceMenu({super.key,
+  const ServiceMenu({
+    super.key,
     required this.services,
     required this.onServiceSelected,
     required this.selectedService,
@@ -21,36 +21,39 @@ class ServiceMenu extends StatefulWidget {
   @override
   State createState() => _StateServiceMenu();
 }
-class _StateServiceMenu extends State<ServiceMenu>{
+
+class _StateServiceMenu extends State<ServiceMenu> {
   List<Service>? filteredServices;
   String filter = "";
   final controller = TextEditingController();
 
-  void setFilteredServices(String filter)
-  {
+  void setFilteredServices(String filter) {
     filter = filter.toLowerCase();
     final filtered = widget.services
-        .where((element) =>
-        element.name.toLowerCase().contains(filter)
-    ).toList();
+        .where((element) => element.name.toLowerCase().contains(filter))
+        .toList();
     setState(() {
       filteredServices = filtered;
     });
   }
+
   void displayMenu(BuildContext context) {
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context2) {
         List<Widget> list = [];
         for (Service service in filteredServices ?? []) {
-          list.add(const SizedBox(height: 10,));
+          list.add(const SizedBox(
+            height: 10,
+          ));
           list.add(GestureDetector(
               onTap: () {
                 widget.onServiceSelected(service);
                 Navigator.pop(context);
               },
-              child: ServiceCard(service: service,)
-          ));
+              child: ServiceCard(
+                service: service,
+              )));
         }
 
         return ListView(
@@ -64,9 +67,8 @@ class _StateServiceMenu extends State<ServiceMenu>{
                     hintText: 'Search a service',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color:PlugItStyle.primaryColor),
-                    )
-                ),
+                      borderSide: BorderSide(color: PlugItStyle.primaryColor),
+                    )),
                 onChanged: setFilteredServices,
               ),
             ),
@@ -74,45 +76,47 @@ class _StateServiceMenu extends State<ServiceMenu>{
           ],
         );
       },
-
     );
   }
 
-
   @override
-  void initState()
-  {
+  void initState() {
     filteredServices = widget.services;
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 5),
-      child: ElevatedButton(
-          onPressed: () {
-            displayMenu(context);
-          },
-          child: Row(
-            children: [
-              (widget.selectedService == null)
-                  ? const Icon(Icons.search_rounded,)
-                  : CachedNetworkImage(
-                      imageUrl: "${PlugApi.assetsUrl}/${widget.selectedService!.icon}",
-                      placeholder: (context, url) => const CircularProgressIndicator(),
-                      errorWidget: (context, url, error) => const Icon(Icons.error),
-                      //TODO: add proper color from DTO model
-                      width: 30,
-                      height: 30,
-              ),
-              const SizedBox(width: 5),
-              Text(
-                  (widget.selectedService == null) ? "Select a service" : " ${widget.selectedService!.name.capitalize()}",
-                  style: PlugItStyle.subtitleStyle
-              ),
-            ],
-          )
-      )
-    );
+        padding: const EdgeInsets.symmetric(horizontal: 5),
+        child: ElevatedButton(
+            onPressed: () {
+              displayMenu(context);
+            },
+            child: Row(
+              children: [
+                (widget.selectedService == null)
+                    ? const Icon(
+                        Icons.search_rounded,
+                      )
+                    : CachedNetworkImage(
+                        imageUrl:
+                            "${PlugApi.assetsUrl}/${widget.selectedService!.icon}",
+                        placeholder: (context, url) =>
+                            const CircularProgressIndicator(),
+                        errorWidget: (context, url, error) =>
+                            const Icon(Icons.error),
+                        //TODO: add proper color from DTO model
+                        width: 30,
+                        height: 30,
+                      ),
+                const SizedBox(width: 5),
+                Text(
+                    (widget.selectedService == null)
+                        ? "Select a service"
+                        : " ${widget.selectedService!.name.capitalize()}",
+                    style: PlugItStyle.subtitleStyle),
+              ],
+            )));
   }
 }

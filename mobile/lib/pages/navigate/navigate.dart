@@ -9,7 +9,6 @@ import 'package:mobile/ui-toolkit/PlugItStyle.dart';
 import 'package:mobile/ui-toolkit/cards/PlugCard.dart';
 import 'package:mobile/ui-toolkit/cards/ServiceCard.dart';
 
-
 class Navigate extends StatefulWidget {
   final void Function(Plug plug) onPlugSelected;
 
@@ -32,47 +31,42 @@ class _NavigateState extends State<Navigate> {
   @override
   void initState() {
     PlugApi.getPlugs().then((plugsData) => setState(() {
-      for (Plug plug in plugsData!) {
-        PlugApi.getPlug(plug.id).then((value) {
-          if (value == null) {
-              print("Error fetching plug: ${plug.name}");
-          } else {
-            setState(() {
-              plugs[plug] = value;
-              filteredPlugs = plugs;
+          for (Plug plug in plugsData!) {
+            PlugApi.getPlug(plug.id).then((value) {
+              if (value == null) {
+                print("Error fetching plug: ${plug.name}");
+              } else {
+                setState(() {
+                  plugs[plug] = value;
+                  filteredPlugs = plugs;
+                });
+              }
             });
           }
-        });
-
-      }
-    }));
+        }));
     PlugApi.getServices().then((value) => setState(() {
-      services = value;
-        setState(() => {
-          filteredServices = services
-        });
-    }));
+          services = value;
+          setState(() => {filteredServices = services});
+        }));
     super.initState();
   }
 
-  void setFilteredServices(String filter)
-  {
+  void setFilteredServices(String filter) {
     filter = filter.toLowerCase();
     final filtered = services!
-        .where((element) =>
-        element.name.toLowerCase().contains(filter)
-    ).toList();
+        .where((element) => element.name.toLowerCase().contains(filter))
+        .toList();
     setState(() {
       filteredServices = filtered;
     });
   }
 
-  void setFilteredPlugs(String filter)
-  {
+  void setFilteredPlugs(String filter) {
     filter = filter.toLowerCase();
     filteredPlugs = {};
     plugs.forEach((plug, details) {
-      if (plug.name.toLowerCase().contains(filter) || details.containsFilter(filter)) {
+      if (plug.name.toLowerCase().contains(filter) ||
+          details.containsFilter(filter)) {
         setState(() {
           filteredPlugs[plug] = details;
         });
@@ -85,25 +79,31 @@ class _NavigateState extends State<Navigate> {
     setFilteredServices(value);
   }
 
-  List<Widget> getFilterService(data ) {
+  List<Widget> getFilterService(data) {
     if (data == null || data!.isEmpty || !showServices) {
       return [];
     }
     var services = [];
-    
+
     for (var service in data!) {
-      services.add(const SizedBox(height: 5,));
+      services.add(const SizedBox(
+        height: 5,
+      ));
       services.add(ServiceCard(service: service));
     }
 
     if (services.isEmpty) {
       return [];
     }
-    
+
     return [
-      const SizedBox(height: 10,),
+      const SizedBox(
+        height: 10,
+      ),
       const Text("Services", style: PlugItStyle.subtitleStyle),
-      const Divider(color: Colors.black,),
+      const Divider(
+        color: Colors.black,
+      ),
       ...services
     ];
   }
@@ -115,60 +115,63 @@ class _NavigateState extends State<Navigate> {
     var plugCards = [];
 
     data.forEach((key, value) {
-      plugCards.add(const SizedBox(height: 5,));
-      plugCards.add(PlugCard(plug: key, callback: () => {
-        widget.onPlugSelected(key)
-      }));
+      plugCards.add(const SizedBox(
+        height: 5,
+      ));
+      plugCards.add(
+          PlugCard(plug: key, callback: () => {widget.onPlugSelected(key)}));
     });
     if (plugCards.isEmpty) {
       return [];
     }
 
     return [
-      const SizedBox(height: 10,),
+      const SizedBox(
+        height: 10,
+      ),
       const Text("Plugs", style: PlugItStyle.subtitleStyle),
-      const Divider(color: Colors.black,),
+      const Divider(
+        color: Colors.black,
+      ),
       ...plugCards
     ];
-
   }
-
 
   @override
   Widget build(BuildContext context) {
     return ListView(
+      children: [
+        Container(
+          margin: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+          child: TextField(
+            controller: controller,
+            decoration: InputDecoration(
+                prefixIcon: const Icon(Icons.search),
+                hintText: 'Search for ...',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: PlugItStyle.primaryColor),
+                )),
+            onChanged: onFilter,
+          ),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              margin: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-              child: TextField(
-                  controller: controller,
-                  decoration: InputDecoration(
-                      prefixIcon: const Icon(Icons.search),
-                      hintText: 'Search for ...',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color:PlugItStyle.primaryColor),
-                      )
-                  ),
-                  onChanged: onFilter,
-                ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Checkbox(value: showPlugs, onChanged: (value) => {
-                  setState(() => showPlugs = !showPlugs)
-                }),
-                const Text("Show Plugs", style: PlugItStyle.smallStyle),
-                Checkbox(value: showServices, onChanged: (value) => {
-                  setState(() => showServices = !showServices)
-                }),
-                const Text("Show Services", style: PlugItStyle.smallStyle),
-              ],
-            ),
-            ...getFilterPlugs(filteredPlugs),
-            ...getFilterService(filteredServices),
+            Checkbox(
+                value: showPlugs,
+                onChanged: (value) => {setState(() => showPlugs = !showPlugs)}),
+            const Text("Show Plugs", style: PlugItStyle.smallStyle),
+            Checkbox(
+                value: showServices,
+                onChanged: (value) =>
+                    {setState(() => showServices = !showServices)}),
+            const Text("Show Services", style: PlugItStyle.smallStyle),
           ],
+        ),
+        ...getFilterPlugs(filteredPlugs),
+        ...getFilterService(filteredServices),
+      ],
     );
   }
 }

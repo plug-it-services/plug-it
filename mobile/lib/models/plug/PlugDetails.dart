@@ -11,12 +11,16 @@ class PlugDetails {
   PlugEvent event;
   List<PlugEvent> actions;
 
-  PlugDetails({required this.id, required this.name, required this.event, required this.enabled, required this.actions});
+  PlugDetails(
+      {required this.id,
+      required this.name,
+      required this.event,
+      required this.enabled,
+      required this.actions});
 
   factory PlugDetails.fromJson(Json json) => _$PlugDetailsFromJson(json);
 
   Json toJson() => _$PlugDetailsToJson(this);
-
 
   bool containsFilter(String filter) {
     if (event.serviceName.toLowerCase().contains(filter)) {

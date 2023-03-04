@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:mobile/PlugApi.dart';
 import 'package:mobile/models/Event.dart';
@@ -19,7 +18,8 @@ class PlugEdit extends StatefulWidget {
   final bool editing;
   final void Function() onEditEnd;
 
-  const PlugEdit({super.key,
+  const PlugEdit({
+    super.key,
     this.selectedPlug,
     required this.services,
     required this.editing,
@@ -38,11 +38,15 @@ class PlugEditState extends State<PlugEdit> {
   PlugDetails? plugEdited;
   List<Widget> cards = [];
 
-
-
   void _addAction(int idx) {
     setState(() {
-      plugEdited!.actions.insert(idx + 1, PlugEvent(id: '', serviceName: '', fields: [],));
+      plugEdited!.actions.insert(
+          idx + 1,
+          PlugEvent(
+            id: '',
+            serviceName: '',
+            fields: [],
+          ));
       cardIdxOpen = idx + 1;
       cardOpen = true;
       setActionCards();
@@ -78,14 +82,11 @@ class PlugEditState extends State<PlugEdit> {
 
   void _delete() {
     if (widget.editing) {
-      PlugApi.deletePlug(plugEdited!.id).then((value) => {
-        _cancel()
-      });
+      PlugApi.deletePlug(plugEdited!.id).then((value) => {_cancel()});
     }
   }
 
-  void deployCard(int idx)
-  {
+  void deployCard(int idx) {
     if (idx != cardIdxOpen) {
       setState(() {
         cardIdxOpen = idx;
@@ -109,8 +110,7 @@ class PlugEditState extends State<PlugEdit> {
         });
         setActionCards();
       });
-    }
-    else {
+    } else {
       setState(() {
         plugEdited = PlugDetails(
           id: '',
@@ -125,8 +125,7 @@ class PlugEditState extends State<PlugEdit> {
     super.initState();
   }
 
-  void setActionCards()
-  {
+  void setActionCards() {
     List<Widget> widgets = [];
     setState(() {
       cards.clear();
@@ -138,14 +137,14 @@ class PlugEditState extends State<PlugEdit> {
         isOpen: cardIdxOpen == index && cardOpen,
         onCardDeploy: () => deployCard(index),
         plug: plugEdited!,
-        editedEvent: (index == -1) ? plugEdited!.event : plugEdited!.actions[index],
+        editedEvent:
+            (index == -1) ? plugEdited!.event : plugEdited!.actions[index],
         onServiceSelected: (Service service) {
           if (index == -1) {
             plugEdited!.event.serviceName = service.name;
             plugEdited!.event.id = '';
             plugEdited!.event.fields = [];
-          }
-          else {
+          } else {
             plugEdited!.actions[index].serviceName = service.name;
             plugEdited!.actions[index].id = '';
             plugEdited!.actions[index].fields = [];
@@ -156,19 +155,18 @@ class PlugEditState extends State<PlugEdit> {
             if (index == -1) {
               plugEdited!.event.id = '';
               plugEdited!.event.fields = [];
-            }
-            else {
+            } else {
               plugEdited!.actions[index].id = '';
               plugEdited!.actions[index].fields = [];
             }
             return;
           }
-          var ev = PlugEvent.fromEventService(event: event, serviceName: service.name);
+          var ev = PlugEvent.fromEventService(
+              event: event, serviceName: service.name);
           if (index == -1) {
             plugEdited!.event.id = ev.id;
             plugEdited!.event.fields = ev.fields;
-          }
-          else {
+          } else {
             plugEdited!.actions[index].id = ev.id;
             plugEdited!.actions[index].fields = ev.fields;
           }
@@ -192,29 +190,34 @@ class PlugEditState extends State<PlugEdit> {
     return SingleChildScrollView(
       child: Column(
         children: [
-
-          const SizedBox(height: 20,),
+          const SizedBox(
+            height: 20,
+          ),
           (name != null && widget.selectedPlug != null)
               ? InputField(
-                hint: "Enter Plug Name",
-                value: name,
-                onChanged: (value) {
-                  plugEdited!.name = value;
-                  name = value;
-              },
-            )
-            : const SizedBox(height: 0,),
+                  hint: "Enter Plug Name",
+                  value: name,
+                  onChanged: (value) {
+                    plugEdited!.name = value;
+                    name = value;
+                  },
+                )
+              : const SizedBox(
+                  height: 0,
+                ),
           (widget.selectedPlug == null)
               ? InputField(
                   hint: "Enter Plug Name",
                   onChanged: (value) {
                     plugEdited!.name = value;
                     name = value;
-                  }
-                )
-              : const SizedBox(height: 0,),
-          const SizedBox(height: 20,),
-
+                  })
+              : const SizedBox(
+                  height: 0,
+                ),
+          const SizedBox(
+            height: 20,
+          ),
           ListView(
             physics: const ScrollPhysics(
               parent: null,
@@ -222,40 +225,41 @@ class PlugEditState extends State<PlugEdit> {
             shrinkWrap: true,
             children: cards,
           ),
-
-
           Row(
-              children: [
-                  Expanded(
-                    child:ScreenWidthButton(
-                      label: 'Save',
-                      color: PlugItStyle.validationColor,
-                      pressedColor: PlugItStyle.secondaryColor,
-                      callback: _savePlug,
-                    )
-                  ),
-
-                  Expanded(
-                    child:ScreenWidthButton(
-                      label: 'Cancel',
-                      color: PlugItStyle.primaryColor,
-                      pressedColor: PlugItStyle.secondaryColor,
-                      callback: _cancel,
-                    ),
-                  ),
-                  (widget.editing) ? Expanded(
-                    child:ScreenWidthButton(
+            children: [
+              Expanded(
+                  child: ScreenWidthButton(
+                label: 'Save',
+                color: PlugItStyle.validationColor,
+                pressedColor: PlugItStyle.secondaryColor,
+                callback: _savePlug,
+              )),
+              Expanded(
+                child: ScreenWidthButton(
+                  label: 'Cancel',
+                  color: PlugItStyle.primaryColor,
+                  pressedColor: PlugItStyle.secondaryColor,
+                  callback: _cancel,
+                ),
+              ),
+              (widget.editing)
+                  ? Expanded(
+                      child: ScreenWidthButton(
                       label: 'Delete',
                       color: Colors.red,
                       pressedColor: PlugItStyle.secondaryColor,
                       callback: _delete,
-                  )
-                  ) : const SizedBox(width: 0,),
-              ],
+                    ))
+                  : const SizedBox(
+                      width: 0,
+                    ),
+            ],
           ),
-          const SizedBox(height: 20,)
+          const SizedBox(
+            height: 20,
+          )
         ],
       ),
     );
-}
+  }
 }

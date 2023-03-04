@@ -11,7 +11,12 @@ class Service {
   bool connected;
   Color color;
 
-  Service({required this.name, required this.authType, required this.icon, required this.connected, required this.color});
+  Service(
+      {required this.name,
+      required this.authType,
+      required this.icon,
+      required this.connected,
+      required this.color});
 
   factory Service.fromJson(Json json) => _$ServiceFromJson(json);
 

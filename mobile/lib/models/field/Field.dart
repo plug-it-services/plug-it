@@ -8,7 +8,12 @@ class Field {
   String key, type, displayName, description;
   bool required;
 
-  Field({required this.key, required this.type, required this.displayName, required this.required, required this.description});
+  Field(
+      {required this.key,
+      required this.type,
+      required this.displayName,
+      required this.required,
+      required this.description});
 
   factory Field.fromJson(Json json) => _$FieldFromJson(json);
 

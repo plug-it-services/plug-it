@@ -4,5 +4,9 @@ class User {
   String email;
   String token;
 
-  User({required this.id, required this.username, required this.email, required this.token});
+  User(
+      {required this.id,
+      required this.username,
+      required this.email,
+      required this.token});
 }
