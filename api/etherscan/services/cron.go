@@ -31,7 +31,7 @@ func DeleteCron(db *gorm.DB, id int) error {
 
 func FindCronById(db *gorm.DB, id int) (models.Cron, error) {
 	var cron models.Cron
-	if cron := db.Where("cronId = ?", id).First(&cron); cron.Error != nil {
+	if cron := db.Where("cron_id = ?", id).First(&cron); cron.Error != nil {
 		return models.Cron{}, cron.Error
 	}
 	return cron, nil
@@ -39,7 +39,7 @@ func FindCronById(db *gorm.DB, id int) (models.Cron, error) {
 
 func FindCronByPlugId(db *gorm.DB, plugId string) (models.Cron, error) {
 	var cron models.Cron
-	if cron := db.Where("plugId = ?", plugId).First(&cron); cron.Error != nil {
+	if cron := db.Where("plug_id = ?", plugId).First(&cron); cron.Error != nil {
 		return models.Cron{}, cron.Error
 	}
 	return cron, nil
@@ -47,7 +47,7 @@ func FindCronByPlugId(db *gorm.DB, plugId string) (models.Cron, error) {
 
 func DeleteAllCronByUserId(db *gorm.DB, userId int) error {
 	var crons []models.Cron
-	if err := db.Where("userId = ?", userId).Find(&crons).Error; err != nil {
+	if err := db.Where("user_id = ?", userId).Find(&crons).Error; err != nil {
 		return err
 	}
 	for _, cron := range crons {
