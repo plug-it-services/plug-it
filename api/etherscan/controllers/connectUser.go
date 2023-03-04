@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
 	"github.com/plug-it-services/plug-it/dto"
 	"github.com/plug-it-services/plug-it/services"
 	"github.com/spf13/viper"
@@ -14,6 +15,7 @@ import (
 func ConnectUser(c *gin.Context) {
 	var body dto.ConnectUserBodyDto
 	var user dto.UserDto
+	db := c.MustGet("db").(*gorm.DB)
 
 	if err := c.ShouldBindJSON(&body); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -28,7 +30,7 @@ func ConnectUser(c *gin.Context) {
 		return
 	}
 
-	if err := services.CreateUser(c, user.Id, body.ApiKey); err != nil {
+	if err := services.CreateUser(db, user.Id, body.ApiKey); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "internal server error",
 		})

@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"log"
 
-	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
+	"github.com/plug-it-services/plug-it/etherscan"
+	"github.com/plug-it-services/plug-it/models"
 	"github.com/plug-it-services/plug-it/services"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"gopkg.in/robfig/cron.v2"
@@ -14,13 +16,18 @@ type EventMessageData struct {
 	PlugId  string `json:"plugId"`
 	UserId  int    `json:"userId"`
 	EventId string `json:"eventId"`
+	Fields  string `json:"fields"`
 }
 
-func createCronJob(spec string, callback func(string), apiKey string) (cron.EntryID, error) {
+type LowerGasPriceFields struct {
+	GasPrice int `json:"gasPrice"`
+}
+
+func createCronJob(spec string, callback func(rabbit *RabbitMQService, user models.User, plugId string, eventId string, data int), rabbit *RabbitMQService, user models.User, plugId string, eventId string, data int) (cron.EntryID, error) {
 	s := cron.New()
 
 	id, err := s.AddFunc(spec, func() {
-		callback(apiKey)
+		callback(rabbit, user, plugId, eventId, data)
 	})
 	if err != nil {
 		return -1, err
@@ -31,11 +38,32 @@ func createCronJob(spec string, callback func(string), apiKey string) (cron.Entr
 	return id, nil
 }
 
-func EventLowerGasPriceConsumer(apiKey string) {
-	log.Println("Lower gas price event triggered", apiKey)
+func eventCallback(rabbit *RabbitMQService, user models.User, plugId string, eventId string, data int) {
+	log.Println("event triggered", user.ApiKey, plugId, eventId, data)
+
+	switch eventId {
+	case "lowerGasPrice":
+		log.Println("lowerGasPrice triggered", user.ApiKey, plugId, eventId, data)
+		gasPrice, err := etherscan.GetGasPrice(user.ApiKey)
+		if err != nil {
+			log.Println("Error getting gas price", err)
+			return
+		}
+
+		if gasPrice < data {
+			log.Println("Gas price is lower than expected", gasPrice, data)
+		}
+
+		rabbit.PublishEvent("plugs_events", eventId, plugId, user.Id, map[string]interface{}{
+			"key":   "gasPrice",
+			"value": gasPrice,
+		})
+	default:
+		log.Println("Event not supported", eventId)
+	}
 }
 
-func EventInitializeConsumer(c *gin.Context, msg amqp.Delivery) {
+func EventInitializeConsumer(db *gorm.DB, rabbit *RabbitMQService, msg amqp.Delivery) {
 	log.Println("Event Received", string(msg.Body))
 	var data EventMessageData
 
@@ -45,7 +73,7 @@ func EventInitializeConsumer(c *gin.Context, msg amqp.Delivery) {
 		return
 	}
 
-	user, err := services.FindUserById(c, data.UserId)
+	user, err := services.FindUserById(db, data.UserId)
 	if err != nil {
 		log.Println("Error finding user", err)
 		msg.Ack(false)
@@ -54,13 +82,20 @@ func EventInitializeConsumer(c *gin.Context, msg amqp.Delivery) {
 
 	switch data.EventId {
 	case "lowerGasPrice":
-		id, err := createCronJob("*/5 * * * * *", EventLowerGasPriceConsumer, user.ApiKey)
+		var gasPrice LowerGasPriceFields
+		if err := json.Unmarshal([]byte(data.Fields), &gasPrice); err != nil {
+			log.Println("Error unmarshalling event message", err)
+			msg.Ack(false)
+			return
+		}
+
+		id, err := createCronJob("*/5 * * * * *", eventCallback, rabbit, user, data.PlugId, data.EventId, gasPrice.GasPrice)
 		if err != nil {
 			log.Println("Error creating cron job", err)
 			msg.Ack(false)
 			return
 		}
-		if err := services.CreateCron(c, data.UserId, int(id)); err != nil {
+		if err := services.CreateCron(db, data.UserId, int(id)); err != nil {
 			log.Println("Error saving cron job", err)
 			msg.Ack(false)
 			return
@@ -71,13 +106,13 @@ func EventInitializeConsumer(c *gin.Context, msg amqp.Delivery) {
 	msg.Ack(false)
 }
 
-func EventDisabledConsumer(c *gin.Context, msg amqp.Delivery) {
+func EventDisabledConsumer(db *gorm.DB, rabbit *RabbitMQService, msg amqp.Delivery) {
 	log.Println("Event disabled received", string(msg.Body))
 
 	msg.Ack(false)
 }
 
-func ActionConsumer(c *gin.Context, msg amqp.Delivery) {
+func ActionConsumer(db *gorm.DB, rabbit *RabbitMQService, msg amqp.Delivery) {
 	log.Println("Action received", string(msg.Body))
 
 	msg.Ack(false)

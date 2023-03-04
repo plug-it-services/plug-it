@@ -1,6 +1,10 @@
 package rabbitmq
 
 import (
+	"encoding/json"
+	"strconv"
+
+	"github.com/jinzhu/gorm"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
@@ -12,8 +16,8 @@ type RabbitMQService struct {
 type RabbitMQServiceInterface interface {
 	Close() error
 	CreateQueue(queue string, exchange string) error
-	PublishMessage(queue string, exchange string, message []byte) error
-	CreateConsumer(queue string, wow func(msg amqp.Delivery)) error
+	PublishEvent(queue string, eventId string, plugId string, userId int, variables map[string]interface{}) error
+	CreateConsumer(db *gorm.DB, queue string, wow func(db *gorm.DB, rabbit *RabbitMQService, msg amqp.Delivery)) error
 }
 
 func New(uri string) (*RabbitMQService, error) {
@@ -33,7 +37,7 @@ func New(uri string) (*RabbitMQService, error) {
 	}, nil
 }
 
-func (r *RabbitMQService) CreateConsumer(queue string, wow func(msg amqp.Delivery)) error {
+func (r *RabbitMQService) CreateConsumer(db *gorm.DB, queue string, wow func(db *gorm.DB, rabbit *RabbitMQService, msg amqp.Delivery)) error {
 	msgs, err := r.Ch.Consume(
 		queue,
 		"",
@@ -49,7 +53,7 @@ func (r *RabbitMQService) CreateConsumer(queue string, wow func(msg amqp.Deliver
 
 	go func() {
 		for msg := range msgs {
-			wow(msg)
+			wow(db, r, msg)
 		}
 	}()
 	return nil
@@ -84,15 +88,20 @@ func (r *RabbitMQService) Close() error {
 	return nil
 }
 
-func (r *RabbitMQService) PublishMessage(queue string, exchange string, message []byte) error {
-	err := r.Ch.Publish(
-		exchange,
+func (r *RabbitMQService) PublishEvent(queue string, eventId string, plugId string, userId int, variables map[string]interface{}) error {
+	parsedVariables, err := json.Marshal(variables)
+	if err != nil {
+		return err
+	}
+
+	err = r.Ch.Publish(
+		"amq.direct",
 		queue,
 		false,
 		false,
 		amqp.Publishing{
 			ContentType: "application/json",
-			Body:        message,
+			Body:        []byte(`{"serviceName: "discord", "eventId":"` + eventId + `","plugId":"` + plugId + `","userId":` + strconv.Itoa(userId) + `,"variables":` + string(parsedVariables) + `}`),
 		},
 	)
 	if err != nil {

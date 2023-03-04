@@ -3,12 +3,11 @@ package models
 import (
 	"log"
 
-	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres" // using postgres sql
 )
 
-func SetupModels(connection string) gin.HandlerFunc {
+func SetupModels(connection string) *gorm.DB {
 	db, err := gorm.Open("postgres", connection)
 	if err != nil {
 		log.Panic("Failed to connect to database!")
@@ -16,8 +15,5 @@ func SetupModels(connection string) gin.HandlerFunc {
 	db.AutoMigrate(&User{})
 	db.AutoMigrate(&Cron{})
 
-	return func(c *gin.Context) {
-		c.Set("db", db)
-		c.Next()
-	}
+	return db
 }

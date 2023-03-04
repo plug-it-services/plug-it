@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
 	"github.com/plug-it-services/plug-it/middlewares"
 	"github.com/plug-it-services/plug-it/models"
 	"github.com/plug-it-services/plug-it/rabbitmq"
@@ -27,19 +28,15 @@ func initRequest() {
 	}
 }
 
-func initGin() {
+func initGin(db *gorm.DB) {
 	r := gin.Default()
 
 	r.Use(middlewares.CORSMiddleware())
 
-	viper_user := viper.Get("POSTGRES_USER")
-	viper_password := viper.Get("POSTGRES_PASSWORD")
-	viper_db := viper.Get("POSTGRES_DB")
-	viper_host := viper.Get("POSTGRES_HOST")
-	viper_port := viper.Get("POSTGRES_PORT")
-
-	conname := fmt.Sprintf("host=%v port=%v user=%v dbname=%v password=%v sslmode=disable", viper_host, viper_port, viper_user, viper_db, viper_password)
-	r.Use(models.SetupModels(conname))
+	r.Use(func(c *gin.Context) {
+		c.Set("db", db)
+		c.Next()
+	})
 
 	routers.Router(r)
 
@@ -55,7 +52,7 @@ func initViper() {
 	viper.ReadInConfig()
 }
 
-func initRabbitmq(RabbitMQService *rabbitmq.RabbitMQService) {
+func initRabbitmq(db *gorm.DB, RabbitMQService *rabbitmq.RabbitMQService) {
 	err := RabbitMQService.CreateQueue("plug_event_etherscan_initialize", "amq.direct")
 	if err != nil {
 		log.Fatal("Error when creating queue: ", err)
@@ -65,11 +62,15 @@ func initRabbitmq(RabbitMQService *rabbitmq.RabbitMQService) {
 		log.Fatal("Error when creating queue: ", err)
 	}
 
-	err = RabbitMQService.CreateConsumer("plug_event_etherscan_initialize", rabbitmq.EventConsumer)
+	err = RabbitMQService.CreateConsumer(db, "plug_event_etherscan_initialize", rabbitmq.EventInitializeConsumer)
 	if err != nil {
 		log.Fatal("Error when creating consumer: ", err)
 	}
-	err = RabbitMQService.CreateConsumer("plug_action_etherscan_triggers", rabbitmq.ActionConsumer)
+	err = RabbitMQService.CreateConsumer(db, "plug_action_etherscan_triggers", rabbitmq.ActionConsumer)
+	if err != nil {
+		log.Fatal("Error when creating consumer: ", err)
+	}
+	err = RabbitMQService.CreateConsumer(db, "plug_event_etherscan_disabled", rabbitmq.EventDisabledConsumer)
 	if err != nil {
 		log.Fatal("Error when creating consumer: ", err)
 	}
@@ -78,14 +79,23 @@ func initRabbitmq(RabbitMQService *rabbitmq.RabbitMQService) {
 func main() {
 	initViper()
 
+	viper_user := viper.Get("POSTGRES_USER")
+	viper_password := viper.Get("POSTGRES_PASSWORD")
+	viper_db := viper.Get("POSTGRES_DB")
+	viper_host := viper.Get("POSTGRES_HOST")
+	viper_port := viper.Get("POSTGRES_PORT")
+
+	conname := fmt.Sprintf("host=%v port=%v user=%v dbname=%v password=%v sslmode=disable", viper_host, viper_port, viper_user, viper_db, viper_password)
+	db := models.SetupModels(conname)
+
 	RabbitMQService, err := rabbitmq.New(viper.Get("RABBITMQ_URL").(string))
 	if err != nil {
 		log.Fatal("Error when connecting to RabbitMQ: ", err)
 	}
 	defer RabbitMQService.Close()
 
-	initRabbitmq(RabbitMQService)
+	initRabbitmq(db, RabbitMQService)
 
 	initRequest()
-	initGin()
+	initGin(db)
 }

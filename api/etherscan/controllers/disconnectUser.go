@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
 	"github.com/plug-it-services/plug-it/dto"
 	"github.com/plug-it-services/plug-it/services"
 	"github.com/spf13/viper"
@@ -13,6 +14,7 @@ import (
 
 func DisconnectUser(c *gin.Context) {
 	var user dto.UserDto
+	db := c.MustGet("db").(*gorm.DB)
 
 	err := json.Unmarshal([]byte(c.GetHeader("user")), &user)
 	if err != nil {
@@ -22,7 +24,7 @@ func DisconnectUser(c *gin.Context) {
 		return
 	}
 
-	err = services.DeleteUser(c, user.Id)
+	err = services.DeleteUser(db, user.Id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "internal server error",

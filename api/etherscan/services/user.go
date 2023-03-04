@@ -1,14 +1,11 @@
 package services
 
 import (
-	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"github.com/plug-it-services/plug-it/models"
 )
 
-func CreateUser(c *gin.Context, userId int, apiKey string) error {
-	db := c.MustGet("db").(*gorm.DB)
-
+func CreateUser(db *gorm.DB, userId int, apiKey string) error {
 	user := models.User{
 		ApiKey: apiKey,
 		Id:     userId,
@@ -20,9 +17,7 @@ func CreateUser(c *gin.Context, userId int, apiKey string) error {
 	return nil
 }
 
-func DeleteUser(c *gin.Context, id int) error {
-	db := c.MustGet("db").(*gorm.DB)
-
+func DeleteUser(db *gorm.DB, id int) error {
 	var user models.User
 	if err := db.First(&user, id).Error; err != nil {
 		return err
@@ -31,9 +26,7 @@ func DeleteUser(c *gin.Context, id int) error {
 	return nil
 }
 
-func FindUserById(c *gin.Context, id int) (models.User, error) {
-	db := c.MustGet("db").(*gorm.DB)
-
+func FindUserById(db *gorm.DB, id int) (models.User, error) {
 	var user models.User
 	if user := db.First(&user, id); user.Error != nil {
 		return models.User{}, user.Error

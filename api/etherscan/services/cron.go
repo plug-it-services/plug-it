@@ -1,14 +1,11 @@
 package services
 
 import (
-	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"github.com/plug-it-services/plug-it/models"
 )
 
-func CreateCron(c *gin.Context, userId int, id int) error {
-	db := c.MustGet("db").(*gorm.DB)
-
+func CreateCron(db *gorm.DB, userId int, id int) error {
 	cron := models.Cron{
 		UserId: userId,
 		Id:     id,
@@ -20,9 +17,7 @@ func CreateCron(c *gin.Context, userId int, id int) error {
 	return nil
 }
 
-func DeleteCron(c *gin.Context, id int) error {
-	db := c.MustGet("db").(*gorm.DB)
-
+func DeleteCron(db *gorm.DB, id int) error {
 	var cron models.Cron
 	if err := db.First(&cron, id).Error; err != nil {
 		return err
@@ -31,9 +26,7 @@ func DeleteCron(c *gin.Context, id int) error {
 	return nil
 }
 
-func FindCronById(c *gin.Context, id int) (models.Cron, error) {
-	db := c.MustGet("db").(*gorm.DB)
-
+func FindCronById(db *gorm.DB, id int) (models.Cron, error) {
 	var cron models.Cron
 	if cron := db.First(&cron, id); cron.Error != nil {
 		return models.Cron{}, cron.Error
