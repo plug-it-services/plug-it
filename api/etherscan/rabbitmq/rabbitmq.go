@@ -109,6 +109,7 @@ func (r *RabbitMQService) PublishEvent(queue string, eventId string, plugId stri
 		return err
 	}
 
+	log.Println("Publishing event to queue: " + `{"serviceName: "discord", "eventId":"` + eventId + `","plugId":"` + plugId + `","userId":` + strconv.Itoa(userId) + `,"variables":` + string(parsedVariables) + `}`)
 	err = r.PublishChannel.Publish(
 		"amq.direct",
 		queue,
