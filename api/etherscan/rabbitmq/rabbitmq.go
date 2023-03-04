@@ -2,6 +2,7 @@ package rabbitmq
 
 import (
 	"encoding/json"
+	"log"
 	"strconv"
 
 	"github.com/jinzhu/gorm"
@@ -9,15 +10,17 @@ import (
 )
 
 type RabbitMQService struct {
-	Conn *amqp.Connection
-	Ch   *amqp.Channel
+	Conn           *amqp.Connection
+	Ch             []*amqp.Channel
+	PublishChannel *amqp.Channel
 }
 
 type RabbitMQServiceInterface interface {
 	Close() error
-	CreateQueue(queue string, exchange string) error
+	CreateChannel() error
+	CreateQueue(ch *amqp.Channel, queue string, exchange string) error
 	PublishEvent(queue string, eventId string, plugId string, userId int, variables map[string]interface{}) error
-	CreateConsumer(db *gorm.DB, queue string, wow func(db *gorm.DB, rabbit *RabbitMQService, msg amqp.Delivery)) error
+	CreateConsumer(ch *amqp.Channel, db *gorm.DB, queue string, wow func(db *gorm.DB, rabbit *RabbitMQService, msg amqp.Delivery)) error
 }
 
 func New(uri string) (*RabbitMQService, error) {
@@ -32,13 +35,22 @@ func New(uri string) (*RabbitMQService, error) {
 	}
 
 	return &RabbitMQService{
-		Conn: conn,
-		Ch:   ch,
+		Conn:           conn,
+		PublishChannel: ch,
 	}, nil
 }
 
-func (r *RabbitMQService) CreateConsumer(db *gorm.DB, queue string, wow func(db *gorm.DB, rabbit *RabbitMQService, msg amqp.Delivery)) error {
-	msgs, err := r.Ch.Consume(
+func (r *RabbitMQService) CreateChannel() (*amqp.Channel, error) {
+	ch, err := r.Conn.Channel()
+	if err != nil {
+		return &amqp.Channel{}, err
+	}
+	r.Ch = append(r.Ch, ch)
+	return ch, nil
+}
+
+func (r *RabbitMQService) CreateConsumer(ch *amqp.Channel, db *gorm.DB, queue string, wow func(db *gorm.DB, rabbit *RabbitMQService, msg amqp.Delivery)) error {
+	msgs, err := ch.Consume(
 		queue,
 		"",
 		true,
@@ -59,8 +71,8 @@ func (r *RabbitMQService) CreateConsumer(db *gorm.DB, queue string, wow func(db 
 	return nil
 }
 
-func (r *RabbitMQService) CreateQueue(queue string, exchange string) error {
-	q, err := r.Ch.QueueDeclare(
+func (r *RabbitMQService) CreateQueue(ch *amqp.Channel, queue string, exchange string) error {
+	q, err := ch.QueueDeclare(
 		queue,
 		true,
 		false,
@@ -71,7 +83,7 @@ func (r *RabbitMQService) CreateQueue(queue string, exchange string) error {
 	if err != nil {
 		return err
 	}
-	err = r.Ch.QueueBind(q.Name, queue, "amq.direct", false, nil)
+	err = ch.QueueBind(q.Name, queue, "amq.direct", false, nil)
 	if err != nil {
 		return err
 	}
@@ -79,8 +91,11 @@ func (r *RabbitMQService) CreateQueue(queue string, exchange string) error {
 }
 
 func (r *RabbitMQService) Close() error {
-	if err := r.Ch.Close(); err != nil {
-		return err
+	log.Println("Closing RabbitMQ connection")
+	for _, ch := range r.Ch {
+		if err := ch.Close(); err != nil {
+			return err
+		}
 	}
 	if err := r.Conn.Close(); err != nil {
 		return err
@@ -94,7 +109,7 @@ func (r *RabbitMQService) PublishEvent(queue string, eventId string, plugId stri
 		return err
 	}
 
-	err = r.Ch.Publish(
+	err = r.PublishChannel.Publish(
 		"amq.direct",
 		queue,
 		false,

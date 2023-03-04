@@ -53,29 +53,36 @@ func initViper() {
 }
 
 func initRabbitmq(db *gorm.DB, RabbitMQService *rabbitmq.RabbitMQService) {
-	err := RabbitMQService.CreateQueue("plug_event_etherscan_initialize", "amq.direct")
+	ch1, err := RabbitMQService.CreateChannel()
 	if err != nil {
+		log.Fatal("Error when creating channel: ", err)
+	}
+	ch2, err := RabbitMQService.CreateChannel()
+	if err != nil {
+		log.Fatal("Error when creating channel: ", err)
+	}
+	ch3, err := RabbitMQService.CreateChannel()
+	if err != nil {
+		log.Fatal("Error when creating channel: ", err)
+	}
+
+	if err := RabbitMQService.CreateQueue(ch1, "plug_event_etherscan_initialize", "amq.direct"); err != nil {
 		log.Fatal("Error when creating queue: ", err)
 	}
-	err = RabbitMQService.CreateQueue("plug_action_etherscan_triggers", "amq.direct")
-	if err != nil {
+	if err := RabbitMQService.CreateQueue(ch2, "plug_action_etherscan_triggers", "amq.direct"); err != nil {
 		log.Fatal("Error when creating queue: ", err)
 	}
-	err = RabbitMQService.CreateQueue("plug_event_etherscan_disabled", "amq.direct")
-	if err != nil {
+	if err := RabbitMQService.CreateQueue(ch3, "plug_event_etherscan_disabled", "amq.direct"); err != nil {
 		log.Fatal("Error when creating queue: ", err)
 	}
 
-	err = RabbitMQService.CreateConsumer(db, "plug_event_etherscan_initialize", rabbitmq.EventInitializeConsumer)
-	if err != nil {
+	if err := RabbitMQService.CreateConsumer(ch1, db, "plug_event_etherscan_initialize", rabbitmq.EventInitializeConsumer); err != nil {
 		log.Fatal("Error when creating consumer: ", err)
 	}
-	err = RabbitMQService.CreateConsumer(db, "plug_action_etherscan_triggers", rabbitmq.ActionConsumer)
-	if err != nil {
+	if err := RabbitMQService.CreateConsumer(ch2, db, "plug_action_etherscan_triggers", rabbitmq.ActionConsumer); err != nil {
 		log.Fatal("Error when creating consumer: ", err)
 	}
-	err = RabbitMQService.CreateConsumer(db, "plug_event_etherscan_disabled", rabbitmq.EventDisabledConsumer)
-	if err != nil {
+	if err := RabbitMQService.CreateConsumer(ch3, db, "plug_event_etherscan_disabled", rabbitmq.EventDisabledConsumer); err != nil {
 		log.Fatal("Error when creating consumer: ", err)
 	}
 }
@@ -96,7 +103,7 @@ func main() {
 	if err != nil {
 		log.Fatal("Error when connecting to RabbitMQ: ", err)
 	}
-	// defer RabbitMQService.Close()
+	defer RabbitMQService.Close()
 
 	initRabbitmq(db, RabbitMQService)
 
