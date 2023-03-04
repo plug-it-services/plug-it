@@ -31,17 +31,15 @@ type EventDisabledMessage struct {
 	EventId string `json:"eventId"`
 }
 
-func CreateCronJob(spec string, callback func(rabbit *RabbitMQService, user models.User, plugId string, eventId string, data string), rabbit *RabbitMQService, user models.User, plugId string, eventId string, data string) (cron.EntryID, error) {
-	s := cron.New()
-
-	id, err := s.AddFunc(spec, func() {
+func CreateCronJob(cr *cron.Cron, spec string, callback func(rabbit *RabbitMQService, user models.User, plugId string, eventId string, data string), rabbit *RabbitMQService, user models.User, plugId string, eventId string, data string) (cron.EntryID, error) {
+	id, err := cr.AddFunc(spec, func() {
 		callback(rabbit, user, plugId, eventId, data)
 	})
 	if err != nil {
 		return -1, err
 	}
 
-	s.Start()
+	cr.Start()
 
 	log.Println("Cron job created", id)
 
@@ -91,7 +89,7 @@ func EventCallback(rabbit *RabbitMQService, user models.User, plugId string, eve
 	}
 }
 
-func EventInitializeConsumer(db *gorm.DB, rabbit *RabbitMQService, msg amqp.Delivery) {
+func EventInitializeConsumer(cr *cron.Cron, db *gorm.DB, rabbit *RabbitMQService, msg amqp.Delivery) {
 	log.Println("Event Received", string(msg.Body))
 	var data EventMessage
 
@@ -112,7 +110,7 @@ func EventInitializeConsumer(db *gorm.DB, rabbit *RabbitMQService, msg amqp.Deli
 	case "lowerGasPrice":
 		gasPrice := findInsideFields(data, "gasPrice")
 
-		id, err := CreateCronJob("*/5 * * * *", EventCallback, rabbit, user, data.PlugId, data.EventId, gasPrice)
+		id, err := CreateCronJob(cr, "*/5 * * * *", EventCallback, rabbit, user, data.PlugId, data.EventId, gasPrice)
 		if err != nil {
 			log.Println("Error creating cron job", err)
 			msg.Ack(true)
@@ -129,7 +127,7 @@ func EventInitializeConsumer(db *gorm.DB, rabbit *RabbitMQService, msg amqp.Deli
 	msg.Ack(true)
 }
 
-func EventDisabledConsumer(db *gorm.DB, rabbit *RabbitMQService, msg amqp.Delivery) {
+func EventDisabledConsumer(cr *cron.Cron, db *gorm.DB, rabbit *RabbitMQService, msg amqp.Delivery) {
 	log.Println("Event disabled received", string(msg.Body))
 	var data EventDisabledMessage
 
@@ -146,9 +144,9 @@ func EventDisabledConsumer(db *gorm.DB, rabbit *RabbitMQService, msg amqp.Delive
 		return
 	}
 
-	log.Println("Cron job delete", c, cron.EntryID(c.CronId))
+	log.Println("Cron job delete", cron.EntryID(c.CronId))
 
-	cron.New().Remove(cron.EntryID(c.CronId))
+	cr.Remove(cron.EntryID(c.CronId))
 
 	if err := services.DeleteCron(db, c.Id); err != nil {
 		log.Println("Error deleting cron job", err)
@@ -158,7 +156,7 @@ func EventDisabledConsumer(db *gorm.DB, rabbit *RabbitMQService, msg amqp.Delive
 	msg.Ack(true)
 }
 
-func ActionConsumer(db *gorm.DB, rabbit *RabbitMQService, msg amqp.Delivery) {
+func ActionConsumer(cr *cron.Cron, db *gorm.DB, rabbit *RabbitMQService, msg amqp.Delivery) {
 	log.Println("Action received", string(msg.Body))
 
 	msg.Ack(true)

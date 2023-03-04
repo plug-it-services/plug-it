@@ -15,6 +15,7 @@ import (
 	"github.com/plug-it-services/plug-it/routers"
 	"github.com/plug-it-services/plug-it/services"
 	"github.com/spf13/viper"
+	"gopkg.in/robfig/cron.v2"
 )
 
 func initRequest() {
@@ -53,7 +54,7 @@ func initViper() {
 	viper.ReadInConfig()
 }
 
-func initRabbitmq(db *gorm.DB, RabbitMQService *rabbitmq.RabbitMQService) {
+func initRabbitmq(cr *cron.Cron, db *gorm.DB, RabbitMQService *rabbitmq.RabbitMQService) {
 	ch1, err := RabbitMQService.CreateChannel()
 	if err != nil {
 		log.Fatal("Error when creating channel: ", err)
@@ -77,18 +78,18 @@ func initRabbitmq(db *gorm.DB, RabbitMQService *rabbitmq.RabbitMQService) {
 		log.Fatal("Error when creating queue: ", err)
 	}
 
-	if err := RabbitMQService.CreateConsumer(ch1, db, "plug_event_etherscan_initialize", rabbitmq.EventInitializeConsumer); err != nil {
+	if err := RabbitMQService.CreateConsumer(cr, ch1, db, "plug_event_etherscan_initialize", rabbitmq.EventInitializeConsumer); err != nil {
 		log.Fatal("Error when creating consumer: ", err)
 	}
-	if err := RabbitMQService.CreateConsumer(ch2, db, "plug_action_etherscan_triggers", rabbitmq.ActionConsumer); err != nil {
+	if err := RabbitMQService.CreateConsumer(cr, ch2, db, "plug_action_etherscan_triggers", rabbitmq.ActionConsumer); err != nil {
 		log.Fatal("Error when creating consumer: ", err)
 	}
-	if err := RabbitMQService.CreateConsumer(ch3, db, "plug_event_etherscan_disabled", rabbitmq.EventDisabledConsumer); err != nil {
+	if err := RabbitMQService.CreateConsumer(cr, ch3, db, "plug_event_etherscan_disabled", rabbitmq.EventDisabledConsumer); err != nil {
 		log.Fatal("Error when creating consumer: ", err)
 	}
 }
 
-func startAllCronJobs(db *gorm.DB, rabbit *rabbitmq.RabbitMQService) {
+func startAllCronJobs(cr *cron.Cron, db *gorm.DB, rabbit *rabbitmq.RabbitMQService) {
 	crons, err := services.GetAllCrons(db)
 	if err != nil {
 		log.Fatal("Error when getting crons: ", err)
@@ -100,7 +101,7 @@ func startAllCronJobs(db *gorm.DB, rabbit *rabbitmq.RabbitMQService) {
 			log.Println("Error when finding user: ", err)
 			continue
 		}
-		id, err := rabbitmq.CreateCronJob("*/5 * * * *", rabbitmq.EventCallback, rabbit, user, cron.PlugId, cron.EventId, cron.Data)
+		id, err := rabbitmq.CreateCronJob(cr, "*/5 * * * *", rabbitmq.EventCallback, rabbit, user, cron.PlugId, cron.EventId, cron.Data)
 		if err != nil {
 			log.Println("Error when creating cron job: ", err)
 			continue
@@ -130,8 +131,10 @@ func main() {
 	}
 	defer RabbitMQService.Close()
 
-	initRabbitmq(db, RabbitMQService)
-	startAllCronJobs(db, RabbitMQService)
+	cr := cron.New()
+
+	initRabbitmq(cr, db, RabbitMQService)
+	startAllCronJobs(cr, db, RabbitMQService)
 
 	initRequest()
 	initGin(db)

@@ -7,6 +7,7 @@ import (
 
 	"github.com/jinzhu/gorm"
 	amqp "github.com/rabbitmq/amqp091-go"
+	"gopkg.in/robfig/cron.v2"
 )
 
 type RabbitMQService struct {
@@ -20,7 +21,7 @@ type RabbitMQServiceInterface interface {
 	CreateChannel() error
 	CreateQueue(ch *amqp.Channel, queue string, exchange string) error
 	PublishEvent(queue string, eventId string, plugId string, userId int, variables map[string]interface{}) error
-	CreateConsumer(ch *amqp.Channel, db *gorm.DB, queue string, wow func(db *gorm.DB, rabbit *RabbitMQService, msg amqp.Delivery)) error
+	CreateConsumer(cr *cron.Cron, ch *amqp.Channel, db *gorm.DB, queue string, wow func(cr *cron.Cron, db *gorm.DB, rabbit *RabbitMQService, msg amqp.Delivery)) error
 }
 
 func New(uri string) (*RabbitMQService, error) {
@@ -49,7 +50,7 @@ func (r *RabbitMQService) CreateChannel() (*amqp.Channel, error) {
 	return ch, nil
 }
 
-func (r *RabbitMQService) CreateConsumer(ch *amqp.Channel, db *gorm.DB, queue string, wow func(db *gorm.DB, rabbit *RabbitMQService, msg amqp.Delivery)) error {
+func (r *RabbitMQService) CreateConsumer(cr *cron.Cron, ch *amqp.Channel, db *gorm.DB, queue string, wow func(cr *cron.Cron, db *gorm.DB, rabbit *RabbitMQService, msg amqp.Delivery)) error {
 	msgs, err := ch.Consume(
 		queue,
 		"",
@@ -65,7 +66,7 @@ func (r *RabbitMQService) CreateConsumer(ch *amqp.Channel, db *gorm.DB, queue st
 
 	go func() {
 		for msg := range msgs {
-			wow(db, r, msg)
+			wow(cr, db, r, msg)
 		}
 	}()
 	return nil
