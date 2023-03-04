@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"strconv"
+	"time"
 
 	"github.com/jinzhu/gorm"
 	"github.com/plug-it-services/plug-it/etherscan"
@@ -54,8 +55,8 @@ func CreateCronJob(cr *cron.Cron, spec string, callback func(rabbit *RabbitMQSer
 	return id, nil
 }
 
-func findInsideFields(event EventMessage, key string) string {
-	for _, field := range event.Fields {
+func findInsideFields(fields []Value, key string) string {
+	for _, field := range fields {
 		if field.Key == key {
 			return field.Value
 		}
@@ -116,7 +117,7 @@ func EventInitializeConsumer(cr *cron.Cron, db *gorm.DB, rabbit *RabbitMQService
 
 	switch data.EventId {
 	case "lowerGasPrice":
-		gasPrice := findInsideFields(data, "gasPrice")
+		gasPrice := findInsideFields(data.Fields, "gasPrice")
 
 		id, err := CreateCronJob(cr, "*/5 * * * *", EventCallback, rabbit, user, data.PlugId, data.EventId, gasPrice)
 		if err != nil {
@@ -194,6 +195,44 @@ func ActionConsumer(cr *cron.Cron, db *gorm.DB, rabbit *RabbitMQService, msg amq
 		variables = append(variables, Value{
 			Key:   "gasPrice",
 			Value: strconv.Itoa(gasPrice),
+		})
+	case "blockNumber":
+		blockNumber, err := etherscan.GetBlockNumber(user.ApiKey, strconv.Itoa(int(time.Now().Unix())))
+		if err != nil {
+			log.Println("Error getting block number", err)
+			msg.Ack(true)
+			return
+		}
+		variables = append(variables, Value{
+			Key:   "blockNumber",
+			Value: blockNumber,
+		})
+	case "totalSupply":
+		contractAddress := findInsideFields(data.Fields, "contractAddress")
+
+		totalSupply, err := etherscan.GetTotalSupply(user.ApiKey, contractAddress)
+		if err != nil {
+			log.Println("Error getting total supply", err)
+			msg.Ack(true)
+			return
+		}
+		variables = append(variables, Value{
+			Key:   "totalSupply",
+			Value: totalSupply,
+		})
+	case "balance":
+		contractAddress := findInsideFields(data.Fields, "contractAddress")
+		address := findInsideFields(data.Fields, "address")
+
+		balance, err := etherscan.GetBalance(user.ApiKey, contractAddress, address)
+		if err != nil {
+			log.Println("Error getting balance", err)
+			msg.Ack(true)
+			return
+		}
+		variables = append(variables, Value{
+			Key:   "balance",
+			Value: balance,
 		})
 	default:
 		log.Println("Event not supported", data.ActionId)
