@@ -151,7 +151,7 @@ class _StatePlugCard extends State<PlugCard>{
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Text("Last activation: dd/mm/yyyy"),
+                            const Text("Enabled: ", style: PlugItStyle.subtitleStyle),
                             //const SizedBox(height: 0,),
                             Checkbox(value: widget.plug.enabled, onChanged: (value) {
                               setState(() {

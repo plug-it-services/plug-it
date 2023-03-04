@@ -194,16 +194,16 @@ class PlugEditState extends State<PlugEdit> {
         children: [
 
           const SizedBox(height: 20,),
-          (name == null && widget.selectedPlug != null)
-              ? const SizedBox(height: 0,)
-              : InputField(
+          (name != null && widget.selectedPlug != null)
+              ? InputField(
                 hint: "Enter Plug Name",
                 value: name,
                 onChanged: (value) {
                   plugEdited!.name = value;
                   name = value;
               },
-          ),
+            )
+            : const SizedBox(height: 0,),
           (widget.selectedPlug == null)
               ? InputField(
                   hint: "Enter Plug Name",
