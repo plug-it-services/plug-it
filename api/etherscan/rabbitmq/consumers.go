@@ -85,14 +85,14 @@ func EventInitializeConsumer(db *gorm.DB, rabbit *RabbitMQService, msg amqp.Deli
 
 	if err := json.Unmarshal(msg.Body, &data); err != nil {
 		log.Println("Error unmarshalling event message", err)
-		msg.Ack(false)
+		msg.Ack(true)
 		return
 	}
 
 	user, err := services.FindUserById(db, data.UserId)
 	if err != nil {
 		log.Println("Error finding user", err)
-		msg.Ack(false)
+		msg.Ack(true)
 		return
 	}
 
@@ -103,28 +103,28 @@ func EventInitializeConsumer(db *gorm.DB, rabbit *RabbitMQService, msg amqp.Deli
 		id, err := createCronJob("*/5 * * * *", eventCallback, rabbit, user, data.PlugId, data.EventId, gasPrice)
 		if err != nil {
 			log.Println("Error creating cron job", err)
-			msg.Ack(false)
+			msg.Ack(true)
 			return
 		}
 		if err := services.CreateCron(db, data.UserId, int(id)); err != nil {
 			log.Println("Error saving cron job", err)
-			msg.Ack(false)
+			msg.Ack(true)
 			return
 		}
 	default:
 		log.Println("Event not supported", data.EventId)
 	}
-	msg.Ack(false)
+	msg.Ack(true)
 }
 
 func EventDisabledConsumer(db *gorm.DB, rabbit *RabbitMQService, msg amqp.Delivery) {
 	log.Println("Event disabled received", string(msg.Body))
 
-	msg.Ack(false)
+	msg.Ack(true)
 }
 
 func ActionConsumer(db *gorm.DB, rabbit *RabbitMQService, msg amqp.Delivery) {
 	log.Println("Action received", string(msg.Body))
 
-	msg.Ack(false)
+	msg.Ack(true)
 }

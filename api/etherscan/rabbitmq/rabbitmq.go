@@ -53,7 +53,7 @@ func (r *RabbitMQService) CreateConsumer(ch *amqp.Channel, db *gorm.DB, queue st
 	msgs, err := ch.Consume(
 		queue,
 		"",
-		true,
+		false,
 		false,
 		false,
 		false,
@@ -65,9 +65,7 @@ func (r *RabbitMQService) CreateConsumer(ch *amqp.Channel, db *gorm.DB, queue st
 
 	go func() {
 		for msg := range msgs {
-			log.Println("Received a message: ", string(msg.Body))
 			wow(db, r, msg)
-			log.Println("Done")
 		}
 	}()
 	return nil
