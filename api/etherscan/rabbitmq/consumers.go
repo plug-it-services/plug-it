@@ -3,6 +3,7 @@ package rabbitmq
 import (
 	"encoding/json"
 	"log"
+	"strconv"
 
 	"github.com/jinzhu/gorm"
 	"github.com/plug-it-services/plug-it/etherscan"
@@ -20,10 +21,10 @@ type EventMessageData struct {
 }
 
 type LowerGasPriceFields struct {
-	GasPrice int `json:"gasPrice"`
+	GasPrice string `json:"gasPrice"`
 }
 
-func createCronJob(spec string, callback func(rabbit *RabbitMQService, user models.User, plugId string, eventId string, data int), rabbit *RabbitMQService, user models.User, plugId string, eventId string, data int) (cron.EntryID, error) {
+func createCronJob(spec string, callback func(rabbit *RabbitMQService, user models.User, plugId string, eventId string, data string), rabbit *RabbitMQService, user models.User, plugId string, eventId string, data string) (cron.EntryID, error) {
 	s := cron.New()
 
 	id, err := s.AddFunc(spec, func() {
@@ -38,7 +39,7 @@ func createCronJob(spec string, callback func(rabbit *RabbitMQService, user mode
 	return id, nil
 }
 
-func eventCallback(rabbit *RabbitMQService, user models.User, plugId string, eventId string, data int) {
+func eventCallback(rabbit *RabbitMQService, user models.User, plugId string, eventId string, data string) {
 	log.Println("event triggered", user.ApiKey, plugId, eventId, data)
 
 	switch eventId {
@@ -50,13 +51,18 @@ func eventCallback(rabbit *RabbitMQService, user models.User, plugId string, eve
 			return
 		}
 
-		if gasPrice < data {
+		expectedGasPrice, err := strconv.Atoi(data)
+		if err != nil {
+			log.Println("Error converting gas price", err)
+			return
+		}
+		if gasPrice < expectedGasPrice {
 			log.Println("Gas price is lower than expected", gasPrice, data)
 		}
 
 		rabbit.PublishEvent("plugs_events", eventId, plugId, user.Id, map[string]interface{}{
 			"key":   "gasPrice",
-			"value": gasPrice,
+			"value": strconv.Itoa(gasPrice),
 		})
 	default:
 		log.Println("Event not supported", eventId)

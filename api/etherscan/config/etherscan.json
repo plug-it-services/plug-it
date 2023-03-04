@@ -11,7 +11,7 @@
             "variables": [
               {
                 "key": "gasPrice",
-                "type": "number",
+                "type": "string",
                 "displayName": "Gas Price",
                 "description": "The gas price to trigger the event"
               }
@@ -19,7 +19,7 @@
             "fields": [
               {
                 "key": "gasPrice",
-                "type": "number",
+                "type": "string",
                 "displayName": "Gas Price",
                 "description": "The gas price to trigger the event",
                 "required": true
@@ -35,7 +35,7 @@
         "variables": [
           {
             "key": "gasPrice",
-            "type": "number",
+            "type": "string",
             "displayName": "Gas Price",
             "description": "The current gas price"
           }
