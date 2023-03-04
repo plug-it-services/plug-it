@@ -117,7 +117,7 @@
           {
             "key": "blockNumber",
             "type": "string",
-            "displayName": "Block Numnber",
+            "displayName": "Block Number",
             "description": "The current block number"
           }
         ],
