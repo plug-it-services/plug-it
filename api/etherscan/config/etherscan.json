@@ -5,33 +5,43 @@
     "color": "#01E6CD",
     "events": [
         {
-            "id": "command",
-            "name": "Command",
-            "description": "Trigger when a command is sent like !hello",
+            "id": "lowerGasPrice",
+            "name": "Lower Gas Price",
+            "description": "Trigger when the gas price is lower than the specified value",
             "variables": [
               {
-                "key": "message_id",
-                "type": "string",
-                "displayName": "Message ID",
-                "description": "The ID of the message that used the command"
-              },
-              {
-                "key": "author_id",
-                "type": "string",
-                "displayName": "Author ID",
-                "description": "The ID of the user that used the command"
+                "key": "gasPrice",
+                "type": "number",
+                "displayName": "Gas Price",
+                "description": "The gas price to trigger the event"
               }
             ],
             "fields": [
               {
-                "key": "command",
-                "type": "string",
-                "displayName": "Command",
-                "description": "The command that will trigger the event",
+                "key": "gasPrice",
+                "type": "number",
+                "displayName": "Gas Price",
+                "description": "The gas price to trigger the event",
                 "required": true
               }
             ]
         }
     ],
-    "actions": []
+    "actions": [
+      {
+        "id": "gasPrice",
+        "name": "Gas Price",
+        "description": "Get the current gas price",
+        "variables": [
+          {
+            "key": "gasPrice",
+            "type": "number",
+            "displayName": "Gas Price",
+            "description": "The current gas price"
+          }
+        ],
+        "fields": [
+        ]
+    }
+    ]
 }

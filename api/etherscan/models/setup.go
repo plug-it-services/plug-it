@@ -14,6 +14,7 @@ func SetupModels(connection string) gin.HandlerFunc {
 		log.Panic("Failed to connect to database!")
 	}
 	db.AutoMigrate(&User{})
+	db.AutoMigrate(&Cron{})
 
 	return func(c *gin.Context) {
 		c.Set("db", db)
