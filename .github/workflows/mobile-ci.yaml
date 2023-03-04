@@ -1,6 +1,9 @@
 name: Mobile-ci
 
 on:
+  push:
+    paths: ["mobile/**"]
+    branches: ["master", "dev"]
   pull_request:
     paths: ["mobile/**"]
     branches: ["master", "dev"]
@@ -11,10 +14,6 @@ defaults:
 
 jobs:
   build-ios:
-    strategy:
-      matrix:
-        device:
-          - "iPhone 14 Simulator (16.0)"
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
@@ -22,8 +21,8 @@ jobs:
         run: "xcrun xctrace list devices"
       - name: "Start Simulator"
         run: |
-          UDID=$(xcrun xctrace list devices | grep "^${{ matrix.device }} (" | awk '{gsub(/[()]/,""); print $NF}')
-          echo $UDID
+          UDID=$(xcrun xctrace list devices | grep -E "^iPhone 14 Simulator \(16\.[0-9]*\) \(" | awk '{gsub(/[()]/,""); print $NF}')
+          echo "id = $UDID"
           xcrun simctl boot "${UDID:?No Simulator with this name found}"
       - uses: subosito/flutter-action@v2
         with:
@@ -33,7 +32,7 @@ jobs:
       - run: flutter pub get
       - run: flutter build ios --release --no-codesign
       - run: |
-          UDID=$(xcrun xctrace list devices | grep "^${{ matrix.device }} (" | awk '{gsub(/[()]/,""); print $NF}')
+          UDID=$(xcrun xctrace list devices | grep -E "^iPhone 14 Simulator \(16\.[0-9]*\) \(" | awk '{gsub(/[()]/,""); print $NF}')
           flutter test integration_test -d ${UDID}
 
   build-android:
