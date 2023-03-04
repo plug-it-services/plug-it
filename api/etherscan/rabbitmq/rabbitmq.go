@@ -103,13 +103,13 @@ func (r *RabbitMQService) Close() error {
 	return nil
 }
 
-func (r *RabbitMQService) PublishEvent(queue string, eventId string, plugId string, userId int, variables map[string]interface{}) error {
+func (r *RabbitMQService) PublishEvent(queue string, eventId string, plugId string, userId int, variables []Value) error {
 	parsedVariables, err := json.Marshal(variables)
 	if err != nil {
 		return err
 	}
 
-	log.Println("Publishing event to queue: " + `{"serviceName: "discord", "eventId":"` + eventId + `","plugId":"` + plugId + `","userId":` + strconv.Itoa(userId) + `,"variables":` + string(parsedVariables) + `}`)
+	log.Println(`{"serviceName": "discord", "eventId":"` + eventId + `","plugId":"` + plugId + `","userId":` + strconv.Itoa(userId) + `,"variables":` + string(parsedVariables) + `}`)
 	err = r.PublishChannel.Publish(
 		"amq.direct",
 		queue,
@@ -117,7 +117,7 @@ func (r *RabbitMQService) PublishEvent(queue string, eventId string, plugId stri
 		false,
 		amqp.Publishing{
 			ContentType: "application/json",
-			Body:        []byte(`{"serviceName: "discord", "eventId":"` + eventId + `","plugId":"` + plugId + `","userId":` + strconv.Itoa(userId) + `,"variables":` + string(parsedVariables) + `}`),
+			Body:        []byte(`{"serviceName": "discord", "eventId":"` + eventId + `","plugId":"` + plugId + `","userId":` + strconv.Itoa(userId) + `,"variables":` + string(parsedVariables) + `}`),
 		},
 	)
 	if err != nil {

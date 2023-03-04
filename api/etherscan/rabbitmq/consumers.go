@@ -13,14 +13,16 @@ import (
 	"gopkg.in/robfig/cron.v2"
 )
 
+type Value struct {
+	Key   string `json:"key"`
+	Value string `json:"value"`
+}
+
 type EventMessage struct {
-	PlugId  string `json:"plugId"`
-	UserId  int    `json:"userId"`
-	EventId string `json:"eventId"`
-	Fields  []struct {
-		Key   string `json:"key"`
-		Value string `json:"value"`
-	} `json:"fields"`
+	PlugId  string  `json:"plugId"`
+	UserId  int     `json:"userId"`
+	EventId string  `json:"eventId"`
+	Fields  []Value `json:"fields"`
 }
 
 func createCronJob(spec string, callback func(rabbit *RabbitMQService, user models.User, plugId string, eventId string, data string), rabbit *RabbitMQService, user models.User, plugId string, eventId string, data string) (cron.EntryID, error) {
@@ -66,9 +68,11 @@ func eventCallback(rabbit *RabbitMQService, user models.User, plugId string, eve
 		}
 		if gasPrice < expectedGasPrice {
 			log.Println("Gas price is lower than expected", gasPrice, data)
-			err := rabbit.PublishEvent("plugs_events", eventId, plugId, user.Id, map[string]interface{}{
-				"key":   "gasPrice",
-				"value": strconv.Itoa(gasPrice),
+			err := rabbit.PublishEvent("plugs_events", eventId, plugId, user.Id, []Value{
+				{
+					Key:   "gasPrice",
+					Value: strconv.Itoa(gasPrice),
+				},
 			})
 			if err != nil {
 				log.Println("Error publishing event", err)
