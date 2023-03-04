@@ -195,6 +195,12 @@ export const authService = async (service: Service, key: string): Promise<boolea
     apiKey: key,
   });
 
+export const authServiceSecret = async (service: Service, key: string, clientSecret: string): Promise<boolean> =>
+  makeRequest('post', `/service/${service.name}/clientSecrets`, {
+    clientId: key,
+    clientSecret,
+  });
+
 export const disconnectService = async (service: Service): Promise<boolean> =>
   makeRequest('post', `/service/${service.name}/disconnect`, {});
 
