@@ -61,6 +61,10 @@ func initRabbitmq(db *gorm.DB, RabbitMQService *rabbitmq.RabbitMQService) {
 	if err != nil {
 		log.Fatal("Error when creating queue: ", err)
 	}
+	err = RabbitMQService.CreateQueue("plug_event_etherscan_disabled", "amq.direct")
+	if err != nil {
+		log.Fatal("Error when creating queue: ", err)
+	}
 
 	err = RabbitMQService.CreateConsumer(db, "plug_event_etherscan_initialize", rabbitmq.EventInitializeConsumer)
 	if err != nil {
