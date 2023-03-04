@@ -1,0 +1,179 @@
+{
+    "name": "etherscan",
+    "authType": "apiKey",
+    "icon": "/images/etherscan_icon.png",
+    "color": "#01E6CD",
+    "events": [
+        {
+            "id": "lowerGasPrice",
+            "name": "Lower Gas Price",
+            "description": "Trigger when the gas price is lower than the specified value",
+            "variables": [
+              {
+                "key": "gasPrice",
+                "type": "string",
+                "displayName": "Gas Price",
+                "description": "The gas price to trigger the event"
+              }
+            ],
+            "fields": [
+              {
+                "key": "gasPrice",
+                "type": "string",
+                "displayName": "Gas Price",
+                "description": "The gas price to trigger the event",
+                "required": true
+              }
+            ]
+        },
+        {
+          "id": "higherTotalSupply",
+          "name": "Higher Total Supply",
+          "description": "Trigger when the total supply of a token is higher than the specified value",
+          "variables": [
+            {
+              "key": "totalSupply",
+              "type": "string",
+              "displayName": "Total Supply",
+              "description": "The total supply to trigger the event"
+            }
+          ],
+          "fields": [
+            {
+              "key": "totalSupply",
+              "type": "string",
+              "displayName": "Total Supply",
+              "description": "The total supply to trigger the event",
+              "required": true
+            }
+          ]
+      },
+      {
+        "id": "lowerTotalSupply",
+        "name": "Lower Total Supply",
+        "description": "Trigger when the total supply of a token is lower than the specified value",
+        "variables": [
+          {
+            "key": "totalSupply",
+            "type": "string",
+            "displayName": "Total Supply",
+            "description": "The total supply to trigger the event"
+          }
+        ],
+        "fields": [
+          {
+            "key": "totalSupply",
+            "type": "string",
+            "displayName": "Total Supply",
+            "description": "The total supply to trigger the event",
+            "required": true
+          }
+        ]
+    },
+    {
+      "id": "equalTotalSupply",
+      "name": "Equal Total Supply",
+      "description": "Trigger when the total supply of a token is equal to the specified value",
+      "variables": [
+        {
+          "key": "totalSupply",
+          "type": "string",
+          "displayName": "Total Supply",
+          "description": "The total supply to trigger the event"
+        }
+      ],
+      "fields": [
+        {
+          "key": "totalSupply",
+          "type": "string",
+          "displayName": "Total Supply",
+          "description": "The total supply to trigger the event",
+          "required": true
+        }
+      ]
+  }
+    ],
+    "actions": [
+      {
+        "id": "gasPrice",
+        "name": "Gas Price",
+        "description": "Get the current gas price",
+        "variables": [
+          {
+            "key": "gasPrice",
+            "type": "string",
+            "displayName": "Gas Price",
+            "description": "The current gas price"
+          }
+        ],
+        "fields": [
+        ]
+      },
+      {
+        "id": "blockNumber",
+        "name": "Block Number",
+        "description": "Get the current block number",
+        "variables": [
+          {
+            "key": "blockNumber",
+            "type": "string",
+            "displayName": "Block Number",
+            "description": "The current block number"
+          }
+        ],
+        "fields": [
+        ]
+      },
+      {
+        "id": "totalSupply",
+        "name": "Total Supply",
+        "description": "Get the current total supply of a token",
+        "variables": [
+          {
+            "key": "totalSupply",
+            "type": "string",
+            "displayName": "Total Supply",
+            "description": "The current total supply of a token"
+          }
+        ],
+        "fields": [
+          {
+            "key": "contractAddress",
+            "type": "string",
+            "displayName": "Contract Address",
+            "description": "The contract address of the token",
+            "required": true
+          }
+        ]
+      },
+      {
+        "id": "balance",
+        "name": "Balance",
+        "description": "Get the current balance of an address",
+        "variables": [
+          {
+            "key": "balance",
+            "type": "string",
+            "displayName": "Balance",
+            "description": "The current balance of an address"
+          }
+        ],
+        "fields": [
+          {
+            "key": "contractAddress",
+            "type": "string",
+            "displayName": "Contract Address",
+            "description": "The contract address of the token",
+            "required": true
+          },
+          {
+            "key": "address",
+            "type": "string",
+            "displayName": "Address",
+            "description": "The address to get the balance of",
+            "required": true
+          }
+        ]
+      }
+    ]
+}
