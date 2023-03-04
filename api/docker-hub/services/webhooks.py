@@ -31,6 +31,11 @@ class WebhooksService:
         with Session(self.conn) as session:
             stmt = sqlalchemy.select(Webhook).where(Webhook.user_id == user_id)
             return session.scalars(stmt).first()
+    
+    def get_all_by_user_id(self, user_id: int):
+        with Session(self.conn) as session:
+            stmt = sqlalchemy.select(Webhook).where(Webhook.user_id == user_id)
+            return session.scalars(stmt)
 
     def get_by_plug_id(self, plug_id: str):
         with Session(self.conn) as session:

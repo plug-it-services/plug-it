@@ -67,11 +67,12 @@ class AppController:
         if connection is None:
             app.logger.info("User {0} is not connected to Docker Hub.".format(user['id']))
             return {'message': 'not connected'}, 404
-        webhooks = webhooks_service.get_by_user_id(user['id'])
-        for webhook in webhooks:
-            app.logger.info("Deleting webhook {0} for user {1}...".format(webhook.slug, user['id']))
-            hub_service.delete_webhook(connection.username, 'plug-it', webhook.slug, connection.jwt)
-            webhooks_service.delete(webhook.id)
+        webhooks = webhooks_service.get_all_by_user_id(user['id'])
+        if webhooks is not None:
+            for webhook in webhooks:
+                app.logger.info("Deleting webhook {0} for user {1}...".format(webhook.slug, user['id']))
+                hub_service.delete_webhook(connection.username, 'plug-it', webhook.slug, connection.jwt)
+                webhooks_service.delete(webhook.id)
         connections_service.delete(user['id'])
         app.logger.info("Disconnected user {0} from Docker Hub. Notifying plugs service...".format(user['id']))
         response = requests.post(os.environ.get('PLUGS_SERVICE_LOGGED_OUT_URL'), json={
