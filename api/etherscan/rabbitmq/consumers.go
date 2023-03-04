@@ -13,12 +13,13 @@ import (
 	"gopkg.in/robfig/cron.v2"
 )
 
-type LowerGasPriceFields struct {
+type EventMessage struct {
 	PlugId  string `json:"plugId"`
 	UserId  int    `json:"userId"`
 	EventId string `json:"eventId"`
-	Fields  struct {
-		GasPrice string `json:"gasPrice"`
+	Fields  []struct {
+		Key   string `json:"key"`
+		Value string `json:"value"`
 	} `json:"fields"`
 }
 
@@ -35,6 +36,15 @@ func createCronJob(spec string, callback func(rabbit *RabbitMQService, user mode
 	s.Start()
 
 	return id, nil
+}
+
+func findInsideFields(event EventMessage) string {
+	for _, field := range event.Fields {
+		if field.Key == "gasPrice" {
+			return field.Value
+		}
+	}
+	return ""
 }
 
 func eventCallback(rabbit *RabbitMQService, user models.User, plugId string, eventId string, data string) {
@@ -69,7 +79,7 @@ func eventCallback(rabbit *RabbitMQService, user models.User, plugId string, eve
 
 func EventInitializeConsumer(db *gorm.DB, rabbit *RabbitMQService, msg amqp.Delivery) {
 	log.Println("Event Received", string(msg.Body))
-	var data LowerGasPriceFields
+	var data EventMessage
 
 	if err := json.Unmarshal(msg.Body, &data); err != nil {
 		log.Println("Error unmarshalling event message", err)
@@ -86,7 +96,9 @@ func EventInitializeConsumer(db *gorm.DB, rabbit *RabbitMQService, msg amqp.Deli
 
 	switch data.EventId {
 	case "lowerGasPrice":
-		id, err := createCronJob("*/5 * * * * *", eventCallback, rabbit, user, data.PlugId, data.EventId, data.Fields.GasPrice)
+		gasPrice := findInsideFields(data)
+
+		id, err := createCronJob("*/5 * * * * *", eventCallback, rabbit, user, data.PlugId, data.EventId, gasPrice)
 		if err != nil {
 			log.Println("Error creating cron job", err)
 			msg.Ack(false)
