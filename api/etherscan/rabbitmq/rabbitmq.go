@@ -136,6 +136,8 @@ func (r *RabbitMQService) PublishAction(queue string, actionId string, runId str
 		return err
 	}
 
+	log.Println(`{"serviceName": "etherscan", "actionId":"` + actionId + `","plugId":"` + plugId + `","runId":"` + runId + `","userId":` + strconv.Itoa(userId) + `,"variables":` + string(parsedVariables) + `}`)
+
 	err = r.PublishChannel.Publish(
 		"amq.direct",
 		queue,
@@ -143,7 +145,7 @@ func (r *RabbitMQService) PublishAction(queue string, actionId string, runId str
 		false,
 		amqp.Publishing{
 			ContentType: "application/json",
-			Body:        []byte(`{"serviceName": "etherscan", "actionId":"` + actionId + `","plugId":"` + plugId + `","userId":` + strconv.Itoa(userId) + `,"variables":` + string(parsedVariables) + `}`),
+			Body:        []byte(`{"serviceName": "etherscan", "actionId":"` + actionId + `","plugId":"` + plugId + `","runId":"` + runId + `","userId":` + strconv.Itoa(userId) + `,"variables":` + string(parsedVariables) + `}`),
 		},
 	)
 	if err != nil {
