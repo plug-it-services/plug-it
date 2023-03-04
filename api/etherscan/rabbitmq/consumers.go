@@ -43,12 +43,14 @@ func CreateCronJob(spec string, callback func(rabbit *RabbitMQService, user mode
 
 	s.Start()
 
+	log.Println("Cron job created", id)
+
 	return id, nil
 }
 
-func findInsideFields(event EventMessage) string {
+func findInsideFields(event EventMessage, key string) string {
 	for _, field := range event.Fields {
-		if field.Key == "gasPrice" {
+		if field.Key == key {
 			return field.Value
 		}
 	}
@@ -108,7 +110,7 @@ func EventInitializeConsumer(db *gorm.DB, rabbit *RabbitMQService, msg amqp.Deli
 
 	switch data.EventId {
 	case "lowerGasPrice":
-		gasPrice := findInsideFields(data)
+		gasPrice := findInsideFields(data, "gasPrice")
 
 		id, err := CreateCronJob("*/5 * * * *", EventCallback, rabbit, user, data.PlugId, data.EventId, gasPrice)
 		if err != nil {
