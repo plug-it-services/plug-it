@@ -9,12 +9,15 @@ import {
   InternalServerErrorException,
   Body,
   ValidationPipe,
+  Param,
 } from '@nestjs/common';
 import UserHeaderDto from '../dto/UserHeader.dto';
 import { ConfigService } from '@nestjs/config';
 import { DriveAuthService } from '../services/driveAuth.service';
 import axios from 'axios';
 import Oauth2StartDto from '../dto/Oauth2Start.dto';
+import { WebHookService } from '../services/webhook.service';
+import { AmqpService } from '../services/amqp.service';
 
 @Controller('public')
 export class AppController {
@@ -23,6 +26,8 @@ export class AppController {
   constructor(
     private githubAuthService: DriveAuthService,
     private configService: ConfigService,
+    private webhookService: WebHookService,
+    private amqpService: AmqpService,
   ) {
     this.frontendUrl = this.configService.getOrThrow<string>(
       'FRONTEND_SERVICES_PAGE_URL',
@@ -111,5 +116,32 @@ export class AppController {
     );
 
     res.redirect(redirectUrl);
+  }
+
+  @Post(':uuid')
+  async triggerWebhook(
+    @Param('uuid') webhookId: string,
+    @Headers('X-Goog-Resource-ID') resourceId: string,
+    @Headers('X-Goog-Resource-State') resourceState: string,
+  ) {
+    if (resourceState === 'sync') {
+      this.logger.log(`Ignoring sync event`);
+      return;
+    }
+    const webhook = await this.webhookService.getWebhookById(webhookId);
+
+    if (!webhook) {
+      this.logger.error(`Webhook ${webhookId} not found`);
+      return;
+    }
+
+    this.logger.log(`Webhook ${webhookId} triggered`);
+    await this.amqpService.publishEvent(
+      webhook.eventId,
+      webhook.plugId,
+      webhook.userId,
+      [{ key: 'fileId', value: resourceId }],
+    );
+    this.logger.log(`Webhook ${webhookId} event published`);
   }
 }

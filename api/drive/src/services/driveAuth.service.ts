@@ -66,6 +66,7 @@ export class DriveAuthService {
     );
     return oauth2Client.generateAuthUrl({
       access_type: 'offline',
+      prompt: 'consent',
       scope: 'https://www.googleapis.com/auth/drive',
       state,
     });
@@ -83,6 +84,7 @@ export class DriveAuthService {
       this.callbackUrl,
     );
     const { tokens } = await oauth2Client.getToken(code);
+    this.logger.debug(`Successfully fetched access token`, tokens);
     return tokens;
   }
 
@@ -118,7 +120,7 @@ export class DriveAuthService {
     return auth.refreshToken;
   }
 
-  async disconnect(userId: number) {
+  async getLoggedClient(userId: number) {
     const oauth2Client = new google.auth.OAuth2(
       this.clientId,
       this.clientSecret,
@@ -127,8 +129,10 @@ export class DriveAuthService {
     oauth2Client.setCredentials({
       refresh_token: await this.getRefreshToken(userId),
     });
+    return oauth2Client;
+  }
 
-    await oauth2Client.revokeCredentials();
+  async disconnect(userId: number) {
     await this.driveAuthRepository.delete({ userId });
   }
 }

@@ -5,6 +5,12 @@ import { AmqpConnection, RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import { AppController } from './controllers/app.controller';
 import { DriveAuthService } from './services/driveAuth.service';
 import { DriveAuthEntity } from './schemas/driveAuth.entity';
+import DriveChangesService from './services/driveChanges.service';
+import FileActionsService from './services/fileActions.service';
+import { WebHookService } from './services/webhook.service';
+import { WebHookEntity } from './schemas/webhook.entity';
+import { ListenerController } from './controllers/listen.controller';
+import { AmqpService } from './services/amqp.service';
 
 @Module({
   imports: [
@@ -21,11 +27,11 @@ import { DriveAuthEntity } from './schemas/driveAuth.entity';
           database: configService.get<string>('POSTGRES_DB'),
           // TODO need to remove it in production
           synchronize: true,
-          entities: [DriveAuthEntity],
+          entities: [DriveAuthEntity, WebHookEntity],
         };
       },
     }),
-    TypeOrmModule.forFeature([DriveAuthEntity]),
+    TypeOrmModule.forFeature([DriveAuthEntity, WebHookEntity]),
     RabbitMQModule.forRootAsync(RabbitMQModule, {
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
@@ -42,8 +48,14 @@ import { DriveAuthEntity } from './schemas/driveAuth.entity';
       },
     }),
   ],
-  controllers: [AppController],
-  providers: [DriveAuthService],
+  controllers: [AppController, ListenerController],
+  providers: [
+    DriveAuthService,
+    DriveChangesService,
+    FileActionsService,
+    WebHookService,
+    AmqpService,
+  ],
 })
 export class AppModule {
   constructor(

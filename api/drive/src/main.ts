@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
-import github from './config/github.config';
+import github from './config/drive.config';
 import axios from 'axios';
 
 async function bootstrap() {
