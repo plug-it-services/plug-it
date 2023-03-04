@@ -88,6 +88,10 @@ class _PlugsState extends State<Plugs> {
       services = value;
       if (widget.selectedPlug != null) {
           _createOrEditPlug(widget.selectedPlug);
+      } else {
+        setState(() {
+          selectedPlug = null;
+        });
       }
     }));
     super.initState();

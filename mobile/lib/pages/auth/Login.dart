@@ -89,7 +89,12 @@ class _LoginState extends State<Login> {
           widget.onLogged(User(id:"", email:username, username: username, token:PlugApi.token ?? ""))
       ).catchError((error) {
         setState(() {
-          this.error = error.response.data['message'];
+          if (error.response.data is String) {
+            this.error = error.response.data;
+          }
+          else {
+            this.error = error.response.data['message'];
+          }
         });
       });
   }
@@ -190,6 +195,7 @@ class _LoginState extends State<Login> {
                   // LOGIN INPUT
                   ...getMailError(),
                   InputField(
+                      key: const ValueKey("loginEmailField"),
                       hint: "Email or Username",
                       onChanged: (value) => {username = value},
                       onChangedFocus: (value) => checkEmail(),
@@ -203,6 +209,7 @@ class _LoginState extends State<Login> {
                   // PASSWORD INPUT
                   ...getPasswordError(),
                   InputField(
+                      key: const ValueKey("loginPasswordField"),
                       hint: "Password",
                       obscured: true,
                       onChanged: (value) => password = value,
@@ -215,11 +222,24 @@ class _LoginState extends State<Login> {
                   const SizedBox(height: 25),
 
                   //Sign in button
-                  ScreenWidthButton(label: "Sign In", size: 20, callback: onSign),
+                  ScreenWidthButton(
+                      key: const ValueKey("loginSignButton"),
+                      label: "Sign In",
+                      size: 20,
+                      callback: onSign
+                  ),
                   const SizedBox(height: 15),
-                  ScreenWidthButton(label: "No account? Register!", size: 20, callback: widget.onChangeToRegisterPressed),
+                  ScreenWidthButton(
+                      key: const ValueKey("loginGoToRegisterButton"),
+                      label: "No account? Register!",
+                      size: 20,
+                      callback: widget.onChangeToRegisterPressed
+                  ),
                   const SizedBox(height: 15),
-                  GoogleAuthButton(callback: onGoogleAuth),
+                  GoogleAuthButton(
+                      key: const ValueKey("loginGoogleButton"),
+                      callback: onGoogleAuth
+                  ),
                   Row(
                     children: [
                       const Text("Remember me:", style: PlugItStyle.smallStyle),

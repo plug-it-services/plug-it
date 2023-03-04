@@ -40,7 +40,6 @@ class _StateEventMenu extends State<EventMenu>{
   void getEvents()
   {
     if (widget.selectedService != null && events.isEmpty) {
-      print("Fetching events");
       if (!widget.isTrigger) {
         PlugApi.getServiceActions(widget.selectedService!.name).then((events)
         {
@@ -53,8 +52,6 @@ class _StateEventMenu extends State<EventMenu>{
           _setEvents(events ?? [])
         });
       }
-    } else {
-      print("Already have '${events.length}' events ...");
     }
   }
 

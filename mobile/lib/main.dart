@@ -49,7 +49,8 @@ class StateMyApp extends State<MyApp> {
       darkTheme: ThemeData.dark(),
       themeMode: modes[index],
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primaryTextTheme: Typography().white,
+
       ),
       home: MyHomePage(
           title: 'Plug It',

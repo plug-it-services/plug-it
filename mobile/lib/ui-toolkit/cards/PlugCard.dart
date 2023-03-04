@@ -27,6 +27,11 @@ class _StatePlugCard extends State<PlugCard>{
     int idx = 0;
 
     for (String icon in widget.plug.icons) {
+      if (icon.startsWith('/')) {
+        icon = '${PlugApi.assetsUrl}$icon';
+      } else {
+        icon = '${PlugApi.assetsUrl}/$icon';
+      }
       if (idx >= 4 && widget.plug.icons.length > 5) {
         break;
       }
@@ -42,7 +47,7 @@ class _StatePlugCard extends State<PlugCard>{
         child: Padding(
           padding: EdgeInsets.all(5),
           child: CachedNetworkImage(
-            imageUrl: "${PlugApi.assetsUrl}/$icon",
+            imageUrl: icon,
             placeholder: (context, url) => const CircularProgressIndicator(),
             errorWidget: (context, url, error) => const Icon(Icons.error, color: Colors.black),
             width: 20,
@@ -105,6 +110,7 @@ class _StatePlugCard extends State<PlugCard>{
         });
       }
     });
+    super.initState();
   }
 
   @override
