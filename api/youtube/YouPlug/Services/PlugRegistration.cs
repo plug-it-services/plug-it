@@ -34,10 +34,10 @@ namespace YouPlug.Services
                 new List<PlugDataDto.PlugVariable>()
                 {
                     new ("channelTitle", PlugDataDto.VariableType.String, "Channel Title", "The title of the channel that published the video"),
-                    new ("channelId", PlugDataDto.VariableType.String, "Channel ID", "The ID of the channel that published the video"),
-                    new ("videoTitle", PlugDataDto.VariableType.String, "Video Title", "The published video title"),
-                    new ("videoId", PlugDataDto.VariableType.String, "Video ID", "The ID of the published video"),
-                    new ("videoDescription", PlugDataDto.VariableType.String, "Video Description", "The description of the published video"),
+                    new ("channelId", PlugDataDto.VariableType.String, "Stream ID", "The ID of the channel that published the video"),
+                    new ("streamTitle", PlugDataDto.VariableType.String, "Stream Title", "The published video title"),
+                    new ("streamId", PlugDataDto.VariableType.String, "Stream ID", "The ID of the published video"),
+                    new ("streamDescription", PlugDataDto.VariableType.String, "Video Description", "The description of the published video"),
                 },
                 new List<PlugDataDto.PlugField>() { }
             );
@@ -50,9 +50,9 @@ namespace YouPlug.Services
                 {
                     new ("channelTitle", PlugDataDto.VariableType.String, "Channel Title", "The title of the channel that published the stream"),
                     new ("channelId", PlugDataDto.VariableType.String, "Channel ID", "The ID of the channel that published the stream"),
-                    new ("videoTitle", PlugDataDto.VariableType.String, "Video Title", "The published stream title"),
-                    new ("videoId", PlugDataDto.VariableType.String, "Video ID", "The ID of the published stream"),
-                    new ("videoDescription", PlugDataDto.VariableType.String, "Video Description", "The description of the published stream"),
+                    new ("streamTitle", PlugDataDto.VariableType.String, "Stream Title", "The published stream title"),
+                    new ("streamId", PlugDataDto.VariableType.String, "Stream ID", "The ID of the published stream"),
+                    new ("streamDescription", PlugDataDto.VariableType.String, "Stream Description", "The description of the published stream"),
                 },
                 new List<PlugDataDto.PlugField>()
                 {
@@ -68,9 +68,9 @@ namespace YouPlug.Services
                 {
                     new ("channelTitle", PlugDataDto.VariableType.String, "Channel Title", "The title of the channel that published the stream"),
                     new ("channelId", PlugDataDto.VariableType.String, "Channel ID", "The ID of the channel that published the stream"),
-                    new ("videoTitle", PlugDataDto.VariableType.String, "Video Title", "The published stream title"),
-                    new ("videoId", PlugDataDto.VariableType.String, "Video ID", "The ID of the published stream"),
-                    new ("videoDescription", PlugDataDto.VariableType.String, "Video Description", "The description of the published stream"),
+                    new ("streamTitle", PlugDataDto.VariableType.String, "Stream Title", "The published stream title"),
+                    new ("streamId", PlugDataDto.VariableType.String, "Stream ID", "The ID of the published stream"),
+                    new ("streamDescription", PlugDataDto.VariableType.String, "Stream Description", "The description of the published stream"),
                 },
                 new List<PlugDataDto.PlugField>() { }
             );
@@ -83,9 +83,9 @@ namespace YouPlug.Services
                 {
                     new ("channelTitle", PlugDataDto.VariableType.String, "Channel Title", "The title of the channel that published the upcoming stream"),
                     new ("channelId", PlugDataDto.VariableType.String, "Channel ID", "The ID of the channel that published the upcoming stream"),
-                    new ("videoTitle", PlugDataDto.VariableType.String, "Video Title", "The published upcoming stream title"),
-                    new ("videoId", PlugDataDto.VariableType.String, "Video ID", "The ID of the published upcoming stream"),
-                    new ("videoDescription", PlugDataDto.VariableType.String, "Video Description", "The description of the published upcoming stream"),
+                    new ("streamTitle", PlugDataDto.VariableType.String, "Stream Title", "The published upcoming stream title"),
+                    new ("streamId", PlugDataDto.VariableType.String, "Stream ID", "The ID of the published upcoming stream"),
+                    new ("streamDescription", PlugDataDto.VariableType.String, "Stream Description", "The description of the published upcoming stream"),
                 },
                 new List<PlugDataDto.PlugField>()
                 {
@@ -101,9 +101,9 @@ namespace YouPlug.Services
                 {
                     new ("channelTitle", PlugDataDto.VariableType.String, "Channel Title", "The title of the channel that published the upcoming stream"),
                     new ("channelId", PlugDataDto.VariableType.String, "Channel ID", "The ID of the channel that published the upcoming stream"),
-                    new ("videoTitle", PlugDataDto.VariableType.String, "Video Title", "The published upcoming stream title"),
-                    new ("videoId", PlugDataDto.VariableType.String, "Video ID", "The ID of the published upcoming stream"),
-                    new ("videoDescription", PlugDataDto.VariableType.String, "Video Description", "The description of the published upcoming stream"),
+                    new ("streamTitle", PlugDataDto.VariableType.String, "Stream Title", "The published upcoming stream title"),
+                    new ("streamId", PlugDataDto.VariableType.String, "Stream ID", "The ID of the published upcoming stream"),
+                    new ("streamDescription", PlugDataDto.VariableType.String, "Stream Description", "The description of the published upcoming stream"),
                 },
                 new List<PlugDataDto.PlugField>() { }
             );

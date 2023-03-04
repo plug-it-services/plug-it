@@ -585,7 +585,7 @@ namespace YouPlug.Services
                 return;
             }
 
-            FireEvent("newUpcomingStreamFromChannel", model.plugId, model.userId, new Variable[] {
+            FireEvent("newUpcomingFromChannel", model.plugId, model.userId, new Variable[] {
                 new Variable() { key = "channelTitle", value = streamDto.ChannelTitle },
                 new Variable() { key = "channelId", value = streamDto.ChannelId },
                 new Variable() { key = "streamTitle", value = streamDto.Title },
@@ -602,7 +602,7 @@ namespace YouPlug.Services
                 return;
             }
 
-            FireEvent("newUpcomingStreamFromMyChannel", model.plugId, model.userId, new Variable[] {
+            FireEvent("newUpcomingFromMyChannel", model.plugId, model.userId, new Variable[] {
                 new Variable() { key = "channelTitle", value = streamDto.ChannelTitle },
                 new Variable() { key = "channelId", value = streamDto.ChannelId },
                 new Variable() { key = "streamTitle", value = streamDto.Title },
