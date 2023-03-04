@@ -40,6 +40,13 @@ func DisconnectUser(c *gin.Context) {
 		return
 	}
 
+	if err := services.DeleteAllCronByUserId(db, user.Id); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "internal server error",
+		})
+		return
+	}
+
 	_, err = http.Post(viper.Get("PLUGS_SERVICE_LOGGED_OUT_URL").(string), "application/json", bytes.NewBuffer(requestBody))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{

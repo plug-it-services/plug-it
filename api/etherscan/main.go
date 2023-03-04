@@ -13,6 +13,7 @@ import (
 	"github.com/plug-it-services/plug-it/models"
 	"github.com/plug-it-services/plug-it/rabbitmq"
 	"github.com/plug-it-services/plug-it/routers"
+	"github.com/plug-it-services/plug-it/services"
 	"github.com/spf13/viper"
 )
 
@@ -87,6 +88,30 @@ func initRabbitmq(db *gorm.DB, RabbitMQService *rabbitmq.RabbitMQService) {
 	}
 }
 
+func startAllCronJobs(db *gorm.DB, rabbit *rabbitmq.RabbitMQService) {
+	crons, err := services.GetAllCrons(db)
+	if err != nil {
+		log.Fatal("Error when getting crons: ", err)
+	}
+
+	for _, cron := range crons {
+		user, err := services.FindUserById(db, cron.UserId)
+		if err != nil {
+			log.Println("Error when finding user: ", err)
+			continue
+		}
+		id, err := rabbitmq.CreateCronJob("*/5 * * * *", rabbitmq.EventCallback, rabbit, user, cron.PlugId, cron.EventId, cron.Data)
+		if err != nil {
+			log.Println("Error when creating cron job: ", err)
+			continue
+		}
+		if err := services.UpdateCronId(db, cron.Id, int(id)); err != nil {
+			log.Println("Error when updating cron id: ", err)
+			continue
+		}
+	}
+}
+
 func main() {
 	initViper()
 
@@ -106,6 +131,7 @@ func main() {
 	defer RabbitMQService.Close()
 
 	initRabbitmq(db, RabbitMQService)
+	startAllCronJobs(db, RabbitMQService)
 
 	initRequest()
 	initGin(db)

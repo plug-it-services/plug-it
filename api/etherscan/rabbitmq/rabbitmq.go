@@ -97,6 +97,9 @@ func (r *RabbitMQService) Close() error {
 			return err
 		}
 	}
+	if err := r.PublishChannel.Close(); err != nil {
+		return err
+	}
 	if err := r.Conn.Close(); err != nil {
 		return err
 	}
@@ -109,7 +112,6 @@ func (r *RabbitMQService) PublishEvent(queue string, eventId string, plugId stri
 		return err
 	}
 
-	log.Println(`{"serviceName": "discord", "eventId":"` + eventId + `","plugId":"` + plugId + `","userId":` + strconv.Itoa(userId) + `,"variables":` + string(parsedVariables) + `}`)
 	err = r.PublishChannel.Publish(
 		"amq.direct",
 		queue,
@@ -117,7 +119,7 @@ func (r *RabbitMQService) PublishEvent(queue string, eventId string, plugId stri
 		false,
 		amqp.Publishing{
 			ContentType: "application/json",
-			Body:        []byte(`{"serviceName": "discord", "eventId":"` + eventId + `","plugId":"` + plugId + `","userId":` + strconv.Itoa(userId) + `,"variables":` + string(parsedVariables) + `}`),
+			Body:        []byte(`{"serviceName": "etherscan", "eventId":"` + eventId + `","plugId":"` + plugId + `","userId":` + strconv.Itoa(userId) + `,"variables":` + string(parsedVariables) + `}`),
 		},
 	)
 	if err != nil {
