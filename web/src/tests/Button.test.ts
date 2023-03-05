@@ -8,3 +8,24 @@ describe('Plug Button', () => {
     expect(screen.getByText('Click me')).toBeInTheDocument();
   });
 });
+
+describe('Plug Color Button', () => {
+  it('renders with the correct text', () => {
+    render(Button({ text: 'Color Click', color: 'primary' }));
+    expect(screen.getByText('Color Click')).toBeInTheDocument();
+  });
+});
+
+describe('Plug Color Rect Button', () => {
+  it('renders with the correct text', () => {
+    render(Button({ text: 'Rect Color Click', color: 'primary', buttonStyle: 'rectangle' }));
+    expect(screen.getByText('Rect Color Click')).toBeInTheDocument();
+  });
+});
+
+describe('Plug Color Circle Button', () => {
+  it('renders with the correct text', () => {
+    render(Button({ text: 'Circle Color Click', color: 'primary', buttonStyle: 'circle' }));
+    expect(screen.getByText('Circle Color Click')).toBeInTheDocument();
+  });
+});

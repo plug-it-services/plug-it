@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import AccountTile from '../components/AccountTile';
 import '@testing-library/jest-dom/extend-expect';
 
-describe('Plug AccountTile', () => {
+describe('Plug AccountTile Email', () => {
   it('renders with the correct text', () => {
     render(
       AccountTile({
@@ -14,5 +14,35 @@ describe('Plug AccountTile', () => {
       }),
     );
     expect(screen.getByText('tri@epitech.eu')).toBeInTheDocument();
+  });
+});
+
+describe('Plug AccountTile Name', () => {
+  it('renders with the correct text', () => {
+    render(
+      AccountTile({
+        name: 'Click me',
+        firstName: 'Click me',
+        id: 0,
+        email: 'tri@epitech.eu',
+        onDisconnect: () => {},
+      }),
+    );
+    expect(screen.getByText('Click me')).toBeInTheDocument();
+  });
+});
+
+describe('Plug AccountTile First Name', () => {
+  it('renders with the correct text', () => {
+    render(
+      AccountTile({
+        name: 'Click me',
+        firstName: 'Click me!',
+        id: 0,
+        email: 'tri@epitech.eu',
+        onDisconnect: () => {},
+      }),
+    );
+    expect(screen.getByText('Click me!')).toBeInTheDocument();
   });
 });
