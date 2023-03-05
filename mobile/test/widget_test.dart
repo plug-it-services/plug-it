@@ -333,7 +333,5 @@ void main() {
 
       expect(find.text('Doe'), findsOneWidget);
     });
-
-
   });
 }
