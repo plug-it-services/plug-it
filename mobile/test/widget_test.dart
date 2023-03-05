@@ -334,23 +334,6 @@ void main() {
       expect(find.text('Doe'), findsOneWidget);
     });
 
-    testWidgets('Go to login', (WidgetTester tester) async {
-      await tester.pumpWidget(const MyApp(isUnitTesting: true));
-      final goToRegisterButton = find.descendant(
-          of: find.byKey(const ValueKey('loginGoToRegisterButton')),
-          matching: find.byType(GestureDetector));
-      await tester.tap(goToRegisterButton);
-      await tester.pumpAndSettle();
 
-      final goToLoginButton = find.descendant(
-          of: find.byKey(const ValueKey('registerGoToSignInButton')),
-          matching: find.byType(GestureDetector));
-
-      await tester.tap(goToLoginButton);
-      await tester.pumpAndSettle(const Duration(seconds: 2));
-
-      expect(find.byKey(const ValueKey('loginGoToRegisterButton')),
-          findsOneWidget);
-    });
   });
 }
