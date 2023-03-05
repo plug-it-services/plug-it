@@ -43,30 +43,12 @@ To do this, you must implement a software suite that functions similar to that o
 
 ### Built With
 
-* [![React]](https://reactjs.org "React")  
-* [![Bootstrap]](https://getbootstrap.com "Bootstrap")  
-* [![.NET]](https://dotnet.microsoft.com ".NET")  
-* [![Docker]](https://www.docker.com "Docker")
-* [![Go]](https://golang.org "Go") 
-* [![PostgreSQL]](https://www.postgresql.org "PostgreSQL")
-* [![Python]](https://www.python.org "Python")
-* [![TypeScript]](https://www.typescriptlang.org "TypeScript")
-* [![Django]](https://www.djangoproject.com "Django")
-* [![Dart]](https://dart.dev "Dart") 
+[![React]](https://reactjs.org "React") &nbsp; [![Bootstrap]](https://getbootstrap.com "Bootstrap") &nbsp; [![.NET]](https://dotnet.microsoft.com ".NET") &nbsp; [![Docker]](https://www.docker.com "Docker") &nbsp; [![Go]](https://golang.org "Go") &nbsp; [![PostgreSQL]](https://www.postgresql.org "PostgreSQL") &nbsp; [![Python]](https://www.python.org "Python") &nbsp; [![TypeScript]](https://www.typescriptlang.org "TypeScript") &nbsp; [![Django]](https://www.djangoproject.com "Django") &nbsp; [![Dart]](https://dart.dev "Dart") 
 
 
 ### Supported Services
 
-* [![GitHub]](https://github.com "GitHub")
-* [![Discord]](https://discord.com "Discord")
-* [![Google Drive]](https://drive.google.com "Google Drive")
-* [![YouTube]](https://www.youtube.com "YouTube")
-* [![Twitter]](https://twitter.com "Twitter")
-* [![Starton]](https://starton.nl "Starton")
-* [![Docker Hub]](https://hub.docker.com "Docker Hub")
-* [![Outlook]](https://outlook.live.com "Outlook")
-* [![Etherscan]](https://etherscan.io "Etherscan")
-
+[![GitHub]](https://github.com "GitHub") &nbsp; [![Discord]](https://discord.com "Discord") &nbsp; [![Google Drive]](https://drive.google.com "Google Drive") &nbsp; [![YouTube]](https://www.youtube.com "YouTube") &nbsp; [![Twitter]](https://twitter.com "Twitter") &nbsp; [![Starton]](https://starton.nl "Starton") &nbsp; [![Docker Hub]](https://hub.docker.com "Docker Hub") &nbsp; [![Outlook]](https://outlook.live.com "Outlook") &nbsp; [![Etherscan]](https://etherscan.io "Etherscan")
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
