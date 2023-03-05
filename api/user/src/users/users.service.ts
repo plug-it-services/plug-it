@@ -40,7 +40,7 @@ export class UsersService {
     const promises = crsfTokens?.map((el) => {
       return this.crsfTokenRepository.delete(el.token);
     });
-    await Promise.all(promises);
+    await Promise.all(promises ?? []);
   }
 
   async saveCrsfToken(id: number, crsfToken: string): Promise<void> {

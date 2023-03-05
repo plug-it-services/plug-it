@@ -1,5 +1,5 @@
-import {Entity, Column, PrimaryGeneratedColumn, OneToMany} from 'typeorm';
-import {CrsfToken} from "./crsfToken.entity";
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { CrsfToken } from './crsfToken.entity';
 
 export type AuthType = 'sso' | 'basic';
 
