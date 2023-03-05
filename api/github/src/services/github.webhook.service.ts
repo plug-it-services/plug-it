@@ -1,8 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class GithubWebhookService {
+  constructor(private configService: ConfigService) {}
+
   async createRepoWebhook(
     repo: string,
     owner: string,
@@ -25,11 +28,24 @@ export class GithubWebhookService {
       active: true,
       events: events,
       config: {
-        url: 'https://api-area-dev.alexandrejublot.com/webhook/github/' + uuid,
+        url: this.configService.get<string>('OAUTH2_WEBHOOK') + '/' + uuid,
         content_type: 'json',
       },
     };
-    return await githubApi.post(url, data);
+    try {
+      return await githubApi.post(url, data);
+    } catch (error) {
+      if (error.response) {
+        console.log(error.response.data);
+        console.log(error.response.status);
+        console.log(error.response.headers);
+      } else if (error.request) {
+        console.log(error.request);
+      } else {
+        console.log('Error', error.message);
+      }
+      return null;
+    }
   }
 
   async deleteRepoWebhook(
@@ -92,11 +108,23 @@ export class GithubWebhookService {
       active: true,
       events: events,
       config: {
-        url: 'https://api-area-dev.alexandrejublot.com/webhook/github/' + uuid,
+        url: this.configService.get<string>('OAUTH2_WEBHOOK') + '/' + uuid,
         content_type: 'json',
       },
     };
-
-    return await githubApi.post(url, data);
+    try {
+      return await githubApi.post(url, data);
+    } catch (error) {
+      if (error.response) {
+        console.log(error.response.data);
+        console.log(error.response.status);
+        console.log(error.response.headers);
+      } else if (error.request) {
+        console.log(error.request);
+      } else {
+        console.log('Error', error.message);
+      }
+      return null;
+    }
   }
 }
