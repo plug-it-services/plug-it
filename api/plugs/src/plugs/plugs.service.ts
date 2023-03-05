@@ -420,11 +420,11 @@ export class PlugsService {
     return field;
   }
 
-  private async validateFieldWithVariables(
+  private validateFieldWithVariables(
     value: string,
     variables: Map<string, Variable[]>,
     field: Field,
-  ): Promise<boolean> {
+  ): boolean {
     let idx = value.indexOf('${');
     let found = false;
 
@@ -438,13 +438,13 @@ export class PlugsService {
         throw new HttpException('Invalid variable reference', 400);
       }
       const variable = value.substring(idx + 2, endIdx);
-      await this.validateVariableReference(variable, variables, field);
+      this.validateVariableReference(variable, variables, field);
       idx = value.indexOf('$', endIdx);
     }
     return found;
   }
 
-  private async validateVariableReference(
+  private validateVariableReference(
     variable: string,
     variables: Map<string, Variable[]>,
     field: Field,

@@ -3,6 +3,7 @@ import { PlugsService } from './plugs.service';
 import { getModelToken } from '@nestjs/mongoose';
 import { ServicesService } from '../services/services/services.service';
 import { HttpException } from '@nestjs/common';
+import { ElementType, Variable } from '../services/dto/InitializeRequest.dto';
 
 const PlugModel = {};
 const ServicesServiceValue = {};
@@ -30,6 +31,260 @@ describe('PlugsService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  describe('validateFieldWithVariables', () => {
+    beforeEach(() => {
+      jest.spyOn(service as any, 'validateVariableReference');
+    });
+
+    it('should not call validateVariableReference if not variable reference is present', () => {
+      const variables = new Map<string, Variable[]>();
+      variables.set('1', [
+        {
+          key: 'var1',
+          type: ElementType.STRING,
+          displayName: 'var1',
+          description: 'var1',
+        },
+      ]);
+      const field = {
+        key: 'field1',
+        type: ElementType.STRING,
+        displayName: 'field1',
+        required: false,
+      };
+
+      service['validateFieldWithVariables'](
+        'this is a value without variable references',
+        variables,
+        field,
+      );
+
+      expect(service['validateVariableReference']).not.toHaveBeenCalled();
+    });
+
+    it('should call validateVariableReference once if a single variable reference is present', () => {
+      const variables = new Map<string, Variable[]>();
+      variables.set('1', [
+        {
+          key: 'var1',
+          type: ElementType.STRING,
+          displayName: 'var1',
+          description: 'var1',
+        },
+      ]);
+      const field = {
+        key: 'field1',
+        type: ElementType.STRING,
+        displayName: 'field1',
+        required: false,
+      };
+
+      service['validateFieldWithVariables'](
+        'this is a ${1.var1} variable references',
+        variables,
+        field,
+      );
+
+      expect(service['validateVariableReference']).toHaveBeenCalledTimes(1);
+    });
+
+    it('should call validateVariableReference multiple times if multiple variable references are present', () => {
+      const variables = new Map<string, Variable[]>();
+      variables.set('1', [
+        {
+          key: 'var1',
+          type: ElementType.STRING,
+          displayName: 'var1',
+          description: 'var1',
+        },
+      ]);
+      const field = {
+        key: 'field1',
+        type: ElementType.STRING,
+        displayName: 'field1',
+        required: false,
+      };
+
+      service['validateFieldWithVariables'](
+        'this is a ${1.var1} ${1.var1} variable references',
+        variables,
+        field,
+      );
+
+      expect(service['validateVariableReference']).toHaveBeenCalledTimes(2);
+    });
+
+    it('should call validateVariableReference two times if variable references are collapsed', () => {
+      const variables = new Map<string, Variable[]>();
+      variables.set('1', [
+        {
+          key: 'var1',
+          type: ElementType.STRING,
+          displayName: 'var1',
+          description: 'var1',
+        },
+      ]);
+      const field = {
+        key: 'field1',
+        type: ElementType.STRING,
+        displayName: 'field1',
+        required: false,
+      };
+
+      service['validateFieldWithVariables'](
+        'this is a ${1.var1}${1.var1} variable references',
+        variables,
+        field,
+      );
+
+      expect(service['validateVariableReference']).toHaveBeenCalledTimes(2);
+    });
+
+    it('should call validateVariableReference once if a single variable reference is present at the beginning', () => {
+      const variables = new Map<string, Variable[]>();
+      variables.set('1', [
+        {
+          key: 'var1',
+          type: ElementType.STRING,
+          displayName: 'var1',
+          description: 'var1',
+        },
+      ]);
+      const field = {
+        key: 'field1',
+        type: ElementType.STRING,
+        displayName: 'field1',
+        required: false,
+      };
+
+      service['validateFieldWithVariables'](
+        '${1.var1} is a variable references',
+        variables,
+        field,
+      );
+
+      expect(service['validateVariableReference']).toHaveBeenCalledTimes(1);
+    });
+
+    it('should call validateVariableReference once if a single variable reference is present at the end', () => {
+      const variables = new Map<string, Variable[]>();
+      variables.set('1', [
+        {
+          key: 'var1',
+          type: ElementType.STRING,
+          displayName: 'var1',
+          description: 'var1',
+        },
+      ]);
+      const field = {
+        key: 'field1',
+        type: ElementType.STRING,
+        displayName: 'field1',
+        required: false,
+      };
+
+      service['validateFieldWithVariables'](
+        'is a variable references ${1.var1}',
+        variables,
+        field,
+      );
+
+      expect(service['validateVariableReference']).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('validateVariableReference', () => {
+    it('should not throw if the variable reference is valid', () => {
+      const variables = new Map<string, Variable[]>();
+      variables.set('1', [
+        {
+          key: 'var1',
+          type: ElementType.STRING,
+          displayName: 'var1',
+          description: 'var1',
+        },
+      ]);
+      const field = {
+        key: 'field1',
+        type: ElementType.STRING,
+        displayName: 'field1',
+        required: false,
+      };
+
+      try {
+        service['validateVariableReference']('1.var1', variables, field);
+      } catch (error) {
+        fail("Shouldn't throw an error");
+      }
+    });
+
+    it('should throw if the provider does not exists', () => {
+      const variables = new Map<string, Variable[]>();
+      variables.set('0', [
+        {
+          key: 'var1',
+          type: ElementType.STRING,
+          displayName: 'var1',
+          description: 'var1',
+        },
+      ]);
+      const field = {
+        key: 'field1',
+        type: ElementType.STRING,
+        displayName: 'field1',
+        required: false,
+      };
+
+      expect(() =>
+        service['validateVariableReference']('1.var1', variables, field),
+      ).toThrowError(HttpException);
+    });
+
+    it('should throw if the variable does not exists', () => {
+      const variables = new Map<string, Variable[]>();
+      variables.set('1', [
+        {
+          key: 'var1',
+          type: ElementType.STRING,
+          displayName: 'var1',
+          description: 'var1',
+        },
+      ]);
+      const field = {
+        key: 'field1',
+        type: ElementType.STRING,
+        displayName: 'field1',
+        required: false,
+      };
+
+      expect(() => {
+        service['validateVariableReference']('1.var2', variables, field);
+      }).toThrow(HttpException);
+    });
+
+    it('should throw if the type does not match', () => {
+      const variables = new Map<string, Variable[]>();
+      variables.set('0', [
+        {
+          key: 'var1',
+          type: ElementType.STRING,
+          displayName: 'var1',
+          description: 'var1',
+        },
+      ]);
+      const field = {
+        key: 'field1',
+        type: ElementType.NUMBER,
+        displayName: 'field1',
+        required: false,
+      };
+
+      expect(() => {
+        service['validateVariableReference']('1.var1', variables, field);
+      }).toThrow(HttpException);
+    });
   });
 
   describe('validateFieldType', () => {
@@ -78,10 +333,9 @@ describe('PlugsService', () => {
     });
 
     it('should throw if boolean type is invalid', () => {
-      try {
-        service['validateFieldType']('ok', 'boolean');
-        fail('Should throw an error');
-      } catch (error) {}
+      expect(() => service['validateFieldType']('ok', 'boolean')).toThrowError(
+        HttpException,
+      );
     });
   });
 });
