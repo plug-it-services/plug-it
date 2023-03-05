@@ -56,7 +56,7 @@ export default {
   name: 'drive',
   authType: 'oauth2',
   icon: '/images/drive_icon.png',
-  color: '#ffffff',
+  color: '#feba00',
   events: [
     {
       id: 'changesOnMyDrive',
