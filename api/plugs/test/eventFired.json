@@ -1,0 +1,1 @@
+{ "serviceName": "onedrive", "eventId": "folderCreated", "userId": 1, "variables": [{ "key":  "folderName", "value":  "titiToto"}]}

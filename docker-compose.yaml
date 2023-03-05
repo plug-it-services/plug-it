@@ -1,0 +1,661 @@
+version: "3.2"
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - ${RABBITMQ_UI_PORT}:15672
+      - 5672:5672
+    volumes:
+        - rabbit_data:/var/lib/rabbitmq/
+        - rabbit_logs:/var/log/rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBIT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBIT_PASSWORD}
+    networks:
+      - rabbit_network
+    depends_on:
+      - elk
+    healthcheck:
+      test: [ "CMD", "rabbitmqctl", "status"]
+      interval: 5s
+      timeout: 20s
+      retries: 5
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "rabbitmq"
+
+  elk:
+    image: sebp/elk
+    ports:
+      - ${KIBANA_UI_PORT}:5601
+      - ${LOGSTASH_INGEST_PORT}:12201/udp
+    volumes:
+      - ./logstash.conf:/etc/logstash/conf.d/30-output.conf
+      - elk_data:/var/lib/elasticsearch
+    networks:
+      - elk_network
+    environment:
+      - ES_JAVA_OPTS=-Xmx1g -Xms1g
+
+  client_mobile:
+    build: ./mobile
+    depends_on:
+      - client_web
+    volumes:
+      - client_data:/app
+
+  client_web:
+    build: ./web
+    depends_on:
+      - server
+    ports:
+      - ${CLIENT_PORT}:80
+    volumes:
+      - client_data:/mobile:ro
+
+  server:
+    image: traefik:latest
+    ports:
+      - ${SERVER_PORT}:80
+      - ${TRAEFIK_UI_PORT}:8080
+    networks:
+      - traefik_network
+    command:
+      - --api.insecure=true
+      - --providers.docker=true
+      - --log.level=DEBUG
+      - --providers.docker.network=${COMPOSE_PROJECT_NAME}_traefik_network
+      - --providers.docker.exposedbydefault=false
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "server"
+
+  ###################   MICROSERVICES  #######################
+
+  user:
+    build: ./api/user
+    networks:
+      - rabbit_network
+      - user_network
+      - traefik_network
+    labels:
+      - traefik.http.routers.users.rule=PathPrefix(`/auth`)
+      - traefik.http.routers.me.rule=Path(`/me`)
+      - traefik.http.middlewares.add-public.addprefix.prefix=/public
+      - traefik.http.middlewares.auth-replacepathregex.replacepathregex.regex=^/auth/(.*)
+      - traefik.http.middlewares.auth-replacepathregex.replacepathregex.replacement=/public/$$1
+      - traefik.http.routers.users.middlewares=auth-replacepathregex
+      - traefik.http.routers.me.middlewares=add-public
+      - traefik.enable=true
+    ports:
+      - ${USER_PORT}:80
+    depends_on:
+      - rabbitmq
+      - elk
+      - user-postgres
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "user"
+
+  user-postgres:
+    image: 'postgres:latest'
+    networks:
+      - user_network
+    env_file:
+      - ./api/user/.env
+    volumes:
+      - user_data:/var/lib/postgresql/data
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "user-postgres"
+
+
+  plugs-mongo:
+    image: mongo
+    restart: always
+    ports:
+      - 27017:27017
+    env_file:
+      - ./api/plugs/.env
+    volumes:
+      - plugs_mongo_data:/data/db
+    networks:
+      - plugs_network
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "plugs-mongo"
+
+  plugs:
+    build: ./api/plugs
+    networks:
+      - rabbit_network
+      - traefik_network
+      - plugs_network
+    labels:
+      - traefik.http.routers.plugs.rule=Path(`/services`) || PathPrefix(`/plugs`) || Path(`/service/{service:.*}/events`) || Path(`/service/{service:.*}/actions`)
+      - traefik.http.routers.about.rule=Path(`/about.json`)
+      - traefik.http.middlewares.add-public.addprefix.prefix=/public
+      - traefik.http.middlewares.test-auth.forwardauth.address=http://user/verify
+      - traefik.http.middlewares.test-auth.forwardauth.authResponseHeaders=user
+      - traefik.http.routers.plugs.middlewares=add-public, test-auth
+      - traefik.http.routers.about.middlewares=add-public
+      - traefik.enable=true
+    ports:
+      - ${PLUGS_PORT}:80
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      elk:
+        condition: service_started
+      plugs-mongo:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 5s
+      timeout: 20s
+      retries: 5
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "plugs"
+
+  twitter-postgres:
+    image: 'postgres:latest'
+    networks:
+      - twitter_network
+    env_file:
+      - ./api/twitter/.env
+    volumes:
+      - twitter_data:/var/lib/postgresql/data
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "twitter-potgres"
+
+  twitter:
+    build: ./api/twitter
+    networks:
+      - rabbit_network
+      - traefik_network
+      - twitter_network
+    labels:
+      - traefik.http.routers.twitter-oauth2-callback.rule=Path(`/service/twitter/callback`)
+      - traefik.http.routers.twitter.rule=Path(`/service/twitter/oauth2`) || Path(`/service/twitter/disconnect`)
+      - traefik.http.middlewares.twitter-replacepathregex.replacepathregex.regex=^/service/twitter/(.*)
+      - traefik.http.middlewares.twitter-replacepathregex.replacepathregex.replacement=/public/$$1
+      - traefik.http.middlewares.test-auth.forwardauth.address=http://user/verify
+      - traefik.http.middlewares.test-auth.forwardauth.authResponseHeaders=user
+      - traefik.http.routers.twitter.middlewares=twitter-replacepathregex, test-auth
+      - traefik.http.routers.twitter-oauth2-callback.middlewares=twitter-replacepathregex
+      - traefik.enable=true
+    ports:
+      - ${TWITTER_PORT}:80
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      elk:
+        condition: service_started
+      twitter-postgres:
+        condition: service_started
+      plugs:
+        condition: service_healthy
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "twitter"
+
+  outlook-postgres:
+    image: 'postgres:latest'
+    networks:
+      - outlook_network
+    env_file:
+      - ./api/outlook/.env
+    volumes:
+      - outlook_data:/var/lib/postgresql/data
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "outlook-potgres"
+
+  outlook:
+    build: ./api/outlook
+    networks:
+      - rabbit_network
+      - traefik_network
+      - outlook_network
+    labels:
+      - traefik.http.routers.outlook-oauth2-callback.rule=Path(`/service/outlook/callback`)
+      - traefik.http.routers.outlook.rule=Path(`/service/outlook/oauth2`) || Path(`/service/outlook/disconnect`)
+      - traefik.http.middlewares.outlook-replacepathregex.replacepathregex.regex=^/service/outlook/(.*)
+      - traefik.http.middlewares.outlook-replacepathregex.replacepathregex.replacement=/public/$$1
+      - traefik.http.middlewares.test-auth.forwardauth.address=http://user/verify
+      - traefik.http.middlewares.test-auth.forwardauth.authResponseHeaders=user
+      - traefik.http.routers.outlook.middlewares=outlook-replacepathregex, test-auth
+      - traefik.http.routers.outlook-oauth2-callback.middlewares=outlook-replacepathregex
+      - traefik.enable=true
+    ports:
+      - ${OUTLOOK_PORT}:80
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      elk:
+        condition: service_started
+      outlook-postgres:
+        condition: service_started
+      plugs:
+        condition: service_healthy
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "outlook"
+
+  github-postgres:
+    image: 'postgres:latest'
+    networks:
+      - github_network
+    env_file:
+      - ./api/github/.env
+    volumes:
+      - github_data:/var/lib/postgresql/data
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "github-potgres"
+
+  github:
+    build: ./api/github
+    networks:
+      - rabbit_network
+      - traefik_network
+      - github_network
+    labels:
+      - traefik.http.routers.github-oauth2-callback.rule=Path(`/service/github/callback`)
+      - traefik.http.routers.github.rule=Path(`/service/github/oauth2`) || Path(`/service/github/disconnect`)
+      - traefik.http.routers.github-webhook.rule=PathPrefix(`/webhook/github`)
+      - traefik.http.middlewares.github-replacepathregex.replacepathregex.regex=^/service/github/(.*)
+      - traefik.http.middlewares.github-webhook-replacepathregex.replacepathregex.regex=^/webhook/github/(.*)
+      - traefik.http.middlewares.github-replacepathregex.replacepathregex.replacement=/public/$$1
+      - traefik.http.middlewares.github-webhook-replacepathregex.replacepathregex.replacement=/public/$$1
+      - traefik.http.middlewares.test-auth.forwardauth.address=http://user/verify
+      - traefik.http.middlewares.test-auth.forwardauth.authResponseHeaders=user
+      - traefik.http.routers.github.middlewares=github-replacepathregex, test-auth
+      - traefik.http.routers.github-oauth2-callback.middlewares=github-replacepathregex
+      - traefik.http.routers.github-webhook.middlewares=github-webhook-replacepathregex
+      - traefik.enable=true
+    ports:
+      - ${GITHUB_PORT}:80
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      elk:
+        condition: service_started
+      github-postgres:
+        condition: service_started
+      plugs:
+        condition: service_healthy
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "github"
+
+  drive-postgres:
+    image: 'postgres:latest'
+    networks:
+      - drive_network
+    env_file:
+      - ./api/drive/.env
+    volumes:
+      - drive_data:/var/lib/postgresql/data
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "drive-potgres"
+
+  drive:
+    build: ./api/drive
+    networks:
+      - rabbit_network
+      - traefik_network
+      - drive_network
+    labels:
+      - traefik.http.routers.drive-oauth2-callback.rule=Path(`/service/drive/callback`)
+      - traefik.http.routers.drive.rule=Path(`/service/drive/oauth2`) || Path(`/service/drive/disconnect`)
+      - traefik.http.routers.drive-webhook.rule=PathPrefix(`/webhook/drive`)
+      - traefik.http.middlewares.drive-webhook-replacepathregex.replacepathregex.regex=^/webhook/drive/(.*)
+      - traefik.http.middlewares.drive-webhook-replacepathregex.replacepathregex.replacement=/public/$$1
+      - traefik.http.middlewares.drive-replacepathregex.replacepathregex.regex=^/service/drive/(.*)
+      - traefik.http.middlewares.drive-replacepathregex.replacepathregex.replacement=/public/$$1
+      - traefik.http.middlewares.test-auth.forwardauth.address=http://user/verify
+      - traefik.http.middlewares.test-auth.forwardauth.authResponseHeaders=user
+      - traefik.http.routers.drive.middlewares=drive-replacepathregex, test-auth
+      - traefik.http.routers.drive-oauth2-callback.middlewares=drive-replacepathregex
+      - traefik.http.routers.drive-webhook.middlewares=drive-webhook-replacepathregex
+      - traefik.enable=true
+    ports:
+      - ${DRIVE_PORT}:80
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      elk:
+        condition: service_started
+      drive-postgres:
+        condition: service_started
+      plugs:
+        condition: service_healthy
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "drive"
+  
+  docker-hub-postgres:
+    image: 'postgres:latest'
+    networks:
+      - docker-hub_network
+    env_file:
+      - ./api/docker-hub/.env
+    volumes:
+      - docker-hub_data:/var/lib/postgresql/data
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "docker-hub-potgres"
+
+  docker-hub:
+    build: ./api/docker-hub
+    networks:
+      - rabbit_network
+      - traefik_network
+      - docker-hub_network
+    env_file:
+      - ./api/docker-hub/.env
+    labels:
+      - traefik.http.routers.docker-hub.rule=PathPrefix(`/service/docker-hub`)
+      - traefik.http.routers.docker-hub-webhook.rule=PathPrefix(`/webhook/docker-hub`)
+      - traefik.http.middlewares.docker-hub-replacepathregex.replacepathregex.regex=^/service/docker-hub/(.*)
+      - traefik.http.middlewares.docker-hub-replacepathregex.replacepathregex.replacement=/public/$$1
+      - traefik.http.middlewares.docker-hub-webhook-replacepathregex.replacepathregex.regex=^/webhook/docker-hub/(.*)
+      - traefik.http.middlewares.docker-hub-webhook-replacepathregex.replacepathregex.replacement=/public/$$1
+      - traefik.http.middlewares.test-auth.forwardauth.address=http://user/verify
+      - traefik.http.middlewares.test-auth.forwardauth.authResponseHeaders=user
+      - traefik.http.routers.docker-hub.middlewares=docker-hub-replacepathregex, test-auth
+      - traefik.http.routers.docker-hub-webhook.middlewares=docker-hub-webhook-replacepathregex
+      - traefik.enable=true
+    ports:
+      - ${DOCKER_HUB_PORT}:80
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      elk:
+        condition: service_started
+      docker-hub-postgres:
+        condition: service_started
+      plugs:
+        condition: service_healthy
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "docker-hub"
+
+
+  starton:
+    build: ./api/starton
+    networks:
+      - rabbit_network
+      - traefik_network
+      - starton_network
+    labels:
+      - traefik.http.routers.starton.rule=PathPrefix(`/service/starton`)
+      - traefik.http.routers.starton-webhook.rule=PathPrefix(`/webhook/starton`)
+      - traefik.http.middlewares.starton-replacepathregex.replacepathregex.regex=^/service/starton/(.*)
+      - traefik.http.middlewares.starton-replacepathregex.replacepathregex.replacement=/public/$$1
+      - traefik.http.middlewares.starton-webhook-replacepathregex.replacepathregex.regex=^/webhook/starton/(.*)
+      - traefik.http.middlewares.starton-webhook-replacepathregex.replacepathregex.replacement=/public/$$1
+      - traefik.http.middlewares.test-auth.forwardauth.address=http://user/verify
+      - traefik.http.middlewares.test-auth.forwardauth.authResponseHeaders=user
+      - traefik.http.routers.starton.middlewares=starton-replacepathregex, test-auth
+      - traefik.http.routers.starton-webhook.middlewares=starton-webhook-replacepathregex
+      - traefik.enable=true
+    ports:
+      - ${STARTON_PORT}:80
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      elk:
+        condition: service_started
+      starton-postgres:
+        condition: service_started
+      plugs:
+        condition: service_healthy
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "starton"
+
+  starton-postgres:
+    image: 'postgres:latest'
+    networks:
+      - starton_network
+    env_file:
+      - ./api/starton/.env
+    volumes:
+      - starton_data:/var/lib/postgresql/data
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "starton-postgres"
+
+  discord-postgres:
+    image: 'postgres:latest'
+    networks:
+      - discord_network
+    env_file:
+      - ./api/discord/.env
+    volumes:
+      - discord_data:/var/lib/postgresql/data
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "discord-potgres"
+
+  discord:
+    build: ./api/discord
+    networks:
+      - rabbit_network
+      - traefik_network
+      - discord_network
+    labels:
+      - traefik.http.routers.discord-oauth2-callback.rule=Path(`/service/discord/callback`)
+      - traefik.http.routers.discord.rule=Path(`/service/discord/oauth2`) || Path(`/service/discord/disconnect`)
+      - traefik.http.middlewares.discord-replacepathregex.replacepathregex.regex=^/service/discord/(.*)
+      - traefik.http.middlewares.discord-replacepathregex.replacepathregex.replacement=/public/$$1
+      - traefik.http.middlewares.test-auth.forwardauth.address=http://user/verify
+      - traefik.http.middlewares.test-auth.forwardauth.authResponseHeaders=user
+      - traefik.http.routers.discord.middlewares=discord-replacepathregex, test-auth
+      - traefik.http.routers.discord-oauth2-callback.middlewares=discord-replacepathregex
+      - traefik.enable=true
+    ports:
+      - ${DISCORD_PORT}:80
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      elk:
+        condition: service_started
+      discord-postgres:
+        condition: service_started
+      plugs:
+        condition: service_healthy
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "discord"
+
+  etherscan-postgres:
+    image: 'postgres:latest'
+    networks:
+      - etherscan_network
+    env_file:
+      - ./api/etherscan/.env
+    volumes:
+      - etherscan_data:/var/lib/postgresql/data
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "etherscan-postgres"
+
+  etherscan:
+    build: ./api/etherscan
+    networks:
+      - rabbit_network
+      - traefik_network
+      - etherscan_network
+    labels:
+      - traefik.http.routers.etherscan.rule=PathPrefix(`/service/etherscan`)
+      - traefik.http.middlewares.etherscan-replacepathregex.replacepathregex.regex=^/service/etherscan/(.*)
+      - traefik.http.middlewares.etherscan-replacepathregex.replacepathregex.replacement=/public/$$1
+      - traefik.http.middlewares.test-auth.forwardauth.address=http://user/verify
+      - traefik.http.middlewares.test-auth.forwardauth.authResponseHeaders=user
+      - traefik.http.routers.etherscan.middlewares=etherscan-replacepathregex, test-auth
+      - traefik.enable=true
+    ports:
+      - ${ETHERSCAN_PORT}:80
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      elk:
+        condition: service_started
+      etherscan-postgres:
+        condition: service_started
+      plugs:
+        condition: service_healthy
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "etherscan"
+
+  adminer:
+    image: adminer
+    restart: always
+    networks:
+      - traefik_network
+      - user_network
+      - plugs_network
+      - outlook_network
+      - starton_network
+      - twitter_network
+      - youtube_network
+      - drive_network
+      - etherscan_network
+    ports:
+      - 7000:8080
+
+  youtube:
+    build: ./api/youtube
+    networks:
+      - rabbit_network
+      - traefik_network
+      - youtube_network
+    labels:
+      - traefik.http.routers.youtube-oauth2-callback.rule=Path(`/service/youtube/callback`)
+      - traefik.http.routers.youtube.rule=Path(`/service/youtube/oauth2`) || Path(`/service/youtube/disconnect`)
+      - traefik.http.middlewares.youtube-replacepathregex.replacepathregex.regex=^/service/youtube/(.*)
+      - traefik.http.middlewares.youtube-replacepathregex.replacepathregex.replacement=/public/$$1
+      - traefik.http.middlewares.test-auth.forwardauth.address=http://user/verify
+      - traefik.http.middlewares.test-auth.forwardauth.authResponseHeaders=user
+      - traefik.http.routers.youtube.middlewares=youtube-replacepathregex, test-auth
+      - traefik.http.routers.youtube-oauth2-callback.middlewares=youtube-replacepathregex
+      - traefik.enable=true
+    ports:
+      - ${youtube_PORT}:80
+    env_file:
+      - ./api/youtube/.env
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      elk:
+        condition: service_started
+      plugs:
+        condition: service_healthy
+      youtube-postgres:
+        condition: service_started
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "youtube"
+
+  youtube-postgres:
+    image: 'postgres:latest'
+    networks:
+      - youtube_network
+    env_file:
+      - ./api/youtube/.env
+    volumes:
+      - youtube_data:/var/lib/postgresql/data
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:${LOGSTASH_INGEST_PORT}
+        tag: "youtube-postgres"
+
+volumes:
+  rabbit_data:
+  rabbit_logs:
+  client_data:
+  elk_data:
+  plugs_mongo_data:
+  twitter_data:
+  outlook_data:
+  github_data:
+  discord_data:
+  starton_data:
+  user_data:
+  docker-hub_data:
+  youtube_data:
+  drive_data:
+  etherscan_data:
+
+networks:
+  rabbit_network:
+  elk_network:
+  user_network:
+  plugs_network:
+  starton_network:
+  traefik_network:
+  twitter_network:
+  outlook_network:
+  github_network:
+  docker-hub_network:
+  discord_network:
+  drive_network:
+  youtube_network:
+  etherscan_network:

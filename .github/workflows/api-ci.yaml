@@ -1,0 +1,170 @@
+name: Api-ci
+
+on:
+  push:
+    paths: ["api/**"]
+    branches: ["master", "dev"]
+  pull_request:
+    paths: ["api/**"]
+    branches: ["master", "dev"]
+
+defaults:
+  run:
+    working-directory: api
+
+jobs:
+  lint-nest:
+    strategy:
+      matrix:
+        service:
+          - discord
+          - github
+          - outlook
+          - plugs
+          - user
+          - starton
+          - twitter
+          - drive
+    defaults:
+      run:
+        working-directory: api/${{ matrix.service }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - name: Install dev dependencies
+        run: yarn install
+      - name: Lint app
+        run: yarn lint
+        env:
+          CI: false
+
+  format-nest:
+    strategy:
+      matrix:
+        service:
+          - discord
+          - github
+          - outlook
+          - plugs
+          - user
+          - starton
+          - twitter
+          - drive
+    defaults:
+      run:
+        working-directory: api/${{ matrix.service }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - name: Install dev dependencies
+        run: yarn install
+      - name: Format app
+        run: yarn format
+        env:
+          CI: false
+
+  build-nest:
+    strategy:
+      matrix:
+        service:
+          - discord
+          - github
+          - outlook
+          - plugs
+          - user
+          - starton
+          - twitter
+          - drive
+    defaults:
+      run:
+        working-directory: api/${{ matrix.service }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - name: Install dev dependencies
+        run: yarn install
+      - name: Build app
+        run: yarn build
+        env:
+          CI: false
+  test-nest:
+    strategy:
+      matrix:
+        service:
+          - user
+          - plugs
+    defaults:
+      run:
+        working-directory: api/${{ matrix.service }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - name: Install dev dependencies
+        run: yarn install
+      - name: Build app
+        run: yarn test
+
+  format-gin:
+    strategy:
+      matrix:
+        service:
+          - etherscan
+    defaults:
+      run:
+        working-directory: api/${{ matrix.service }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+      - name: Format app
+        run: test -z $(gofmt -l .)
+
+  lint-gin:
+    strategy:
+      matrix:
+        service:
+          - etherscan
+    defaults:
+      run:
+        working-directory: api/${{ matrix.service }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          working-directory: api/${{ matrix.service }}
+
+  build-gin:
+    strategy:
+      matrix:
+        service:
+          - etherscan
+    defaults:
+      run:
+        working-directory: api/${{ matrix.service }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+      - name: Build app
+        run: go build -o main

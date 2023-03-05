@@ -1,0 +1,94 @@
+name: Mobile-ci
+
+on:
+  push:
+    paths: ["mobile/**"]
+    branches: ["master", "dev"]
+  pull_request:
+    paths: ["mobile/**"]
+    branches: ["master", "dev"]
+
+defaults:
+  run:
+    working-directory: mobile
+
+jobs:
+
+  tests-ios:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          architecture: x64
+          cache: true
+      - run: flutter pub get
+      - run: flutter test test
+
+  build-ios:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          architecture: x64
+          cache: true
+      - run: flutter pub get
+      - run: flutter build ios --release --no-codesign
+
+  tests-android:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
+          java-version: '11'
+      - uses: subosito/flutter-action@v2
+        with:
+          cache: true
+      - run: flutter pub get
+      - run: flutter test test
+
+  build-android:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
+          java-version: '11'
+      - uses: subosito/flutter-action@v2
+        with:
+          cache: true
+      - run: flutter pub get
+      - run: echo "$KEY" | base64 -d > ./android/app/key.jks
+        env:
+          KEY: ${{secrets.ANDROID_KEY}}
+      - run: flutter build apk --no-sound-null-safety
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          architecture: x64
+          cache: true
+      - run: flutter pub get
+      - run: flutter analyze --no-fatal-infos --no-fatal-warnings
+
+  fmt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          architecture: x64
+          cache: true
+      - run: flutter pub get
+      - run: flutter format --set-exit-if-changed --dry-run lib test
