@@ -9,6 +9,8 @@ import { PlugDisabledDto } from '../dto/PlugDisabled.dto';
 import { EventInitializeDto } from '../dto/EventInitialize.dto';
 import DriveChangesService from '../services/driveChanges.service';
 import FileActionsService from '../services/fileActions.service';
+import { AmqpService } from "../services/amqp.service";
+import { Variable } from "../dto/Variable.dto";
 
 @Controller()
 export class ListenerController {
@@ -18,6 +20,7 @@ export class ListenerController {
     private amqpConnection: AmqpConnection,
     private driveChangesService: DriveChangesService,
     private fileActionsService: FileActionsService,
+    private amqpService: AmqpService,
   ) {}
 
   @RabbitSubscribe({
@@ -68,6 +71,7 @@ export class ListenerController {
     queue: 'plug_action_drive_triggers',
   })
   async triggerAction(msg: ActionTriggerDto) {
+    let response: Variable[] = [];
     try {
       this.logger.warn(msg);
       switch (msg.actionId) {
@@ -75,7 +79,7 @@ export class ListenerController {
           this.logger.log(
             `Received action to create file for user ${msg.userId}`,
           );
-          await this.fileActionsService.createFile(
+          response = await this.fileActionsService.createFile(
             msg.userId,
             msg.plugId,
             msg.fields.find((field) => field.key === 'name').value,
@@ -95,7 +99,7 @@ export class ListenerController {
           this.logger.log(
             `Received action to rename file for user ${msg.userId}`,
           );
-          await this.fileActionsService.renameFile(
+          response = await this.fileActionsService.renameFile(
             msg.userId,
             msg.plugId,
             msg.fields.find((field) => field.key === 'fileId').value,
@@ -106,7 +110,7 @@ export class ListenerController {
           this.logger.log(
             `Received action to move file for user ${msg.userId}`,
           );
-          await this.fileActionsService.moveFile(
+          response = await this.fileActionsService.moveFile(
             msg.userId,
             msg.plugId,
             msg.fields.find((field) => field.key === 'fileId').value,
@@ -117,7 +121,7 @@ export class ListenerController {
           this.logger.log(
             `Received action to copy file for user ${msg.userId}`,
           );
-          await this.fileActionsService.copyFile(
+          response = await this.fileActionsService.copyFile(
             msg.userId,
             msg.plugId,
             msg.fields.find((field) => field.key === 'fileId').value,
@@ -128,7 +132,7 @@ export class ListenerController {
           this.logger.log(
             `Received action to share file for user ${msg.userId}`,
           );
-          await this.fileActionsService.shareFile(
+          response = await this.fileActionsService.shareFile(
             msg.userId,
             msg.plugId,
             msg.fields.find((field) => field.key === 'fileId').value,
@@ -140,28 +144,16 @@ export class ListenerController {
           this.logger.log(
             `Received action to unshare file for user ${msg.userId}`,
           );
-          await this.fileActionsService.unshareFile(
+          response = await this.fileActionsService.unshareFile(
             msg.userId,
             msg.plugId,
             msg.fields.find((field) => field.key === 'fileId').value,
             msg.fields.find((field) => field.key === 'email').value,
           );
           break;
-        case 'changeFilePermission':
-          this.logger.log(
-            `Received action to change file permission for user ${msg.userId}`,
-          );
-          await this.fileActionsService.changeFilePermission(
-            msg.userId,
-            msg.plugId,
-            msg.fields.find((field) => field.key === 'fileId').value,
-            msg.fields.find((field) => field.key === 'permissionId').value,
-            msg.fields.find((field) => field.key === 'role').value,
-          );
-          break;
         case 'getFile':
           this.logger.log(`Received action to get file for user ${msg.userId}`);
-          await this.fileActionsService.getFile(
+          response = await this.fileActionsService.getFile(
             msg.userId,
             msg.plugId,
             msg.fields.find((field) => field.key === 'fileId').value,
@@ -171,7 +163,7 @@ export class ListenerController {
           this.logger.log(
             `Received action to create folder for user ${msg.userId}`,
           );
-          await this.fileActionsService.createFolder(
+          response = await this.fileActionsService.createFolder(
             msg.userId,
             msg.plugId,
             msg.fields.find((field) => field.key === 'name').value,
@@ -268,6 +260,13 @@ export class ListenerController {
         default:
           this.logger.warn('Unknown action: ', msg.actionId);
       }
+      this.logger.log(
+        `Action ${msg.actionId} finished, Notifying plugs microservice...`,
+      )
+      await this.amqpService.publishAction(msg.actionId, msg.plugId, msg.runId, msg.userId, response);
+      this.logger.log(
+        `Action ${msg.actionId} finished, Plugs microservice notified`,
+      )
     } catch (e) {
       this.logger.error(e);
       return new Nack(false);

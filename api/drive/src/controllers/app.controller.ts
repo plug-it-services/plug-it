@@ -140,7 +140,7 @@ export class AppController {
       webhook.eventId,
       webhook.plugId,
       webhook.userId,
-      [{ key: 'fileId', value: resourceId }],
+      [],
     );
     this.logger.log(`Webhook ${webhookId} event published`);
   }
