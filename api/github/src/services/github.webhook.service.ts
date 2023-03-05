@@ -32,7 +32,20 @@ export class GithubWebhookService {
         content_type: 'json',
       },
     };
-    return await githubApi.post(url, data);
+    try {
+      return await githubApi.post(url, data);
+    } catch (error) {
+      if (error.response) {
+        console.log(error.response.data);
+        console.log(error.response.status);
+        console.log(error.response.headers);
+      } else if (error.request) {
+        console.log(error.request);
+      } else {
+        console.log('Error', error.message);
+      }
+      return null;
+    }
   }
 
   async deleteRepoWebhook(
@@ -99,7 +112,19 @@ export class GithubWebhookService {
         content_type: 'json',
       },
     };
-
-    return await githubApi.post(url, data);
+    try {
+      return await githubApi.post(url, data);
+    } catch (error) {
+      if (error.response) {
+        console.log(error.response.data);
+        console.log(error.response.status);
+        console.log(error.response.headers);
+      } else if (error.request) {
+        console.log(error.request);
+      } else {
+        console.log('Error', error.message);
+      }
+      return null;
+    }
   }
 }
