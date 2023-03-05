@@ -90,12 +90,21 @@ namespace YouPlug.Services
 
         public void NewVideoFromMyChannelRoutine()
         {
+            Console.WriteLine("===============================");
+            Console.WriteLine("NewVideoFromMyChannelRoutine called");
+            Console.WriteLine("newVideoFromMyChannels size is " + newVideoFromMyChannels.Count);
             newVideoFromMyChannels.ForEach(model =>
             {
+                Console.WriteLine("Scanning for new videos from my channel for user " + model.userId);
+                Console.WriteLine("userTubeFetchers size is " + userTubeFetchers.Count);
+
                 userTubeFetchers.ForEach(userTubeFetcher =>
                 {
+                    Console.WriteLine("Scanning for new videos from my channel for user " + model.userId + " (userTubeFetcher.GetAuth().userId is " + userTubeFetcher.GetAuth().userId + ")");
                     if (userTubeFetcher.GetAuth().userId != model.userId)
                         return;
+
+                    Console.WriteLine("Valid, calling userTubeFetcher.GetVideos if no log after that we need to kill Vincent");
 
                     userTubeFetcher.GetVideos(userTubeFetcher.GetMyOwnChannelId(), 1, Google.Apis.YouTube.v3.SearchResource.ListRequest.EventTypeEnum.None).ForEach(video =>
                     {
@@ -115,6 +124,7 @@ namespace YouPlug.Services
                     });
                 });
             });
+            Console.WriteLine("===============================");
         }
 
         public void NewStreamFromChannelRoutine()
@@ -257,7 +267,7 @@ namespace YouPlug.Services
                         Console.WriteLine("Error in TubeFetcherService: " + e.ToString());
                     }
 
-                    Thread.Sleep(1000 * 60 * 5); // 5 min
+                    Thread.Sleep(1000 * 60 * 3); // 5 min
                 }
             });
         }
