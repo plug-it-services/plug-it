@@ -56,13 +56,13 @@ class StateMyApp extends State<MyApp> {
               preferences: _prefs,
               title: 'Plug It',
               onThemeSelected: (int newIndex) => setState(() {
-                    index = newIndex;
-                    _prefs?.setInt('theme', index);
-                  }),
+                index = newIndex;
+                _prefs?.setInt('theme', index);
+              }),
               themes: modes,
               actualTheme: index,
               isUnitTesting: widget.isUnitTesting,
-      )
+            )
           : null,
     );
   }
@@ -164,11 +164,10 @@ class _MyHomePageState extends State<MyHomePage> {
           } else {}
         });
       });
-   }
+    }
   }
 
   void onLogOut(String? apiUrl, String? assetsUrl) {
-
     if (assetsUrl != null && assetsUrl != PlugApi.assetsUrl) {
       widget.preferences?.setString('assets-url', assetsUrl);
       PlugApi.assetsUrl = assetsUrl;
@@ -194,7 +193,6 @@ class _MyHomePageState extends State<MyHomePage> {
         widget.preferences?.setBool('RememberMe', false);
       });
     }
-
   }
 
   @override
@@ -227,12 +225,14 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return (!showStartUp)
-        ? ((connected) ? NavBar(
-            onLogOut: onLogOut,
-            onThemeSelected: widget.onThemeSelected,
-            themes: widget.themes,
-            actualTheme: widget.actualTheme,
-          ) : getCurrentForm())
+        ? ((connected)
+            ? NavBar(
+                onLogOut: onLogOut,
+                onThemeSelected: widget.onThemeSelected,
+                themes: widget.themes,
+                actualTheme: widget.actualTheme,
+              )
+            : getCurrentForm())
         : StartUp(preferences: widget.preferences, onConfirm: onConfirm);
   }
 }

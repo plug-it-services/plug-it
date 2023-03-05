@@ -12,9 +12,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 class StartUp extends StatefulWidget {
   final SharedPreferences? preferences;
   final void Function() onConfirm;
-  const StartUp({super.key,
-      required this.preferences,
-      required this.onConfirm,});
+  const StartUp({
+    super.key,
+    required this.preferences,
+    required this.onConfirm,
+  });
 
   @override
   State<StartUp> createState() => _StartUpState();
@@ -40,7 +42,6 @@ class _StartUpState extends State<StartUp> {
     widget.onConfirm();
   }
 
-
   void save() {
     widget.preferences?.setBool("dontShowAgain", dontShowAgain);
     widget.preferences?.setString("api-url", PlugApi.apiUrl);
@@ -56,8 +57,10 @@ class _StartUpState extends State<StartUp> {
   void initRememberMe() {
     setState(() {
       dontShowAgain = widget.preferences?.getBool("dontShowAgain") ?? true;
-      PlugApi.apiUrl = widget.preferences?.getString("api-url") ?? PlugApi.apiUrl;
-      PlugApi.assetsUrl = widget.preferences?.getString("assets-url") ?? PlugApi.assetsUrl;
+      PlugApi.apiUrl =
+          widget.preferences?.getString("api-url") ?? PlugApi.apiUrl;
+      PlugApi.assetsUrl =
+          widget.preferences?.getString("assets-url") ?? PlugApi.assetsUrl;
     });
   }
 
@@ -80,10 +83,10 @@ class _StartUpState extends State<StartUp> {
           const SizedBox(height: 80),
           const Padding(
               padding: EdgeInsets.symmetric(horizontal: 30),
-              child:Text(
-            "Welcome to Plug It!",
-            style: PlugItStyle.titleStyle,
-          )),
+              child: Text(
+                "Welcome to Plug It!",
+                style: PlugItStyle.titleStyle,
+              )),
           const SizedBox(height: 8),
 
           const SizedBox(height: 25),
@@ -92,7 +95,8 @@ class _StartUpState extends State<StartUp> {
             key: const ValueKey("startupApiField"),
             hint: "Enter API Url",
             label: "API Url",
-            labelStyle: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20),
+            labelStyle: const TextStyle(
+                color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20),
             onChanged: (value) => {PlugApi.apiUrl = value},
             iconColor: Colors.black,
             icon: const Icon(Icons.api),
@@ -105,7 +109,8 @@ class _StartUpState extends State<StartUp> {
             key: const ValueKey("startupAssetsField"),
             hint: "Enter Assets Url",
             label: "Assets Url",
-            labelStyle: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20),
+            labelStyle: const TextStyle(
+                color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20),
             onChanged: (value) => {PlugApi.assetsUrl = value},
             iconColor: Colors.black,
             icon: const Icon(Icons.web_asset),

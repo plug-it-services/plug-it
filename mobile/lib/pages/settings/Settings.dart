@@ -33,16 +33,19 @@ class _SettingsState extends State<Settings> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ListView(
+        body: ListView(
       children: [
         const SizedBox(
           height: 20,
         ),
-        const Divider(color: Colors.white,),
+        const Divider(
+          color: Colors.white,
+        ),
         const SizedBox(
           height: 20,
         ),
-        const Center(child:Text("Theme Settings", style: PlugItStyle.subtitleStyle)),
+        const Center(
+            child: Text("Theme Settings", style: PlugItStyle.subtitleStyle)),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 15),
           child: DropdownSearch<ThemeMode>(
@@ -58,36 +61,37 @@ class _SettingsState extends State<Settings> {
               ))),
         ),
         const SizedBox(height: 20),
-        const Divider(color: Colors.white,),
+        const Divider(
+          color: Colors.white,
+        ),
         const SizedBox(height: 20),
-        const Center(child:Text("Api Settings", style: PlugItStyle.subtitleStyle)),
-
+        const Center(
+            child: Text("Api Settings", style: PlugItStyle.subtitleStyle)),
         const SizedBox(height: 30),
         InputField(
           key: const ValueKey("startupApiField"),
           hint: "Enter API Url",
           label: "API Url",
-          labelStyle: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20),
+          labelStyle: const TextStyle(
+              color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20),
           onChanged: (value) => {apiUrl = value},
           iconColor: Colors.black,
           icon: const Icon(Icons.api),
           value: apiUrl,
         ),
-
         const SizedBox(height: 25),
-
         InputField(
           key: const ValueKey("startupAssetsField"),
           hint: "Enter Assets Url",
           label: "Assets Url",
-          labelStyle: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20),
+          labelStyle: const TextStyle(
+              color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20),
           onChanged: (value) => {assetsUrl = value},
           iconColor: Colors.black,
           icon: const Icon(Icons.web_asset),
           value: assetsUrl,
         ),
         const SizedBox(height: 25),
-
         ScreenWidthButton(
           label: 'Apply Changes and Disconnect',
           color: PlugItStyle.primaryColor,
@@ -97,7 +101,9 @@ class _SettingsState extends State<Settings> {
           },
         ),
         const SizedBox(height: 20),
-        const Divider(color: Colors.white,),
+        const Divider(
+          color: Colors.white,
+        ),
         const SizedBox(height: 20),
         ScreenWidthButton(
           label: 'Disconnect',
