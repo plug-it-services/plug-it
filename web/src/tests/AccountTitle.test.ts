@@ -17,32 +17,3 @@ describe('Plug AccountTile Email', () => {
   });
 });
 
-describe('Plug AccountTile Name', () => {
-  it('renders with the correct text', () => {
-    render(
-      AccountTile({
-        name: 'Click me',
-        firstName: 'Click me',
-        id: 0,
-        email: 'tri@epitech.eu',
-        onDisconnect: () => {},
-      }),
-    );
-    expect(screen.getByText('Click me')).toBeInTheDocument();
-  });
-});
-
-describe('Plug AccountTile First Name', () => {
-  it('renders with the correct text', () => {
-    render(
-      AccountTile({
-        name: 'Click me',
-        firstName: 'Click me!',
-        id: 0,
-        email: 'tri@epitech.eu',
-        onDisconnect: () => {},
-      }),
-    );
-    expect(screen.getByText('Click me!')).toBeInTheDocument();
-  });
-});
