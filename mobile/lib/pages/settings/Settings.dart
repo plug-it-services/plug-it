@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:mobile/PlugApi.dart';
 import 'package:mobile/ui-toolkit/PlugItStyle.dart';
 import 'package:mobile/ui-toolkit/buttons/ScreenWidthButton.dart';
+import 'package:mobile/ui-toolkit/input/InputField.dart';
 
 class Settings extends StatefulWidget {
-  final void Function() onLogOut;
+  final void Function(String? apiUrl, String? assetsUrl) onLogOut;
   final void Function(int index) onThemeSelected;
   final List<ThemeMode> themes;
   final int actualTheme;
@@ -21,6 +22,9 @@ class Settings extends StatefulWidget {
 }
 
 class _SettingsState extends State<Settings> {
+  String apiUrl = PlugApi.apiUrl;
+  String assetsUrl = PlugApi.assetsUrl;
+
   @override
   void initState() {
     super.initState();
@@ -29,17 +33,16 @@ class _SettingsState extends State<Settings> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: ListView(
+      body: ListView(
       children: [
         const SizedBox(
-          height: 10,
+          height: 20,
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: Row(children: const [
-            Text("Change Theme", style: PlugItStyle.subtitleStyle),
-          ]),
+        const Divider(color: Colors.white,),
+        const SizedBox(
+          height: 20,
         ),
+        const Center(child:Text("Theme Settings", style: PlugItStyle.subtitleStyle)),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 15),
           child: DropdownSearch<ThemeMode>(
@@ -54,15 +57,54 @@ class _SettingsState extends State<Settings> {
                 hintText: "Select a Theme",
               ))),
         ),
-        const SizedBox(
-          height: 20,
+        const SizedBox(height: 20),
+        const Divider(color: Colors.white,),
+        const SizedBox(height: 20),
+        const Center(child:Text("Api Settings", style: PlugItStyle.subtitleStyle)),
+
+        const SizedBox(height: 30),
+        InputField(
+          key: const ValueKey("startupApiField"),
+          hint: "Enter API Url",
+          label: "API Url",
+          labelStyle: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20),
+          onChanged: (value) => {apiUrl = value},
+          iconColor: Colors.black,
+          icon: const Icon(Icons.api),
+          value: apiUrl,
         ),
+
+        const SizedBox(height: 25),
+
+        InputField(
+          key: const ValueKey("startupAssetsField"),
+          hint: "Enter Assets Url",
+          label: "Assets Url",
+          labelStyle: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20),
+          onChanged: (value) => {assetsUrl = value},
+          iconColor: Colors.black,
+          icon: const Icon(Icons.web_asset),
+          value: assetsUrl,
+        ),
+        const SizedBox(height: 25),
+
+        ScreenWidthButton(
+          label: 'Apply Changes and Disconnect',
+          color: PlugItStyle.primaryColor,
+          pressedColor: PlugItStyle.backgroundColor,
+          callback: () {
+            widget.onLogOut(apiUrl, assetsUrl);
+          },
+        ),
+        const SizedBox(height: 20),
+        const Divider(color: Colors.white,),
+        const SizedBox(height: 20),
         ScreenWidthButton(
           label: 'Disconnect',
           color: Colors.red,
           pressedColor: PlugItStyle.backgroundColor,
           callback: () {
-            widget.onLogOut();
+            widget.onLogOut(null, null);
           },
         )
       ],

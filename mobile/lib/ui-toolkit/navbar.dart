@@ -3,16 +3,14 @@ import 'package:mobile/pages/navigate/navigate.dart';
 import 'package:mobile/pages/settings/Settings.dart';
 import 'package:mobile/ui-toolkit/appbar.dart';
 
-import 'package:mobile/PlugApi.dart';
 import 'package:mobile/models/plug/Plug.dart';
-import 'package:mobile/models/service/Service.dart';
 
 import 'package:mobile/pages/plugs/Plugs.dart';
 import 'package:mobile/pages/home/Home.dart';
 import 'package:mobile/pages/services/Services.dart';
 
 class NavBar extends StatefulWidget {
-  final void Function() onLogOut;
+  final void Function(String?, String?) onLogOut;
   final void Function(int index) onThemeSelected;
   final List<ThemeMode> themes;
   final int actualTheme;
