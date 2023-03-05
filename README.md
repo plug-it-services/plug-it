@@ -18,7 +18,7 @@
   <p align="center">
     Plug-It and enjoy it!
     <br />
-    Automation platform of his digital life. 
+    Automation platform of your digital life. 
     <br />
     <br />
     <a href="https://github.com/plug-it-services/plug-it"><strong>Explore the docs »</strong></a>
