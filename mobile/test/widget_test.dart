@@ -17,7 +17,7 @@ void main() {
   group('Login Page Test', () {
     testWidgets('Fields Present', (WidgetTester tester) async {
       // Build our app and trigger a frame
-      await tester.pumpWidget(const MyApp());
+      await tester.pumpWidget(const MyApp(isUnitTesting: true));
       final usernameField = find.byKey(const ValueKey('loginEmailField'));
       final passwordField = find.byKey(const ValueKey('loginPasswordField'));
 
@@ -41,17 +41,17 @@ void main() {
 
     testWidgets('Password field modified', (WidgetTester tester) async {
       // Build our app and trigger a frame
-      await tester.pumpWidget(const MyApp());
+      await tester.pumpWidget(const MyApp(isUnitTesting: true));
       final passwordField = find.byKey(const ValueKey('loginPasswordField'));
 
       await tester.enterText(passwordField, 'azerA@ty1234');
-      await tester.pumpAndSettle();
+      await tester.pumpAndSettle(); 
       expect(find.text('azerA@ty1234'), findsOneWidget);
     });
 
     testWidgets('Email field modified', (WidgetTester tester) async {
       // Build our app and trigger a frame
-      await tester.pumpWidget(const MyApp());
+      await tester.pumpWidget(const MyApp(isUnitTesting: true));
       final usernameField = find.byKey(const ValueKey('loginEmailField'));
 
       await tester.enterText(usernameField, 'titi@toto.com');
@@ -61,7 +61,7 @@ void main() {
 
     testWidgets('Go to register', (WidgetTester tester) async {
       // Build our app and trigger a frame
-      await tester.pumpWidget(const MyApp());
+      await tester.pumpWidget(const MyApp(isUnitTesting: true));
 
       final goToRegisterButtonParent =
           find.byKey(const ValueKey('loginGoToRegisterButton'));
@@ -76,7 +76,7 @@ void main() {
     testWidgets('Invalid token null', (WidgetTester tester) async {
       // Build our app and trigger a frame
       PlugApi.init();
-      await tester.pumpWidget(const MyApp());
+      await tester.pumpWidget(const MyApp(isUnitTesting: true));
       final usernameField = find.byKey(const ValueKey('loginEmailField'));
       final passwordField = find.byKey(const ValueKey('loginPasswordField'));
       final signButtonParent = find.byKey(const ValueKey('loginSignButton'));
@@ -93,7 +93,7 @@ void main() {
     testWidgets('Invalid stay on page', (WidgetTester tester) async {
       // Build our app and trigger a frame
       PlugApi.init();
-      await tester.pumpWidget(const MyApp());
+      await tester.pumpWidget(const MyApp(isUnitTesting: true));
       final usernameField = find.byKey(const ValueKey('loginEmailField'));
       final passwordField = find.byKey(const ValueKey('loginPasswordField'));
       final signButtonParent = find.byKey(const ValueKey('loginSignButton'));

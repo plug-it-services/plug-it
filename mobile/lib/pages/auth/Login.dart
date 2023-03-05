@@ -13,7 +13,7 @@ import 'package:mobile/ui-toolkit/appbar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Login extends StatefulWidget {
-  final SharedPreferences preferences;
+  final SharedPreferences? preferences;
   final void Function(User) onLogged;
   final void Function() onChangeToRegisterPressed;
   const Login(
@@ -162,12 +162,12 @@ class _LoginState extends State<Login> {
   }
 
   void save() {
-    widget.preferences.setBool("RememberMe", _rememberMe);
+    widget.preferences?.setBool("RememberMe", _rememberMe);
     if (!_rememberMe) {
       return;
     }
-    widget.preferences.setString("email", username);
-    widget.preferences.setString("password", password);
+    widget.preferences?.setString("email", username);
+    widget.preferences?.setString("password", password);
   }
 
   void rememberMePressed(bool? value) {
@@ -178,9 +178,9 @@ class _LoginState extends State<Login> {
 
   void initRememberMe() {
     setState(() {
-      _rememberMe = widget.preferences.getBool("RememberMe") ?? false;
-      password = widget.preferences.getString("password") ?? "";
-      username = widget.preferences.getString("email") ?? "";
+      _rememberMe = widget.preferences?.getBool("RememberMe") ?? false;
+      password = widget.preferences?.getString("password") ?? "";
+      username = widget.preferences?.getString("email") ?? "";
     });
   }
 
