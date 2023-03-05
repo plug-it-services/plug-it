@@ -25,73 +25,7 @@
                 "required": true
               }
             ]
-        },
-        {
-          "id": "higherTotalSupply",
-          "name": "Higher Total Supply",
-          "description": "Trigger when the total supply of a token is higher than the specified value",
-          "variables": [
-            {
-              "key": "totalSupply",
-              "type": "string",
-              "displayName": "Total Supply",
-              "description": "The total supply to trigger the event"
-            }
-          ],
-          "fields": [
-            {
-              "key": "totalSupply",
-              "type": "string",
-              "displayName": "Total Supply",
-              "description": "The total supply to trigger the event",
-              "required": true
-            }
-          ]
-      },
-      {
-        "id": "lowerTotalSupply",
-        "name": "Lower Total Supply",
-        "description": "Trigger when the total supply of a token is lower than the specified value",
-        "variables": [
-          {
-            "key": "totalSupply",
-            "type": "string",
-            "displayName": "Total Supply",
-            "description": "The total supply to trigger the event"
-          }
-        ],
-        "fields": [
-          {
-            "key": "totalSupply",
-            "type": "string",
-            "displayName": "Total Supply",
-            "description": "The total supply to trigger the event",
-            "required": true
-          }
-        ]
-    },
-    {
-      "id": "equalTotalSupply",
-      "name": "Equal Total Supply",
-      "description": "Trigger when the total supply of a token is equal to the specified value",
-      "variables": [
-        {
-          "key": "totalSupply",
-          "type": "string",
-          "displayName": "Total Supply",
-          "description": "The total supply to trigger the event"
         }
-      ],
-      "fields": [
-        {
-          "key": "totalSupply",
-          "type": "string",
-          "displayName": "Total Supply",
-          "description": "The total supply to trigger the event",
-          "required": true
-        }
-      ]
-  }
     ],
     "actions": [
       {
