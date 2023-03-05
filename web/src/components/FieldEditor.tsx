@@ -78,16 +78,16 @@ export function FieldEditor({
         />
       )}
       <MDBTooltip tag={'span'} placement={'top'} title={description}>
-      <InputBar
-        placeholder={fieldKey}
-        backgroundColor={'#2757C9'}
-        borderColor={'#2757C9'}
-        textColor={'white'}
-        isPassword={false}
-        value={value}
-        onChange={onChange}
-        onSubmit={() => {}}
-      />
+        <InputBar
+          placeholder={fieldKey}
+          backgroundColor={'#2757C9'}
+          borderColor={'#2757C9'}
+          textColor={'white'}
+          isPassword={false}
+          value={value}
+          onChange={onChange}
+          onSubmit={() => {}}
+        />
       </MDBTooltip>
     </div>
   );

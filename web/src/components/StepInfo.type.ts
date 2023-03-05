@@ -1,4 +1,4 @@
-import { FieldEdition, FieldValue, Variable } from '../utils/api';
+import { FieldEdition, Variable } from '../utils/api';
 
 export enum StepType {
   EVENT,

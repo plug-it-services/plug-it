@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Typography } from '@mui/material';
 import { MDBCard, MDBCardBody, MDBRow, MDBTypography } from 'mdb-react-ui-kit';
 import InputBar from './InputBar';
 import Button from './Button';

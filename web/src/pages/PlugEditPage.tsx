@@ -13,7 +13,6 @@ import {
   PlugDetail,
   ServiceAction,
   ServiceEvent,
-  Variable,
 } from '../utils/api';
 import InputBar from '../components/InputBar';
 import MessageBox from '../components/MessageBox';
@@ -110,15 +109,9 @@ const PlugEditPage = () => {
     const eventDetail = details[0];
     const actionDetails = details.slice(1);
 
-    console.log("servicesToFetch", servicesToFetch);
-    console.log("details", details);
-    console.log("eventDetail", eventDetail);
-    console.log("actionDetails", actionDetails);
-
     return steps.map((el, idx) => {
       const step = el;
       const serviceDetails = idx ? actionDetails[servicesToFetch.indexOf(step.serviceName, 1) - 1] : eventDetail;
-      console.log(`serviceDetails for ${el.serviceName}`, serviceDetails);
       if (!serviceDetails) throw new Error(`Cannot find service ${step.serviceName} details`);
       const stepDetails = serviceDetails.find((detail) => detail.id === step.stepId);
       if (!stepDetails) throw new Error(`Cannot find step ${step.stepId} in service ${step.serviceName} details`);
