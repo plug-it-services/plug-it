@@ -10,50 +10,49 @@ Here is a small description of each service, what are their purpose and what lan
 
 [![GitHub]](https://github.com "GitHub") [![TypeScript]](https://www.typescriptlang.org "TypeScript")
 
-Github is a service developed by Microsoft to host git repositories. It's used to host the code of the project and to host the docker images of the project.
-This microservice is coded in TS and allow various actions with the Github API.
+Github is a service developed by Microsoft to host git repositories. It can be used to star a repo, receive an event when someone push etc... This microservice is coded in TS and allow various actions with the Github API.
 
 &nbsp;
 
 [![Discord]](https://discord.com "Discord") [![TypeScript]](https://www.typescriptlang.org "TypeScript")
 
-Discord is a service developed by Discord to host chat rooms. It's used to host the chat rooms of the project. This microservice is coded in TS and allow various actions with the Discord API.
+Discord is a service developed by Discord to host chat rooms. It can be used to send messages to users, inside channels, create threads and way more things that make Discord so powerfull. This microservice is coded in TS and allow various actions with the Discord API.
 
 &nbsp;
 
 [![Google Drive]](https://drive.google.com "Google Drive") [![TypeScript]](https://www.typescriptlang.org "TypeScript")
 
-Google Drive is a service developed by Google to host files. It's used to host the files of the project. This microservice is coded in TS and allow various actions with the Google Drive API.
+Google Drive is a service developed by Google to host files. It can be used to create files, share them, etc... This microservice is coded in TS and allow various actions with the Google Drive API.
 
 &nbsp;
 
 [![YouTube]](https://www.youtube.com "YouTube") [![.NET]](https://dotnet.microsoft.com ".NET 6 with ASP.NET") [![C#]](https://docs.microsoft.com/en-us/dotnet/csharp/ "C#")
 
-YouTube is a service developed by Google to host videos. It's used to host the videos of the project. This microservice is coded in C# using .NET 6 and ASP.NET and allow various actions with the YouTube API.
+YouTube is a service developed by Google to host videos. It can be used to react to video, detect new videos or streams and a lot more! This microservice is coded in C# using .NET 6 and ASP.NET and allow various actions with the YouTube API.
 
 &nbsp;
 
 [![Twitter]](https://twitter.com "Twitter") [![TypeScript]](https://www.typescriptlang.org "TypeScript")
 
-Twitter is a service developed by Twitter to host tweets. It's used to host the tweets of the project. This microservice is coded in TS and allow various actions with the Twitter API.
+Twitter is a service developed by Twitter to host tweets. It can be used to send messages. This microservice is coded in TS and allow various actions with the Twitter API.
 
 &nbsp;
 
 [![Starton]](https://starton.nl "Starton") [![TypeScript]](https://www.typescriptlang.org "TypeScript")
 
-Starton is a service developed by Starton to host websites. It's used to host the website of the project. This microservice is coded in TS and allow various actions with the Starton API.
+Starton is a service developed by Starton. It can be used to notify any transactions or send native tokens. This microservice is coded in TS and allow various actions with the Starton API.
 
 &nbsp;
 
 [![Docker Hub]](https://hub.docker.com "DockerHub") [![Python]](https://www.python.org "Python")
 
-DockerHub is a service developed by Docker to host docker images. It's used to host the docker images of the project. This microservice is coded in Python and allow various actions with the DockerHub API.
+Docker Hub is a service developed by Docker to host docker images. It's used to receive any repo update. This microservice is coded in Python and allow various actions with the DockerHub API.
 
 &nbsp;
 
 [![Outlook]](https://outlook.live.com "Outlook") [![TypeScript]](https://www.typescriptlang.org "TypeScript")
 
-Outlook is a service developed by Microsoft to host emails. It's used to host the emails of the project. This microservice is coded in TS and allow various actions with the Outlook API.
+Outlook is a service developed by Microsoft to host emails. It can be used to send emails, reply, change labels, etc. This microservice is coded in TS and allow various actions with the Outlook API.
 
 &nbsp;
 
