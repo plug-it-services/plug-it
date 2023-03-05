@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:mobile/PlugApi.dart';
 
@@ -9,9 +8,6 @@ import 'package:mobile/pages/plugs/plug_edit_page.dart';
 import '../../ui-toolkit/buttons/ScreenWidthButton.dart';
 import '../../ui-toolkit/cards/PlugCard.dart';
 
-
-
-
 class Plugs extends StatefulWidget {
   final Plug? selectedPlug;
 
@@ -21,13 +17,11 @@ class Plugs extends StatefulWidget {
 }
 
 class _PlugsState extends State<Plugs> {
-
   bool editing = false;
   bool creating = false;
   List<Plug>? plugs;
   List<Service>? services;
   Plug? selectedPlug;
-
 
   void _createOrEditPlug(Plug? plug) {
     selectedPlug = plug;
@@ -37,8 +31,7 @@ class _PlugsState extends State<Plugs> {
         creating = false;
         selectedPlug = plug;
       });
-    }
-    else {
+    } else {
       setState(() {
         editing = false;
         creating = true;
@@ -47,20 +40,23 @@ class _PlugsState extends State<Plugs> {
     }
   }
 
-  List<Widget> _getPlugCards()
-  {
+  List<Widget> _getPlugCards() {
     List<Widget> widgets = [];
-    widgets.add(const SizedBox(height: 5,));
+    widgets.add(const SizedBox(
+      height: 5,
+    ));
     widgets.add(ScreenWidthButton(
       label: "Create",
       height: 50,
       callback: () => _createOrEditPlug(null),
     ));
     for (Plug plug in plugs ?? []) {
-      widgets.add(const SizedBox(height: 10,));
+      widgets.add(const SizedBox(
+        height: 10,
+      ));
       widgets.add(PlugCard(
-          plug: plug,
-          callback: () => _createOrEditPlug(plug),
+        plug: plug,
+        callback: () => _createOrEditPlug(plug),
       ));
     }
 
@@ -73,30 +69,25 @@ class _PlugsState extends State<Plugs> {
       editing = false;
       creating = false;
     });
-    PlugApi.getPlugs().then((value) => setState(() => {
-      plugs = value
-    }));
+    PlugApi.getPlugs().then((value) => setState(() => {plugs = value}));
   }
-
 
   @override
   void initState() {
-    PlugApi.getPlugs().then((value) => setState(() => {
-      plugs = value
-    }));
-    PlugApi.getServices().then((value) => setState((){
-      services = value;
-      if (widget.selectedPlug != null) {
-          _createOrEditPlug(widget.selectedPlug);
-      } else {
-        setState(() {
-          selectedPlug = null;
-        });
-      }
-    }));
+    PlugApi.getPlugs().then((value) => setState(() => {plugs = value}));
+    PlugApi.getServices().then((value) => setState(() {
+          services = value;
+          if (widget.selectedPlug != null) {
+            _createOrEditPlug(widget.selectedPlug);
+          } else {
+            setState(() {
+              selectedPlug = null;
+            });
+          }
+        }));
     super.initState();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return (editing || creating)
@@ -109,11 +100,10 @@ class _PlugsState extends State<Plugs> {
                 _cancel();
               });
             },
-        )
+          )
         : Scaffold(
             body: ListView(
-              children: _getPlugCards(),
-        )
-    );
+            children: _getPlugCards(),
+          ));
   }
 }

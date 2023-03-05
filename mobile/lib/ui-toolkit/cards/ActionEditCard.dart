@@ -13,7 +13,6 @@ import 'package:mobile/ui-toolkit/cards/CardTitle.dart';
 import 'package:mobile/ui-toolkit/cards/EventSelection.dart';
 import 'package:mobile/ui-toolkit/cards/FieldsEditor.dart';
 
-
 class ActionEditCard extends StatefulWidget {
   final List<Service> services;
   final bool isOpen;
@@ -26,7 +25,8 @@ class ActionEditCard extends StatefulWidget {
   final void Function() onActionDeleted;
   final void Function() onActionAdded;
 
-  const ActionEditCard({super.key,
+  const ActionEditCard({
+    super.key,
     required this.isTrigger,
     required this.services,
     required this.isOpen,
@@ -42,7 +42,8 @@ class ActionEditCard extends StatefulWidget {
   @override
   State createState() => _StateActionEditCard();
 }
-class _StateActionEditCard extends State<ActionEditCard>{
+
+class _StateActionEditCard extends State<ActionEditCard> {
   Service? selectedService;
   Event? selectedEvent;
   List<Event>? events;
@@ -68,8 +69,7 @@ class _StateActionEditCard extends State<ActionEditCard>{
     var idx = "";
     if (widget.isTrigger) {
       idx = "1";
-    }
-    else {
+    } else {
       idx = "${widget.plug.actions.indexOf(widget.editedEvent) + 2}";
     }
 
@@ -79,29 +79,29 @@ class _StateActionEditCard extends State<ActionEditCard>{
         selected = "${selected.substring(0, 27)}...";
       }
       idx += selected;
-    }
-    else {
+    } else {
       if (widget.isTrigger) {
         idx += " - Trigger";
-      }
-      else {
+      } else {
         idx += " - Action";
       }
     }
     return idx;
   }
 
-
   void getCurrentData(String serviceName, String eventId) {
-    if (serviceName != '' && (selectedService == null || selectedService!.name != serviceName)) {
+    if (serviceName != '' &&
+        (selectedService == null || selectedService!.name != serviceName)) {
       PlugApi.getServiceByName(serviceName).then((value) {
         setState(() {
           selectedService = value;
         });
       });
     }
-    if (eventId != '' && (selectedEvent == null || selectedEvent!.id != eventId)) {
-      PlugApi.getEvent(serviceName, eventId, isTrigger: widget.isTrigger).then((value) {
+    if (eventId != '' &&
+        (selectedEvent == null || selectedEvent!.id != eventId)) {
+      PlugApi.getEvent(serviceName, eventId, isTrigger: widget.isTrigger)
+          .then((value) {
         setState(() {
           selectedEvent = value;
         });
@@ -109,11 +109,12 @@ class _StateActionEditCard extends State<ActionEditCard>{
     }
   }
 
-
   List<Widget> getBody() {
     if (widget.isOpen) {
       return [
-        const SizedBox(height: 20,),
+        const SizedBox(
+          height: 20,
+        ),
         EventSelection(
           services: widget.services,
           isOpen: selectEventDeployed,
@@ -131,7 +132,9 @@ class _StateActionEditCard extends State<ActionEditCard>{
           selectedService: selectedService,
           isTrigger: widget.isTrigger,
         ),
-        const SizedBox(height: 20,),
+        const SizedBox(
+          height: 20,
+        ),
         FieldsEditor(
           services: widget.services,
           isOpen: editEventDeployed,
@@ -146,7 +149,9 @@ class _StateActionEditCard extends State<ActionEditCard>{
           isTrigger: widget.isTrigger,
           plug: widget.plug,
         ),
-        const SizedBox(height: 20,),
+        const SizedBox(
+          height: 20,
+        ),
       ];
     }
     return [];
@@ -160,26 +165,23 @@ class _StateActionEditCard extends State<ActionEditCard>{
   }
 
   @override
-  void dispose()
-  {
+  void dispose() {
     clearData();
     super.dispose();
   }
 
-  void clearData()
-  {
-      if (widget.editedEvent.serviceName == '' && selectedService != null) {
-        setState(() {
-          selectedService = null;
-        });
-      }
-      if (widget.editedEvent.id == '' && selectedEvent != null) {
-        setState(() {
-          selectedEvent = null;
-        });
-      }
+  void clearData() {
+    if (widget.editedEvent.serviceName == '' && selectedService != null) {
+      setState(() {
+        selectedService = null;
+      });
+    }
+    if (widget.editedEvent.id == '' && selectedEvent != null) {
+      setState(() {
+        selectedEvent = null;
+      });
+    }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -191,27 +193,20 @@ class _StateActionEditCard extends State<ActionEditCard>{
             duration: const Duration(milliseconds: 200),
             decoration: BoxDecoration(
                 color: PlugItStyle.cardColor,
-                borderRadius: BorderRadius.circular(8)
-            ),
-            child: Column(
-              children: [
-                CardTitle(
-                  label: getLabel(),
-                  state: widget.isOpen,
-                  onPressed: () {
-                    widget.onCardDeploy();
-                  },
-                  isIconButtonPresent: (!widget.isTrigger),
-                  onIconPressed: widget.onActionDeleted,
-                  children: [
-                    ...getBody(),
-                  ],
-                ),
-
-              ]
-            )
-        )
-    );
-
+                borderRadius: BorderRadius.circular(8)),
+            child: Column(children: [
+              CardTitle(
+                label: getLabel(),
+                state: widget.isOpen,
+                onPressed: () {
+                  widget.onCardDeploy();
+                },
+                isIconButtonPresent: (!widget.isTrigger),
+                onIconPressed: widget.onActionDeleted,
+                children: [
+                  ...getBody(),
+                ],
+              ),
+            ])));
   }
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/ui-toolkit/PlugItStyle.dart';
 
-
 class CardTitle extends StatefulWidget {
   final String label;
   final bool state;
@@ -12,7 +11,8 @@ class CardTitle extends StatefulWidget {
   final bool isIconButtonPresent;
   final Icon iconButton;
 
-  const CardTitle({super.key,
+  const CardTitle({
+    super.key,
     this.label = "",
     this.onPressed,
     this.children = const [],
@@ -26,7 +26,8 @@ class CardTitle extends StatefulWidget {
   @override
   State createState() => _StateCardTitle();
 }
-class _StateCardTitle extends State<CardTitle>{
+
+class _StateCardTitle extends State<CardTitle> {
   bool pressed = false;
   bool deployed = false;
 
@@ -45,14 +46,14 @@ class _StateCardTitle extends State<CardTitle>{
       });
     }
   }
+
   @override
   void initState() {
     deployed = widget.state;
     super.initState();
   }
 
-  Widget getCardTitle(height)
-  {
+  Widget getCardTitle(height) {
     return GestureDetector(
         onTap: () => onTap(!widget.state),
         child: AnimatedContainer(
@@ -60,57 +61,54 @@ class _StateCardTitle extends State<CardTitle>{
             duration: const Duration(milliseconds: 200),
             onEnd: onEnd,
             decoration: BoxDecoration(
-                color: (!pressed) ? PlugItStyle.primaryColor : PlugItStyle.buttonColorPressed,
-                borderRadius: BorderRadius.circular(4),
-                border: Border.all(color: Colors.black45),
+              color: (!pressed)
+                  ? PlugItStyle.primaryColor
+                  : PlugItStyle.buttonColorPressed,
+              borderRadius: BorderRadius.circular(4),
+              border: Border.all(color: Colors.black45),
             ),
             child: Row(
               children: [
-                const SizedBox(width: 10,),
+                const SizedBox(
+                  width: 10,
+                ),
                 (widget.state)
                     ? const Icon(Icons.keyboard_arrow_up_rounded)
                     : const Icon(Icons.keyboard_arrow_down_rounded),
                 Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child:Text(widget.label, style: widget.style)
-                ),
+                    child: Text(widget.label, style: widget.style)),
                 (widget.isIconButtonPresent)
                     ? Expanded(
-                      child: Align(
-                        alignment: Alignment.centerRight,
-                        child: IconButton(
-                          onPressed: widget.onIconPressed!,
-                          icon: widget.iconButton)
-                    ))
-                    : const SizedBox(width: 0,),
+                        child: Align(
+                            alignment: Alignment.centerRight,
+                            child: IconButton(
+                                onPressed: widget.onIconPressed!,
+                                icon: widget.iconButton)))
+                    : const SizedBox(
+                        width: 0,
+                      ),
               ],
-            )
-        )
-    );
+            )));
   }
 
   @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
     return Column(
-          children:
-            (widget.state) ? [
-              getCardTitle(height),
-              Container(
-                decoration: BoxDecoration(
-                  color: (!pressed) ? PlugItStyle.primaryColor : PlugItStyle.buttonColorPressed,
-                  borderRadius: BorderRadius.circular(4),
-                  border: Border.all(color: Colors.black38),
-                ),
-                child: Column(
-                  children: [
-                    ...widget.children
-                  ]
-                )
-              )
-            ] : [
-              getCardTitle(height)
-            ]
-   );
+        children: (widget.state)
+            ? [
+                getCardTitle(height),
+                Container(
+                    decoration: BoxDecoration(
+                      color: (!pressed)
+                          ? PlugItStyle.primaryColor
+                          : PlugItStyle.buttonColorPressed,
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(color: Colors.black38),
+                    ),
+                    child: Column(children: [...widget.children]))
+              ]
+            : [getCardTitle(height)]);
   }
 }

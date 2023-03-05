@@ -7,7 +7,11 @@ part 'Variable.g.dart';
 class Variable {
   String key, type, displayName, description;
 
-  Variable({required this.key, required this.type, required this.displayName, required this.description});
+  Variable(
+      {required this.key,
+      required this.type,
+      required this.displayName,
+      required this.description});
 
   factory Variable.fromJson(Json json) => _$VariableFromJson(json);
 

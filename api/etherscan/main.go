@@ -3,9 +3,9 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
@@ -19,7 +19,7 @@ import (
 )
 
 func initRequest() {
-	content, err := ioutil.ReadFile("./config/etherscan.json")
+	content, err := os.ReadFile("./config/etherscan.json")
 	if err != nil {
 		log.Fatal("Error when opening file: ", err)
 	}
@@ -51,7 +51,10 @@ func initGin(db *gorm.DB) {
 
 func initViper() {
 	viper.SetConfigFile(".env")
-	viper.ReadInConfig()
+	err := viper.ReadInConfig()
+	if err != nil {
+		log.Fatal("Error when reading config file: ", err)
+	}
 }
 
 func initRabbitmq(cr *cron.Cron, db *gorm.DB, RabbitMQService *rabbitmq.RabbitMQService) {

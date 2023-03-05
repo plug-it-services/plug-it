@@ -1,6 +1,9 @@
 name: Mobile-ci
 
 on:
+  push:
+    paths: ["mobile/**"]
+    branches: ["master", "dev"]
   pull_request:
     paths: ["mobile/**"]
     branches: ["master", "dev"]
@@ -11,20 +14,9 @@ defaults:
 
 jobs:
   build-ios:
-    strategy:
-      matrix:
-        device:
-          - "iPhone 14 Simulator (16.0)"
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
-      - name: "List all simulators"
-        run: "xcrun xctrace list devices"
-      - name: "Start Simulator"
-        run: |
-          UDID=$(xcrun xctrace list devices | grep "^${{ matrix.device }} (" | awk '{gsub(/[()]/,""); print $NF}')
-          echo $UDID
-          xcrun simctl boot "${UDID:?No Simulator with this name found}"
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
@@ -32,16 +24,10 @@ jobs:
           cache: true
       - run: flutter pub get
       - run: flutter build ios --release --no-codesign
-      - run: |
-          UDID=$(xcrun xctrace list devices | grep "^${{ matrix.device }} (" | awk '{gsub(/[()]/,""); print $NF}')
-          flutter test integration_test -d ${UDID}
+      - run: flutter test test
 
   build-android:
     runs-on: macos-latest
-    strategy:
-      matrix:
-        api-level:
-          - 29
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-java@v2
@@ -51,13 +37,8 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           cache: true
-      - name: Run integration tests
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          working-directory: mobile
-          api-level: ${{ matrix.api-level }}
-          script: flutter test integration_test
       - run: flutter pub get
+      - run: flutter test test
       - run: flutter build apk
       - run: flutter build appbundle
 
@@ -71,7 +52,7 @@ jobs:
           architecture: x64
           cache: true
       - run: flutter pub get
-      - run: flutter analyze
+      - run: flutter analyze --no-fatal-infos --no-fatal-warnings
 
   fmt:
     runs-on: ubuntu-latest

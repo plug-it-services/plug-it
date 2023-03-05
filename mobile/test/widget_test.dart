@@ -22,10 +22,13 @@ void main() {
       final passwordField = find.byKey(const ValueKey('loginPasswordField'));
 
       final signButtonParent = find.byKey(const ValueKey('loginSignButton'));
-      final signButton = find.descendant(of: signButtonParent, matching: find.byType(GestureDetector));
+      final signButton = find.descendant(
+          of: signButtonParent, matching: find.byType(GestureDetector));
 
-      final goToRegisterButtonParent = find.byKey(const ValueKey('loginGoToRegisterButton'));
-      final goToRegisterButton = find.descendant(of: goToRegisterButtonParent, matching: find.byType(GestureDetector));
+      final goToRegisterButtonParent =
+          find.byKey(const ValueKey('loginGoToRegisterButton'));
+      final goToRegisterButton = find.descendant(
+          of: goToRegisterButtonParent, matching: find.byType(GestureDetector));
 
       final googleButton = find.byKey(const ValueKey('loginGoogleButton'));
       // Verify that
@@ -56,14 +59,14 @@ void main() {
       expect(find.text('titi@toto.com'), findsOneWidget);
     });
 
-
-
     testWidgets('Go to register', (WidgetTester tester) async {
       // Build our app and trigger a frame
       await tester.pumpWidget(const MyApp());
 
-      final goToRegisterButtonParent = find.byKey(const ValueKey('loginGoToRegisterButton'));
-      final goToRegisterButton = find.descendant(of: goToRegisterButtonParent, matching: find.byType(GestureDetector));
+      final goToRegisterButtonParent =
+          find.byKey(const ValueKey('loginGoToRegisterButton'));
+      final goToRegisterButton = find.descendant(
+          of: goToRegisterButtonParent, matching: find.byType(GestureDetector));
 
       await tester.tap(goToRegisterButton);
       await tester.pumpAndSettle();
@@ -77,7 +80,8 @@ void main() {
       final usernameField = find.byKey(const ValueKey('loginEmailField'));
       final passwordField = find.byKey(const ValueKey('loginPasswordField'));
       final signButtonParent = find.byKey(const ValueKey('loginSignButton'));
-      final signButton = find.descendant(of: signButtonParent, matching: find.byType(GestureDetector));
+      final signButton = find.descendant(
+          of: signButtonParent, matching: find.byType(GestureDetector));
 
       await tester.enterText(usernameField, 'titi@toto.com');
       await tester.enterText(passwordField, 'f@tfy1df234');
@@ -93,7 +97,8 @@ void main() {
       final usernameField = find.byKey(const ValueKey('loginEmailField'));
       final passwordField = find.byKey(const ValueKey('loginPasswordField'));
       final signButtonParent = find.byKey(const ValueKey('loginSignButton'));
-      final signButton = find.descendant(of: signButtonParent, matching: find.byType(GestureDetector));
+      final signButton = find.descendant(
+          of: signButtonParent, matching: find.byType(GestureDetector));
 
       await tester.enterText(usernameField, 'titi@toto.com');
       await tester.enterText(passwordField, 'azerfdsdfA@ty12sdf34');
@@ -103,4 +108,3 @@ void main() {
     });
   });
 }
-

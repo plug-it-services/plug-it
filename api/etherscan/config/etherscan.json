@@ -2,7 +2,7 @@
     "name": "etherscan",
     "authType": "apiKey",
     "icon": "/images/etherscan_icon.png",
-    "color": "#01E6CD",
+    "color": "#16203a",
     "events": [
         {
             "id": "lowerGasPrice",

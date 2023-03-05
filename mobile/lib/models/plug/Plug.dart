@@ -9,10 +9,13 @@ class Plug {
   List<String> icons;
   bool enabled;
 
-  Plug({required this.id, required this.name, required this.icons, required this.enabled});
+  Plug(
+      {required this.id,
+      required this.name,
+      required this.icons,
+      required this.enabled});
 
   factory Plug.fromJson(Json json) => _$PlugFromJson(json);
 
   Json toJson() => _$PlugToJson(this);
-
 }

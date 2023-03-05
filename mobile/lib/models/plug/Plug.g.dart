@@ -19,4 +19,3 @@ Map<String, dynamic> _$PlugToJson(Plug instance) => <String, dynamic>{
       'icons': instance.icons,
       'enabled': instance.enabled,
     };
-

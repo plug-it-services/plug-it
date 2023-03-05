@@ -104,14 +104,18 @@ func EventInitializeConsumer(cr *cron.Cron, db *gorm.DB, rabbit *RabbitMQService
 
 	if err := json.Unmarshal(msg.Body, &data); err != nil {
 		log.Println("Error unmarshalling event message", err)
-		msg.Ack(true)
+		if err := msg.Ack(true); err != nil {
+			log.Println("Error acking message", err)
+		}
 		return
 	}
 
 	user, err := services.FindUserById(db, data.UserId)
 	if err != nil {
 		log.Println("Error finding user", err)
-		msg.Ack(true)
+		if err := msg.Ack(true); err != nil {
+			log.Println("Error acking message", err)
+		}
 		return
 	}
 
@@ -122,18 +126,24 @@ func EventInitializeConsumer(cr *cron.Cron, db *gorm.DB, rabbit *RabbitMQService
 		id, err := CreateCronJob(cr, "*/5 * * * *", EventCallback, rabbit, user, data.PlugId, data.EventId, gasPrice)
 		if err != nil {
 			log.Println("Error creating cron job", err)
-			msg.Ack(true)
+			if err := msg.Ack(true); err != nil {
+				log.Println("Error acking message", err)
+			}
 			return
 		}
 		if err := services.CreateCron(db, data.UserId, int(id), data.PlugId, gasPrice, data.EventId); err != nil {
 			log.Println("Error saving cron job", err)
-			msg.Ack(true)
+			if err := msg.Ack(true); err != nil {
+				log.Println("Error acking message", err)
+			}
 			return
 		}
 	default:
 		log.Println("Event not supported", data.EventId)
 	}
-	msg.Ack(true)
+	if err := msg.Ack(true); err != nil {
+		log.Println("Error acking message", err)
+	}
 }
 
 func EventDisabledConsumer(cr *cron.Cron, db *gorm.DB, rabbit *RabbitMQService, msg amqp.Delivery) {
@@ -142,14 +152,18 @@ func EventDisabledConsumer(cr *cron.Cron, db *gorm.DB, rabbit *RabbitMQService, 
 
 	if err := json.Unmarshal(msg.Body, &data); err != nil {
 		log.Println("Error unmarshalling event disabled message", err)
-		msg.Ack(true)
+		if err := msg.Ack(true); err != nil {
+			log.Println("Error acking message", err)
+		}
 		return
 	}
 
 	c, err := services.FindCronByPlugId(db, data.PlugId)
 	if err != nil {
 		log.Println("Error finding cron job", err)
-		msg.Ack(true)
+		if err := msg.Ack(true); err != nil {
+			log.Println("Error acking message", err)
+		}
 		return
 	}
 
@@ -159,10 +173,14 @@ func EventDisabledConsumer(cr *cron.Cron, db *gorm.DB, rabbit *RabbitMQService, 
 
 	if err := services.DeleteCron(db, c.Id); err != nil {
 		log.Println("Error deleting cron job", err)
-		msg.Ack(true)
+		if err := msg.Ack(true); err != nil {
+			log.Println("Error acking message", err)
+		}
 		return
 	}
-	msg.Ack(true)
+	if err := msg.Ack(true); err != nil {
+		log.Println("Error acking message", err)
+	}
 }
 
 func ActionConsumer(cr *cron.Cron, db *gorm.DB, rabbit *RabbitMQService, msg amqp.Delivery) {
@@ -171,14 +189,18 @@ func ActionConsumer(cr *cron.Cron, db *gorm.DB, rabbit *RabbitMQService, msg amq
 
 	if err := json.Unmarshal(msg.Body, &data); err != nil {
 		log.Println("Error unmarshalling action message", err)
-		msg.Ack(true)
+		if err := msg.Ack(true); err != nil {
+			log.Println("Error acking message", err)
+		}
 		return
 	}
 
 	user, err := services.FindUserById(db, data.UserId)
 	if err != nil {
 		log.Println("Error finding user", err)
-		msg.Ack(true)
+		if err := msg.Ack(true); err != nil {
+			log.Println("Error acking message", err)
+		}
 		return
 	}
 
@@ -189,7 +211,9 @@ func ActionConsumer(cr *cron.Cron, db *gorm.DB, rabbit *RabbitMQService, msg amq
 		gasPrice, err := etherscan.GetGasPrice(user.ApiKey)
 		if err != nil {
 			log.Println("Error getting gas price", err)
-			msg.Ack(true)
+			if err := msg.Ack(true); err != nil {
+				log.Println("Error acking message", err)
+			}
 			return
 		}
 		variables = append(variables, Value{
@@ -200,7 +224,9 @@ func ActionConsumer(cr *cron.Cron, db *gorm.DB, rabbit *RabbitMQService, msg amq
 		blockNumber, err := etherscan.GetBlockNumber(user.ApiKey, strconv.Itoa(int(time.Now().Unix())))
 		if err != nil {
 			log.Println("Error getting block number", err)
-			msg.Ack(true)
+			if err := msg.Ack(true); err != nil {
+				log.Println("Error acking message", err)
+			}
 			return
 		}
 		variables = append(variables, Value{
@@ -213,7 +239,9 @@ func ActionConsumer(cr *cron.Cron, db *gorm.DB, rabbit *RabbitMQService, msg amq
 		totalSupply, err := etherscan.GetTotalSupply(user.ApiKey, contractAddress)
 		if err != nil {
 			log.Println("Error getting total supply", err)
-			msg.Ack(true)
+			if err := msg.Ack(true); err != nil {
+				log.Println("Error acking message", err)
+			}
 			return
 		}
 		variables = append(variables, Value{
@@ -227,7 +255,9 @@ func ActionConsumer(cr *cron.Cron, db *gorm.DB, rabbit *RabbitMQService, msg amq
 		balance, err := etherscan.GetBalance(user.ApiKey, contractAddress, address)
 		if err != nil {
 			log.Println("Error getting balance", err)
-			msg.Ack(true)
+			if err := msg.Ack(true); err != nil {
+				log.Println("Error acking message", err)
+			}
 			return
 		}
 		variables = append(variables, Value{
@@ -240,9 +270,13 @@ func ActionConsumer(cr *cron.Cron, db *gorm.DB, rabbit *RabbitMQService, msg amq
 
 	if err := rabbit.PublishAction("plug_action_finished", data.ActionId, data.RunId, data.PlugId, user.Id, variables); err != nil {
 		log.Println("Error publishing action finished", err)
-		msg.Ack(true)
+		if err := msg.Ack(true); err != nil {
+			log.Println("Error acking message", err)
+		}
 		return
 	}
 
-	msg.Ack(true)
+	if err := msg.Ack(true); err != nil {
+		log.Println("Error acking message", err)
+	}
 }

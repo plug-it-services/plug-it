@@ -2,10 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:mobile/ui-toolkit/PlugItStyle.dart';
 
-enum Level {
-  error,
-  warning
-}
+enum Level { error, warning }
 
 class ErrorCard extends StatefulWidget {
   final String errorMessage;
@@ -14,13 +11,19 @@ class ErrorCard extends StatefulWidget {
   final bool showIcon;
   final bool showContainer;
 
-  const ErrorCard({super.key, required this.errorMessage, this.errorLevel = Level.error, this.big = false, this.showIcon = true, this.showContainer = false});
+  const ErrorCard(
+      {super.key,
+      required this.errorMessage,
+      this.errorLevel = Level.error,
+      this.big = false,
+      this.showIcon = true,
+      this.showContainer = false});
 
   @override
   State createState() => _StateErrorCard();
 }
-class _StateErrorCard extends State<ErrorCard>{
 
+class _StateErrorCard extends State<ErrorCard> {
   Widget getIcon() {
     if (!widget.showIcon) {
       return const SizedBox(width: 10);
@@ -36,9 +39,15 @@ class _StateErrorCard extends State<ErrorCard>{
   Widget getMessage() {
     switch (widget.errorLevel) {
       case Level.error:
-        return Text(widget.errorMessage, style: (!widget.big) ? PlugItStyle.smallStyleError: PlugItStyle.subtitleStyleError);
+        return Text(widget.errorMessage,
+            style: (!widget.big)
+                ? PlugItStyle.smallStyleError
+                : PlugItStyle.subtitleStyleError);
       case Level.warning:
-        return Text(widget.errorMessage, style: (!widget.big) ? PlugItStyle.smallStyleWarning: PlugItStyle.subtitleStyleWarning);
+        return Text(widget.errorMessage,
+            style: (!widget.big)
+                ? PlugItStyle.smallStyleWarning
+                : PlugItStyle.subtitleStyleWarning);
     }
   }
 
@@ -48,9 +57,10 @@ class _StateErrorCard extends State<ErrorCard>{
         padding: const EdgeInsets.symmetric(horizontal: 15),
         child: Container(
             decoration: BoxDecoration(
-                color: (widget.showContainer) ? Colors.grey[300] : Colors.transparent,
-                borderRadius: BorderRadius.circular(5)
-            ),
+                color: (widget.showContainer)
+                    ? Colors.grey[300]
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(5)),
             child: Row(
               children: [
                 Padding(
@@ -59,9 +69,6 @@ class _StateErrorCard extends State<ErrorCard>{
                 ),
                 getMessage()
               ],
-            )
-        )
-    );
-
+            )));
   }
 }

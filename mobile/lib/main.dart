@@ -19,7 +19,6 @@ class MyApp extends StatefulWidget {
 
   // This widget is the root of your application.
 
-
   @override
   State<StatefulWidget> createState() => StateMyApp();
 }
@@ -52,18 +51,18 @@ class StateMyApp extends State<MyApp> {
       themeMode: modes[index],
       theme: ThemeData(
         primaryTextTheme: Typography().white,
-
       ),
-      home: (_prefs != null) ? MyHomePage(
-          preferences: _prefs!,
-          title: 'Plug It',
-          onThemeSelected: (int newIndex) => setState(() {
-            index = newIndex;
-            _prefs?.setInt('theme', index);
-          }),
-          themes: modes,
-          actualTheme: index
-      ) : null,
+      home: (_prefs != null)
+          ? MyHomePage(
+              preferences: _prefs!,
+              title: 'Plug It',
+              onThemeSelected: (int newIndex) => setState(() {
+                    index = newIndex;
+                    _prefs?.setInt('theme', index);
+                  }),
+              themes: modes,
+              actualTheme: index)
+          : null,
     );
   }
 }
@@ -74,7 +73,13 @@ class MyHomePage extends StatefulWidget {
   final int actualTheme;
   final SharedPreferences preferences;
 
-  const MyHomePage({super.key, required this.preferences, required this.title, required this.themes, required this.onThemeSelected, required this.actualTheme});
+  const MyHomePage(
+      {super.key,
+      required this.preferences,
+      required this.title,
+      required this.themes,
+      required this.onThemeSelected,
+      required this.actualTheme});
   final String title;
 
   @override
@@ -102,8 +107,7 @@ class _MyHomePageState extends State<MyHomePage> {
           });
         },
       );
-    }
-    else {
+    } else {
       return Signup(
         onSignedUp: (user) {
           setState(() {
@@ -132,7 +136,6 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-
   @override
   void initState() {
     var _rememberMe = widget.preferences.getBool("RememberMe") ?? false;
@@ -146,9 +149,7 @@ class _MyHomePageState extends State<MyHomePage> {
       }).catchError((error) {
         setState(() {
           if (error.response.data is String) {
-          }
-          else {
-          }
+          } else {}
         });
       });
     }
@@ -157,6 +158,13 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return (connected) ? NavBar(onLogOut: onLogOut, onThemeSelected: widget.onThemeSelected, themes: widget.themes, actualTheme: widget.actualTheme,) : getCurrentForm();
+    return (connected)
+        ? NavBar(
+            onLogOut: onLogOut,
+            onThemeSelected: widget.onThemeSelected,
+            themes: widget.themes,
+            actualTheme: widget.actualTheme,
+          )
+        : getCurrentForm();
   }
 }

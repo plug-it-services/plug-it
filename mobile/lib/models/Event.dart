@@ -11,7 +11,12 @@ class Event {
   List<Variable> variables;
   List<Field> fields;
 
-  Event({required this.id, required this.name, required this.description, required this.fields, required this.variables});
+  Event(
+      {required this.id,
+      required this.name,
+      required this.description,
+      required this.fields,
+      required this.variables});
 
   factory Event.fromJson(Json json) => _$EventFromJson(json);
 

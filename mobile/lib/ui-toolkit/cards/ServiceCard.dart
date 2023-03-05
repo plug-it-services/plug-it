@@ -8,7 +8,6 @@ import 'package:mobile/ui-toolkit/cards/ErrorLabel.dart';
 import 'package:mobile/ui-toolkit/input/InputField.dart';
 import 'package:transparent_image/transparent_image.dart';
 
-
 class ServiceCard extends StatefulWidget {
   final Service service;
 
@@ -17,7 +16,8 @@ class ServiceCard extends StatefulWidget {
   @override
   State createState() => _StateServiceCard();
 }
-class _StateServiceCard extends State<ServiceCard>{
+
+class _StateServiceCard extends State<ServiceCard> {
   bool pressed = false;
   bool connected = false;
   bool loading = false;
@@ -32,11 +32,12 @@ class _StateServiceCard extends State<ServiceCard>{
       loading = state;
     });
   }
+
   void handleOAuth2() {
     if (widget.service.authType == 'oauth2') {
       setLoading(true);
       PlugApi.OAuth2(widget.service.name).then((value) {
-      Future.delayed(const Duration(seconds: 2)).then((value) {
+        Future.delayed(const Duration(seconds: 2)).then((value) {
           setState(() => {connected = true});
           setLoading(false);
         });
@@ -46,7 +47,6 @@ class _StateServiceCard extends State<ServiceCard>{
       setState(() {
         apiKeyInput = true;
       });
-
     }
     if (widget.service.authType == 'clientSecrets') {
       setState(() {
@@ -58,7 +58,7 @@ class _StateServiceCard extends State<ServiceCard>{
   void disconnectService() {
     setLoading(true);
     PlugApi.disconnectService(widget.service.name).then((value) {
-    Future.delayed(const Duration(seconds: 2)).then((value) {
+      Future.delayed(const Duration(seconds: 2)).then((value) {
         setState(() => {connected = false});
         setLoading(false);
       });
@@ -68,7 +68,9 @@ class _StateServiceCard extends State<ServiceCard>{
   void onConfirm() {
     setLoading(true);
     if (apiCredentialsInput) {
-      PlugApi.OAuthCredentials(widget.service.name, apiCredentialsId, apiCredentialsSecret).then((value) {
+      PlugApi.OAuthCredentials(
+              widget.service.name, apiCredentialsId, apiCredentialsSecret)
+          .then((value) {
         Future.delayed(const Duration(seconds: 2)).then((value) {
           setState(() => {connected = true});
           setState(() => {apiCredentialsInput = false});
@@ -86,7 +88,6 @@ class _StateServiceCard extends State<ServiceCard>{
     }
   }
 
-
   List<Widget> getApiKeyInput() {
     if (apiKeyInput) {
       return [
@@ -95,76 +96,98 @@ class _StateServiceCard extends State<ServiceCard>{
           onChanged: (value) => {apiKeyValue = value},
           icon: const Icon(Icons.key),
         ),
-        const SizedBox(height: 5,),
+        const SizedBox(
+          height: 5,
+        ),
         Row(
           children: [
-            (loading) ? const CircularProgressIndicator(color:Colors.black) : const SizedBox(height: 0,),
+            (loading)
+                ? const CircularProgressIndicator(color: Colors.black)
+                : const SizedBox(
+                    height: 0,
+                  ),
             Expanded(
-              child:  ScreenWidthButton(label: "Confirm", height: 40, callback: onConfirm,),
+              child: ScreenWidthButton(
+                label: "Confirm",
+                height: 40,
+                callback: onConfirm,
+              ),
             ),
           ],
         ),
-        const SizedBox(height: 5,)
+        const SizedBox(
+          height: 5,
+        )
       ];
-    }
-    else {
+    } else {
       return getApiOAuthLayout();
     }
   }
 
   List<Widget> getApiCredentialsInput() {
-      if (apiCredentialsInput) {
-        return [
-          InputField(
-            hint: "Enter Client Id",
-            onChanged: (value) => {apiCredentialsId = value},
-            icon: const Icon(Icons.perm_identity),
-          ),
-          const SizedBox(height: 5,),
-          InputField(
-            hint: "Enter Client Secret",
-            onChanged: (value) => {apiCredentialsSecret = value},
-            icon: const Icon(Icons.password),
-          ),
-          const SizedBox(height: 5,),
-          Row(
-            children: [
-              (loading) ? const CircularProgressIndicator(color:Colors.black) : const SizedBox(height: 0,),
-              Expanded(
-                child:  ScreenWidthButton(
-                  label: "Confirm",
-                  height: 40,
-                  callback: onConfirm,
-                ),
+    if (apiCredentialsInput) {
+      return [
+        InputField(
+          hint: "Enter Client Id",
+          onChanged: (value) => {apiCredentialsId = value},
+          icon: const Icon(Icons.perm_identity),
+        ),
+        const SizedBox(
+          height: 5,
+        ),
+        InputField(
+          hint: "Enter Client Secret",
+          onChanged: (value) => {apiCredentialsSecret = value},
+          icon: const Icon(Icons.password),
+        ),
+        const SizedBox(
+          height: 5,
+        ),
+        Row(
+          children: [
+            (loading)
+                ? const CircularProgressIndicator(color: Colors.black)
+                : const SizedBox(
+                    height: 0,
+                  ),
+            Expanded(
+              child: ScreenWidthButton(
+                label: "Confirm",
+                height: 40,
+                callback: onConfirm,
               ),
-            ],
-          ),
-          const SizedBox(height: 5,)
-        ];
-      }
-      else {
-        return getApiOAuthLayout();
-      }
+            ),
+          ],
+        ),
+        const SizedBox(
+          height: 5,
+        )
+      ];
+    } else {
+      return getApiOAuthLayout();
+    }
   }
 
   List<Widget> getApiOAuthLayout() {
-      return [
-        Row(
-            children: [
-              (loading) ? const CircularProgressIndicator(color:Colors.black) : const SizedBox(height: 0,),
-              Expanded(
-                  child: ScreenWidthButton(
-                    label: (connected) ? "Connected" : "Connection",
-                    color: (connected) ? PlugItStyle.validationColor : null,
-                    pressedColor: (connected) ? PlugItStyle.validationColor!.withAlpha(200) : null,
-                    height: 40,
-                    enabled: !loading,
-                    callback: () => (connected) ? disconnectService() : handleOAuth2(),
-                  )
-              )
-            ]
-        )
-      ];
+    return [
+      Row(children: [
+        (loading)
+            ? const CircularProgressIndicator(color: Colors.black)
+            : const SizedBox(
+                height: 0,
+              ),
+        Expanded(
+            child: ScreenWidthButton(
+          label: (connected) ? "Connected" : "Connection",
+          color: (connected) ? PlugItStyle.validationColor : null,
+          pressedColor:
+              (connected) ? PlugItStyle.validationColor!.withAlpha(200) : null,
+          height: 40,
+          enabled: !loading,
+          callback: () => (connected) ? disconnectService() : handleOAuth2(),
+        ))
+      ])
+    ];
   }
 
   List<Widget> getCardLayout() {
@@ -179,57 +202,57 @@ class _StateServiceCard extends State<ServiceCard>{
     }
     return [
       ErrorCard(
-        errorMessage: "Failed to identify service auth type: '${widget.service.authType}'",
+        errorMessage:
+            "Failed to identify service auth type: '${widget.service.authType}'",
         big: true,
         errorLevel: Level.error,
-
       )
     ];
   }
 
   @override
   void initState() {
-    setState(() => {
-      connected = widget.service.connected
-    });
+    setState(() => {connected = widget.service.connected});
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(10),
-      child: Container(
-        decoration: BoxDecoration(
-          color: widget.service.color,
-          borderRadius: BorderRadius.circular(8)
-        ),
-        child: Row(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: CachedNetworkImage(
-                imageUrl: (!widget.service.icon.startsWith('/')) ? "${PlugApi.assetsUrl}/${widget.service.icon}" : "${PlugApi.assetsUrl}${widget.service.icon}",
-                placeholder: (context, url) => const CircularProgressIndicator(),
-                errorWidget: (context, url, error) => const Icon(Icons.error),
-                width: 100,
-                height: 100,
-              ),
-            ),
-            Expanded(
-                child:Column(
-                  children: [
-                      const SizedBox(height: 10,),
-                      Text(widget.service.name.capitalize(), style: PlugItStyle.subtitleStyle),
-                      const SizedBox(height: 30,),
-                      ...getCardLayout()
-                  ]
-              )
-            )
-          ],
-        )
-      )
-    );
-
+        padding: const EdgeInsets.all(10),
+        child: Container(
+            decoration: BoxDecoration(
+                color: widget.service.color,
+                borderRadius: BorderRadius.circular(8)),
+            child: Row(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: CachedNetworkImage(
+                    imageUrl: (!widget.service.icon.startsWith('/'))
+                        ? "${PlugApi.assetsUrl}/${widget.service.icon}"
+                        : "${PlugApi.assetsUrl}${widget.service.icon}",
+                    placeholder: (context, url) =>
+                        const CircularProgressIndicator(),
+                    errorWidget: (context, url, error) =>
+                        const Icon(Icons.error),
+                    width: 100,
+                    height: 100,
+                  ),
+                ),
+                Expanded(
+                    child: Column(children: [
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Text(widget.service.name.capitalize(),
+                      style: PlugItStyle.subtitleStyle),
+                  const SizedBox(
+                    height: 30,
+                  ),
+                  ...getCardLayout()
+                ]))
+              ],
+            )));
   }
 }
