@@ -100,8 +100,8 @@ class _StateServiceMenu extends State<ServiceMenu> {
                         Icons.search_rounded,
                       )
                     : CachedNetworkImage(
-                        imageUrl:
-                        (!widget.selectedService!.icon.startsWith('/'))
+                        imageUrl: (!widget.selectedService!.icon
+                                .startsWith('/'))
                             ? "${PlugApi.assetsUrl}/${widget.selectedService!.icon}"
                             : "${PlugApi.assetsUrl}${widget.selectedService!.icon}",
                         placeholder: (context, url) =>
