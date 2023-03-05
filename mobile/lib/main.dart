@@ -51,16 +51,17 @@ class StateMyApp extends State<MyApp> {
       theme: ThemeData(
         primaryTextTheme: Typography().white,
       ),
-      home: (_prefs != null || widget.isUnitTesting) ? MyHomePage(
-          preferences: _prefs,
-          title: 'Plug It',
-          onThemeSelected: (int newIndex) => setState(() {
-            index = newIndex;
-            _prefs?.setInt('theme', index);
-          }),
-          themes: modes,
-          actualTheme: index
-      ) : null,
+      home: (_prefs != null || widget.isUnitTesting)
+          ? MyHomePage(
+              preferences: _prefs,
+              title: 'Plug It',
+              onThemeSelected: (int newIndex) => setState(() {
+                    index = newIndex;
+                    _prefs?.setInt('theme', index);
+                  }),
+              themes: modes,
+              actualTheme: index)
+          : null,
     );
   }
 }

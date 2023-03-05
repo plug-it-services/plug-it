@@ -45,7 +45,7 @@ void main() {
       final passwordField = find.byKey(const ValueKey('loginPasswordField'));
 
       await tester.enterText(passwordField, 'azerA@ty1234');
-      await tester.pumpAndSettle(); 
+      await tester.pumpAndSettle();
       expect(find.text('azerA@ty1234'), findsOneWidget);
     });
 
