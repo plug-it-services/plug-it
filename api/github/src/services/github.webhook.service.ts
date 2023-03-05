@@ -28,7 +28,7 @@ export class GithubWebhookService {
       active: true,
       events: events,
       config: {
-        url: this.configService.get<string>('OAUTH2_CALLBACK') + '/' + uuid,
+        url: this.configService.get<string>('OAUTH2_WEBHOOK') + '/' + uuid,
         content_type: 'json',
       },
     };
@@ -95,7 +95,7 @@ export class GithubWebhookService {
       active: true,
       events: events,
       config: {
-        url: this.configService.get<string>('OAUTH2_CALLBACK') + '/' + uuid,
+        url: this.configService.get<string>('OAUTH2_WEBHOOK') + '/' + uuid,
         content_type: 'json',
       },
     };
