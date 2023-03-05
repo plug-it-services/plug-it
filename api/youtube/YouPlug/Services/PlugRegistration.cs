@@ -231,11 +231,11 @@ namespace YouPlug.Services
                 "Create a Playlist",
                 "Create a playlist on Youtube",
                 new List<PlugDataDto.PlugVariable>() {
-                    new ("title", PlugDataDto.VariableType.String, "Video Title", "The title of the video you added to your Watch Later playlist"),
-                    new ("description", PlugDataDto.VariableType.String, "Video Description", "The description of the video you added to your Watch Later playlist"),
-                    new ("playlistId", PlugDataDto.VariableType.String, "Playlist ID", "The ID of the playlist you added the video to"),
-                    new ("ownerChannelId", PlugDataDto.VariableType.String, "Channel ID", "The ID of the channel that published the video"),
-                    new ("ownerChannelTitle", PlugDataDto.VariableType.String, "Channel Title", "The title of the channel that published the video"),
+                    new ("title", PlugDataDto.VariableType.String, "Playlist Title", "The title of the playlist you want to create"),
+                    new ("description", PlugDataDto.VariableType.String, "Playlist Description", "The description of the playlist you want to create"),
+                    new ("playlistId", PlugDataDto.VariableType.String, "Playlist ID", "The ID of the playlist you want to create"),
+                    new ("ownerChannelId", PlugDataDto.VariableType.String, "Channel ID", "The ID of the channel that published the playlist"),
+                    new ("ownerChannelTitle", PlugDataDto.VariableType.String, "Channel Title", "The title of the channel that published the playlist"),
                 },
                 new List<PlugDataDto.PlugField>()
                 {
