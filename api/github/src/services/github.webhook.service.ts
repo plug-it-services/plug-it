@@ -1,8 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class GithubWebhookService {
+  constructor(private configService: ConfigService) {}
+
   async createRepoWebhook(
     repo: string,
     owner: string,
@@ -25,7 +28,7 @@ export class GithubWebhookService {
       active: true,
       events: events,
       config: {
-        url: 'https://api-area-dev.alexandrejublot.com/webhook/github/' + uuid,
+        url: this.configService.get<string>('OAUTH2_CALLBACK') + '/' + uuid,
         content_type: 'json',
       },
     };
@@ -92,7 +95,7 @@ export class GithubWebhookService {
       active: true,
       events: events,
       config: {
-        url: 'https://api-area-dev.alexandrejublot.com/webhook/github/' + uuid,
+        url: this.configService.get<string>('OAUTH2_CALLBACK') + '/' + uuid,
         content_type: 'json',
       },
     };
