@@ -39,7 +39,7 @@ jobs:
           cache: true
       - run: flutter pub get
       - run: flutter test test
-      - run: echo $KEY | base64 -d > mobile/android/app/key.jks
+      - run: echo "$KEY" | base64 -d > ./android/app/key.jks
         env:
           KEY: ${{secrets.ANDROID_KEY}}
       - run: flutter build apk --no-sound-null-safety
