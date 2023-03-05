@@ -96,6 +96,25 @@ jobs:
         run: yarn build
         env:
           CI: false
+  test-nest:
+    strategy:
+      matrix:
+        service:
+          - user
+          - plugs
+    defaults:
+      run:
+        working-directory: api/${{ matrix.service }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - name: Install dev dependencies
+        run: yarn install
+      - name: Build app
+        run: yarn test
 
   format-gin:
     strategy:
