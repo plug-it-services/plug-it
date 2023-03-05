@@ -80,6 +80,7 @@ namespace YouPlug.Controllers
             {
                 Console.WriteLine($"Found existing auth for user {userModel.id} with guid {plugAuthModel.id}. Updating with new guid...");
                 plugAuthModel.id = guid.ToString();
+                plugAuthModel.redirectUrl = body.redirectUrl;
             }
             else
             {
