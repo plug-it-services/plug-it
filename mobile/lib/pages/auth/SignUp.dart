@@ -141,6 +141,7 @@ class _SignupState extends State<Signup> {
           const Text(
             "Greetings!",
             style: PlugItStyle.titleStyle,
+            key: ValueKey("registerTitle"),
           ),
           const SizedBox(height: 8),
           ...getSignError(),
@@ -151,6 +152,7 @@ class _SignupState extends State<Signup> {
           getFieldErrors("firstname"),
           const SizedBox(height: 3),
           InputField(
+            key: const ValueKey("registerFirstnameField"),
             hint: "Firstname",
             onChanged: (value) => {firstName = value},
             iconColor: Colors.black,
@@ -164,6 +166,7 @@ class _SignupState extends State<Signup> {
           getFieldErrors("lastname"),
           const SizedBox(height: 3),
           InputField(
+            key: const ValueKey("registerLastnameField"),
             hint: "Lastname",
             onChanged: (value) => {lastName = value},
             iconColor: Colors.black,
@@ -177,6 +180,7 @@ class _SignupState extends State<Signup> {
           getFieldErrors("email"),
           const SizedBox(height: 3),
           InputField(
+              key: const ValueKey("registerEmailField"),
               hint: "Email",
               onChanged: (value) => {email = value},
               iconColor: Colors.black,
@@ -189,6 +193,7 @@ class _SignupState extends State<Signup> {
           getFieldErrors("password"),
           const SizedBox(height: 3),
           InputField(
+              key: const ValueKey("registerPasswordField"),
               hint: "Password",
               obscured: true,
               onChanged: (value) {
@@ -208,11 +213,14 @@ class _SignupState extends State<Signup> {
               callback: onSign),
           const SizedBox(height: 15),
           ScreenWidthButton(
+              key: const ValueKey("registerGoToSignInButton"),
               label: "Have an account? Sign in!",
               size: 20,
               callback: widget.onChangeToLoginPressed),
           const SizedBox(height: 15),
-          GoogleAuthButton(callback: onGoogleAuth),
+          GoogleAuthButton(
+              key: const ValueKey("registerGoogleButton"),
+              callback: onGoogleAuth),
         ],
       ))),
     );
