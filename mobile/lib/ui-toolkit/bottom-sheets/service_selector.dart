@@ -101,12 +101,13 @@ class _StateServiceMenu extends State<ServiceMenu> {
                       )
                     : CachedNetworkImage(
                         imageUrl:
-                            "${PlugApi.assetsUrl}/${widget.selectedService!.icon}",
+                        (!widget.selectedService!.icon.startsWith('/'))
+                            ? "${PlugApi.assetsUrl}/${widget.selectedService!.icon}"
+                            : "${PlugApi.assetsUrl}${widget.selectedService!.icon}",
                         placeholder: (context, url) =>
                             const CircularProgressIndicator(),
                         errorWidget: (context, url, error) =>
                             const Icon(Icons.error),
-                        //TODO: add proper color from DTO model
                         width: 30,
                         height: 30,
                       ),

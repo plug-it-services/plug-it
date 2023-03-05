@@ -58,7 +58,7 @@ class _StateVariableMenu extends State<VariableMenu> {
           List<Widget> list = [];
           int idx = 0;
           for (var event in selectedPlugEvents) {
-            if (idx != 0 && idx == widget.plug.actions.indexOf(widget.event))
+            if (idx != 0 && (idx - 1) == widget.plug.actions.indexOf(widget.event))
               break;
             if (event == null || event.variables.isEmpty) continue;
             list.add(const SizedBox(
