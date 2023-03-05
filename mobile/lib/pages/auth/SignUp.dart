@@ -14,10 +14,12 @@ import 'package:mobile/ui-toolkit/appbar.dart';
 class Signup extends StatefulWidget {
   final void Function(User) onSignedUp;
   final void Function() onChangeToLoginPressed;
+  final void Function() goToApiSettings;
 
   const Signup(
       {super.key,
       required this.onSignedUp,
+      required this.goToApiSettings,
       required this.onChangeToLoginPressed});
 
   @override
@@ -90,12 +92,16 @@ class _SignupState extends State<Signup> {
             id: "", email: email, username: email, token: PlugApi.token ?? "")))
         .catchError((error) {
       setState(() {
-        if (error.response.data['message'] is String) {
-          this.error = error.response.data['message'];
-          return;
-        }
-        for (var error in error.response.data['message']) {
-          errors.add(error);
+        if (error.response.data is String) {
+          if (error.response.statusCode == 404) {
+            this.error = 'Could not reach server!';
+          } else {
+            this.error = error.response.data;
+          }
+        } else {
+          for (var error in error.response.data['message']) {
+            errors.add(error);
+          }
         }
       });
     });
@@ -217,6 +223,12 @@ class _SignupState extends State<Signup> {
               label: "Have an account? Sign in!",
               size: 20,
               callback: widget.onChangeToLoginPressed),
+          const SizedBox(height: 15),
+          ScreenWidthButton(
+              key: const ValueKey("registerGoToApiInButton"),
+              label: "Api Settings",
+              size: 20,
+              callback: widget.goToApiSettings),
           const SizedBox(height: 15),
           GoogleAuthButton(
               key: const ValueKey("registerGoogleButton"),

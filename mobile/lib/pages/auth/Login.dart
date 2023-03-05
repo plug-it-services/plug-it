@@ -15,11 +15,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 class Login extends StatefulWidget {
   final SharedPreferences? preferences;
   final void Function(User) onLogged;
+  final void Function() goToApiSettings;
   final void Function() onChangeToRegisterPressed;
+
   const Login(
       {super.key,
       required this.preferences,
       required this.onLogged,
+      required this.goToApiSettings,
       required this.onChangeToRegisterPressed});
 
   @override
@@ -95,7 +98,11 @@ class _LoginState extends State<Login> {
     }).catchError((error) {
       setState(() {
         if (error.response.data is String) {
-          this.error = error.response.data;
+          if (error.response.statusCode == 404) {
+            this.error = 'Could not reach server!';
+          } else {
+            this.error = error.response.data;
+          }
         } else {
           this.error = error.response.data['message'];
         }
@@ -251,6 +258,12 @@ class _LoginState extends State<Login> {
               label: "No account? Register!",
               size: 20,
               callback: widget.onChangeToRegisterPressed),
+          const SizedBox(height: 15),
+          ScreenWidthButton(
+              key: const ValueKey("loginGoToApiInButton"),
+              label: "Api Settings",
+              size: 20,
+              callback: widget.goToApiSettings),
           const SizedBox(height: 15),
           GoogleAuthButton(
               key: const ValueKey("loginGoogleButton"), callback: onGoogleAuth),

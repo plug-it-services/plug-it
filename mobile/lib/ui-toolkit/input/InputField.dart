@@ -11,6 +11,8 @@ class InputField extends StatefulWidget {
   final void Function(bool focus)? onChangedFocus;
   final TextStyle? hintStyle;
   final TextStyle? valueStyle;
+  final String? label;
+  final TextStyle? labelStyle;
 
   const InputField(
       {super.key,
@@ -22,6 +24,8 @@ class InputField extends StatefulWidget {
       this.iconColor,
       this.value,
       this.valueStyle,
+      this.label,
+      this.labelStyle,
       this.hintStyle});
 
   @override
@@ -52,6 +56,8 @@ class _InputFieldState extends State<InputField> {
                     iconColor: widget.iconColor,
                     border: InputBorder.none,
                     hintText: widget.hint,
+                    labelText: widget.label,
+                    labelStyle: widget.labelStyle,
                     hintStyle: widget.hintStyle ?? PlugItStyle.inputHintStyle),
               ),
             )),
